@@ -300,7 +300,7 @@ def _parse_json(payload: dict, text: str, rel_path: str, builder: EtlBuilder) ->
         job_objects[key] = qualified
     for key in job_names:
         _emit_job_json(key, payload[key], job_objects[key], text, lines, builder)
-    # Flow objects → etl_runs edges between jobs
+    # Flow objects → runs_after edges between jobs (successor → predecessor)
     for key, value in payload.items():
         if isinstance(value, dict) and str(value.get("Type", "")).casefold() == "flow":
             seq = value.get("Sequence") or []
@@ -308,11 +308,11 @@ def _parse_json(payload: dict, text: str, rel_path: str, builder: EtlBuilder) ->
                 src_q = job_objects.get(str(a))
                 dst_q = job_objects.get(str(b))
                 if src_q and dst_q:
-                    obj = next((o for o in builder.objects if o.qualified_name == src_q), None)
+                    obj = next((o for o in builder.objects if o.qualified_name == dst_q), None)
                     if obj is not None:
-                        hint = builder.ref(dst_q, "etl_runs", span(_line_of(lines, key)))
+                        hint = builder.ref(src_q, "runs_after", span(_line_of(lines, key)))
                         obj.node.references.append(hint)
-                        obj.references.append(Reference(hint.name, "etl_runs", hint.span))
+                        obj.references.append(Reference(hint.name, "runs_after", hint.span))
 
 
 def _emit_job_json(

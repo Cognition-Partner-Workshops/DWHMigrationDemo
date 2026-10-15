@@ -276,6 +276,10 @@ edges:
   kind: etl_reads
   external: true
 - from: NightlyLoad.audit_counts
+  to: NightlyLoad.load_products_api
+  kind: runs_after
+  external: false
+- from: NightlyLoad.audit_counts
   to: load_products_done
   kind: etl_reads
   external: false
@@ -286,10 +290,6 @@ edges:
 - from: NightlyLoad.backup_db
   to: reports_done
   kind: etl_reads
-  external: false
-- from: NightlyLoad.extract_products_api
-  to: NightlyLoad.load_products_api
-  kind: etl_runs
   external: false
 - from: NightlyLoad.extract_products_api
   to: WEEKDAYS_CAL
@@ -312,8 +312,8 @@ edges:
   kind: schedules
   external: false
 - from: NightlyLoad.load_products_api
-  to: NightlyLoad.audit_counts
-  kind: etl_runs
+  to: NightlyLoad.extract_products_api
+  kind: runs_after
   external: false
 - from: NightlyLoad.load_products_api
   to: extract_products_done

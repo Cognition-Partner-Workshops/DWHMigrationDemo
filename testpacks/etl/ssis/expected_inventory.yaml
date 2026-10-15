@@ -160,8 +160,8 @@ objects:
   status: external
 edges:
 - from: load_customers.df_customers
-  to: load_customers.merge_mart
-  kind: etl_runs
+  to: load_customers.truncate_stg
+  kind: runs_after
   external: false
 - from: load_customers.df_customers.dst_stg
   to: dbo.STG_CUSTOMERS
@@ -183,22 +183,26 @@ edges:
   to: STG_CUSTOMERS
   kind: etl_reads
   external: true
+- from: load_customers.merge_mart
+  to: load_customers.df_customers
+  kind: runs_after
+  external: false
 - from: load_customers.truncate_stg
   to: STG_CUSTOMERS
   kind: etl_writes
   external: true
-- from: load_customers.truncate_stg
-  to: load_customers.df_customers
-  kind: etl_runs
-  external: false
 - from: load_orders.compress_output
-  to: load_orders.good_finish
-  kind: etl_runs
+  to: load_orders.load_fact
+  kind: runs_after
   external: false
 - from: load_orders.good_finish
   to: MART_ORDER_FACT
   kind: etl_reads
   external: true
+- from: load_orders.good_finish
+  to: load_orders.compress_output
+  kind: runs_after
+  external: false
 - from: load_orders.load_fact
   to: MART_ORDER_FACT
   kind: etl_writes
@@ -208,12 +212,8 @@ edges:
   kind: etl_reads
   external: true
 - from: load_orders.load_fact
-  to: load_orders.compress_output
-  kind: etl_runs
-  external: false
-- from: load_orders.seq_orders
-  to: load_orders.load_fact
-  kind: etl_runs
+  to: load_orders.seq_orders
+  kind: runs_after
   external: false
 - from: load_orders.seq_orders.df_orders.dst_stg
   to: dbo.STG_ORDERS
@@ -228,12 +228,16 @@ edges:
   kind: etl_writes
   external: true
 - from: load_payments.call_recon
+  to: load_payments.df_payments
+  kind: runs_after
+  external: false
+- from: load_payments.call_recon
   to: recon_payments
   kind: etl_runs
   external: false
 - from: load_payments.df_payments
-  to: load_payments.call_recon
-  kind: etl_runs
+  to: load_payments.stage_payments
+  kind: runs_after
   external: false
 - from: load_payments.df_payments.dst_pay
   to: dbo.STG_PAYMENTS
@@ -243,17 +247,13 @@ edges:
   to: STG_PAYMENTS
   kind: etl_writes
   external: true
-- from: load_payments.stage_payments
-  to: load_payments.df_payments
-  kind: etl_runs
+- from: nightly_master.archive_batch
+  to: nightly_master.rebuild_marts
+  kind: runs_after
   external: false
 - from: nightly_master.rebuild_marts
-  to: nightly_master.archive_batch
-  kind: etl_runs
-  external: false
-- from: nightly_master.seq_load
-  to: nightly_master.rebuild_marts
-  kind: etl_runs
+  to: nightly_master.seq_load
+  kind: runs_after
   external: false
 - from: nightly_master.seq_load.call_customers
   to: load_customers
@@ -275,7 +275,7 @@ edges:
   to: STG_PAYMENTS
   kind: etl_reads
   external: true
-- from: recon_payments.recon_check
-  to: recon_payments.recon_finish
-  kind: etl_runs
+- from: recon_payments.recon_finish
+  to: recon_payments.recon_check
+  kind: runs_after
   external: false

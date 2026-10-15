@@ -171,37 +171,41 @@ objects:
   qualified_name: stg.tmp_load
   status: external
 edges:
-- from: broken_dag.first
-  to: broken_dag.second
-  kind: etl_runs
+- from: broken_dag.second
+  to: broken_dag.first
+  kind: runs_after
   external: false
 - from: cleanup.drop_old
-  to: cleanup.purge_logs
-  kind: etl_runs
+  to: cleanup.drop_tmp
+  kind: runs_after
   external: false
-- from: cleanup.drop_tmp
-  to: cleanup.drop_old
-  kind: etl_runs
+- from: cleanup.drop_old
+  to: cleanup.pre
+  kind: runs_after
   external: false
-- from: cleanup.pre
-  to: cleanup.drop_old
-  kind: etl_runs
+- from: cleanup.post
+  to: cleanup.vacuum
+  kind: runs_after
   external: false
 - from: cleanup.purge_logs
-  to: cleanup.vacuum
-  kind: etl_runs
+  to: cleanup.drop_old
+  kind: runs_after
   external: false
 - from: cleanup.purge_logs
   to: scripts/purge.sh
   kind: etl_runs
   external: true
 - from: cleanup.vacuum
-  to: cleanup.post
-  kind: etl_runs
+  to: cleanup.purge_logs
+  kind: runs_after
   external: false
 - from: etl_daily.build_summary
-  to: etl_daily.trigger_recon
-  kind: etl_runs
+  to: etl_daily.load_customers
+  kind: runs_after
+  external: false
+- from: etl_daily.build_summary
+  to: etl_daily.load_orders
+  kind: runs_after
   external: false
 - from: etl_daily.build_summary
   to: mart.daily
@@ -211,17 +215,21 @@ edges:
   to: sql/sql/summary.sql
   kind: etl_runs
   external: true
+- from: etl_daily.end
+  to: etl_daily.trigger_recon
+  kind: runs_after
+  external: false
 - from: etl_daily.ext_customers
-  to: etl_daily.stg_done
-  kind: etl_runs
+  to: etl_daily.wait_upstream
+  kind: runs_after
   external: false
 - from: etl_daily.ext_customers
   to: sql/sql/ext_customers.sql
   kind: etl_runs
   external: true
 - from: etl_daily.ext_orders
-  to: etl_daily.stg_done
-  kind: etl_runs
+  to: etl_daily.wait_upstream
+  kind: runs_after
   external: false
 - from: etl_daily.ext_orders
   to: src.orders
@@ -232,16 +240,16 @@ edges:
   kind: etl_writes
   external: true
 - from: etl_daily.ext_products
-  to: etl_daily.stg_done
-  kind: etl_runs
+  to: etl_daily.wait_upstream
+  kind: runs_after
   external: false
 - from: etl_daily.ext_products
   to: scripts/extract_products.sh
   kind: etl_runs
   external: true
 - from: etl_daily.load_customers
-  to: etl_daily.build_summary
-  kind: etl_runs
+  to: etl_daily.stg_done
+  kind: runs_after
   external: false
 - from: etl_daily.load_customers
   to: mart.customers
@@ -252,89 +260,85 @@ edges:
   kind: etl_reads
   external: true
 - from: etl_daily.load_orders
-  to: etl_daily.build_summary
-  kind: etl_runs
+  to: etl_daily.stg_done
+  kind: runs_after
   external: false
 - from: etl_daily.load_orders
   to: sql/sql/load_orders.sql
   kind: etl_runs
   external: true
-- from: etl_daily.start
-  to: etl_daily.wait_upstream
-  kind: etl_runs
+- from: etl_daily.stg_done
+  to: etl_daily.ext_customers
+  kind: runs_after
   external: false
 - from: etl_daily.stg_done
-  to: etl_daily.load_customers
-  kind: etl_runs
+  to: etl_daily.ext_orders
+  kind: runs_after
   external: false
 - from: etl_daily.stg_done
-  to: etl_daily.load_orders
-  kind: etl_runs
+  to: etl_daily.ext_products
+  kind: runs_after
   external: false
 - from: etl_daily.trigger_recon
-  to: etl_daily.end
-  kind: etl_runs
+  to: etl_daily.build_summary
+  kind: runs_after
   external: false
 - from: etl_daily.trigger_recon
   to: reconcile
   kind: etl_runs
   external: true
 - from: etl_daily.wait_upstream
-  to: etl_daily.ext_customers
-  kind: etl_runs
-  external: false
-- from: etl_daily.wait_upstream
-  to: etl_daily.ext_orders
-  kind: etl_runs
-  external: false
-- from: etl_daily.wait_upstream
-  to: etl_daily.ext_products
-  kind: etl_runs
+  to: etl_daily.start
+  kind: runs_after
   external: false
 - from: etl_daily.wait_upstream
   to: landing.done
   kind: etl_reads
   external: true
 - from: maintenance.archive
-  to: maintenance.done
-  kind: etl_runs
+  to: maintenance.stats
+  kind: runs_after
   external: false
-- from: maintenance.init
-  to: maintenance.purge_stg
-  kind: etl_runs
+- from: maintenance.done
+  to: maintenance.archive
+  kind: runs_after
   external: false
 - from: maintenance.purge_stg
-  to: maintenance.vacuum
-  kind: etl_runs
+  to: maintenance.init
+  kind: runs_after
   external: false
 - from: maintenance.purge_stg
   to: stg.tmp_load
   kind: etl_writes
   external: true
 - from: maintenance.reindex
-  to: maintenance.stats
-  kind: etl_runs
+  to: maintenance.vacuum
+  kind: runs_after
   external: false
 - from: maintenance.reindex
   to: mart.orders
   kind: etl_writes
   external: true
 - from: maintenance.stats
-  to: maintenance.archive
-  kind: etl_runs
+  to: maintenance.reindex
+  kind: runs_after
   external: false
 - from: maintenance.stats
   to: mart.orders
   kind: etl_reads
   external: true
 - from: maintenance.vacuum
-  to: maintenance.reindex
-  kind: etl_runs
+  to: maintenance.purge_stg
+  kind: runs_after
   external: false
 - from: reporting.agg.by_product
   to: mart.orders
   kind: etl_reads
   external: true
+- from: reporting.agg.by_product
+  to: reporting.agg.by_region
+  kind: runs_after
+  external: false
 - from: reporting.agg.by_product
   to: rpt.product
   kind: etl_writes
@@ -344,22 +348,18 @@ edges:
   kind: etl_reads
   external: true
 - from: reporting.agg.by_region
-  to: reporting.agg.by_product
-  kind: etl_runs
-  external: false
-- from: reporting.agg.by_region
   to: rpt.region
   kind: etl_writes
   external: true
+- from: reporting.done
+  to: reporting.notify
+  kind: runs_after
+  external: false
 - from: reporting.extract
   to: mart.orders
   kind: etl_reads
   external: true
 - from: reporting.notify
-  to: reporting.done
-  kind: etl_runs
-  external: false
-- from: reporting.publish
-  to: reporting.notify
-  kind: etl_runs
+  to: reporting.publish
+  kind: runs_after
   external: false

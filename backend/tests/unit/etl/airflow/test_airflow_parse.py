@@ -37,8 +37,8 @@ with DAG("orders_daily", schedule_interval="@daily") as dag:
         "load",
         "publish",
     }
-    assert ("etl_runs", "orders_daily.load") in names(by["orders_daily.extract"])
-    assert ("etl_runs", "orders_daily.publish") in names(by["orders_daily.load"])
+    assert ("runs_after", "orders_daily.extract") in names(by["orders_daily.load"])
+    assert ("runs_after", "orders_daily.load") in names(by["orders_daily.publish"])
 
 
 def test_dag_assignment_and_dag_kwarg() -> None:
@@ -53,7 +53,7 @@ a << b
     )
     by = {o.qualified_name: o for o in result.objects}
     assert by["assigned_dag"].type == "dag"
-    assert ("etl_runs", "assigned_dag.one") in names(by["assigned_dag.two"])
+    assert ("runs_after", "assigned_dag.two") in names(by["assigned_dag.one"])
 
 
 def test_decorated_dag_and_task() -> None:
@@ -77,7 +77,7 @@ my_flow()
     assert "my_flow.extract" in by
     assert "my_flow.renamed" in by
     # TaskFlow passing: extract upstream of load
-    assert ("etl_runs", "my_flow.renamed") in names(by["my_flow.extract"])
+    assert ("runs_after", "my_flow.extract") in names(by["my_flow.renamed"])
 
 
 def test_taskgroup_prefix() -> None:
@@ -94,7 +94,7 @@ with DAG("grp") as dag:
     )
     by = {o.qualified_name: o for o in result.objects}
     assert "grp.staging.t1" in by and "grp.staging.t2" in by
-    assert ("etl_runs", "grp.staging.t2") in names(by["grp.staging.t1"])
+    assert ("runs_after", "grp.staging.t1") in names(by["grp.staging.t2"])
 
 
 def test_sql_kwargs_hints_and_paths() -> None:
@@ -143,8 +143,8 @@ with DAG("ch") as dag:
 """
     )
     by = {o.qualified_name: o for o in result.objects}
-    assert ("etl_runs", "ch.b") in names(by["ch.a"])
-    assert ("etl_runs", "ch.c") in names(by["ch.b"])
+    assert ("runs_after", "ch.a") in names(by["ch.b"])
+    assert ("runs_after", "ch.b") in names(by["ch.c"])
 
 
 def test_unknown_operator_still_task() -> None:
@@ -192,8 +192,8 @@ def test_yaml_dag_factory() -> None:
     )
     by = {o.qualified_name: o for o in result.objects}
     assert by["orders"].type == "dag"
-    assert ("etl_runs", "orders.load") in names(by["orders.extract"])
-    assert ("etl_runs", "orders.publish") in names(by["orders.load"])
+    assert ("runs_after", "orders.extract") in names(by["orders.load"])
+    assert ("runs_after", "orders.load") in names(by["orders.publish"])
     assert ("etl_runs", "dags/extract.sh") in names(by["orders.extract"])
 
 

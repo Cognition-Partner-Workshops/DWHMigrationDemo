@@ -81,8 +81,8 @@ def test_json_jobs_flow_calendar() -> None:
     assert extract.qualified_name == "F1.extract"
     assert ("etl_writes", "extract_done") in names(extract)
     assert ("schedules", "CAL1") in names(extract)
-    assert ("etl_runs", "F1.load") in names(extract)  # flow edge
     load = next(o for o in r.objects if o.name == "load")
+    assert ("runs_after", "F1.extract") in names(load)  # flow edge
     assert ("etl_reads", "extract_done") in names(load)
     assert any(k == "etl_runs" and n.endswith("load.sh") for k, n in names(load))
 

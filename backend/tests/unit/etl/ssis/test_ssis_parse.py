@@ -172,8 +172,8 @@ def test_precedence_creates_runs_edge() -> None:
 <DTS:Property DTS:Name="ObjectName">b</DTS:Property></DTS:Executable>
 <DTS:PrecedenceConstraint DTS:From="Package\\a" DTS:To="Package\\b"/></DTS:Executable>"""
     r = parse(data, "p.dtsx")
-    a = next(o for o in r.objects if o.name == "a")
-    assert ("etl_runs", "p.b") in names(a)
+    b = next(o for o in r.objects if o.name == "b")
+    assert ("runs_after", "p.a") in names(b)
 
 
 def test_flatfile_component_ref() -> None:

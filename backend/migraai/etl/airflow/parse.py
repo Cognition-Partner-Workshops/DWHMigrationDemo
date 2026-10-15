@@ -5,7 +5,7 @@ present) and dag-factory style ``.yml``/``.yaml`` files both produce ``dag``
 objects (qualified by dag_id) and ``task`` objects (``<dag_id>.<task_id>``).
 
 Dependencies (``a >> b``, ``set_upstream``, ``chain``, TaskFlow passing) emit
-``etl_runs`` references on the *upstream* task pointing at the downstream task.
+``runs_after`` references on the *downstream* task pointing at the upstream task.
 """
 
 from __future__ import annotations
@@ -563,7 +563,7 @@ class _AirflowPy:
             down_task = self.tasks.get(downstream)
             if up_task is None or down_task is None:
                 continue
-            up_task.hints.append(self.builder.ref(down_task.qualified, "etl_runs", span(line)))
+            down_task.hints.append(self.builder.ref(up_task.qualified, "runs_after", span(line)))
         for dag in self.dags.values():
             for task in dag.tasks:
                 node = ast.DialectStatement(
@@ -690,8 +690,8 @@ def _parse_yaml(text: str, rel_path: str, builder: EtlBuilder) -> None:
                 upstream = local.get(str(dep))
                 downstream = local.get(str(task_id))
                 if upstream is not None and downstream is not None:
-                    upstream.hints.append(
-                        builder.ref(downstream.qualified, "etl_runs", span(downstream.line))
+                    downstream.hints.append(
+                        builder.ref(upstream.qualified, "runs_after", span(downstream.line))
                     )
         for task in dag.tasks:
             node = ast.DialectStatement(

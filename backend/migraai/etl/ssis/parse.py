@@ -113,7 +113,7 @@ def parse_ssis_root(root: XmlNode, builder: EtlBuilder, rel_path: str) -> None:
     for exe in executables:
         _walk_executable(exe, pkg_name, pkg_name, "", builder, connections, objects_by_path)
 
-    # precedence constraints → etl_runs edges
+    # precedence constraints → runs_after edges (successor → predecessor)
     constraints = []
     for pc in _find(root, "PrecedenceConstraint"):
         frm = (pc.get("From") or _prop(pc, "From") or "").replace("\\", ".")
@@ -137,11 +137,11 @@ def parse_ssis_root(root: XmlNode, builder: EtlBuilder, rel_path: str) -> None:
             )
         )
         if src_q and dst_q:
-            target_obj = next((o for o in builder.objects if o.qualified_name == src_q), None)
+            target_obj = next((o for o in builder.objects if o.qualified_name == dst_q), None)
             if target_obj is not None:
-                hint = builder.ref(dst_q, "etl_runs", span(pc.line))
+                hint = builder.ref(src_q, "runs_after", span(pc.line))
                 target_obj.node.references.append(hint)
-                target_obj.references.append(Reference(hint.name, "etl_runs", hint.span))
+                target_obj.references.append(Reference(hint.name, "runs_after", hint.span))
     if constraints:
         pkg_args["precedence"] = constraints
     if managers_args:
