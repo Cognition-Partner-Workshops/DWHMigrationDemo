@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from migraai.discovery import ast
 from migraai.etl.python.common import (
     EtlBuilder,
+    attach_recovered,
     qname,
     span,
 )
@@ -156,7 +157,7 @@ class ModuleAnalyzer:
         recovered_issues: list[ast.Issue] | None = None,
     ) -> None:
         module_scope = Scope(owner=self.module_qname, qual_prefix=self.module_qname)
-        statements: list[ast.Node] = list(recovered)
+        statements: list[ast.Node] = []
         if tree is not None:
             self._collect_module_names(tree, module_scope)
             for stmt in tree.body:
@@ -177,14 +178,19 @@ class ModuleAnalyzer:
         }
         if statements:
             module_args["statements"] = statements
+        end_line = max(
+            [s.span.end_line for s in statements] + [r.span.end_line for r in recovered],
+            default=1,
+        )
         node = ast.DialectStatement(
             name=f"{self.tool}.module",
             args=module_args,
             references=module_scope.hints,
-            span=span(1, max((s.span.end_line for s in statements), default=1)),
+            span=span(1, end_line),
         )
-        issues = module_scope.issues + self.ctx.issues + list(recovered_issues or [])
-        self.builder.add(
+        issues = module_scope.issues + self.ctx.issues
+        base = len(self.builder.objects)
+        module_obj = self.builder.add(
             "module",
             self.module_qname,
             node,
@@ -194,6 +200,12 @@ class ModuleAnalyzer:
         )
         for qualified, fn_node in module_scope.function_objects:
             self._emit_function(qualified, fn_node, module_scope)
+        leftover = attach_recovered(self.builder.objects[base:], recovered, recovered_issues)
+        if leftover:
+            args = getattr(module_obj.node, "args", None)
+            if isinstance(args, dict):
+                args.setdefault("recovered", []).extend(leftover)
+            module_obj.status = "partial"
 
     def _emit_function(self, qualified: str, fn: pyast.stmt, base: Scope) -> None:
         assert isinstance(fn, (pyast.FunctionDef, pyast.AsyncFunctionDef))

@@ -21,6 +21,7 @@ import yaml
 from migraai.discovery import ast
 from migraai.etl.python.common import (
     EtlBuilder,
+    attach_recovered,
     EtlParseResult,
     decode,
     file_unparsed,
@@ -620,36 +621,20 @@ def _parse_python(data: bytes, rel_path: str, builder: EtlBuilder) -> None:
     analyzer = _AirflowPy(rel_path, builder)
     analyzer.analyze(recovered.tree)
     builder.issues.extend(recovered.issues + analyzer.ctx.issues)
-    if recovered.recovered:
+    leftover = attach_recovered(builder.objects, recovered.recovered, recovered.issues)
+    if leftover:
         qualified = module_name(rel_path)
-        end = max(blk.span.end_line for blk in recovered.recovered)
+        end = max(blk.span.end_line for blk in leftover)
         node = ast.DialectStatement(
             name="airflow.module",
             args={
                 "name": qname(qualified),
-                "statements": list(recovered.recovered),
+                "recovered": list(leftover),
             },
             references=[],
             span=span(1, end),
         )
         builder.add("module", qualified, node, 1, end, issues=list(recovered.issues))
-        for obj in builder.objects:
-            if obj.type != "dag" or obj.qualified_name == qualified:
-                continue
-            inside = [
-                blk
-                for blk in recovered.recovered
-                if obj.start_line <= blk.span.start_line <= obj.end_line
-            ]
-            if inside:
-                obj.status = "partial"
-                obj.node.statements.extend(inside)
-                obj.issues.extend(
-                    issue
-                    for issue in recovered.issues
-                    if issue.span is not None
-                    and obj.start_line <= issue.span.start_line <= obj.end_line
-                )
 
 
 # ---------------------------------------------------------------------------

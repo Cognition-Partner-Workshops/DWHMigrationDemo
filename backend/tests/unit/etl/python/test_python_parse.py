@@ -211,3 +211,12 @@ def test_node_is_dialect_statement() -> None:
     result = parse(b"x = 1\n", "m/x.py")
     assert isinstance(result.objects[0].node, ast.DialectStatement)
     assert result.objects[0].node.name == "python.module"
+
+
+def test_bad_line_inside_function_marks_function_partial() -> None:
+    data = b"def good():\n    return 1\n\ndef broken():\n    x = (\n\ndef after():\n    return 3\n"
+    objects = parse(data, "jobs/x.py").objects
+    broken = next(o for o in objects if o.name == "broken")
+    assert broken.status == "partial"
+    after = next(o for o in objects if o.name == "after")
+    assert after.status == "parsed"

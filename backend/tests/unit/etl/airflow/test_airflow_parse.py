@@ -277,3 +277,55 @@ def test_broken_dag_pack_partial() -> None:
     mod = next(o for o in objects if o.type == "module")
     assert mod.qualified_name == "dags.broken_dag"
     assert mod.status == "partial"
+
+
+def test_syntax_error_inside_dag_body_recovers() -> None:
+    data = (
+        b"from airflow import DAG\n"
+        b"from airflow.operators.empty import EmptyOperator\n\n"
+        b'with DAG("d") as dag:\n'
+        b'    a = EmptyOperator(task_id="a")\n'
+        b"    def bad(:\n"
+        b"        pass\n"
+        b'    b = EmptyOperator(task_id="b")\n'
+    )
+    objects = parse(data, "dags/x.py").objects
+    dag = next(o for o in objects if o.qualified_name == "d" and o.type == "dag")
+    assert dag.status == "partial"
+    a = next(o for o in objects if o.qualified_name == "d.a")
+    b = next(o for o in objects if o.qualified_name == "d.b")
+    assert a.status == "parsed" and b.status == "parsed"
+
+
+def test_two_separate_errors_two_unparsed_regions() -> None:
+    data = (
+        b"from airflow import DAG\n"
+        b"from airflow.operators.empty import EmptyOperator\n\n"
+        b"def bad1(:\n    pass\n\n"
+        b"def bad2(:\n    pass\n\n"
+        b'with DAG("ok") as dag:\n'
+        b'    t = EmptyOperator(task_id="t")\n'
+    )
+    result = parse(data, "dags/x.py")
+    mod = next(o for o in result.objects if o.type == "module")
+    assert mod.status == "partial"
+    assert len(mod.node.args["recovered"]) == 2
+
+
+def test_bracket_continuation_error_recovers() -> None:
+    data = (
+        b"from airflow import DAG\n"
+        b"from airflow.operators.empty import EmptyOperator\n\n"
+        b"ARGS = (\n"
+        b'    "a",\n'
+        b'    "b",\n'
+        b"def oops(:\n"
+        b"    pass\n\n"
+        b'with DAG("d2") as dag:\n'
+        b'    t = EmptyOperator(task_id="t")\n'
+    )
+    result = parse(data, "dags/x.py")
+    dag = next(o for o in result.objects if o.type == "dag")
+    assert dag.qualified_name == "d2"
+    partial = [o for o in result.objects if o.status == "partial"]
+    assert len(partial) >= 1

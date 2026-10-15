@@ -62,6 +62,39 @@ def ref_name(target: str) -> ast.QualifiedName:
     )
 
 
+def attach_recovered(
+    objects: list[ParsedObject],
+    recovered: list[ast.Unparsed],
+    issues: list[ast.Issue] | None = None,
+) -> list[ast.Unparsed]:
+    """Attach each recovered region to the innermost object whose line range
+    contains it, marking that object ``partial`` and storing the region under
+    the node's ``recovered`` arg. Returns regions not covered by any object."""
+    unattached: list[ast.Unparsed] = []
+    for block in recovered:
+        owner: ParsedObject | None = None
+        for obj in objects:
+            if obj.start_line <= block.span.start_line <= obj.end_line:
+                if owner is None or (obj.end_line - obj.start_line) < (
+                    owner.end_line - owner.start_line
+                ):
+                    owner = obj
+        if owner is None:
+            unattached.append(block)
+            continue
+        args = getattr(owner.node, "args", None)
+        if isinstance(args, dict):
+            args.setdefault("recovered", []).append(block)
+        owner.status = "partial"
+        owner.issues.extend(
+            issue
+            for issue in issues or []
+            if issue.span is not None
+            and owner.start_line <= issue.span.start_line <= owner.end_line
+        )
+    return unattached
+
+
 def span(
     start_line: int,
     end_line: int | None = None,

@@ -179,3 +179,22 @@ def test_ast_golden() -> None:
         GOLDEN_DIR.mkdir(parents=True, exist_ok=True)
         golden.write_text(json.dumps(actual, indent=2) + "\n", encoding="utf-8")
     assert json.loads(golden.read_text()) == actual
+
+
+def test_bad_line_inside_spark_job_function_partial() -> None:
+    result = _py(
+        """from pyspark.sql import SparkSession
+
+def run(spark):
+    df = spark.read.table("stg.orders")
+    x = (
+    df.write.saveAsTable("mart.orders")
+
+def done(spark):
+    spark.stop()
+"""
+    )
+    run = next(o for o in result.objects if o.name == "run")
+    assert run.status == "partial"
+    done = next(o for o in result.objects if o.name == "done")
+    assert done.status == "parsed"
