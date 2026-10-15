@@ -24,6 +24,7 @@ class SessionConfirmed(BaseModel):
     session_id: str
     source: str
     target: str
+    plan: dict
 
 
 @router.post("/confirm", response_model=SessionConfirmed)
@@ -65,4 +66,9 @@ def confirm_session(payload: SessionConfirm, request: Request) -> SessionConfirm
         session_id,
         {"source": payload.source, "target": payload.target},
     )
-    return SessionConfirmed(session_id=session_id, source=payload.source, target=payload.target)
+    from migraai.api.plan import start_plan_flow
+
+    plan = start_plan_flow(request, regenerate=False)
+    return SessionConfirmed(
+        session_id=session_id, source=payload.source, target=payload.target, plan=plan
+    )

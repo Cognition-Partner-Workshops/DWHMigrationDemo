@@ -1,0 +1,434 @@
+from __future__ import annotations
+
+import inspect
+import json
+import threading
+import time
+from pathlib import Path
+
+import httpx
+import pytest
+from pypdf import PdfReader
+
+from migraai.core.audit import AuditLog
+from migraai.kb.embed import HashEmbedder
+from migraai.kb.store import KBStore, connect, insert_chunk
+from migraai.planning.context import build_context
+from migraai.planning.devin_client import DevinClient, normalize_base_url
+from migraai.planning.job import PlanJob
+from migraai.planning.local_draft import build_local_draft
+from migraai.planning.pdf import render_markdown, render_plan_pdf
+from migraai.planning.schema import SCHEMA
+from migraai.planning.sections import SECTIONS
+from migraai.planning.store import PlanStore
+
+
+def _stores(tmp_path: Path):
+    kb_store = KBStore(tmp_path / "data")
+    kb_store.create_empty()
+    plan_store = PlanStore(tmp_path / "data" / "app.db")
+    plan_store.initialize()
+    audit = AuditLog(tmp_path / "data" / "audit.jsonl")
+    return kb_store, plan_store, audit
+
+
+def test_sections_schema_context_and_local_draft(tmp_path: Path) -> None:
+    store, _, _ = _stores(tmp_path)
+    db_path = store.current_path
+    context = build_context("teradata", "snowflake", db_path)
+    plan = build_local_draft("teradata", "snowflake", db_path)
+
+    assert len(SECTIONS) == 21
+    assert [(section.id, section.title) for section in plan.sections] == SECTIONS
+    assert plan.sections[0].content == "No curated knowledge for this pair yet."
+    assert plan.sections[6].content == "No curated knowledge for this pair yet."
+    assert plan.sections[16].platform_level_estimate
+    assert plan.sections[18].platform_level_estimate
+    assert plan.sections[19].platform_level_estimate
+    assert plan.overall_confidence is None
+    assert len(json.dumps(SCHEMA)) < 64 * 1024
+    source = inspect.getsource(__import__("migraai.planning.context", fromlist=["build_context"]))
+    assert "migraai.core.storage" not in source
+    assert "migraai.core.crypto" not in source
+    assert "session" not in source.casefold()
+    assert context.kb_ids == set()
+
+
+def test_local_draft_uses_pair_claims_mappings_and_risks(tmp_path: Path) -> None:
+    store, _, _ = _stores(tmp_path)
+    database = store.current_path
+    embedder = HashEmbedder()
+    claims = [
+        ("teradata", "Teradata architecture profile", "architecture", None, None),
+        (None, "Pair architecture overview", "architecture_overview", "teradata", "snowflake"),
+        (None, "Storage differs between platforms", "storage", "teradata", "snowflake"),
+        (None, "Tables map from source to target", "object_mapping", "teradata", "snowflake"),
+        ("teradata", "BYTEINT maps to canonical int8", "type_mappings", None, None),
+        ("snowflake", "NUMBER maps to canonical int64", "type_mappings", None, None),
+    ]
+    ids = {}
+    with connect(database) as connection:
+        for platform, text, section, source, target in claims:
+            vector = embedder.embed([text])[0]
+            url = (
+                "https://docs.example/type"
+                if section == "type_mappings"
+                else f"https://docs.example/{section}"
+            )
+            chunk_id = insert_chunk(
+                connection,
+                (
+                    None,
+                    text,
+                    url,
+                    "2026-10-15",
+                    platform,
+                    source,
+                    target,
+                    section,
+                    None,
+                    "high",
+                ),
+                vector,
+            )
+            ids[section] = chunk_id
+        connection.execute(
+            "INSERT INTO pair_text VALUES(?,?,?,?)",
+            (
+                "teradata",
+                "snowflake",
+                "recommended_strategy",
+                json.dumps("Migrate by domain after compatibility review."),
+            ),
+        )
+        connection.execute(
+            "INSERT INTO pair_text VALUES(?,?,?,?)",
+            (
+                "teradata",
+                "snowflake",
+                "object_mapping",
+                json.dumps(
+                    [
+                        {
+                            "source_object": "TABLE",
+                            "target_object": "TABLE",
+                            "notes": "Direct mapping",
+                            "claim": {
+                                "text": "Tables map from source to target",
+                                "url": "https://docs.example/object_mapping",
+                            },
+                        }
+                    ]
+                ),
+            ),
+        )
+        connection.execute(
+            "INSERT INTO pair_text VALUES(?,?,?,?)",
+            (
+                "teradata",
+                "snowflake",
+                "risks",
+                json.dumps(
+                    {
+                        "sql": {"level": "medium", "notes": "Review dialect differences"},
+                        "data": {"level": "low", "notes": "Validate counts"},
+                    }
+                ),
+            ),
+        )
+        connection.execute(
+            "INSERT INTO platform_hosts VALUES(?,?)",
+            ("teradata", "docs.example"),
+        )
+        connection.execute(
+            "INSERT INTO mappings VALUES(?,?,?,?,?,?)",
+            ("teradata", "type", "BYTEINT", "int8", "small integer", "https://docs.example/type"),
+        )
+        connection.execute(
+            "INSERT INTO mappings VALUES(?,?,?,?,?,?)",
+            (
+                "snowflake",
+                "type",
+                "NUMBER(38,0)",
+                "int64",
+                "wide integer",
+                "https://docs.example/type",
+            ),
+        )
+        connection.execute(
+            """INSERT INTO catalog_rows
+            VALUES(?,?,?,?,?,?,?)""",
+            ("teradata", "mandatory", "tables", "Tables", "Table list", "[]", "SELECT"),
+        )
+
+    context = build_context("teradata", "snowflake", database)
+    plan = build_local_draft("teradata", "snowflake", database)
+    by_id = {section.id: section for section in plan.sections}
+    assert "Teradata architecture profile" in by_id["A"].content
+    assert "Pair architecture overview" in by_id["A"].content
+    assert {item.kb_id for item in by_id["A"].citations} == {
+        ids["architecture"],
+        ids["architecture_overview"],
+    }
+    assert "Storage differs" in by_id["B"].content
+    assert by_id["B"].citations[0].kb_id == ids["storage"]
+    assert "[KB-" in by_id["G"].content
+    assert by_id["G"].citations[0].kb_id == ids["object_mapping"]
+    assert "| Risk area | Level | Notes |" in by_id["R"].content
+    assert "BYTEINT (https://docs.example/type)" in by_id["I"].content
+    assert "no direct equivalent" in by_id["I"].content
+    assert len(by_id["I"].citations) == 2
+    assert "Tables" in context.markdown
+    assert "docs.example" in context.allowed_hosts
+    assert ids["architecture_overview"] in context.kb_ids
+
+
+def test_devin_client_v3_request_shapes_and_url_normalization() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        path = request.url.path
+        if path.endswith("/attachments"):
+            return httpx.Response(
+                200,
+                json={
+                    "attachment_id": "att-1",
+                    "name": "context.md",
+                    "url": "https://files.test/a",
+                },
+                request=request,
+            )
+        if path.endswith("/sessions") and request.method == "POST":
+            return httpx.Response(
+                200,
+                json={"session_id": "devin-123", "url": "https://devin.test/123"},
+                request=request,
+            )
+        if request.method == "GET":
+            return httpx.Response(
+                200, json={"session_id": "devin-123", "status": "running"}, request=request
+            )
+        return httpx.Response(204, request=request)
+
+    assert (
+        normalize_base_url("https://api.devinenterprise.com/v1/sessions?x=1#part")
+        == "https://api.devinenterprise.com"
+    )
+    assert (
+        normalize_base_url("https://api.example.test:8443/path/") == "https://api.example.test:8443"
+    )
+    with pytest.raises(ValueError, match="organization ID"):
+        DevinClient("https://api.example.test", "invalid-org", "cog_secret")
+    client = DevinClient(
+        "https://api.devinenterprise.com/v1/sessions?x=1",
+        "org-demo",
+        "cog_secret",
+        transport=httpx.MockTransport(handler),
+    )
+    attachment = client.upload_attachment("context.md", b"# context")
+    prompt = f'Build the plan.\nATTACHMENT:"{attachment}"\n'
+    session_id, session_url = client.create_session(
+        prompt,
+        schema={"type": "object"},
+        max_acu_limit=10,
+        title="Migration plan",
+        tags=["migraai"],
+    )
+    assert client.get_session(session_id)["status"] == "running"
+    client.terminate_session(session_id)
+    assert session_url == "https://devin.test/123"
+    assert all(request.headers["authorization"] == "Bearer cog_secret" for request in requests)
+    assert all(request.url.host == "api.devinenterprise.com" for request in requests)
+    upload = requests[0]
+    assert b'name="file"' in upload.read()
+    create = json.loads(requests[1].content)
+    assert create["attachment_urls"] == [attachment]
+    assert create["resumable"] is False
+    assert create["structured_output_required"] is True
+    assert create["max_acu_limit"] == 10
+    assert requests[-1].method == "DELETE"
+    client.close()
+
+
+class FakeClient:
+    def __init__(self, responses: list[dict], created: threading.Event | None = None) -> None:
+        self.responses = responses
+        self.created = created
+        self.terminated: list[str] = []
+        self.closed = False
+
+    def upload_attachment(self, name: str, data: bytes) -> str:
+        return "https://files.test/context"
+
+    def create_session(self, prompt: str, **kwargs) -> tuple[str, str]:
+        if self.created:
+            self.created.set()
+        return "devin-test", "https://devin.test/session"
+
+    def get_session(self, session_id: str) -> dict:
+        return self.responses.pop(0)
+
+    def terminate_session(self, session_id: str) -> None:
+        self.terminated.append(session_id)
+
+    def close(self) -> None:
+        self.closed = True
+
+
+def _job(tmp_path: Path, fake: FakeClient, **kwargs) -> PlanJob:
+    kb_store, plan_store, audit = _stores(tmp_path)
+    timeout_minutes = kwargs.pop("timeout_minutes", 30)
+    return PlanJob(
+        source="teradata",
+        target="snowflake",
+        db_path=kb_store.current_path,
+        kb_store=kb_store,
+        plan_store=plan_store,
+        audit=audit,
+        base_url="https://api.devinenterprise.com",
+        org_id="org-test",
+        pat="cog_test",
+        timeout_minutes=timeout_minutes,
+        client_factory=lambda *_: fake,
+        **kwargs,
+    )
+
+
+class ImmediateEvent:
+    def __init__(self) -> None:
+        self.cancelled = False
+
+    def is_set(self) -> bool:
+        return self.cancelled
+
+    def set(self) -> None:
+        self.cancelled = True
+
+    def wait(self, timeout: float) -> bool:
+        return self.cancelled
+
+
+def test_plan_job_validates_citations_and_saves_devin_plan(tmp_path: Path) -> None:
+    kb_store, plan_store, audit = _stores(tmp_path)
+    draft = build_local_draft("teradata", "snowflake", kb_store.current_path).model_dump()
+    draft["sections"][0]["citations"] = [
+        {"kb_id": 999, "note": "unknown"},
+        {"url": "https://untrusted.example/doc", "note": "external"},
+    ]
+    fake = FakeClient([{"status": "exit", "structured_output": draft}])
+    job = PlanJob(
+        source="teradata",
+        target="snowflake",
+        db_path=kb_store.current_path,
+        kb_store=kb_store,
+        plan_store=plan_store,
+        audit=audit,
+        base_url="https://api.example.test",
+        org_id="org-1",
+        pat="cog_1",
+        client_factory=lambda *_: fake,
+    )
+    job.cancel_event = ImmediateEvent()
+    job.run()
+
+    saved = plan_store.latest("teradata", "snowflake", origin="devin")
+    assert job.snapshot()["state"] == "done"
+    assert saved is not None
+    first = saved["payload"]["sections"][0]
+    assert first["citations"] == [
+        {
+            "kb_id": None,
+            "url": "https://untrusted.example/doc",
+            "note": "external",
+            "unverified": True,
+        }
+    ]
+    assert first["unverified_citations"] is True
+
+
+@pytest.mark.parametrize(
+    ("status", "detail", "reason"),
+    [
+        ("error", "worker failed", "Devin session error: worker failed"),
+        ("suspended", "paused", "Devin session suspended: paused"),
+    ],
+)
+def test_plan_job_error_statuses_fall_back(
+    tmp_path: Path, status: str, detail: str, reason: str
+) -> None:
+    fake = FakeClient([{"status": status, "status_detail": detail}])
+    job = _job(tmp_path, fake)
+    job.cancel_event = ImmediateEvent()
+    job.run()
+    assert job.snapshot()["state"] == "failed_fallback"
+    assert job.snapshot()["reason"] == reason
+    assert job.snapshot()["origin"] == "local_draft"
+
+
+def test_plan_job_waiting_invalid_and_timeout_fallbacks(tmp_path: Path) -> None:
+    fake = FakeClient([{"status": "waiting_for_user"}, {"status": "waiting_for_user"}])
+    waiting = _job(tmp_path / "wait", fake)
+    waiting.cancel_event = ImmediateEvent()
+    waiting.run()
+    assert waiting.snapshot()["reason"] == "Devin asked for input"
+
+    invalid = _job(tmp_path / "invalid", FakeClient([{"status": "exit", "structured_output": {}}]))
+    invalid.cancel_event = ImmediateEvent()
+    invalid.run()
+    assert invalid.snapshot()["reason"] == "Devin returned an invalid plan"
+
+    store, _, _ = _stores(tmp_path / "http")
+    invalid_url_plan = build_local_draft("teradata", "snowflake", store.current_path).model_dump()
+    invalid_url_plan["sections"][0]["citations"] = [
+        {"url": "http://insecure.example/doc", "note": "insecure"}
+    ]
+    invalid_url = _job(
+        tmp_path / "invalid-url",
+        FakeClient([{"status": "exit", "structured_output": invalid_url_plan}]),
+    )
+    invalid_url.cancel_event = ImmediateEvent()
+    invalid_url.run()
+    assert invalid_url.snapshot()["reason"] == "Devin returned an invalid plan"
+
+    timeout = _job(tmp_path / "timeout", FakeClient([]), timeout_minutes=0)
+    timeout.cancel_event = ImmediateEvent()
+    timeout.run()
+    assert timeout.snapshot()["reason"] == "Devin session timed out"
+
+
+def test_plan_job_cancel_terminates_session(tmp_path: Path) -> None:
+    created = threading.Event()
+    fake = FakeClient([], created=created)
+    job = _job(tmp_path, fake)
+    job.start()
+    assert created.wait(2)
+    deadline = time.monotonic() + 2
+    while job.session_id is None and time.monotonic() < deadline:
+        time.sleep(0.001)
+    job.cancel()
+    job.join(2)
+    assert fake.terminated == ["devin-test"]
+    assert job.snapshot()["state"] == "cancelled"
+
+
+def test_pdf_has_all_sections_and_escapes_raw_html(tmp_path: Path) -> None:
+    store, plan_store, _ = _stores(tmp_path)
+    plan = build_local_draft("teradata", "snowflake", store.current_path)
+    plan.sections[0].content = "<script>alert(1)</script>"
+    record = plan_store.save(
+        plan,
+        source="teradata",
+        target="snowflake",
+        kb_version=1,
+        origin="local_draft",
+        reason="Devin token not configured",
+    )
+    assert "<script>" not in render_markdown("<script>alert(1)</script>")
+    logo = Path(__file__).parents[2] / "migraai/planning/assets/logo.png"
+    content = render_plan_pdf(record, logo)
+    assert content.startswith(b"%PDF")
+    reader = PdfReader(__import__("io").BytesIO(content))
+    text = "\n".join(page.extract_text() or "" for page in reader.pages)
+    for _, title in SECTIONS:
+        assert title in text

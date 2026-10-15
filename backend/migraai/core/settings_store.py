@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from migraai.core.secrets import SecretProtector
+from migraai.planning.devin_client import normalize_base_url
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,8 @@ DEFAULTS: dict[str, Any] = {
     "confidence_threshold": 0.85,
     "max_concurrent_sessions": 4,
     "acu_cap_per_run": None,
+    "plan_acu_cap": 10,
+    "plan_timeout_minutes": 30,
 }
 
 
@@ -27,11 +30,14 @@ class SecretStatus(BaseModel):
 
 class SettingsRead(BaseModel):
     devin_pat: SecretStatus
+    token_kind: str
     devin_org_id: str
     devin_api_base_url: str
     confidence_threshold: float
     max_concurrent_sessions: int
     acu_cap_per_run: float | None
+    plan_acu_cap: int
+    plan_timeout_minutes: int
 
 
 class SettingsUpdate(BaseModel):
@@ -41,6 +47,8 @@ class SettingsUpdate(BaseModel):
     confidence_threshold: float | None = Field(default=None, ge=0.5, le=1.0)
     max_concurrent_sessions: int | None = Field(default=None, ge=1, le=50)
     acu_cap_per_run: float | None = Field(default=None, gt=0)
+    plan_acu_cap: int | None = Field(default=None, ge=1, le=100)
+    plan_timeout_minutes: int | None = Field(default=None, ge=5, le=120)
 
 
 class SettingsStore:
@@ -65,17 +73,23 @@ class SettingsStore:
     def read(self) -> SettingsRead:
         values = self._values()
         blob = values.get("devin_pat")
+        token_kind = "none"
         if blob is None:
             secret = SecretStatus(configured=False, masked="")
         else:
             try:
                 pat = self.protector.unprotect(blob).decode("utf-8")
                 secret = SecretStatus(configured=True, masked=f"••••{pat[-4:]}")
+                if pat.startswith("apk_"):
+                    token_kind = "legacy"
+                elif pat.startswith("cog_"):
+                    token_kind = "v3"
             except Exception:
                 logger.warning("Could not read protected Devin token.")
                 secret = SecretStatus(configured=True, masked="••••")
+                token_kind = "none"
 
-        result: dict[str, Any] = {"devin_pat": secret}
+        result: dict[str, Any] = {"devin_pat": secret, "token_kind": token_kind}
         for key, default in DEFAULTS.items():
             if key not in values:
                 result[key] = default
@@ -87,9 +101,19 @@ class SettingsStore:
                 result[key] = int(raw)
             elif key == "acu_cap_per_run":
                 result[key] = float(raw) if raw else None
+            elif key in {"plan_acu_cap", "plan_timeout_minutes"}:
+                result[key] = int(raw)
             else:
                 result[key] = raw
         return SettingsRead.model_validate(result)
+
+    def runtime_devin_config(self) -> tuple[str, str, str]:
+        values = self._values()
+        blob = values.get("devin_pat")
+        pat = self.protector.unprotect(blob).decode("utf-8") if blob else ""
+        org_id = values.get("devin_org_id", b"").decode("utf-8")
+        base_url = values.get("devin_api_base_url", b"https://api.devin.ai").decode("utf-8")
+        return org_id, normalize_base_url(base_url), pat
 
     def update(self, settings: SettingsUpdate) -> set[str]:
         changed: set[str] = set()

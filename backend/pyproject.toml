@@ -13,15 +13,18 @@ dependencies = [
   "fastembed>=0.7",
   "fastapi>=0.115",
   "httpx>=0.28",
+  "markdown-it-py>=3.0",
   "pydantic>=2.10",
   "pyyaml>=6.0",
   "sqlite-vec>=0.1.6",
   "uvicorn>=0.34",
+  "xhtml2pdf>=0.2.16",
 ]
 
 [dependency-groups]
 dev = [
   "pytest>=8.3",
+  "pypdf>=5.1",
   "ruff>=0.11",
 ]
 

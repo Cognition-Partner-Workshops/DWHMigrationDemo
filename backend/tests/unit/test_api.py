@@ -8,8 +8,12 @@ from fastapi.testclient import TestClient
 
 from migraai.api import session as session_api
 from migraai.core.security import AuthState
+from migraai.core.settings_store import SettingsUpdate
 from migraai.core.storage import create_session_dir
+from migraai.kb.store import KBStore, connect
 from migraai.main import create_app
+from migraai.planning.local_draft import build_local_draft
+from migraai.planning.schema import Plan
 
 HOST_HEADER = {"Host": "127.0.0.1:80"}
 
@@ -138,7 +142,7 @@ def test_csrf_is_required_for_mutations(client: TestClient) -> None:
     assert missing.status_code == 403
     assert wrong.status_code == 403
     assert accepted.status_code == 200
-    assert set(accepted.json()) == {"session_id", "source", "target"}
+    assert set(accepted.json()) == {"session_id", "source", "target", "plan"}
 
 
 def test_platforms_and_session_validation(client: TestClient) -> None:
@@ -202,6 +206,160 @@ def test_reconfirm_wipes_only_previous_session_and_audits_replacement(
     replacement = next(record for record in audit_records if record["action"] == "session.replace")
     assert replacement["target"] == previous_session_id
     assert replacement["details"] == {"new_session_id": replacement_session_id}
+
+
+def test_confirm_starts_legacy_fallback_and_resources_are_session_scoped(
+    client: TestClient, data_dir: Path
+) -> None:
+    assert client.get("/api/resources", headers=HOST_HEADER).status_code == 401
+    csrf = launch(client)
+    headers = {**HOST_HEADER, "X-MigraAI-CSRF": csrf}
+    database = client.app.state.kb_store.current_path
+    with connect(database) as connection:
+        connection.execute(
+            """INSERT INTO catalog_rows
+            (source,tier,id,name,description,object_types,extraction_hint)
+            VALUES('teradata','mandatory','tables','Tables','Table inventory','[]','query')"""
+        )
+    client.app.state.settings_store.update(
+        SettingsUpdate(devin_pat="apk_legacy", devin_org_id="org-enterprise")
+    )
+    first = client.post(
+        "/api/session/confirm",
+        json={"source": "teradata", "target": "snowflake"},
+        headers=headers,
+    )
+    assert first.status_code == 200
+    assert first.json()["plan"]["origin"] == "local_draft"
+    assert first.json()["plan"]["reason"] == (
+        "Legacy Devin API key (apk_) is not supported; create a cog_ personal access token "
+        "in Devin Settings > Devin API"
+    )
+    pdf = client.get("/api/plan.pdf", headers=HOST_HEADER)
+    assert pdf.status_code == 200
+    assert pdf.headers["content-type"] == "application/pdf"
+    first_session = first.json()["session_id"]
+    updated = client.patch(
+        "/api/resources/tables",
+        json={"available": True},
+        headers=HOST_HEADER,
+    )
+    assert updated.status_code == 403
+    updated = client.patch(
+        "/api/resources/tables",
+        json={"available": True},
+        headers=headers,
+    )
+    assert updated.status_code == 200
+    assert client.get("/api/resources", headers=HOST_HEADER).json()[0]["available"] is True
+
+    second = client.post(
+        "/api/session/confirm",
+        json={"source": "teradata", "target": "snowflake"},
+        headers=headers,
+    )
+    assert second.status_code == 200
+    assert not (data_dir / "sessions" / first_session).exists()
+    assert client.get("/api/resources", headers=HOST_HEADER).json()[0]["available"] is False
+
+
+def test_plan_cache_regenerate_and_stale_flag(client: TestClient) -> None:
+    csrf = launch(client)
+    headers = {**HOST_HEADER, "X-MigraAI-CSRF": csrf}
+    confirmed = client.post(
+        "/api/session/confirm",
+        json={"source": "teradata", "target": "snowflake"},
+        headers=headers,
+    )
+    assert confirmed.json()["plan"]["reason"] == "Devin token not configured"
+    version = client.app.state.kb_store.current_version
+    store = client.app.state.plan_store
+    draft = build_local_draft("teradata", "snowflake", client.app.state.kb_store.current_path)
+    store.save(
+        Plan.model_validate(draft),
+        source="teradata",
+        target="snowflake",
+        kb_version=version,
+        origin="devin",
+        devin_session_id="devin-cached",
+        devin_url="https://devin.test/cached",
+    )
+    response = client.post("/api/plan", json={}, headers=headers)
+    assert response.json()["state"] == "done"
+    assert response.json()["cached"] is True
+
+    regenerated = client.post("/api/plan", json={"regenerate": True}, headers=headers)
+    assert regenerated.json()["cached"] is False
+    assert regenerated.json()["reason"] == "Devin token not configured"
+    assert confirmed.status_code == 200
+
+    stale_version = version - 1
+    store.save(
+        draft,
+        source="teradata",
+        target="snowflake",
+        kb_version=stale_version,
+        origin="local_draft",
+        reason="stale fixture",
+    )
+    client.app.state.plan_job = None
+    assert client.get("/api/plan", headers=HOST_HEADER).json()["stale"] is (
+        stale_version != version
+    )
+
+
+def test_bad_seed_falls_back_to_empty_kb_and_reports_error_count(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    seed_dir = tmp_path / "bad-seed"
+    (seed_dir / "sources").mkdir(parents=True)
+    (seed_dir / "sources" / "teradata.yaml").write_text(
+        "platform: teradata\nunexpected: claim text must not be logged\n", encoding="utf-8"
+    )
+    monkeypatch.setenv("MIGRAAI_DEV_TOKEN", "seed-test-token")
+    monkeypatch.setenv("MIGRAAI_SEED_DIR", str(seed_dir))
+    monkeypatch.setenv("MIGRAAI_SEED_KB", "")
+    app = create_app(data_dir=tmp_path / "bad-seed-data")
+
+    with TestClient(app, base_url="http://127.0.0.1:80") as test_client:
+        test_client.get(
+            "/api/auth/launch",
+            params={"token": "seed-test-token"},
+            headers=HOST_HEADER,
+            follow_redirects=False,
+        )
+        status = test_client.get("/api/kb/status", headers=HOST_HEADER)
+
+    assert status.status_code == 200
+    assert status.json()["current_version"] == 1
+    assert status.json()["seed_error"] > 0
+    seed_logs = [
+        record.getMessage()
+        for record in caplog.records
+        if "Knowledge-base seed validation failed" in record.getMessage()
+    ]
+    assert len(seed_logs) == 1
+    assert "claim text must not be logged" not in seed_logs[0]
+    audit = (tmp_path / "bad-seed-data" / "logs" / "audit.jsonl").read_text(encoding="utf-8")
+    assert '"action":"kb.seed_error"' in audit
+    assert '"error_count":' in audit
+    assert "claim text must not be logged" not in audit
+
+    existing_data = tmp_path / "existing-kb"
+    existing_db = KBStore(existing_data).create_empty()
+    existing_app = create_app(data_dir=existing_data)
+    with TestClient(existing_app, base_url="http://127.0.0.1:80") as existing_client:
+        existing_client.get(
+            "/api/auth/launch",
+            params={"token": "seed-test-token"},
+            headers=HOST_HEADER,
+            follow_redirects=False,
+        )
+        existing_status = existing_client.get("/api/kb/status", headers=HOST_HEADER)
+    assert existing_status.status_code == 200
+    assert existing_status.json()["current_version"] == 1
+    assert existing_status.json()["seed_error"] > 0
+    assert existing_db.is_file()
 
 
 def test_access_log_omits_query_string_and_session_cookie(

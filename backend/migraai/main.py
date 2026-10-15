@@ -16,7 +16,7 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, Response
 
-from migraai.api import auth, health, kb, platforms, session, settings
+from migraai.api import auth, health, kb, plan, platforms, resources, session, settings
 from migraai.core.audit import AuditLog
 from migraai.core.config import get_data_root
 from migraai.core.logging import AccessLogger
@@ -34,6 +34,7 @@ from migraai.kb.store import (
     upgrade_seed_database,
 )
 from migraai.kb.validate import validate_seed_dir
+from migraai.planning.store import PlanStore
 
 logger = logging.getLogger(__name__)
 _console_handlers: list[Any] = []
@@ -207,6 +208,9 @@ def create_app(
             bundled,
             app.state.audit_log,
         )
+        app.state.plan_store = PlanStore(resolved_data_dir / "app.db")
+        app.state.plan_store.initialize()
+        app.state.plan_job = None
         app.state.kb_refresh_job = None
         app.state.kb_job_lock = threading.Lock()
         try:
@@ -257,6 +261,8 @@ def create_app(
     app.include_router(settings.router)
     app.include_router(session.router)
     app.include_router(kb.router)
+    app.include_router(plan.router)
+    app.include_router(resources.router)
 
     spa_fallback = _serve_spa(resolved_web_dir)
 
