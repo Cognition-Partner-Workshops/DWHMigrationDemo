@@ -1,0 +1,643 @@
+from __future__ import annotations
+
+import json
+import logging
+import os
+import threading
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
+from dataclasses import asdict
+from pathlib import Path
+from typing import Any, TypedDict
+
+os.environ["LANGSMITH_TRACING"] = "false"
+os.environ["LANGCHAIN_TRACING_V2"] = "false"
+
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, START, StateGraph
+
+from migraai.devin.attachment import render_batch
+from migraai.devin.prompts import ESCALATION, STANCES, VOTER_BASE
+from migraai.devin.runner import SessionOutcome, run_session
+from migraai.validation.context import ObjectUnderTest, OutputFile, ValidationContext
+from migraai.validation.validate import pass_rate, validate_object
+from migraai.voting.confidence import score
+from migraai.voting.consensus import Candidate, choose
+from migraai.voting.normalise import normalise_files
+
+SCHEMA_PATH = Path(__file__).resolve().parents[1] / "devin" / "schemas" / "conversion.json"
+CONVERSION_SCHEMA = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+_RUNTIME_CONTEXTS: dict[str, dict[str, Any]] = {}
+_RUNTIME_LOCK = threading.RLock()
+_SQLGLOT_LOG_LOCK = threading.RLock()
+_SQLGLOT_LOG_USERS = 0
+_SQLGLOT_LOG_LEVEL: int | None = None
+
+
+class WorkflowState(TypedDict, total=False):
+    run_key: str
+    batch_index: int
+    source: str
+    target: str
+    name_map: dict[str, str]
+    confidence_threshold: float
+    attachment_md: str
+    conversion_objects: list[dict[str, Any]]
+    voter_outcomes: dict[str, SessionOutcome]
+    candidates: dict[str, dict[str, Candidate | None]]
+    candidate_validations: dict[str, dict[str, list[Any]]]
+    consensus: dict[str, Any]
+    picked_validations: dict[str, list[Any]]
+    scores: dict[str, float]
+    to_escalate: list[str]
+    escalation_outcome: SessionOutcome | None
+    escalation_candidates: dict[str, Candidate | None]
+    escalated: bool
+    results: dict[str, dict[str, Any]]
+    error: str | None
+
+
+def _runtime(state: WorkflowState) -> dict[str, Any]:
+    with _RUNTIME_LOCK:
+        return _RUNTIME_CONTEXTS[state["run_key"]]
+
+
+@contextmanager
+def _quiet_sqlglot_logs():
+    global _SQLGLOT_LOG_LEVEL, _SQLGLOT_LOG_USERS
+    logger = logging.getLogger("sqlglot")
+    with _SQLGLOT_LOG_LOCK:
+        if _SQLGLOT_LOG_USERS == 0:
+            _SQLGLOT_LOG_LEVEL = logger.level
+            logger.setLevel(logging.CRITICAL + 1)
+        _SQLGLOT_LOG_USERS += 1
+    try:
+        yield
+    finally:
+        with _SQLGLOT_LOG_LOCK:
+            _SQLGLOT_LOG_USERS -= 1
+            if _SQLGLOT_LOG_USERS == 0:
+                logger.setLevel(_SQLGLOT_LOG_LEVEL or logging.NOTSET)
+                _SQLGLOT_LOG_LEVEL = None
+
+
+def _obj_value(item: Any, key: str, default: Any = None) -> Any:
+    return item.get(key, default) if isinstance(item, dict) else getattr(item, key, default)
+
+
+def _all_names(objects: list[dict[str, Any]]) -> tuple[set[str], set[str]]:
+    converted = {
+        str(item.get("qualified_name", ""))
+        for item in objects
+        if not item.get("external") and item.get("qualified_name")
+    }
+    external = {
+        str(item.get("qualified_name", ""))
+        for item in objects
+        if item.get("external") and item.get("qualified_name")
+    }
+    return converted, external
+
+
+def _type_map(session: dict[str, Any], source: str, target: str) -> dict[str, list[str]]:
+    from migraai.kb.search import get_mappings
+
+    db_path = session.get("kb_path")
+    try:
+        source_mappings = get_mappings(source, db_path=db_path)
+        target_mappings = get_mappings(target, db_path=db_path)
+    except Exception:
+        return {}
+    targets: dict[str, list[str]] = {}
+    for mapping in target_mappings:
+        if mapping["kind"] == "type":
+            targets.setdefault(str(mapping["canonical"]), []).append(str(mapping["native"]))
+    return {
+        str(mapping["native"]): targets.get(str(mapping["canonical"]), [])
+        for mapping in source_mappings
+        if mapping["kind"] == "type"
+    }
+
+
+def _source_grants(objects: list[dict[str, Any]]) -> dict[str, set[tuple[str, str]]]:
+    from migraai.discovery import ast
+
+    result: dict[str, set[tuple[str, str]]] = {}
+    for item in objects:
+        node = item.get("node")
+        if not isinstance(node, ast.Node):
+            continue
+        for child in node.walk():
+            if not isinstance(child, ast.Grant):
+                continue
+            grantees = [
+                ".".join(part.value for part in grantee.parts) for grantee in child.grantees
+            ]
+            values = result.setdefault(str(item.get("source_qualified_name", "")), set())
+            values.update(
+                (grantee, privilege) for grantee in grantees for privilege in child.privileges
+            )
+    return result
+
+
+def _validation_context(state: WorkflowState) -> ValidationContext:
+    runtime = _runtime(state)
+    source_objects = state["conversion_objects"]
+    all_objects = runtime["all_objects"]
+    converted, external = _all_names(all_objects)
+    type_map = _type_map(runtime["session"], state["source"], state["target"])
+    table_columns: dict[str, list[tuple[str, str]]] = {}
+    for item in source_objects:
+        name = state["name_map"].get(item["source_qualified_name"], item["source_qualified_name"])
+        columns = []
+        for column in item.get("source_columns", []):
+            source_type = str(column.get("type", "UNKNOWN"))
+            targets = type_map.get(source_type, [])
+            columns.append((str(column.get("name", "")), targets[0] if targets else source_type))
+        table_columns[name] = columns
+    return ValidationContext(
+        target=state["target"],
+        pack=runtime["pack"],
+        name_map=state["name_map"],
+        converted=converted,
+        external=external,
+        order=runtime["order"],
+        table_columns=table_columns,
+        type_map=type_map,
+        source_grants=runtime["source_grants"],
+    )
+
+
+def _as_candidate(voter: str, object_id: str, value: Any, target: str) -> Candidate | None:
+    if not isinstance(value, dict):
+        return None
+    files = value.get("files")
+    if not isinstance(files, list):
+        return None
+    normalized_files = [
+        file
+        for file in files
+        if isinstance(file, dict)
+        and isinstance(file.get("rel_path"), str)
+        and isinstance(file.get("language"), str)
+        and isinstance(file.get("content"), str)
+    ]
+    if not normalized_files:
+        return None
+    try:
+        confidence = float(value.get("self_confidence", 0.0))
+    except (TypeError, ValueError):
+        confidence = 0.0
+    return Candidate(
+        voter=voter,
+        object_id=object_id,
+        files=normalized_files,
+        explanations=list(value.get("explanations") or []),
+        assumptions=list(value.get("assumptions") or []),
+        unsupported=list(value.get("unsupported") or []),
+        self_confidence=min(1.0, max(0.0, confidence)),
+        normalized=normalise_files(normalized_files, target),
+        raw=value,
+    )
+
+
+def _validation(
+    source_object: dict[str, Any],
+    candidate: Candidate,
+    context: ValidationContext,
+) -> list[Any]:
+    output_files = [
+        OutputFile(
+            rel_path=str(item["rel_path"]),
+            language=str(item["language"]),
+            content=str(item["content"]),
+            etl_format_id=item.get("etl_format_id"),
+        )
+        for item in candidate.files
+    ]
+    under_test = ObjectUnderTest(
+        source_qualified_name=source_object["source_qualified_name"],
+        object_type=source_object["object_type"],
+        dependencies=source_object["dependencies"],
+        source_column_types=[
+            (str(column["name"]), str(column.get("type", "")))
+            for column in source_object.get("source_columns", [])
+        ],
+        files=output_files,
+    )
+    return validate_object(under_test, context)
+
+
+def _build_context(state: WorkflowState) -> dict[str, Any]:
+    from migraai.agents.context import build_batch
+
+    runtime = _runtime(state)
+    attachment, objects = build_batch(
+        runtime["session"],
+        runtime["batch"],
+        state["source"],
+        state["target"],
+        runtime["pack"],
+        state["name_map"],
+    )
+    runtime["source_grants"] = _source_grants(objects)
+    for item in objects:
+        item.pop("node", None)
+    state["attachment_md"] = attachment
+    state["conversion_objects"] = objects
+    runtime["validation_context"] = _validation_context(state)
+    return state
+
+
+def _run_voter(state: WorkflowState, voter: str) -> tuple[str, SessionOutcome]:
+    runtime = _runtime(state)
+    if runtime["cancel"].is_set():
+        return voter, SessionOutcome(None, None, "cancelled", None, None, "Session cancelled.")
+    client = None
+    prompt = VOTER_BASE.format(
+        source=state["source"],
+        target=state["target"],
+        count=len(state["conversion_objects"]),
+        stance=STANCES[voter].format(target=state["target"]),
+    )
+    try:
+        client = runtime["client_factory"](voter)
+        with runtime["session_semaphore"]:
+            outcome = run_session(
+                client,
+                prompt=prompt,
+                attachment_name=f"conversion-batch-{state['batch_index'] + 1}.md",
+                attachment_md=state["attachment_md"],
+                schema=CONVERSION_SCHEMA,
+                title=f"{state['source']} to {state['target']} conversion batch",
+                tags=[
+                    "migraai",
+                    f"batch-{state['batch_index'] + 1}",
+                    f"voter-{voter}",
+                ],
+                timeout_s=runtime["timeout_s"],
+                cancel=runtime["cancel"],
+                poll_initial=0.1,
+                poll_max=3,
+            )
+    except Exception as error:
+        outcome = SessionOutcome(
+            None,
+            None,
+            "failed",
+            None,
+            None,
+            f"Conversion voter failed ({type(error).__name__}).",
+        )
+    finally:
+        close = getattr(client, "close", None) if client is not None else None
+        if close is not None:
+            try:
+                close()
+            except Exception:
+                pass
+    return voter, outcome
+
+
+def _vote(state: WorkflowState) -> dict[str, Any]:
+    outcomes: dict[str, SessionOutcome] = {}
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = [executor.submit(_run_voter, state, voter) for voter in ("A", "B", "C")]
+        for future in as_completed(futures):
+            voter, outcome = future.result()
+            outcomes[voter] = outcome
+    candidates: dict[str, dict[str, Candidate | None]] = {}
+    for source_object in state["conversion_objects"]:
+        object_id = source_object["object_id"]
+        candidates[object_id] = {}
+        for voter, outcome in outcomes.items():
+            output = outcome.structured_output
+            entries = output.get("objects", []) if isinstance(output, dict) else []
+            entry = next(
+                (
+                    item
+                    for item in entries
+                    if isinstance(item, dict) and item.get("object_id") == object_id
+                ),
+                None,
+            )
+            candidates[object_id][voter] = _as_candidate(voter, object_id, entry, state["target"])
+    return {"voter_outcomes": outcomes, "candidates": candidates}
+
+
+def _consensus(state: WorkflowState) -> dict[str, Any]:
+    chosen: dict[str, Any] = {}
+    for source_object in state["conversion_objects"]:
+        object_id = source_object["object_id"]
+        result = choose(state["candidates"][object_id], target=state["target"])
+        chosen[object_id] = {
+            "candidate": (
+                state["candidates"][object_id].get(result.picked_voter)
+                if result.picked_voter
+                else None
+            ),
+            "picked_voter": result.picked_voter,
+            "agreement": result.agreement,
+            "pairwise": result.pairwise,
+        }
+    return {"consensus": chosen}
+
+
+def _validate(state: WorkflowState) -> dict[str, Any]:
+    candidate_validations: dict[str, dict[str, list[Any]]] = {}
+    picked_validations: dict[str, list[Any]] = {}
+    for source_object in state["conversion_objects"]:
+        object_id = source_object["object_id"]
+        candidates = state["candidates"][object_id]
+        results = {
+            voter: _validation(source_object, candidate, _runtime(state)["validation_context"])
+            for voter, candidate in candidates.items()
+            if candidate is not None
+        }
+        candidate_validations[object_id] = results
+        result = choose(candidates, results, target=state["target"])
+        selected = state["consensus"][object_id]
+        selected.update(
+            candidate=candidates.get(result.picked_voter) if result.picked_voter else None,
+            picked_voter=result.picked_voter,
+            agreement=result.agreement,
+            pairwise=result.pairwise,
+        )
+        picked_validations[object_id] = (
+            results.get(result.picked_voter, []) if result.picked_voter else []
+        )
+    return {
+        "candidate_validations": candidate_validations,
+        "picked_validations": picked_validations,
+    }
+
+
+def _score(state: WorkflowState) -> dict[str, Any]:
+    scores: dict[str, float] = {}
+    to_escalate: list[str] = []
+    for source_object in state["conversion_objects"]:
+        object_id = source_object["object_id"]
+        selected = state["consensus"][object_id]
+        candidate = selected["candidate"]
+        value = (
+            score(
+                selected["agreement"],
+                pass_rate(state["picked_validations"][object_id]),
+                [
+                    item.self_confidence
+                    for item in state["candidates"][object_id].values()
+                    if item is not None
+                ],
+            )
+            if candidate is not None
+            else 0.0
+        )
+        scores[object_id] = value
+        if value < state["confidence_threshold"]:
+            to_escalate.append(object_id)
+    return {"scores": scores, "to_escalate": to_escalate}
+
+
+def _run_escalation(state: WorkflowState) -> dict[str, Any]:
+    runtime = _runtime(state)
+    if not state["to_escalate"]:
+        return {"escalation_outcome": None, "escalation_candidates": {}, "escalated": False}
+    candidates = state["candidates"]
+    context_by_id = {item["object_id"]: item for item in state["conversion_objects"]}
+    escalation_objects = []
+    for object_id in state["to_escalate"]:
+        source_object = context_by_id[object_id]
+        candidate_summary = {}
+        findings = {}
+        for voter, candidate in candidates[object_id].items():
+            candidate_summary[voter] = candidate.raw if candidate else None
+            findings[voter] = [
+                asdict(finding)
+                for finding in state["candidate_validations"][object_id].get(voter, [])
+            ]
+        escalation_objects.append(
+            {
+                "object_id": object_id,
+                "rel_path": source_object["rel_path"],
+                "language": source_object["language"],
+                "object_type": source_object["object_type"],
+                "candidates": candidate_summary,
+                "validator_findings": findings,
+                "source_text": source_object["source_text"],
+            }
+        )
+    attachment = render_batch(
+        escalation_objects,
+        sections=[
+            (
+                "Original batch context",
+                state["attachment_md"].split("<!-- migraai-object -->", 1)[0].strip(),
+            )
+        ],
+    )
+    client = None
+    try:
+        client = runtime["client_factory"]("escalation")
+        with runtime["session_semaphore"]:
+            outcome = run_session(
+                client,
+                prompt=ESCALATION.format(
+                    source=state["source"],
+                    target=state["target"],
+                    count=len(escalation_objects),
+                ),
+                attachment_name=f"conversion-batch-{state['batch_index'] + 1}-escalation.md",
+                attachment_md=attachment,
+                schema=CONVERSION_SCHEMA,
+                title=f"{state['source']} to {state['target']} conversion escalation",
+                tags=["migraai", f"batch-{state['batch_index'] + 1}", "escalation"],
+                timeout_s=runtime["timeout_s"],
+                cancel=runtime["cancel"],
+                poll_initial=0.1,
+                poll_max=3,
+            )
+    except Exception as error:
+        outcome = SessionOutcome(
+            None,
+            None,
+            "failed",
+            None,
+            None,
+            f"Conversion escalation failed ({type(error).__name__}).",
+        )
+    finally:
+        close = getattr(client, "close", None) if client is not None else None
+        if close is not None:
+            try:
+                close()
+            except Exception:
+                pass
+    revised: dict[str, Candidate | None] = {}
+    output = outcome.structured_output
+    entries = output.get("objects", []) if isinstance(output, dict) else []
+    for object_id in state["to_escalate"]:
+        entry = next(
+            (
+                item
+                for item in entries
+                if isinstance(item, dict) and item.get("object_id") == object_id
+            ),
+            None,
+        )
+        revised[object_id] = (
+            _as_candidate(
+                "escalation",
+                object_id,
+                entry,
+                state["target"],
+            )
+            if outcome.state == "done"
+            else None
+        )
+    return {
+        "escalation_outcome": outcome,
+        "escalation_candidates": revised,
+        "escalated": outcome.state == "done" and any(revised.values()),
+    }
+
+
+def _revalidate(state: WorkflowState) -> dict[str, Any]:
+    results = {key: dict(value) for key, value in state["consensus"].items()}
+    picked_validations = dict(state["picked_validations"])
+    scores = dict(state["scores"])
+    for object_id in state["to_escalate"]:
+        revised = state.get("escalation_candidates", {}).get(object_id)
+        if revised is None:
+            continue
+        source_object = next(
+            item for item in state["conversion_objects"] if item["object_id"] == object_id
+        )
+        checks = _validation(source_object, revised, _runtime(state)["validation_context"])
+        previous = results[object_id]
+        selected = revised
+        results[object_id] = {
+            "candidate": selected,
+            "picked_voter": "escalation",
+            "agreement": previous["agreement"],
+            "pairwise": previous["pairwise"],
+        }
+        picked_validations[object_id] = checks
+        confidences = [
+            item.self_confidence
+            for item in state["candidates"][object_id].values()
+            if item is not None
+        ]
+        confidences.append(selected.self_confidence)
+        scores[object_id] = score(
+            previous["agreement"],
+            pass_rate(checks),
+            confidences,
+        )
+    return {"consensus": results, "picked_validations": picked_validations, "scores": scores}
+
+
+def _finalise(state: WorkflowState) -> dict[str, Any]:
+    results = {}
+    for source_object in state["conversion_objects"]:
+        object_id = source_object["object_id"]
+        selected = state["consensus"][object_id]
+        candidate = selected["candidate"]
+        confidence = state["scores"][object_id]
+        if candidate is None:
+            status = "failed"
+        elif confidence >= state["confidence_threshold"]:
+            status = "converted"
+        else:
+            status = "expert_review"
+        results[object_id] = {
+            "object_id": object_id,
+            "source_qualified_name": source_object["source_qualified_name"],
+            "status": status,
+            "confidence": confidence,
+            "picked_voter": selected["picked_voter"],
+            "candidate": candidate,
+            "checks": state["picked_validations"].get(object_id, []),
+            "escalated": object_id in state["to_escalate"],
+            "agreement": selected["agreement"],
+        }
+    return {"results": results}
+
+
+def build_workflow():
+    graph = StateGraph(WorkflowState)
+    graph.add_node("build_context", _build_context)
+    graph.add_node("vote", _vote)
+    graph.add_node("consensus", _consensus)
+    graph.add_node("validate", _validate)
+    graph.add_node("score", _score)
+    graph.add_node("escalate", _run_escalation)
+    graph.add_node("revalidate", _revalidate)
+    graph.add_node("finalise", _finalise)
+    graph.add_edge(START, "build_context")
+    graph.add_edge("build_context", "vote")
+    graph.add_edge("vote", "consensus")
+    graph.add_edge("consensus", "validate")
+    graph.add_edge("validate", "score")
+    graph.add_edge("score", "escalate")
+    graph.add_edge("escalate", "revalidate")
+    graph.add_edge("revalidate", "finalise")
+    graph.add_edge("finalise", END)
+    return graph.compile(checkpointer=MemorySaver())
+
+
+def run_batch_workflow(
+    *,
+    session: dict[str, Any],
+    batch: Any,
+    source: str,
+    target: str,
+    pack: Any,
+    name_map: dict[str, str],
+    all_objects: list[dict[str, Any]],
+    all_edges: list[Any],
+    order: list[str],
+    confidence_threshold: float,
+    timeout_s: float,
+    cancel: threading.Event,
+    session_semaphore: threading.Semaphore,
+    client_factory: Callable[[str], Any],
+    workflow: Any | None = None,
+    run_id: str = "conversion",
+) -> WorkflowState:
+    graph = workflow or build_workflow()
+    run_key = f"{run_id}-{batch.index}"
+    runtime = {
+        "session": session,
+        "batch": batch,
+        "pack": pack,
+        "all_objects": all_objects,
+        "all_edges": all_edges,
+        "order": order,
+        "timeout_s": timeout_s,
+        "cancel": cancel,
+        "session_semaphore": session_semaphore,
+        "client_factory": client_factory,
+    }
+    with _RUNTIME_LOCK:
+        _RUNTIME_CONTEXTS[run_key] = runtime
+    state: WorkflowState = {
+        "run_key": run_key,
+        "batch_index": batch.index,
+        "source": source,
+        "target": target,
+        "name_map": name_map,
+        "confidence_threshold": confidence_threshold,
+    }
+    try:
+        with _quiet_sqlglot_logs():
+            return graph.invoke(
+                state,
+                config={"configurable": {"thread_id": run_key}},
+            )
+    finally:
+        with _RUNTIME_LOCK:
+            _RUNTIME_CONTEXTS.pop(run_key, None)
+
+
+__all__ = ["CONVERSION_SCHEMA", "WorkflowState", "build_workflow", "run_batch_workflow"]

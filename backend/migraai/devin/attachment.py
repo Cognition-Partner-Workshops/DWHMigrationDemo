@@ -20,8 +20,14 @@ def _fence_for(text: str) -> str:
     return "`" * max(3, max(backtick_runs, default=0) + 1)
 
 
-def render_batch(objects: Iterable[Mapping[str, Any]]) -> str:
+def render_batch(
+    objects: Iterable[Mapping[str, Any]],
+    *,
+    sections: list[tuple[str, str]] | None = None,
+) -> str:
     rendered = f"{_BATCH_MARKER}\n\n"
+    for title, content in sections or []:
+        rendered += f"## {title}\n\n{content.rstrip()}\n\n"
     for obj in objects:
         item = dict(obj)
         object_id = item.pop("object_id", None)

@@ -160,6 +160,24 @@ class MockDevinClient:
             raw_files = obj.get("files")
             if isinstance(raw_files, list) and raw_files:
                 source_files = [file for file in raw_files if isinstance(file, dict)]
+            elif isinstance(obj.get("output_formats"), list) and obj["output_formats"]:
+                source_files = []
+                for item in obj["output_formats"]:
+                    if not isinstance(item, dict):
+                        continue
+                    extension = _LANGUAGE_EXTENSIONS.get(
+                        str(item.get("language", "sql")),
+                        "sql",
+                    )
+                    source_files.append(
+                        {
+                            "rel_path": item.get("rel_path")
+                            or item.get("path")
+                            or f"{object_id}.{extension}",
+                            "language": item.get("language", language),
+                            "content": item.get("skeleton", obj.get("source_text", "")),
+                        }
+                    )
             else:
                 source_files = [
                     {
@@ -186,6 +204,17 @@ class MockDevinClient:
                 if not rel_path:
                     extension = _LANGUAGE_EXTENSIONS.get(file_language, "sql")
                     rel_path = f"{object_id}.{extension}"
+                if self.scenario.different_candidate_per_stance:
+                    path, extension = (
+                        str(rel_path).rsplit(".", 1)
+                        if "." in str(rel_path)
+                        else (str(rel_path), "")
+                    )
+                    rel_path = (
+                        f"{path}.{voter.lower()}.{extension}"
+                        if extension
+                        else f"{path}.{voter.lower()}"
+                    )
                 output_files.append(
                     {
                         "rel_path": str(rel_path),
