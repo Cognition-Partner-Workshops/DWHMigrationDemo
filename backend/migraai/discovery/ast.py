@@ -64,7 +64,7 @@ class Node:
             if item.name == "span":
                 continue
             value = getattr(self, item.name)
-            if _is_omitted(value):
+            if _is_omitted(value) or (item.metadata.get("omit_default") and value == item.default):
                 continue
             result[item.name] = _serialize(value)
         return result
@@ -227,6 +227,7 @@ class Cast(Node):
     to: DataType | None = None
     style: str = "cast"
     format: Expr | None = None
+    function_name: str | None = None
 
 
 @dataclass(slots=True)
@@ -297,6 +298,7 @@ class StructField(Node):
     name: Identifier = field(default_factory=Identifier)
     type: DataType | None = None
     value: Expr | None = None
+    comment: Literal | None = None
 
 
 @dataclass(slots=True)
@@ -332,6 +334,7 @@ class Lambda(Node):
 class DialectExpr(Node):
     name: str = ""
     args: dict[str, Node | list[Node] | str | None] = field(default_factory=dict)
+    ref_hints: list[RefHint] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -474,6 +477,9 @@ class Select(Node):
     windows: dict[str, WindowSpec] = field(default_factory=dict)
     sample: Expr | None = None
     hints: list[str] = field(default_factory=list)
+    hierarchical: DialectExpr | None = None
+    into_list: list[Expr] = field(default_factory=list)
+    bulk_collect: bool = field(default=False, metadata={"omit_default": True})
 
 
 @dataclass(slots=True)
@@ -482,6 +488,9 @@ class Query(Node):
     body: Select | SetOperation | Values | Subquery | None = None
     order_by: list[OrderItem] = field(default_factory=list)
     limit: Limit | None = None
+    distribute_by: list[Expr] = field(default_factory=list)
+    sort_by: list[OrderItem] = field(default_factory=list)
+    cluster_by: list[Expr] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -503,6 +512,10 @@ class Insert(Node):
     overwrite: bool = False
     partition: list[Assignment] = field(default_factory=list)
     conflict: Node | None = None
+    top: Top | None = None
+    output: list[SelectItem] = field(default_factory=list)
+    output_into: QualifiedName | None = None
+    target_variable: Variable | None = None
 
 
 @dataclass(slots=True)
@@ -512,6 +525,10 @@ class Update(Node):
     assignments: list[Assignment] = field(default_factory=list)
     from_: list[FromItem] = field(default_factory=list)
     where: Expr | None = None
+    top: Top | None = None
+    output: list[SelectItem] = field(default_factory=list)
+    output_into: QualifiedName | None = None
+    target_variable: Variable | None = None
 
 
 @dataclass(slots=True)
@@ -520,6 +537,10 @@ class Delete(Node):
     alias: Identifier | None = None
     using: list[FromItem] = field(default_factory=list)
     where: Expr | None = None
+    top: Top | None = None
+    output: list[SelectItem] = field(default_factory=list)
+    output_into: QualifiedName | None = None
+    target_variable: Variable | None = None
 
 
 @dataclass(slots=True)
@@ -536,6 +557,10 @@ class Merge(Node):
     source: FromItem | None = None
     on: Expr | None = None
     clauses: list[MergeClause] = field(default_factory=list)
+    top: Top | None = None
+    output: list[SelectItem] = field(default_factory=list)
+    output_into: QualifiedName | None = None
+    target_variable: Variable | None = None
 
 
 @dataclass(slots=True)
@@ -715,6 +740,7 @@ class Grant(Node):
     object_name: QualifiedName = field(default_factory=QualifiedName)
     grantees: list[QualifiedName] = field(default_factory=list)
     with_grant_option: bool = False
+    grantee_kinds: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -724,6 +750,7 @@ class Revoke(Node):
     object_name: QualifiedName = field(default_factory=QualifiedName)
     grantees: list[QualifiedName] = field(default_factory=list)
     with_grant_option: bool = False
+    grantee_kinds: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -777,6 +804,7 @@ class If(Node):
 class While(Node):
     condition: Expr | None = None
     statements: list[Node] = field(default_factory=list)
+    label: str | None = None
 
 
 @dataclass(slots=True)
@@ -798,12 +826,15 @@ class ForLoop(Node):
     var: Identifier = field(default_factory=Identifier)
     iterable: Query | Range | Expr | None = None
     statements: list[Node] = field(default_factory=list)
+    label: str | None = None
+    cursor: Identifier | None = None
 
 
 @dataclass(slots=True)
 class Repeat(Node):
     statements: list[Node] = field(default_factory=list)
     until: Expr | None = None
+    label: str | None = None
 
 
 @dataclass(slots=True)
@@ -879,6 +910,8 @@ class OpenCursor(Node):
 class Fetch(Node):
     name: Identifier = field(default_factory=Identifier)
     into: list[Identifier] = field(default_factory=list)
+    bulk_collect: bool = field(default=False, metadata={"omit_default": True})
+    limit: Expr | None = None
 
 
 @dataclass(slots=True)
@@ -934,6 +967,7 @@ class Issue:
 class ParseResult:
     statements: list[Node] = field(default_factory=list)
     issues: list[Issue] = field(default_factory=list)
+    default_schema: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {}
@@ -941,6 +975,8 @@ class ParseResult:
             result["statements"] = [_serialize(statement) for statement in self.statements]
         if self.issues:
             result["issues"] = [_serialize(issue) for issue in self.issues]
+        if self.default_schema is not None:
+            result["default_schema"] = self.default_schema
         return result
 
 

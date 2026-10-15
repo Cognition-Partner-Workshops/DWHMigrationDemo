@@ -1,0 +1,193 @@
+{
+  "kind": "create_view",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 96
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 26,
+      "end_line": 1,
+      "end_col": 47
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 26,
+          "end_line": 1,
+          "end_col": 35
+        },
+        "value": "LOGISTICS",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 36,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "value": "SHIPMENT_MV",
+        "quoted": false
+      }
+    ]
+  },
+  "query": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 51,
+      "end_line": 1,
+      "end_col": 57
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 51,
+        "end_line": 1,
+        "end_col": 57
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 58,
+            "end_line": 1,
+            "end_col": 60
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 58,
+              "end_line": 1,
+              "end_col": 60
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 58,
+                "end_line": 1,
+                "end_col": 60
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 58,
+                    "end_line": 1,
+                    "end_col": 60
+                  },
+                  "value": "ID",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 66,
+            "end_line": 1,
+            "end_col": 75
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 66,
+              "end_line": 1,
+              "end_col": 84
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 66,
+                  "end_line": 1,
+                  "end_col": 75
+                },
+                "value": "LOGISTICS",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 76,
+                  "end_line": 1,
+                  "end_col": 84
+                },
+                "value": "SHIPMENT",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "order_by": [
+      {
+        "kind": "order_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 94,
+            "end_line": 1,
+            "end_col": 96
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 94,
+              "end_line": 1,
+              "end_col": 96
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 94,
+                  "end_line": 1,
+                  "end_col": 96
+                },
+                "value": "ID",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "desc": false
+      }
+    ]
+  },
+  "materialized": true,
+  "replace": false,
+  "secure": false
+}

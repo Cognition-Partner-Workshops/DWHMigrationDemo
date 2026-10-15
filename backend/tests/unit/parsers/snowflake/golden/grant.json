@@ -1,0 +1,63 @@
+{
+  "kind": "grant",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 47
+  },
+  "privileges": [
+    "create table"
+  ],
+  "object_kind": "schema",
+  "object_name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 30,
+      "end_line": 1,
+      "end_col": 31
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 30,
+          "end_line": 1,
+          "end_col": 31
+        },
+        "value": "s",
+        "quoted": false
+      }
+    ]
+  },
+  "grantees": [
+    {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 40,
+        "end_line": 1,
+        "end_col": 47
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 40,
+            "end_line": 1,
+            "end_col": 47
+          },
+          "value": "analyst",
+          "quoted": false
+        }
+      ]
+    }
+  ],
+  "with_grant_option": false,
+  "grantee_kinds": [
+    "role"
+  ]
+}

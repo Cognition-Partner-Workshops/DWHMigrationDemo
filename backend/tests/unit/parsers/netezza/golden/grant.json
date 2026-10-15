@@ -1,0 +1,72 @@
+{
+  "kind": "grant",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 56
+  },
+  "privileges": [
+    "SELECT",
+    "INSERT"
+  ],
+  "object_kind": "object",
+  "object_name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 25,
+      "end_line": 1,
+      "end_col": 43
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 25,
+          "end_line": 1,
+          "end_col": 34
+        },
+        "value": "LOGISTICS",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 35,
+          "end_line": 1,
+          "end_col": 43
+        },
+        "value": "SHIPMENT",
+        "quoted": false
+      }
+    ]
+  },
+  "grantees": [
+    {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 53,
+        "end_line": 1,
+        "end_col": 56
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 53,
+            "end_line": 1,
+            "end_col": 56
+          },
+          "value": "OPS",
+          "quoted": false
+        }
+      ]
+    }
+  ],
+  "with_grant_option": false
+}

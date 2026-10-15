@@ -1,0 +1,46 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 41
+  },
+  "name": "show",
+  "args": {
+    "kind": "tables",
+    "database": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 16,
+        "end_line": 1,
+        "end_col": 25
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 16,
+            "end_line": 1,
+            "end_col": 25
+          },
+          "value": "analytics",
+          "quoted": false
+        }
+      ]
+    },
+    "pattern": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 36,
+        "end_line": 1,
+        "end_col": 41
+      },
+      "type": "string",
+      "value": "ev*"
+    }
+  }
+}

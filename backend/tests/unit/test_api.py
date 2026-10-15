@@ -374,6 +374,78 @@ def test_plan_cache_regenerate_and_stale_flag(client: TestClient) -> None:
     )
 
 
+def test_plan_inventory_fingerprint_cache_staleness_and_audit(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    csrf = launch(client)
+    headers = {**HOST_HEADER, "X-MigraAI-CSRF": csrf}
+    client.post(
+        "/api/session/confirm",
+        json={"source": "teradata", "target": "snowflake"},
+        headers=headers,
+    )
+    session = client.app.state.current_session
+    aggregates = {
+        "objects_by_type": {"table": 2},
+        "parse_status_counts": {"parsed": 2},
+        "files_by_detected_type": {"sql:ansi": 1},
+        "total_dependencies": 0,
+        "dependencies_by_kind": {},
+        "external_reference_count": 0,
+        "issues_by_severity": {},
+        "total_source_lines": 12,
+    }
+    current_fingerprint = "current-inventory-fingerprint"
+    monkeypatch.setattr(session["inventory"], "aggregates", lambda: aggregates)
+    monkeypatch.setattr(session["inventory"], "fingerprint", lambda: current_fingerprint)
+    client.app.state.plan_job = None
+    store = client.app.state.plan_store
+    draft = build_local_draft("teradata", "snowflake", client.app.state.kb_store.current_path)
+    version = client.app.state.kb_store.current_version
+    store.save(
+        draft,
+        source="teradata",
+        target="snowflake",
+        kb_version=version,
+        origin="devin",
+        inventory_fingerprint="older-inventory-fingerprint",
+    )
+
+    assert client.get("/api/plan", headers=HOST_HEADER).json()["inventory_stale"] is True
+    generated = client.post("/api/plan", json={}, headers=headers).json()
+    assert generated["origin"] == "local_draft"
+    assert generated["inventory_stale"] is False
+
+    audit_records = [
+        json.loads(line)
+        for line in client.app.state.audit_log.path.read_text(encoding="utf-8").splitlines()
+    ]
+    summary_records = [
+        record for record in audit_records if record["action"] == "plan.inventory_summary"
+    ]
+    assert summary_records[-1]["details"] == {"inventory_fingerprint": current_fingerprint}
+
+    store.save(
+        draft,
+        source="teradata",
+        target="snowflake",
+        kb_version=version,
+        origin="devin",
+        inventory_fingerprint=current_fingerprint,
+    )
+    cached = client.post("/api/plan", json={}, headers=headers).json()
+    assert cached["cached"] is True
+    assert cached["inventory_stale"] is False
+
+    monkeypatch.setattr(
+        session["inventory"], "fingerprint", lambda: "changed-inventory-fingerprint"
+    )
+    assert client.get("/api/plan", headers=HOST_HEADER).json()["inventory_stale"] is True
+    no_longer_cached = client.post("/api/plan", json={}, headers=headers).json()
+    assert no_longer_cached["cached"] is False
+    assert no_longer_cached["inventory_stale"] is False
+
+
 def test_bad_seed_falls_back_to_empty_kb_and_reports_error_count(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:

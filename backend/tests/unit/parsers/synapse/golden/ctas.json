@@ -1,0 +1,179 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 81
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 22
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 17
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 18,
+          "end_line": 1,
+          "end_col": 22
+        },
+        "value": "fact",
+        "quoted": false
+      }
+    ]
+  },
+  "as_query": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 57,
+      "end_line": 1,
+      "end_col": 63
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 57,
+        "end_line": 1,
+        "end_col": 63
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 64,
+            "end_line": 1,
+            "end_col": 66
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 64,
+              "end_line": 1,
+              "end_col": 66
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 64,
+                "end_line": 1,
+                "end_col": 66
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 64,
+                    "end_line": 1,
+                    "end_col": 66
+                  },
+                  "value": "id",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 72,
+            "end_line": 1,
+            "end_col": 75
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 72,
+              "end_line": 1,
+              "end_col": 81
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 72,
+                  "end_line": 1,
+                  "end_col": 75
+                },
+                "value": "dbo",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 76,
+                  "end_line": 1,
+                  "end_col": 81
+                },
+                "value": "stage",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "temporary": false,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false,
+  "options": {
+    "distribution": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "distribution",
+      "args": {
+        "type": "hash",
+        "columns": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 49,
+              "end_line": 1,
+              "end_col": 51
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  }
+}

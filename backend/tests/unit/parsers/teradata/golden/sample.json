@@ -1,0 +1,154 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 45
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "top": {
+      "kind": "top",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "count": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 12,
+          "end_line": 1,
+          "end_col": 14
+        },
+        "type": "number",
+        "value": "10"
+      },
+      "percent": false,
+      "with_ties": false
+    },
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 15,
+          "end_line": 1,
+          "end_col": 17
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 15,
+            "end_line": 1,
+            "end_col": 17
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 15,
+              "end_line": 1,
+              "end_col": 17
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 15,
+                  "end_line": 1,
+                  "end_col": 17
+                },
+                "value": "id",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 23,
+          "end_line": 1,
+          "end_col": 28
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 23,
+            "end_line": 1,
+            "end_col": 35
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 23,
+                "end_line": 1,
+                "end_col": 28
+              },
+              "value": "sales",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 29,
+                "end_line": 1,
+                "end_col": 35
+              },
+              "value": "orders",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "sample": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "sample",
+      "args": {
+        "values": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 43,
+              "end_line": 1,
+              "end_col": 45
+            },
+            "type": "number",
+            "value": "10"
+          }
+        ],
+        "with_replacement": false,
+        "randomized_allocation": false
+      }
+    }
+  }
+}

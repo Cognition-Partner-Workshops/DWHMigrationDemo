@@ -1,0 +1,110 @@
+{
+  "kind": "create_sequence",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 95
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 17,
+      "end_line": 1,
+      "end_col": 33
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 21
+        },
+        "value": "BANK",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 22,
+          "end_line": 1,
+          "end_col": 33
+        },
+        "value": "ACCOUNT_SEQ",
+        "quoted": false
+      }
+    ]
+  },
+  "options": {
+    "type": {
+      "kind": "data_type",
+      "span": {
+        "start_line": 1,
+        "start_col": 37,
+        "end_line": 1,
+        "end_col": 43
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 37,
+          "end_line": 1,
+          "end_col": 43
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 37,
+              "end_line": 1,
+              "end_col": 43
+            },
+            "value": "BIGINT",
+            "quoted": false
+          }
+        ]
+      }
+    },
+    "start_with": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 55,
+        "end_line": 1,
+        "end_col": 56
+      },
+      "type": "number",
+      "value": "1"
+    },
+    "increment_by": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 70,
+        "end_line": 1,
+        "end_col": 71
+      },
+      "type": "number",
+      "value": "1"
+    },
+    "no_cycle": true,
+    "cache": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 87,
+        "end_line": 1,
+        "end_col": 89
+      },
+      "type": "number",
+      "value": "20"
+    },
+    "order": true
+  }
+}

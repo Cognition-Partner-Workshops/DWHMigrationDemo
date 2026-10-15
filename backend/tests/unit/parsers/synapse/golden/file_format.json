@@ -1,0 +1,81 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 108
+  },
+  "name": "create_external_file_format",
+  "args": {
+    "object_type": "external_file_format",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 29,
+        "end_line": 1,
+        "end_col": 32
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 29,
+            "end_line": 1,
+            "end_col": 32
+          },
+          "value": "csv",
+          "quoted": false
+        }
+      ]
+    },
+    "options": {
+      "format_type": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 53,
+            "end_line": 1,
+            "end_col": 66
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 53,
+                "end_line": 1,
+                "end_col": 66
+              },
+              "value": "DELIMITEDTEXT",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "format_options": {
+        "field_terminator": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 106,
+            "end_line": 1,
+            "end_col": 109
+          },
+          "type": "string",
+          "value": ","
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "kind": "create_principal",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 36
+  },
+  "principal_kind": "group",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 17
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 17
+        },
+        "value": "OPS",
+        "quoted": false
+      }
+    ]
+  },
+  "options": {
+    "users": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 28,
+          "end_line": 1,
+          "end_col": 36
+        },
+        "value": "ETL_USER",
+        "quoted": false
+      }
+    ]
+  }
+}

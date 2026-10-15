@@ -1,0 +1,10 @@
+CREATE TABLE dbo.AuditEvent (id INT PRIMARY KEY, actor_id INT);
+CREATE TABLE dbo.AuditUser (id INT PRIMARY KEY, name NVARCHAR(100));
+CREATE TABLE dbo.Returns (id INT PRIMARY KEY, sales_line_id INT REFERENCES dbo.SalesLine(id));
+CREATE TABLE dbo.Shipment (id INT PRIMARY KEY, sales_id INT REFERENCES dbo.Sales(id));
+CREATE TABLE dbo.ShipmentLine (id INT PRIMARY KEY, shipment_id INT REFERENCES dbo.Shipment(id), sales_line_id INT REFERENCES dbo.SalesLine(id));
+CREATE TABLE dbo.CurrencyRate (id INT PRIMARY KEY, currency_code CHAR(3));
+CREATE TABLE dbo.FraudSignal (id INT PRIMARY KEY, customer_id INT REFERENCES dbo.Customer(id));
+CREATE TABLE dbo.CustomerNote (id INT PRIMARY KEY, customer_id INT REFERENCES dbo.Customer(id));
+CREATE TABLE dbo.LoyaltyAccount (id INT PRIMARY KEY, customer_id INT REFERENCES dbo.Customer(id));
+CREATE TABLE dbo.StoreLocation (id INT PRIMARY KEY, region_id INT REFERENCES dbo.Region(id));

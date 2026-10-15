@@ -1,0 +1,128 @@
+{
+  "kind": "create_view",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 48
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 26,
+      "end_line": 1,
+      "end_col": 28
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 26,
+          "end_line": 1,
+          "end_col": 28
+        },
+        "value": "mv",
+        "quoted": false
+      }
+    ]
+  },
+  "query": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 32,
+      "end_line": 1,
+      "end_col": 38
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 32,
+        "end_line": 1,
+        "end_col": 38
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 39,
+            "end_line": 1,
+            "end_col": 41
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 39,
+              "end_line": 1,
+              "end_col": 41
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 39,
+                "end_line": 1,
+                "end_col": 41
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 39,
+                    "end_line": 1,
+                    "end_col": 41
+                  },
+                  "value": "id",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 47,
+            "end_line": 1,
+            "end_col": 48
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 47,
+              "end_line": 1,
+              "end_col": 48
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 47,
+                  "end_line": 1,
+                  "end_col": 48
+                },
+                "value": "t",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "materialized": true,
+  "replace": false,
+  "secure": false
+}

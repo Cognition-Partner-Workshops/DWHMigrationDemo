@@ -1,0 +1,105 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 47
+  },
+  "name": "collect_statistics",
+  "args": {
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 35,
+        "end_line": 1,
+        "end_col": 47
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 35,
+            "end_line": 1,
+            "end_col": 40
+          },
+          "value": "sales",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 41,
+            "end_line": 1,
+            "end_col": 47
+          },
+          "value": "orders",
+          "quoted": false
+        }
+      ]
+    },
+    "columns": [
+      [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 28,
+            "end_line": 1,
+            "end_col": 30
+          },
+          "value": "id",
+          "quoted": false
+        }
+      ]
+    ]
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 35,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 35,
+              "end_line": 1,
+              "end_col": 40
+            },
+            "value": "sales",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 41,
+              "end_line": 1,
+              "end_col": 47
+            },
+            "value": "orders",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "reads"
+    }
+  ]
+}

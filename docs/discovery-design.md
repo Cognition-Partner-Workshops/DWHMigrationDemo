@@ -64,7 +64,7 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 - `kind: ClassVar[str]`, the class name in snake_case
 - No AST node field may be named `kind`; reserve it for the snake_case node discriminator.
 
-`to_dict()` gives stable JSON with keys in order and `None` or empty fields omitted. It is used for golden tests and as Phase 4 context. `walk(node)` yields nodes depth-first. Identifiers are `Identifier(value, quoted)` and names are `QualifiedName(parts: list[Identifier])`.
+`to_dict()` gives stable JSON with keys in order and `None` or empty fields omitted. New default-valued optional fields are also omitted when needed to preserve existing goldens. It is used for golden tests and as Phase 4 context. `walk(node)` yields nodes depth-first. Identifiers are `Identifier(value, quoted)` and names are `QualifiedName(parts: list[Identifier])`.
 
 **Expressions**
 - `Literal(type: "number"|"string"|"national_string"|"boolean"|"null"|"date"|"time"|"timestamp"|"interval"|"hex"|"bit", value: str)`
@@ -75,17 +75,17 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 - `Like(expr, pattern, escape, op: like|ilike|similar, negated, quantifier: any|all|None)`
 - `IsNull(expr, negated)`, `Exists(query, negated)`, `Quantified(op, quantifier, query)`
 - `Case(operand, whens: list[When(cond, result)], else_)`
-- `Cast(expr, to: DataType, style: "cast"|"try_cast"|"safe_cast"|"double_colon"|"convert", format: Expr|None)`
+- `Cast(expr, to: DataType, style: "cast"|"try_cast"|"safe_cast"|"double_colon"|"convert", format: Expr|None, function_name: str|None)`
 - `FunctionCall(name: QualifiedName, args: list[Expr|NamedArg], distinct, star, filter, within_group: list[OrderItem], over: WindowSpec|None, ignore_nulls: bool|None)`
 - `WindowSpec(name, partition_by, order_by, frame: Frame|None)`, `Frame(unit, start, end, exclude)`, `FrameBound(bound_type, value)`
 - `Interval(value, unit, to_unit)`, `Extract(field, expr)`, `Subquery(query)`
 - `ArrayLiteral(items)`, `StructLiteral(fields)`, `Subscript(expr, index)`, `FieldAccess(expr, field)`, `Collate(expr, collation)`, `Lambda(params, body)`
-- `DialectExpr(name: str, args: dict[str, Node|list|str|None])` — the single extension point for dialect-only expression forms such as Oracle `(+)`, `PRIOR` and `CONNECT_BY_ROOT`, the Teradata `(FORMAT 'x')` and `(TITLE ...)` attributes, and Snowflake `:path` access. Each dialect documents its names in its package README.
+- `DialectExpr(name: str, args: dict[str, Node|list|str|None], ref_hints: list[RefHint])` — the single extension point for dialect-only expression forms such as Oracle `(+)`, `PRIOR` and `CONNECT_BY_ROOT`, the Teradata `(FORMAT 'x')` and `(TITLE ...)` attributes, and Snowflake `:path` access. Each dialect documents its names in its package README.
 
 **Queries**
-- `Query(with_: With|None, body: Select|SetOperation|Values|Subquery, order_by, limit: Limit|None)`
+- `Query(with_: With|None, body: Select|SetOperation|Values|Subquery, order_by, limit: Limit|None, distribute_by, sort_by, cluster_by)`
 - `With(recursive, ctes: list[Cte(name, columns, query, materialized)])`
-- `Select(distinct, distinct_on, top: Top|None, projections: list[SelectItem(expr, alias)], into, from_: list[FromItem], where, group_by: GroupBy|None, having, qualify, windows, sample, hints: list[str])`
+- `Select(distinct, distinct_on, top: Top|None, projections: list[SelectItem(expr, alias)], into, from_: list[FromItem], where, group_by: GroupBy|None, having, qualify, windows, sample, hints: list[str], hierarchical: DialectExpr|None, into_list, bulk_collect)`
 - `SetOperation(op: union|intersect|except|minus, all, left, right)`
 - `Limit(count, offset, fetch_first, with_ties, percent)`, `Top(count, percent, with_ties)`
 - `GroupBy(items, rollup/cube/grouping_sets as nested nodes, all)`
@@ -99,14 +99,14 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
   - `ValuesRef`
 
 **DML**
-- `Insert(target, columns, source: Query|Values|DefaultValues, overwrite, partition, conflict)`
-- `Update(target, alias, assignments: list[Assignment(target, value)], from_, where)`
-- `Delete(target, alias, using, where)`
-- `Merge(target, alias, source, on, clauses: list[MergeClause(matched, condition, action)])`
+- `Insert(target, columns, source: Query|Values|DefaultValues, overwrite, partition, conflict, top, output, output_into, target_variable)`
+- `Update(target, alias, assignments: list[Assignment(target, value)], from_, where, top, output, output_into, target_variable)`
+- `Delete(target, alias, using, where, top, output, output_into, target_variable)`
+- `Merge(target, alias, source, on, clauses: list[MergeClause(matched, condition, action)], top, output, output_into, target_variable)`
 - `Truncate(target)`, `Copy`/`Load` as `DialectStatement`
 
 **DDL**
-- `DataType(name, params: list[Expr|str], children: list[DataType|StructField], array_dims)`
+- `DataType(name, params: list[Expr|str], children: list[DataType|StructField], array_dims)`, `StructField(name, type, value, comment: Literal|None)`
 - `ColumnDef(name, type, constraints: list[ColumnConstraint], default, identity, generated, comment, collation, options: dict)`, `ColumnConstraint(constraint_kind, name, columns, ref_table, ref_columns, expr, options)`
 - `TableConstraint(constraint_kind: primary_key|unique|foreign_key|check, name, columns, ref_table, ref_columns, expr, options)`
 - `CreateTable(name, columns, constraints, as_query, like, temporary, external, replace, if_not_exists, options: dict[str, Node|str|list])` — `options` holds dialect properties such as `primary_index`, `distribution`, `partitioned_by`, `stored_as`, `cluster_by`, `organize_on` and `set_multiset`
@@ -117,26 +117,26 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 - `Alter(object_kind, name, actions: list[Node])`, `Drop(object_kind, names, if_exists, cascade)`, `CommentOn`, `Rename`
 
 **Security**
-- `Grant(privileges, object_kind, object_name, grantees, with_grant_option)`, `Revoke(...)`
+- `Grant(privileges, object_kind, object_name, grantees, with_grant_option, grantee_kinds)`, `Revoke(...)`
 - `CreatePrincipal(principal_kind: user|role|login|group, name, options)`
 - Policies, masks, row permissions and row-access policies are `DialectStatement`s with `references: list[RefHint(name, ref_kind)]`
 
 **Procedural**
 - `Block(label, declarations: list[Declare|CursorDecl|HandlerDecl], statements, exception_handlers: list[ExceptionHandler(conditions, statements)])`
 - `If(branches: list[(cond, statements)], else_)`
-- `While`, `Loop`, `ForLoop(var, iterable: Query|Range, statements)`, `Repeat`
+- `While(condition, statements, label)`, `Loop`, `ForLoop(var, iterable: Query|Range, statements, label, cursor)`, `Repeat(statements, until, label)`
 - `Leave`/`Exit`/`Continue`/`Return(expr)`/`Raise`/`Signal`, all with `(label|expr)`
 - `Assign(target, value)`, `SetStatement(scope, items)`
 - `Call(name, args)` — covers CALL, EXEC and EXECUTE proc
 - `DynamicSql(sql_expr, into, using)` — `EXECUTE IMMEDIATE` or `sp_executesql`; a literal string argument is also parsed, and the result kept in `parsed: list[Statement]`
-- `OpenCursor`, `Fetch`, `CloseCursor`, `Commit`, `Rollback`, `Use(database)`
+- `OpenCursor`, `Fetch(name, into, bulk_collect, limit)`, `CloseCursor`, `Commit`, `Rollback`, `Use(database)`
 
 **Fallbacks**
 - `DialectStatement(name: str, args: dict, references: list[RefHint])` — any platform-only statement (Snowflake stage, pipe, stream and task; Teradata join index and COLLECT STATISTICS; Synapse external data source). It must still be fully parsed into `args`.
 - `ClientCommand(text)` — BTEQ or SQL*Plus dot-commands
 - `Unparsed(text, reason)` — produced only by error recovery
 
-`ParseResult(statements: list[Node], issues: list[Issue])`
+`ParseResult(statements: list[Node], issues: list[Issue], default_schema: str|None)`
 `Issue(severity: info|warning|error, code: str, message: str, span: Span|None)`
 
 ## 4. Parser base
@@ -179,7 +179,8 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 - `index_on`
 - `trigger_on`
 - `defined_in` — package body to package
-- `etl_reads`, `etl_writes`, `etl_runs`, `schedules`
+- `runs_after` — task predecessor
+- `etl_reads`, `etl_writes`, `etl_runs`
 
 Extraction is generic over the AST. Dialects add only `DialectStatement.references`. CTE names and aliases are scoped out, so they aren't references. Function calls count as references only when the name isn't in the dialect's `builtin_functions` set.
 
@@ -209,6 +210,7 @@ Graph            {nodes: [{id, label, type, status, external, center}], edges: [
 - `source_preview` is at most 200 lines and is returned as plain text; the UI escapes it.
 - `GET /api/graph?object_id=&depth=1..3` caps the result at 300 nodes and sets `truncated` when it hits the cap.
 - `GET /api/resources` adds `count` and `auto_available` to each item.
+- `Edge.kind` uses the reference kinds listed in §6.
 
 ## Appendix: How to add a dialect
 
@@ -217,7 +219,9 @@ Graph            {nodes: [{id, label, type, status, external, center}], edges: [
 3. Override `parse_primary_ext()`, `parse_postfix_ext(left)`, or `parse_statement_ext()` for dialect syntax. Return `None` to fall through to the base parser; extend `binary_ops` with entries shaped as `(left_binding_power, right_binding_power, operator_name)`.
 4. Add the dialect id to `registry.SQL_PARSERS`, unit tests, and a golden test pack.
 
-The `ansi` package is the reference: it uses `ParserBase` with standard quoted-identifier, Oracle q-quote, nested-comment, and dollar-body lexer options. Test packs live under `backend/testpacks/<id>/`; `expected_inventory.yaml` contains exact objects and edges. An optional `pack.yaml` can specify `kind: sql` or `kind: etl` and `source_dialect: <dialect id>`. `kind` defaults to `sql`; SQL packs default their source dialect to the pack id, while ETL packs must set `source_dialect` (typically `ansi` for embedded SQL).
+The `ansi` package is the reference: it uses `ParserBase` with standard quoted-identifier, Oracle q-quote, nested-comment, and dollar-body lexer options. Test packs live under `testpacks/<id>/`; `expected_inventory.yaml` contains exact objects and edges. An optional `pack.yaml` can specify `kind: sql` or `kind: etl` and `source_dialect: <dialect id>`. `kind` defaults to `sql`; SQL packs default their source dialect to the pack id, while ETL packs must set `source_dialect` (typically `ansi` for embedded SQL).
+
+Deferred: SQL A request #6 to move `PsmMixin` and reusable PSM/special forms into `ParserBase` is intentionally not part of this shared-core extension; the existing package-local mixins remain in place.
 
 ## 9. Test packs
 

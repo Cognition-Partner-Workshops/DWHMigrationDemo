@@ -1,0 +1,349 @@
+{
+  "kind": "merge",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 105
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 12,
+      "end_line": 1,
+      "end_col": 22
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 12,
+          "end_line": 1,
+          "end_col": 15
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 22
+        },
+        "value": "Target",
+        "quoted": false
+      }
+    ]
+  },
+  "alias": {
+    "kind": "identifier",
+    "span": {
+      "start_line": 1,
+      "start_col": 23,
+      "end_line": 1,
+      "end_col": 24
+    },
+    "value": "t",
+    "quoted": false
+  },
+  "source": {
+    "kind": "table_ref",
+    "span": {
+      "start_line": 1,
+      "start_col": 31,
+      "end_line": 1,
+      "end_col": 34
+    },
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 31,
+        "end_line": 1,
+        "end_col": 41
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 31,
+            "end_line": 1,
+            "end_col": 34
+          },
+          "value": "dbo",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 35,
+            "end_line": 1,
+            "end_col": 41
+          },
+          "value": "Source",
+          "quoted": false
+        }
+      ]
+    },
+    "alias": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 42,
+        "end_line": 1,
+        "end_col": 43
+      },
+      "value": "s",
+      "quoted": false
+    }
+  },
+  "on": {
+    "kind": "binary",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 1
+    },
+    "op": "=",
+    "left": {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 47,
+        "end_line": 1,
+        "end_col": 51
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 47,
+          "end_line": 1,
+          "end_col": 51
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 47,
+              "end_line": 1,
+              "end_col": 48
+            },
+            "value": "t",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 49,
+              "end_line": 1,
+              "end_col": 51
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 54,
+        "end_line": 1,
+        "end_col": 58
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 54,
+          "end_line": 1,
+          "end_col": 58
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 54,
+              "end_line": 1,
+              "end_col": 55
+            },
+            "value": "s",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 56,
+              "end_line": 1,
+              "end_col": 58
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  },
+  "clauses": [
+    {
+      "kind": "merge_clause",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "matched": true,
+      "action": {
+        "kind": "update",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 12,
+            "end_line": 1,
+            "end_col": 22
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 12,
+                "end_line": 1,
+                "end_col": 15
+              },
+              "value": "dbo",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 16,
+                "end_line": 1,
+                "end_col": 22
+              },
+              "value": "Target",
+              "quoted": false
+            }
+          ]
+        },
+        "assignments": [
+          {
+            "kind": "assignment",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "target": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 88,
+                "end_line": 1,
+                "end_col": 95
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 88,
+                  "end_line": 1,
+                  "end_col": 95
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 88,
+                      "end_line": 1,
+                      "end_col": 89
+                    },
+                    "value": "t",
+                    "quoted": false
+                  },
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 90,
+                      "end_line": 1,
+                      "end_col": 95
+                    },
+                    "value": "value",
+                    "quoted": false
+                  }
+                ]
+              }
+            },
+            "value": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 98,
+                "end_line": 1,
+                "end_col": 105
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 98,
+                  "end_line": 1,
+                  "end_col": 105
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 98,
+                      "end_line": 1,
+                      "end_col": 99
+                    },
+                    "value": "s",
+                    "quoted": false
+                  },
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 100,
+                      "end_line": 1,
+                      "end_col": 105
+                    },
+                    "value": "value",
+                    "quoted": false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

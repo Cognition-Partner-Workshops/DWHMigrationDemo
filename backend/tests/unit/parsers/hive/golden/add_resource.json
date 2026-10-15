@@ -1,0 +1,26 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 32
+  },
+  "name": "add_resource",
+  "args": {
+    "resource_type": "jar",
+    "paths": [
+      {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "type": "string",
+        "value": "hdfs:///udf/library.jar"
+      }
+    ]
+  }
+}

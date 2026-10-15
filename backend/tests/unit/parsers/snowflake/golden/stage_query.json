@@ -1,0 +1,118 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 45
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 10
+        },
+        "expr": {
+          "kind": "param",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 10
+          },
+          "text": "$1"
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 12,
+          "end_line": 1,
+          "end_col": 14
+        },
+        "expr": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": "json_path",
+          "args": {
+            "expr": {
+              "kind": "param",
+              "span": {
+                "start_line": 1,
+                "start_col": 12,
+                "end_line": 1,
+                "end_col": 14
+              },
+              "text": "$2"
+            },
+            "key": {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 15,
+                "end_line": 1,
+                "end_col": 17
+              },
+              "value": "id",
+              "quoted": false
+            }
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 23,
+          "end_line": 1,
+          "end_col": 45
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "landing",
+              "quoted": false
+            }
+          ]
+        },
+        "hints": [
+          "stage"
+        ]
+      }
+    ]
+  }
+}

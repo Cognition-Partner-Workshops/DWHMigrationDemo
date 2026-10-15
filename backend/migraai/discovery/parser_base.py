@@ -23,6 +23,7 @@ class ParseLimitError(ParseError):
 
 
 class ParserBase:
+    lexer_class: type[Lexer] = Lexer
     binary_ops: dict[str, tuple[int, int, str]] = {
         "OR": (10, 11, "or"),
         "AND": (20, 21, "and"),
@@ -119,17 +120,21 @@ class ParserBase:
         rel_path: str = "",
         lexer_config: LexerConfig | None = None,
         binary_ops: dict[str, tuple[int, int, str]] | None = None,
+        clock: Callable[[], float] | None = None,
     ) -> None:
         self.text = tokens if isinstance(tokens, str) else ""
         self.rel_path = config if isinstance(config, str) else rel_path
         self.lexer_config = (
             lexer_config or (config if isinstance(config, LexerConfig) else None) or LexerConfig()
         )
+        self._lexer: Lexer | None = None
         self.binary_ops = binary_ops if binary_ops is not None else type(self).binary_ops
+        self.clock = clock if clock is not None else time.perf_counter
         self.tokens = list(tokens) if isinstance(tokens, list) else []
         self.index = 0
         self.issues: list[ast.Issue] = []
         self.result: ast.ParseResult | None = None
+        self.default_schema: str | None = None
         self._started = 0.0
         self._expr_depth = 0
         self._next_time_check = self.time_check_interval
@@ -139,14 +144,16 @@ class ParserBase:
             self.text = text
         if rel_path is not None:
             self.rel_path = rel_path
+        self.default_schema = None
         if text is not None or not self.tokens:
-            lexer = Lexer(self.text, self.lexer_config)
+            lexer = self.lexer_class(self.text, self.lexer_config)
+            self._lexer = lexer
             self.tokens = lexer.tokenize()
             self.issues = list(lexer.issues)
         else:
             self.issues = []
         self.index = 0
-        self._started = time.monotonic()
+        self._started = self.clock()
         self._next_time_check = self.time_check_interval
         statements: list[ast.Node] = []
         while not self.at(TokenKind.EOF):
@@ -161,6 +168,7 @@ class ParserBase:
             try:
                 statement = self.parse_statement()
                 statements.append(statement)
+                self._update_default_schema(statement)
                 self.accept(TokenKind.TERMINATOR)
             except ParseLimitError as error:
                 self.issues.append(
@@ -225,8 +233,33 @@ class ParserBase:
                     )
                 )
                 self._recover(start)
-        self.result = ast.ParseResult(statements, self.issues)
+        self.result = ast.ParseResult(statements, self.issues, self.default_schema)
         return self.result
+
+    def _update_default_schema(self, statement: ast.Node) -> None:
+        if isinstance(statement, ast.Use) and statement.database.parts:
+            self.default_schema = ".".join(part.value for part in statement.database.parts)
+            return
+        if not isinstance(statement, ast.SetStatement):
+            return
+        for item in statement.items:
+            name = getattr(item, "name", None) or getattr(item, "target", None)
+            if isinstance(name, ast.ColumnRef) and name.name.parts:
+                name = name.name.parts[-1]
+            if not isinstance(name, ast.Identifier) or name.value.casefold() not in {
+                "schema",
+                "database",
+            }:
+                continue
+            value = getattr(item, "value", None)
+            if isinstance(value, ast.ColumnRef) and value.name.parts:
+                value = value.name
+            if isinstance(value, ast.QualifiedName) and value.parts:
+                self.default_schema = ".".join(part.value for part in value.parts)
+            elif isinstance(value, ast.Identifier):
+                self.default_schema = value.value
+            elif isinstance(value, ast.Literal):
+                self.default_schema = value.value
 
     def peek(self, offset: int = 0) -> Token:
         self._check_time()
@@ -588,6 +621,7 @@ class ParserBase:
                 "INTERSECT",
                 "JOIN",
                 "LIMIT",
+                "MINUS",
                 "OFFSET",
                 "ON",
                 "OR",
@@ -952,8 +986,8 @@ class ParserBase:
             with_clause = ast.With(recursive, ctes, span=self._token_span(start))
         body_stack: list[ast.Node] = [self._parse_query_body()]
         operator_stack: list[tuple[str, bool]] = []
-        precedence = {"union": 1, "except": 1, "intersect": 2}
-        while self.at_keyword("UNION") or self.at_keyword("INTERSECT") or self.at_keyword("EXCEPT"):
+        precedence = {"union": 1, "except": 1, "minus": 1, "intersect": 2}
+        while self.at_keyword("UNION", "INTERSECT", "EXCEPT", "MINUS"):
             op = self.advance().text.casefold()
             all_rows = bool(self.accept_keyword("ALL"))
             if not all_rows:
@@ -2249,6 +2283,7 @@ class ParserBase:
             "QUALIFY",
             "ORDER",
             "LIMIT",
+            "MINUS",
             "OFFSET",
             "FETCH",
             "UNION",
@@ -2310,6 +2345,9 @@ class ParserBase:
         last = self.tokens[min(end, len(self.tokens) - 1)]
         return self.text[first : last.offset + len(last.text)]
 
+    def is_statement_end(self, token: Token) -> bool:
+        return token.kind is TokenKind.TERMINATOR
+
     def _recover(self, start: int) -> None:
         if self.index <= start:
             self.index = min(start + 1, len(self.tokens) - 1)
@@ -2337,7 +2375,7 @@ class ParserBase:
                 depth += 1
             elif token.kind is TokenKind.PUNCT and token.text == ")":
                 depth = max(0, depth - 1)
-            elif token.kind is TokenKind.TERMINATOR and depth == 0:
+            elif self.is_statement_end(token) and depth == 0:
                 self.index += 1
                 return
             elif (
@@ -2354,7 +2392,7 @@ class ParserBase:
         if self.index < self._next_time_check:
             return
         self._next_time_check = self.index + self.time_check_interval
-        if time.monotonic() - self._started > self.file_time_limit_seconds:
+        if self.clock() - self._started > self.file_time_limit_seconds:
             raise ParseLimitError(
                 f"Parsing exceeded {self.file_time_limit_seconds:g} seconds.",
                 self.tokens[min(self.index, len(self.tokens) - 1)],

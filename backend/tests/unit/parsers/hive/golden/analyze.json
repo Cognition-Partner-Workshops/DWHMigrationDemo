@@ -1,0 +1,122 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 81
+  },
+  "name": "analyze",
+  "args": {
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 15,
+        "end_line": 1,
+        "end_col": 21
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 15,
+            "end_line": 1,
+            "end_col": 21
+          },
+          "value": "events",
+          "quoted": false
+        }
+      ]
+    },
+    "partition": [
+      {
+        "kind": "assignment",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 33,
+              "end_line": 1,
+              "end_col": 36
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 33,
+                  "end_line": 1,
+                  "end_col": 36
+                },
+                "value": "day",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "value": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 49,
+            "end_line": 1,
+            "end_col": 61
+          },
+          "type": "string",
+          "value": "2025-01-01"
+        }
+      }
+    ],
+    "for_columns": true
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 8
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 15,
+          "end_line": 1,
+          "end_col": 21
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 15,
+              "end_line": 1,
+              "end_col": 21
+            },
+            "value": "events",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "reads"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 48
+  },
+  "routine_kind": "procedure",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 18,
+      "end_line": 1,
+      "end_col": 25
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 18,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "sales",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 25
+        },
+        "value": "p",
+        "quoted": false
+      }
+    ]
+  },
+  "body": {
+    "kind": "block",
+    "span": {
+      "start_line": 1,
+      "start_col": 28,
+      "end_line": 1,
+      "end_col": 33
+    },
+    "statements": [
+      {
+        "kind": "set_statement",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 43
+        },
+        "items": [
+          {
+            "kind": "set_item",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "name": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 38,
+                "end_line": 1,
+                "end_col": 39
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 38,
+                  "end_line": 1,
+                  "end_col": 39
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 38,
+                      "end_line": 1,
+                      "end_col": 39
+                    },
+                    "value": "x",
+                    "quoted": false
+                  }
+                ]
+              }
+            },
+            "value": {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 42,
+                "end_line": 1,
+                "end_col": 43
+              },
+              "type": "number",
+              "value": "1"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 59
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 16
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 16
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 16
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 16
+                },
+                "value": "order_id",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 50,
+          "end_line": 1,
+          "end_col": 52
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 50,
+            "end_line": 1,
+            "end_col": 59
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 50,
+                "end_line": 1,
+                "end_col": 52
+              },
+              "value": "oe",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 53,
+                "end_line": 1,
+                "end_col": 59
+              },
+              "value": "orders",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "into_list": [
+      {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 35,
+          "end_line": 1,
+          "end_col": 44
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 35,
+            "end_line": 1,
+            "end_col": 44
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 35,
+                "end_line": 1,
+                "end_col": 44
+              },
+              "value": "order_ids",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "bulk_collect": true
+  }
+}

@@ -1,43 +1,15 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
 
 from migraai.discovery import ast
+from migraai.discovery.detect import decode_source, detect_file
 from migraai.discovery.objects import ParsedObject
 from migraai.discovery.objects import extract as extract_objects
 from migraai.discovery.references import Reference
 from migraai.discovery.registry import get_etl_parser, get_sql_parser
-
-
-@dataclass(slots=True, frozen=True)
-class DiscoveryEdge:
-    source: str
-    target: str
-    kind: str
-    external: bool
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "source": self.source,
-            "target": self.target,
-            "kind": self.kind,
-            "external": self.external,
-        }
-
-
-_ETL_EXTENSIONS = {
-    ".dtsx": "ssis",
-    ".dsx": "datastage",
-    ".xml": "informatica",
-    ".py": "python",
-    ".sh": "shell",
-    ".bash": "shell",
-    ".yml": "airflow",
-    ".yaml": "airflow",
-    ".json": "spark",
-}
+from migraai.discovery.resolver import DiscoveryEdge, _schema_value, resolve
 
 
 def _unsupported(rel_path: str, source_dialect: str, kind: str) -> ParsedObject:
@@ -58,39 +30,52 @@ def _unsupported(rel_path: str, source_dialect: str, kind: str) -> ParsedObject:
         references=[],
         issues=[issue],
         node=node,
+        file_path=rel_path,
     )
-
-
-def _detect(rel_path: str, data: bytes) -> tuple[str, str]:
-    suffix = PurePosixPath(rel_path.replace("\\", "/")).suffix.casefold()
-    if suffix == ".sql":
-        return "sql", ""
-    return "etl", _ETL_EXTENSIONS.get(suffix, "")
 
 
 def discover_files(
     files: dict[str, bytes], source_dialect: str
 ) -> tuple[list[ParsedObject], list[DiscoveryEdge]]:
     objects: list[ParsedObject] = []
+    object_files: dict[int, str] = {}
+    statements_by_file: dict[str, list[ast.Node]] = {}
+    dialects_by_file: dict[str, Any] = {}
     for rel_path, data in files.items():
-        file_type, detected_tool = _detect(rel_path, data)
-        if file_type == "sql":
-            parser_type = get_sql_parser(source_dialect)
+        detection = detect_file(rel_path, data, source_dialect)
+        if detection.parser_type == "sql":
+            parser_type = get_sql_parser(detection.dialect or source_dialect)
             if parser_type is None:
-                objects.append(_unsupported(rel_path, source_dialect, file_type))
+                objects.append(_unsupported(rel_path, source_dialect, "SQL"))
                 continue
-            text = data.decode("utf-8-sig", errors="replace")
+            text, _, _ = decode_source(data)
             parser = parser_type()
             result = parser.parse(text, rel_path)
-            objects.extend(extract_objects(result, rel_path, parser_type))
+            file_objects = extract_objects(result, rel_path, parser_type)
+            default_schema = None
+            for statement in result.statements:
+                for node in statement.walk():
+                    candidate = _schema_value(node)
+                    if candidate is not None:
+                        default_schema = candidate
+            for item in file_objects:
+                item.default_schema = default_schema
+            objects.extend(file_objects)
+            object_files.update({id(item): rel_path for item in file_objects})
+            statements_by_file[rel_path] = result.statements
+            dialects_by_file[rel_path] = parser_type
             continue
+        detected_tool = detection.parser_type
         parser = get_etl_parser(detected_tool) if detected_tool else None
         if parser is None:
-            objects.append(_unsupported(rel_path, source_dialect, file_type))
+            objects.append(_unsupported(rel_path, source_dialect, detection.detected_type))
             continue
         result = parser(data, rel_path)
         etl_objects = list(getattr(result, "objects", []))
+        for etl_object in etl_objects:
+            etl_object.file_path = rel_path
         objects.extend(etl_objects)
+        object_files.update({id(item): rel_path for item in etl_objects})
         etl_issues = list(getattr(result, "issues", []))
         for etl_object in etl_objects:
             etl_object.issues.extend(etl_issues)
@@ -145,32 +130,14 @@ def discover_files(
                             owner.references.append(
                                 Reference(reference.name, ref_kind, reference.span)
                             )
-
-    names: dict[str, int] = {}
-    for item in objects:
-        names[item.qualified_name] = names.get(item.qualified_name, 0) + 1
-    edges: list[DiscoveryEdge] = []
-    seen: set[tuple[str, str, str]] = set()
-    for item in objects:
-        for reference in item.references:
-            target = _reference_name(reference)
-            key = (item.qualified_name, target, reference.ref_kind)
-            if key in seen:
-                continue
-            seen.add(key)
-            edges.append(
-                DiscoveryEdge(
-                    source=item.qualified_name,
-                    target=target,
-                    kind=reference.ref_kind,
-                    external=names.get(target, 0) != 1,
-                )
-            )
-    return objects, edges
-
-
-def _reference_name(reference: Reference) -> str:
-    return ".".join(part.value for part in reference.name.parts)
+        dialects_by_file[rel_path] = get_sql_parser(source_dialect)
+    return resolve(
+        objects,
+        source_dialect,
+        object_files=object_files,
+        statements_by_file=statements_by_file,
+        dialects_by_file=dialects_by_file,
+    )
 
 
 __all__ = ["DiscoveryEdge", "discover_files"]

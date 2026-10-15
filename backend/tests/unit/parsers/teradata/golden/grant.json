@@ -1,0 +1,71 @@
+{
+  "kind": "grant",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 58
+  },
+  "privileges": [
+    "SELECT"
+  ],
+  "object_kind": "object",
+  "object_name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 17,
+      "end_line": 1,
+      "end_col": 29
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 22
+        },
+        "value": "sales",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 23,
+          "end_line": 1,
+          "end_col": 29
+        },
+        "value": "orders",
+        "quoted": false
+      }
+    ]
+  },
+  "grantees": [
+    {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 33,
+        "end_line": 1,
+        "end_col": 40
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 33,
+            "end_line": 1,
+            "end_col": 40
+          },
+          "value": "analyst",
+          "quoted": false
+        }
+      ]
+    }
+  ],
+  "with_grant_option": true
+}

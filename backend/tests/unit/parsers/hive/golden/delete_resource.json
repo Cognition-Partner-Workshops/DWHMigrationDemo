@@ -1,0 +1,24 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 39
+  },
+  "name": "delete_resource",
+  "args": {
+    "resource_type": "archive",
+    "path": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "type": "string",
+      "value": "hdfs:///udf/archive.zip"
+    }
+  }
+}

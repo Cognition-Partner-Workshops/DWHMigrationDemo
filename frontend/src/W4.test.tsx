@@ -67,6 +67,7 @@ function planStatus(overrides: Partial<PlanStatus> = {}): PlanStatus {
     cached: false,
     kb_version: 4,
     stale: false,
+    inventory_stale: false,
     created_at: "2026-10-15T12:00:00Z",
     ...overrides,
   };
@@ -232,6 +233,48 @@ describe("Phase 2 W4 frontend", () => {
 
     expect(container.querySelector("script")).toBeNull();
     expect(screen.getByText("Safe text")).toBeInTheDocument();
+  });
+
+  it("offers inventory regeneration only for a stale plan and posts regenerate", async () => {
+    const user = userEvent.setup();
+    const stalePlan = planStatus({ inventory_stale: true });
+    apiMocks.startPlan.mockResolvedValue(planStatus({ inventory_stale: false }));
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const { rerender } = render(
+      <PlanningPanel
+        confidenceThreshold={0.85}
+        session={sessionWithPlan(planStatus())}
+        sourceName="Teradata"
+        targetName="Snowflake"
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "Regenerate with inventory" })).toBeNull();
+    rerender(
+      <PlanningPanel
+        confidenceThreshold={0.85}
+        session={sessionWithPlan(stalePlan)}
+        sourceName="Teradata"
+        targetName="Snowflake"
+      />,
+    );
+    const regenerate = screen.getByRole("button", { name: "Regenerate with inventory" });
+    await user.click(regenerate);
+    expect(confirm).toHaveBeenCalledWith(
+      "Regenerate this plan? This starts a new Devin session and uses ACUs.",
+    );
+    expect(apiMocks.startPlan).toHaveBeenCalledWith(true);
+
+    rerender(
+      <PlanningPanel
+        confidenceThreshold={0.85}
+        session={sessionWithPlan(planStatus())}
+        sourceName="Teradata"
+        targetName="Snowflake"
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Regenerate with inventory" })).toBeNull();
+    confirm.mockRestore();
   });
 
   it("disables KB refresh while a refresh job is running", async () => {

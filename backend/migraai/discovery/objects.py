@@ -21,6 +21,8 @@ class ParsedObject:
     references: list[Reference]
     issues: list[ast.Issue]
     node: ast.Node
+    file_path: str | None = None
+    default_schema: str | None = None
 
     def to_dict(self, *, include_node: bool = True) -> dict[str, Any]:
         result: dict[str, Any] = {
@@ -99,7 +101,12 @@ def _status(node: ast.Node, issues: list[ast.Issue]) -> str:
 
 
 def _object(
-    node: ast.Node, object_type: str, name: ast.QualifiedName, issues: list[ast.Issue], dialect: Any
+    node: ast.Node,
+    object_type: str,
+    name: ast.QualifiedName,
+    issues: list[ast.Issue],
+    dialect: Any,
+    rel_path: str,
 ) -> ParsedObject:
     schema, object_name, qualified_name = _qualified(name)
     span = node.span
@@ -114,6 +121,7 @@ def _object(
         references=extract_references(node, dialect),
         issues=issues,
         node=node,
+        file_path=rel_path,
     )
 
 
@@ -131,7 +139,7 @@ def extract(result: ast.ParseResult, rel_path: str, dialect: Any = None) -> list
             if issue.span is None
             or span.start_line <= issue.span.start_line <= max(span.end_line, span.start_line)
         ]
-        definitions.append(_object(statement, object_type, name, issues, dialect))
+        definitions.append(_object(statement, object_type, name, issues, dialect, rel_path))
     if definitions:
         return definitions
     if not result.statements:
@@ -154,5 +162,6 @@ def extract(result: ast.ParseResult, rel_path: str, dialect: Any = None) -> list
             references=extract_references(script, dialect),
             issues=list(result.issues),
             node=script,
+            file_path=rel_path,
         )
     ]

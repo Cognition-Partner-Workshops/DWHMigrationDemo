@@ -1,0 +1,150 @@
+{
+  "kind": "create_view",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 61
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 30
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "sales",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 20,
+          "end_line": 1,
+          "end_col": 30
+        },
+        "value": "order_view",
+        "quoted": false
+      }
+    ]
+  },
+  "query": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 34,
+      "end_line": 1,
+      "end_col": 40
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 34,
+        "end_line": 1,
+        "end_col": 40
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 41,
+            "end_line": 1,
+            "end_col": 43
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 41,
+              "end_line": 1,
+              "end_col": 43
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 41,
+                "end_line": 1,
+                "end_col": 43
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 41,
+                    "end_line": 1,
+                    "end_col": 43
+                  },
+                  "value": "id",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 49,
+            "end_line": 1,
+            "end_col": 54
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 49,
+              "end_line": 1,
+              "end_col": 61
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 49,
+                  "end_line": 1,
+                  "end_col": 54
+                },
+                "value": "sales",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 55,
+                  "end_line": 1,
+                  "end_col": 61
+                },
+                "value": "orders",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "materialized": false,
+  "replace": true,
+  "secure": false
+}

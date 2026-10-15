@@ -1,0 +1,93 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 64
+  },
+  "name": "groom_table",
+  "args": {
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 13,
+        "end_line": 1,
+        "end_col": 31
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 13,
+            "end_line": 1,
+            "end_col": 22
+          },
+          "value": "LOGISTICS",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 23,
+            "end_line": 1,
+            "end_col": 31
+          },
+          "value": "SHIPMENT",
+          "quoted": false
+        }
+      ]
+    },
+    "records": "all",
+    "pages": "start",
+    "versions": true
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 31
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 13,
+              "end_line": 1,
+              "end_col": 22
+            },
+            "value": "LOGISTICS",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 23,
+              "end_line": 1,
+              "end_col": 31
+            },
+            "value": "SHIPMENT",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "writes"
+    }
+  ]
+}

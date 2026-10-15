@@ -1,0 +1,179 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 47
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "top": {
+      "kind": "top",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "count": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 14
+        },
+        "type": "number",
+        "value": "5"
+      },
+      "percent": false,
+      "with_ties": false
+    },
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 18
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 16,
+            "end_line": 1,
+            "end_col": 18
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 16,
+              "end_line": 1,
+              "end_col": 18
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 16,
+                  "end_line": 1,
+                  "end_col": 18
+                },
+                "value": "id",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 27
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 24,
+            "end_line": 1,
+            "end_col": 34
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 24,
+                "end_line": 1,
+                "end_col": 27
+              },
+              "value": "dbo",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 28,
+                "end_line": 1,
+                "end_col": 34
+              },
+              "value": "Orders",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "where": {
+      "kind": "binary",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "op": ">",
+      "left": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 41,
+          "end_line": 1,
+          "end_col": 43
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 41,
+            "end_line": 1,
+            "end_col": 43
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 41,
+                "end_line": 1,
+                "end_col": 43
+              },
+              "value": "id",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "right": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 46,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "type": "number",
+        "value": "2"
+      }
+    }
+  }
+}

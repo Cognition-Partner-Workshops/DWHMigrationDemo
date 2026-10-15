@@ -1,0 +1,151 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 59
+  },
+  "name": "create_masking_policy",
+  "args": {
+    "object_type": "policy",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 23,
+        "end_line": 1,
+        "end_col": 25
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 23,
+            "end_line": 1,
+            "end_col": 25
+          },
+          "value": "mp",
+          "quoted": false
+        }
+      ]
+    },
+    "replace": false,
+    "params": [
+      {
+        "kind": "routine_param",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 30,
+            "end_line": 1,
+            "end_col": 31
+          },
+          "value": "v",
+          "quoted": false
+        },
+        "type": {
+          "kind": "data_type",
+          "span": {
+            "start_line": 1,
+            "start_col": 32,
+            "end_line": 1,
+            "end_col": 38
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 32,
+              "end_line": 1,
+              "end_col": 38
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 32,
+                  "end_line": 1,
+                  "end_col": 38
+                },
+                "value": "STRING",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "returns": {
+      "kind": "data_type",
+      "span": {
+        "start_line": 1,
+        "start_col": 48,
+        "end_line": 1,
+        "end_col": 54
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 48,
+          "end_line": 1,
+          "end_col": 54
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 48,
+              "end_line": 1,
+              "end_col": 54
+            },
+            "value": "STRING",
+            "quoted": false
+          }
+        ]
+      }
+    },
+    "body": {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 58,
+        "end_line": 1,
+        "end_col": 59
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 58,
+          "end_line": 1,
+          "end_col": 59
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 58,
+              "end_line": 1,
+              "end_col": 59
+            },
+            "value": "v",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  }
+}

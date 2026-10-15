@@ -1,0 +1,190 @@
+{
+  "kind": "create_view",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 68
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 13,
+      "end_line": 1,
+      "end_col": 30
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 17
+        },
+        "value": "BANK",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 18,
+          "end_line": 1,
+          "end_col": 30
+        },
+        "value": "ACCOUNT_VIEW",
+        "quoted": false
+      }
+    ]
+  },
+  "query": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 34,
+      "end_line": 1,
+      "end_col": 40
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 34,
+        "end_line": 1,
+        "end_col": 40
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 41,
+            "end_line": 1,
+            "end_col": 43
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 41,
+              "end_line": 1,
+              "end_col": 43
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 41,
+                "end_line": 1,
+                "end_col": 43
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 41,
+                    "end_line": 1,
+                    "end_col": 43
+                  },
+                  "value": "ID",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 45,
+            "end_line": 1,
+            "end_col": 49
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 45,
+              "end_line": 1,
+              "end_col": 49
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 45,
+                "end_line": 1,
+                "end_col": 49
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 45,
+                    "end_line": 1,
+                    "end_col": 49
+                  },
+                  "value": "NAME",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 55,
+            "end_line": 1,
+            "end_col": 59
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 55,
+              "end_line": 1,
+              "end_col": 68
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 55,
+                  "end_line": 1,
+                  "end_col": 59
+                },
+                "value": "BANK",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 60,
+                  "end_line": 1,
+                  "end_col": 68
+                },
+                "value": "ACCOUNTS",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "materialized": false,
+  "replace": false,
+  "secure": false
+}

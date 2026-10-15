@@ -1,0 +1,103 @@
+{
+  "kind": "alter",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 69
+  },
+  "object_kind": "table",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 13,
+      "end_line": 1,
+      "end_col": 19
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "events",
+        "quoted": false
+      }
+    ]
+  },
+  "actions": [
+    {
+      "kind": "dialect_statement",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "drop_partition",
+      "args": {
+        "if_exists": true,
+        "partitions": [
+          [
+            {
+              "kind": "assignment",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "target": {
+                "kind": "column_ref",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 1,
+                  "end_line": 1,
+                  "end_col": 1
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 46,
+                    "end_line": 1,
+                    "end_col": 49
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 46,
+                        "end_line": 1,
+                        "end_col": 49
+                      },
+                      "value": "day",
+                      "quoted": false
+                    }
+                  ]
+                }
+              },
+              "value": {
+                "kind": "literal",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 62,
+                  "end_line": 1,
+                  "end_col": 74
+                },
+                "type": "string",
+                "value": "2025-01-01"
+              }
+            }
+          ]
+        ],
+        "purge": true
+      }
+    }
+  ]
+}

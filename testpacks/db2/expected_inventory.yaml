@@ -1,0 +1,86 @@
+objects:
+  - {type: table, qualified_name: "BANK.ACCOUNT", status: parsed}
+  - {type: function, qualified_name: "BANK.ACCOUNT_COUNT", status: parsed}
+  - {type: table, qualified_name: "BANK.ACCOUNT_HISTORY", status: parsed}
+  - {type: index, qualified_name: "BANK.ACCOUNT_INDEX", status: parsed}
+  - {type: materialized_query_table, qualified_name: "BANK.ACCOUNT_MQT", status: parsed}
+  - {type: table, qualified_name: "BANK.ACCOUNT_PRODUCT", status: parsed}
+  - {type: sequence, qualified_name: "BANK.ACCOUNT_SEQ", status: parsed}
+  - {type: view, qualified_name: "BANK.ACCOUNT_TOTALS", status: parsed}
+  - {type: view, qualified_name: "BANK.ACCOUNT_VIEW", status: parsed}
+  - {type: view, qualified_name: "BANK.ACTIVE_CUSTOMER", status: parsed}
+  - {type: table, qualified_name: "BANK.AUDIT_LOG", status: parsed}
+  - {type: table, qualified_name: "BANK.BRANCH", status: parsed}
+  - {type: view, qualified_name: "BANK.BRANCH_VIEW", status: parsed}
+  - {type: function, qualified_name: "BANK.CURRENT_BALANCE", status: parsed}
+  - {type: table, qualified_name: "BANK.CUSTOMER", status: parsed}
+  - {type: alias, qualified_name: "BANK.CUSTOMER_ALIAS", status: parsed}
+  - {type: column_mask, qualified_name: "BANK.CUSTOMER_MASK", status: parsed}
+  - {type: row_permission, qualified_name: "BANK.CUSTOMER_PERMISSION", status: parsed}
+  - {type: synonym, qualified_name: "BANK.CUSTOMER_SYNONYM", status: parsed}
+  - {type: view, qualified_name: "BANK.CUSTOMER_VIEW", status: parsed}
+  - {type: table, qualified_name: "BANK.DAILY_BALANCE", status: parsed}
+  - {type: table, qualified_name: "BANK.EVENT_LOG", status: parsed}
+  - {type: view, qualified_name: "BANK.EXTERNAL_CUSTOMER", status: parsed}
+  - {type: table, qualified_name: "BANK.HISTORY", status: parsed}
+  - {type: table, qualified_name: "BANK.HISTORY_ARCHIVE", status: parsed}
+  - {type: procedure, qualified_name: "BANK.PARTIAL", status: partial}
+  - {type: table, qualified_name: "BANK.PAYMENT", status: parsed}
+  - {type: view, qualified_name: "BANK.PAYMENT_VIEW", status: parsed}
+  - {type: procedure, qualified_name: "BANK.PREPARED", status: parsed}
+  - {type: table, qualified_name: "BANK.PRODUCT", status: parsed}
+  - {type: view, qualified_name: "BANK.PRODUCT_VIEW", status: parsed}
+  - {type: view, qualified_name: "BANK.RECENT_ACCOUNTS", status: parsed}
+  - {type: table, qualified_name: "BANK.RECONCILIATION", status: parsed}
+  - {type: procedure, qualified_name: "BANK.RECORD_PAYMENT", status: parsed}
+  - {type: table, qualified_name: "BANK.SETTLEMENT", status: parsed}
+  - {type: view, qualified_name: "BANK.SETTLEMENT_VIEW", status: parsed}
+  - {type: table, qualified_name: "BANK.TRANSFER", status: parsed}
+  - {type: procedure, qualified_name: "BANK.TRANSFER_FUNDS", status: parsed}
+  - {type: view, qualified_name: "BANK.TRANSFER_VIEW", status: parsed}
+  - {type: view, qualified_name: "BANK.UNCOMMITTED_CUSTOMERS", status: parsed}
+  - {type: procedure, qualified_name: "BANK.UPDATE_BALANCE", status: parsed}
+  - {type: grant, qualified_name: "EXECUTE on BANK.RECORD_PAYMENT", status: parsed}
+  - {type: external, qualified_name: "EXTDB.REMOTE.CUSTOMER", status: external}
+  - {type: grant, qualified_name: "SELECT, UPDATE on BANK.ACCOUNT", status: parsed}
+  - {type: script, qualified_name: "load_script.sql", status: parsed}
+  - {type: script, qualified_name: "maintenance.sql", status: parsed}
+  - {type: script, qualified_name: "recovery.sql", status: partial}
+edges:
+  - {from: "BANK.ACCOUNT", to: "BANK.CUSTOMER", kind: foreign_key, external: false}
+  - {from: "BANK.ACCOUNT_COUNT", to: "BANK.ACCOUNT", kind: reads, external: false}
+  - {from: "BANK.ACCOUNT_INDEX", to: "BANK.ACCOUNT", kind: index_on, external: false}
+  - {from: "BANK.ACCOUNT_MQT", to: "BANK.ACCOUNT", kind: reads, external: false}
+  - {from: "BANK.ACCOUNT_PRODUCT", to: "BANK.PRODUCT", kind: foreign_key, external: false}
+  - {from: "BANK.ACCOUNT_TOTALS", to: "BANK.PAYMENT", kind: reads, external: false}
+  - {from: "BANK.ACCOUNT_VIEW", to: "BANK.ACCOUNT", kind: reads, external: false}
+  - {from: "BANK.ACTIVE_CUSTOMER", to: "BANK.CUSTOMER", kind: reads, external: false}
+  - {from: "BANK.BRANCH_VIEW", to: "BANK.BRANCH", kind: reads, external: false}
+  - {from: "BANK.CURRENT_BALANCE", to: "BANK.ACCOUNT", kind: reads, external: false}
+  - {from: "BANK.CUSTOMER_ALIAS", to: "BANK.CUSTOMER", kind: synonym_for, external: false}
+  - {from: "BANK.CUSTOMER_MASK", to: "BANK.CUSTOMER", kind: grant_on, external: false}
+  - {from: "BANK.CUSTOMER_PERMISSION", to: "BANK.CUSTOMER", kind: grant_on, external: false}
+  - {from: "BANK.CUSTOMER_SYNONYM", to: "BANK.CUSTOMER", kind: synonym_for, external: false}
+  - {from: "BANK.CUSTOMER_VIEW", to: "BANK.CUSTOMER", kind: reads, external: false}
+  - {from: "BANK.EXTERNAL_CUSTOMER", to: "EXTDB.REMOTE.CUSTOMER", kind: reads, external: true}
+  - {from: "BANK.PAYMENT", to: "BANK.ACCOUNT", kind: foreign_key, external: false}
+  - {from: "BANK.PAYMENT_VIEW", to: "BANK.PAYMENT", kind: reads, external: false}
+  - {from: "BANK.PREPARED", to: "BANK.ACCOUNT", kind: reads, external: false}
+  - {from: "BANK.PRODUCT_VIEW", to: "BANK.PRODUCT", kind: reads, external: false}
+  - {from: "BANK.RECENT_ACCOUNTS", to: "BANK.ACCOUNT", kind: reads, external: false}
+  - {from: "BANK.RECONCILIATION", to: "BANK.ACCOUNT", kind: foreign_key, external: false}
+  - {from: "BANK.RECORD_PAYMENT", to: "BANK.ACCOUNT", kind: reads, external: false}
+  - {from: "BANK.RECORD_PAYMENT", to: "BANK.AUDIT_LOG", kind: writes, external: false}
+  - {from: "BANK.RECORD_PAYMENT", to: "BANK.PAYMENT", kind: writes, external: false}
+  - {from: "BANK.SETTLEMENT", to: "BANK.PAYMENT", kind: foreign_key, external: false}
+  - {from: "BANK.SETTLEMENT_VIEW", to: "BANK.SETTLEMENT", kind: reads, external: false}
+  - {from: "BANK.TRANSFER", to: "BANK.ACCOUNT", kind: foreign_key, external: false}
+  - {from: "BANK.TRANSFER_FUNDS", to: "BANK.TRANSFER", kind: writes, external: false}
+  - {from: "BANK.TRANSFER_VIEW", to: "BANK.TRANSFER", kind: reads, external: false}
+  - {from: "BANK.UNCOMMITTED_CUSTOMERS", to: "BANK.CUSTOMER", kind: reads, external: false}
+  - {from: "BANK.UPDATE_BALANCE", to: "BANK.ACCOUNT", kind: writes, external: false}
+  - {from: "EXECUTE on BANK.RECORD_PAYMENT", to: "BANK.RECORD_PAYMENT", kind: grant_on, external: false}
+  - {from: "SELECT, UPDATE on BANK.ACCOUNT", to: "BANK.ACCOUNT", kind: grant_on, external: false}
+  - {from: "load_script.sql", to: "BANK.ACCOUNT", kind: reads, external: false}
+  - {from: "load_script.sql", to: "BANK.DAILY_BALANCE", kind: writes, external: false}
+  - {from: "maintenance.sql", to: "BANK.ACCOUNT_MQT", kind: writes, external: false}

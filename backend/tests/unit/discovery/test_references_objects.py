@@ -134,6 +134,30 @@ def test_grant_foreign_key_index_and_trigger_reference_kinds() -> None:
     }
 
 
+def test_like_tables_and_dialect_expression_reference_hints_are_extracted() -> None:
+    like_name = ast.QualifiedName(parts=[ast.Identifier(value="source_table")])
+    table = ast.CreateTable(
+        name=ast.QualifiedName(parts=[ast.Identifier(value="copy_table")]),
+        like=like_name,
+    )
+    hinted = ast.DialectExpr(
+        name="sequence_value",
+        ref_hints=[
+            ast.RefHint(
+                ast.QualifiedName(parts=[ast.Identifier(value="order_seq")]),
+                "reads",
+            )
+        ],
+    )
+
+    assert [(ref.ref_kind, ref.name.parts[-1].value) for ref in extract(table)] == [
+        ("reads", "source_table")
+    ]
+    assert [(ref.ref_kind, ref.name.parts[-1].value) for ref in extract(hinted)] == [
+        ("reads", "order_seq")
+    ]
+
+
 def test_object_extraction_grants_dialect_and_script_fallback() -> None:
     parser = Parser()
     result = parser.parse(

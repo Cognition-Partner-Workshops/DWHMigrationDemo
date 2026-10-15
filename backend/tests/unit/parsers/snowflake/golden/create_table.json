@@ -1,0 +1,209 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 73
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 15
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 15
+        },
+        "value": "t",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 20,
+          "end_line": 1,
+          "end_col": 32
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 20,
+            "end_line": 1,
+            "end_col": 26
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 20,
+                "end_line": 1,
+                "end_col": 26
+              },
+              "value": "NUMBER",
+              "quoted": false
+            }
+          ]
+        },
+        "params": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 27,
+              "end_line": 1,
+              "end_col": 29
+            },
+            "type": "number",
+            "value": "10"
+          },
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 30,
+              "end_line": 1,
+              "end_col": 31
+            },
+            "type": "number",
+            "value": "0"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 39
+        },
+        "value": "value",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 40,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 40,
+            "end_line": 1,
+            "end_col": 47
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 40,
+                "end_line": 1,
+                "end_col": 47
+              },
+              "value": "VARIANT",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "default": {
+        "kind": "function_call",
+        "span": {
+          "start_line": 1,
+          "start_col": 56,
+          "end_line": 1,
+          "end_col": 66
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 56,
+            "end_line": 1,
+            "end_col": 66
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 56,
+                "end_line": 1,
+                "end_col": 66
+              },
+              "value": "PARSE_JSON",
+              "quoted": false
+            }
+          ]
+        },
+        "args": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 71,
+              "end_line": 1,
+              "end_col": 75
+            },
+            "type": "string",
+            "value": "{}"
+          }
+        ],
+        "distinct": false,
+        "star": false
+      }
+    }
+  ],
+  "temporary": false,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false
+}
