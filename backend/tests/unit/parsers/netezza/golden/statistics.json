@@ -1,0 +1,115 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 63
+  },
+  "name": "generate_statistics",
+  "args": {
+    "express": true,
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 32,
+        "end_line": 1,
+        "end_col": 50
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 32,
+            "end_line": 1,
+            "end_col": 41
+          },
+          "value": "LOGISTICS",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 42,
+            "end_line": 1,
+            "end_col": 50
+          },
+          "value": "SHIPMENT",
+          "quoted": false
+        }
+      ]
+    },
+    "columns": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 52,
+          "end_line": 1,
+          "end_col": 54
+        },
+        "value": "ID",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 56,
+          "end_line": 1,
+          "end_col": 62
+        },
+        "value": "STATUS",
+        "quoted": false
+      }
+    ]
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 32,
+          "end_line": 1,
+          "end_col": 50
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 32,
+              "end_line": 1,
+              "end_col": 41
+            },
+            "value": "LOGISTICS",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 42,
+              "end_line": 1,
+              "end_col": 50
+            },
+            "value": "SHIPMENT",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "reads"
+    }
+  ]
+}
