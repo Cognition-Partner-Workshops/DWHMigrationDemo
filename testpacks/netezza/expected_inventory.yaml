@@ -197,6 +197,10 @@ edges:
   kind: reads
   external: false
 - from: LOGISTICS.RECORD_SHIPMENT
+  to: LOGISTICS.ORDER_HEADER
+  kind: reads
+  external: false
+- from: LOGISTICS.RECORD_SHIPMENT
   to: LOGISTICS.SHIPMENT
   kind: writes
   external: false
@@ -207,6 +211,10 @@ edges:
 - from: LOGISTICS.REPRICE_FREIGHT
   to: LOGISTICS.FREIGHT
   kind: writes
+  external: false
+- from: LOGISTICS.REPRICE_FREIGHT
+  to: LOGISTICS.SHIPMENT_EVENT
+  kind: reads
   external: false
 - from: LOGISTICS.SHIPMENTS
   to: LOGISTICS.SHIPMENT

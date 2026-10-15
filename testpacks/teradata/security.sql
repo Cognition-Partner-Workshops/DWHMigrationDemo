@@ -2,8 +2,10 @@ CREATE ROLE reader;
 CREATE ROLE operator;
 CREATE ROLE auditor;
 
-CREATE USER analyst WITH PASSWORD 'demo-secret' IN GROUP reader;
-CREATE USER loader WITH PASSWORD 'demo-secret' IN GROUP operator;
+CREATE USER analyst FROM sales AS PERM = 0, PASSWORD = 'demo-secret', DEFAULT DATABASE = sales;
+CREATE USER loader FROM sales AS PERM = 0, PASSWORD = 'demo-secret', DEFAULT DATABASE = sales;
+GRANT reader TO analyst;
+GRANT operator TO loader;
 
 GRANT SELECT ON TABLE sales.customer_accounts TO reader;
 GRANT SELECT ON TABLE sales.account_payments TO reader;

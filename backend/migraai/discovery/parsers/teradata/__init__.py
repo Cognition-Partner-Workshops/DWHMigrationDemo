@@ -610,6 +610,11 @@ class Parser(PsmMixin, ParserBase):
         while not self._statement_end():
             if self.accept_keyword("WITH"):
                 continue
+            if self.accept_keyword("DEFAULT"):
+                self.expect_keyword("DATABASE")
+                self.accept(TokenKind.OPERATOR, "=")
+                options["default_database"] = self.parse_qualified_name()
+                continue
             if self.accept_keyword("FROM"):
                 options["from"] = self.parse_qualified_name()
                 self.accept_keyword("AS")
@@ -1274,7 +1279,19 @@ class Parser(PsmMixin, ParserBase):
         return ast.Delete(target, alias, using, where, span=self._token_span(start))
 
     def parse_grant(self) -> ast.Grant:
-        self.expect_keyword("GRANT")
+        start = self.expect_keyword("GRANT")
+        role_start = self.index
+        role_name = self.parse_qualified_name()
+        if self.accept_keyword("TO"):
+            grantees = self.parse_comma_list(self._parse_td_grantee)
+            return ast.Grant(
+                ["ROLE"],
+                "role",
+                role_name,
+                grantees,
+                span=self._token_span(start),
+            )
+        self.index = role_start
         privileges = self._parse_td_privileges()
         object_kind = "object"
         object_name = ast.QualifiedName()

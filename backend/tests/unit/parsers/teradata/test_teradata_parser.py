@@ -320,6 +320,16 @@ def test_teradata_table_options_principals_grants_and_view_locks() -> None:
     assert isinstance(principal, ast.CreatePrincipal)
     assert principal.options["password"] == "<redacted>"
     assert "unsafe-secret" not in json.dumps(principal.to_dict())
+    td_user = _one(
+        "CREATE USER analyst FROM sales AS PERM = 0, PASSWORD = 'another-secret', "
+        "DEFAULT DATABASE = sales"
+    )
+    assert isinstance(td_user, ast.CreatePrincipal)
+    assert td_user.options["from"].parts[0].value == "sales"
+    assert td_user.options["perm"].value == "0"
+    assert td_user.options["default_database"].parts[0].value == "sales"
+    assert td_user.options["password"] == "<redacted>"
+    assert "another-secret" not in json.dumps(td_user.to_dict())
     database = _one("CREATE DATABASE sales_stage FROM dbc AS PERM = 100")
     assert isinstance(database, ast.CreateDatabase)
     assert database.options["from"].parts[0].value == "dbc"
@@ -327,6 +337,12 @@ def test_teradata_table_options_principals_grants_and_view_locks() -> None:
     grant = _one("GRANT EXECUTE PROCEDURE ON sales.add_payment TO sales.operator")
     assert isinstance(grant, ast.Grant)
     assert grant.privileges == ["EXECUTE PROCEDURE"]
+    role_grant = _one("GRANT reader TO analyst")
+    assert isinstance(role_grant, ast.Grant)
+    assert role_grant.privileges == ["ROLE"]
+    assert role_grant.object_kind == "role"
+    assert role_grant.object_name.parts[0].value == "reader"
+    assert role_grant.grantees[0].parts[0].value == "analyst"
     view = _one("REPLACE VIEW sales.locked AS LOCKING ROW FOR ACCESS SEL id FROM sales.orders")
     assert isinstance(view, ast.CreateView)
     assert view.replace is True

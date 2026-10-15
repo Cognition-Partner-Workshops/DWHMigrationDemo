@@ -1,17 +1,65 @@
 CREATE PROCEDURE LOGISTICS.RECORD_SHIPMENT(INTEGER, VARCHAR(20)) RETURNS INTEGER
 EXECUTE AS OWNER LANGUAGE NZPLSQL AS BEGIN_PROC
-DECLARE v INTEGER := 0;
+DECLARE
+v_attempt INTEGER := 0;
+v_status VARCHAR(20) := $2;
+r RECORD;
+p_shipment_id ALIAS FOR $1;
 BEGIN
-  INSERT INTO LOGISTICS.SHIPMENT (ID, STATUS) VALUES ($1, $2);
-  INSERT INTO LOGISTICS.SHIPMENT_EVENT (SHIPMENT_ID, STATUS) VALUES ($1, $2);
-  RETURN $1;
+  IF p_shipment_id > 0 THEN
+    INSERT INTO LOGISTICS.SHIPMENT (ID, STATUS) VALUES (p_shipment_id, v_status);
+  ELSIF p_shipment_id = 0 THEN
+    RAISE NOTICE 'Ignoring shipment %', p_shipment_id;
+  ELSE
+    RAISE EXCEPTION 'Invalid shipment %', p_shipment_id;
+  END IF;
+  LOOP
+    v_attempt := v_attempt + 1;
+    EXIT WHEN v_attempt >= 2;
+    INSERT INTO LOGISTICS.SHIPMENT_EVENT (SHIPMENT_ID, STATUS)
+    VALUES (p_shipment_id, v_status);
+  END LOOP;
+  FOR r IN SELECT ID FROM LOGISTICS.ORDER_HEADER LOOP
+    INSERT INTO LOGISTICS.SHIPMENT (ID, STATUS) VALUES (r.ID, v_status);
+  END LOOP;
+  RAISE NOTICE 'Recorded shipment %, status %', p_shipment_id, v_status;
+  RETURN p_shipment_id;
+EXCEPTION
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'Shipment % failed with status %', p_shipment_id, v_status;
 END;
 END_PROC;
 CREATE PROCEDURE LOGISTICS.REPRICE_FREIGHT(INTEGER) RETURNS INTEGER
 LANGUAGE NZPLSQL AS BEGIN_PROC
+DECLARE
+v_updates INTEGER := 0;
+v_limit INTEGER := 2;
+v_amount DECIMAL(10,2) := 0;
+r RECORD;
+p_shipment_id ALIAS FOR $1;
 BEGIN
-  UPDATE LOGISTICS.FREIGHT SET AMOUNT = AMOUNT + 1 WHERE SHIPMENT_ID = $1;
-  RETURN $1;
+  IF p_shipment_id > 0 THEN
+    UPDATE LOGISTICS.FREIGHT
+    SET AMOUNT = AMOUNT + 1
+    WHERE SHIPMENT_ID = p_shipment_id;
+  ELSIF p_shipment_id = 0 THEN
+    RAISE NOTICE 'Skipping shipment %', p_shipment_id;
+  ELSE
+    RAISE EXCEPTION 'Invalid shipment id %', p_shipment_id;
+  END IF;
+  LOOP
+    v_updates := v_updates + 1;
+    EXIT WHEN v_updates >= v_limit;
+  END LOOP;
+  FOR r IN SELECT SHIPMENT_ID FROM LOGISTICS.SHIPMENT_EVENT LOOP
+    UPDATE LOGISTICS.FREIGHT
+    SET AMOUNT = AMOUNT + v_amount + 1
+    WHERE SHIPMENT_ID = r.SHIPMENT_ID;
+  END LOOP;
+  RAISE NOTICE 'Repriced % freight rows for shipment %', v_updates, p_shipment_id;
+  RETURN v_updates;
+EXCEPTION WHEN OTHERS THEN
+  RAISE EXCEPTION 'Freight repricing failed for shipment %', p_shipment_id;
 END;
 END_PROC;
 CREATE PROCEDURE LOGISTICS.UPDATE_TRACKING(INTEGER, VARCHAR(80)) RETURNS INTEGER

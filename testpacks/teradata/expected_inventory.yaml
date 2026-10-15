@@ -1,17 +1,22 @@
 objects:
   - {type: grant, qualified_name: "EXECUTE PROCEDURE on sales.add_payment", status: parsed}
+  - {type: grant, qualified_name: "ROLE on operator", status: parsed}
+  - {type: grant, qualified_name: "ROLE on reader", status: parsed}
   - {type: grant, qualified_name: "SELECT on sales.account_payments", status: parsed}
   - {type: grant, qualified_name: "SELECT on sales.audit_log", status: parsed}
   - {type: grant, qualified_name: "SELECT on sales.customer_accounts", status: parsed}
   - {type: grant, qualified_name: "SELECT, INSERT on sales.payment", status: parsed}
+  - {type: user, qualified_name: "analyst", status: parsed}
+  - {type: role, qualified_name: "auditor", status: parsed}
   - {type: script, qualified_name: "load_script.sql", status: parsed}
+  - {type: user, qualified_name: "loader", status: parsed}
+  - {type: role, qualified_name: "operator", status: parsed}
+  - {type: role, qualified_name: "reader", status: parsed}
   - {type: table, qualified_name: "sales.account", status: parsed}
   - {type: view, qualified_name: "sales.account_payments", status: parsed}
   - {type: table, qualified_name: "sales.account_snapshot", status: parsed}
   - {type: procedure, qualified_name: "sales.add_payment", status: parsed}
-  - {type: user, qualified_name: "analyst", status: parsed}
   - {type: table, qualified_name: "sales.audit_log", status: parsed}
-  - {type: role, qualified_name: "auditor", status: parsed}
   - {type: table, qualified_name: "sales.branch", status: parsed}
   - {type: procedure, qualified_name: "sales.capture_snapshot", status: parsed}
   - {type: table, qualified_name: "sales.card", status: parsed}
@@ -33,17 +38,14 @@ objects:
   - {type: index, qualified_name: "sales.ix_account_customer", status: parsed}
   - {type: index, qualified_name: "sales.ix_customer_status", status: parsed}
   - {type: join_index, qualified_name: "sales.jix_order", status: parsed}
-  - {type: user, qualified_name: "loader", status: parsed}
   - {type: table, qualified_name: "sales.loan", status: parsed}
   - {type: table, qualified_name: "sales.loan_payment", status: parsed}
-  - {type: role, qualified_name: "operator", status: parsed}
   - {type: view, qualified_name: "sales.order_detail", status: parsed}
   - {type: table, qualified_name: "sales.order_header", status: parsed}
   - {type: table, qualified_name: "sales.order_line", status: parsed}
   - {type: table, qualified_name: "sales.payment", status: parsed}
   - {type: procedure, qualified_name: "sales.post_transfer", status: parsed}
   - {type: table, qualified_name: "sales.product", status: parsed}
-  - {type: role, qualified_name: "reader", status: parsed}
   - {type: table, qualified_name: "sales.recovered_after_error", status: parsed}
   - {type: table, qualified_name: "sales.recovered_table", status: parsed}
   - {type: macro, qualified_name: "sales.refresh_daily", status: parsed}
@@ -55,6 +57,8 @@ objects:
   - {type: procedure, qualified_name: "sales.update_balance", status: parsed}
 edges:
   - {from: "EXECUTE PROCEDURE on sales.add_payment", to: "sales.add_payment", kind: grant_on, external: false}
+  - {from: "ROLE on operator", to: "operator", kind: grant_on, external: false}
+  - {from: "ROLE on reader", to: "reader", kind: grant_on, external: false}
   - {from: "SELECT on sales.account_payments", to: "sales.account_payments", kind: grant_on, external: false}
   - {from: "SELECT on sales.audit_log", to: "sales.audit_log", kind: grant_on, external: false}
   - {from: "SELECT on sales.customer_accounts", to: "sales.customer_accounts", kind: grant_on, external: false}
