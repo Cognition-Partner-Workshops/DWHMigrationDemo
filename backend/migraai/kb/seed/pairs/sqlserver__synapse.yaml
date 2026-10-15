@@ -1,0 +1,308 @@
+source: sqlserver
+target: synapse
+architecture_overview:
+- text: A page is a fundamental unit of data storage in the SQL Server Database Engine.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: A columnstore index stores, retrieves and manages data in a columnar format.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool uses a scale-out architecture that spreads computational processing across multiple nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: The control node receives queries, optimises them for parallel execution and hands the work to compute nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: A clustered index sorts and stores table rows by its key values, and a table can have only one clustered index.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: *id001
+    confidence: high
+  - text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Resource governor manages Database Engine resource consumption and enforces policies for user workloads.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Compute power in dedicated SQL pool is measured and scaled in data warehouse units (DWUs).
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Workload management in dedicated SQL pool uses workload classification, importance and isolation to manage resources.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Partitioned table and index data is divided into units that can be spread across multiple filegroups or kept in one.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: In dedicated SQL pool compute is separate from storage, so compute can be scaled independently of the data held.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: *id001
+    confidence: high
+  - text: Each query is divided into 60 smaller queries, one per distribution, that run in parallel.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'This is a same-dialect (T-SQL) move to MPP: follow Microsoft''s migration guide — assess workload fit, convert schema to distributed tables (hash/round-robin/replicate) with clustered columnstore, load via COPY INTO or PolyBase with an ELT pattern, and rework unsupported features (foreign keys, triggers, sequences, indexed views). Map security to SQL pool authentication, column-level security and TDE.'
+object_mapping:
+- source_object: Table
+  target_object: Distributed table (HASH/ROUND_ROBIN/REPLICATE)
+  notes: Distribution choice is mandatory and drives join performance.
+  claim:
+    text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: *id001
+    confidence: high
+- source_object: Clustered index
+  target_object: Clustered columnstore index
+  notes: Default table organization is columnstore.
+  claim:
+    text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+- source_object: Stored procedure (T-SQL)
+  target_object: Stored procedure (T-SQL)
+  notes: Supported but capped at 8 nesting levels and lacking CLR/numbered/extproc features.
+  claim:
+    text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: *id001
+    confidence: high
+- source_object: Indexed view
+  target_object: Materialized view
+  notes: Dedicated SQL pool supports materialized views.
+  claim:
+    text: Dedicated SQL pool supports materialized views for performance tuning.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-materialized-views
+    accessed: *id001
+    confidence: high
+- source_object: IDENTITY column
+  target_object: IDENTITY column
+  notes: IDENTITY supported; sequences are not.
+  claim:
+    text: Dedicated SQL pool supports IDENTITY columns to create surrogate keys.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-identity
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE
+  notes: MERGE is documented for dedicated SQL pool; overview-features lists it as preview — verify at migration time.
+  claim:
+    text: The T-SQL MERGE reference applies MERGE to dedicated SQL pool with no preview flag; the Synapse overview-features page lists it as 'Yes (preview)' — docs disagree.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+    accessed: *id001
+    confidence: low
+sql_dialect_differences:
+- text: TOP limits the rows returned by a query to a number or percentage of rows.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: MERGE runs insert, update or delete operations on a target table from a join with a source table.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: A common table expression (CTE) is a temporary named result set defined with WITH.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: TRY...CATCH implements error handling in T-SQL.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool implements ACID transactions with READ UNCOMMITTED as the default isolation level.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-transactions
+  accessed: *id001
+  confidence: high
+- text: CREATE TABLE AS SELECT (CTAS) creates and populates a new table from a SELECT in one parallel operation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-ctas
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+  accessed: *id001
+  confidence: high
+- text: The T-SQL MERGE reference applies MERGE to dedicated SQL pool with no preview flag; the Synapse overview-features page lists it as 'Yes (preview)' — docs disagree.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: low
+data_movement:
+- text: The bcp utility bulk copies data between a SQL Server instance and a data file.
+  url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The COPY statement loads data from external storage accounts into Azure Synapse Analytics.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: high
+- text: PolyBase with T-SQL commands can load data from Azure Blob Storage into dedicated SQL pool tables.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-load-from-azure-blob-storage-with-polybase
+  accessed: *id001
+  confidence: high
+- text: Change data capture uses SQL Server Agent to log inserts, updates and deletes on a table.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: SQL Server Integration Services (SSIS) is a platform for building enterprise data integration and transformation solutions.
+  url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: *id001
+  confidence: high
+- text: Azure Synapse Analytics is a distributed system designed to perform analytics on large data, per Microsoft's migration guide.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/migrate-to-synapse-analytics-guide
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Row-level security uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts database data and log files at rest.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts and decrypts dedicated SQL pool data at rest.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+  accessed: *id001
+  confidence: high
+- text: Connections to a dedicated SQL pool are encrypted by default and can be restricted by IP firewall rules.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_foreign_keys
+  claim:
+    text: Foreign key constraints are not supported in dedicated SQL pool tables.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+    accessed: *id001
+    confidence: high
+- id: ufeat_triggers
+  claim:
+    text: Triggers are not supported in dedicated SQL pool tables.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+    accessed: *id001
+    confidence: high
+- id: ufeat_sequences
+  claim:
+    text: Sequence objects are not supported in dedicated SQL pool; surrogate keys are implemented with IDENTITY.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+    accessed: *id001
+    confidence: high
+- id: ufeat_indexed_views_computed
+  claim:
+    text: Indexed views and computed columns are not supported in dedicated SQL pool tables.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+    accessed: *id001
+    confidence: high
+- id: ufeat_clr_assemblies
+  claim:
+    text: CLR integration lets database objects such as procedures and functions be written in .NET languages.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-integration-overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_foreign_keys
+  claim:
+    text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+    accessed: *id001
+    confidence: high
+- for: ufeat_triggers
+  claim:
+    text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: *id001
+    confidence: high
+- for: ufeat_sequences
+  claim:
+    text: Dedicated SQL pool supports IDENTITY columns to create surrogate keys.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-identity
+    accessed: *id001
+    confidence: high
+- for: ufeat_indexed_views_computed
+  claim:
+    text: Dedicated SQL pool supports materialized views that the optimizer can use transparently to improve query execution plans.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-materialized-views
+    accessed: *id001
+    confidence: high
+- for: ufeat_clr_assemblies
+  claim:
+    text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: T-SQL is shared, but dedicated pool lacks FK, triggers, sequences and caps procedure nesting at 8.
+  data:
+    level: medium
+    notes: Distribution-key choice affects load and join performance; round-robin staging then re-hash is common.
+  security:
+    level: medium
+    notes: SQL/Entra auth, TDE and CLS map directly; firewall rules at pool level.
+  governance:
+    level: low
+    notes: Synapse workspace RBAC governs access; plan Purview if needed.
+  platform:
+    level: medium
+    notes: DWU sizing and pause/resume replace instance tuning.
+  operational:
+    level: low
+    notes: Monitor with DMVs and workload management.
+optimization_hints:
+- text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+  accessed: *id001
+  confidence: high
+- text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+  accessed: *id001
+  confidence: high
+- text: Workload management in dedicated SQL pool uses workload classification, importance and isolation to manage resources.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports materialized views that the optimizer can use transparently to improve query execution plans.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-materialized-views
+  accessed: *id001
+  confidence: high

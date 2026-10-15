@@ -1,0 +1,278 @@
+source: synapse
+target: fabric
+architecture_overview:
+- text: Dedicated SQL pool uses a scale-out architecture that spreads computational processing across multiple nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: The control node receives queries, optimises them for parallel execution and hands the work to compute nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: Fabric Data Warehouse is an enterprise-scale relational warehouse on a data lake foundation.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: *id001
+  confidence: high
+- text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+  - text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+  - text: V-Order is a write-time optimisation of the Parquet file format for faster reads in Fabric.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Compute power in dedicated SQL pool is measured and scaled in data warehouse units (DWUs).
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Fabric Data Warehouse is an enterprise-scale relational warehouse on a data lake foundation.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+    accessed: *id001
+    confidence: high
+  - text: Microsoft Entra authentication is an alternative to SQL authentication for the warehouse and SQL analytics endpoint.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/entra-id-authentication
+    accessed: *id001
+    confidence: high
+  - text: Row-level security in Fabric uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: In dedicated SQL pool compute is separate from storage, so compute can be scaled independently of the data held.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool compute resources can be paused and resumed.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Fabric Data Warehouse is an enterprise-scale relational warehouse on a data lake foundation.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'Microsoft documents a dedicated migration path: plan capacity, use the Migration Assistant (DAFT) or metadata/data migration to move dedicated SQL pool objects into a Fabric warehouse, which is storage-compute separated over OneLake Delta files. Most T-SQL carries over; check the surface-area doc for gaps (no triggers, no explicit distribution) and map CLS/RLS/TDE to Fabric equivalents.'
+object_mapping:
+- source_object: Distributed table
+  target_object: Warehouse table (Delta)
+  notes: Distribution is managed automatically in Fabric; no HASH/REPLICATE DDL.
+  claim:
+    text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+- source_object: Clustered columnstore index
+  target_object: V-order Delta optimization
+  notes: CCI maps to V-order optimized Parquet.
+  claim:
+    text: V-Order is a write-time optimisation of the Parquet file format for faster reads in Fabric.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+    accessed: *id001
+    confidence: high
+- source_object: Stored procedure (T-SQL)
+  target_object: Stored procedure (T-SQL)
+  notes: T-SQL procedures supported on Fabric warehouse.
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Not supported — use table + pipeline
+  notes: MVs absent; precompute into tables.
+  claim:
+    text: Materialized views are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- source_object: IDENTITY column
+  target_object: IDENTITY column
+  notes: IDENTITY supported in Fabric warehouse.
+  claim:
+    text: In Fabric Data Warehouse, IDENTITY columns automatically generate new numeric values on insert.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/identity
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE
+  notes: MERGE supported on Fabric warehouse.
+  claim:
+    text: The T-SQL MERGE reference applies to Warehouse in Microsoft Fabric and runs insert, update, or delete operations on a target table.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: CREATE TABLE AS SELECT (CTAS) creates and populates a new table from a SELECT in one parallel operation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-ctas
+  accessed: *id001
+  confidence: high
+- text: CREATE TABLE AS SELECT (CTAS) creates a new Fabric warehouse table from a query.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-tsql
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: *id001
+  confidence: high
+- text: The T-SQL MERGE reference applies MERGE to dedicated SQL pool with no preview flag; the Synapse overview-features page lists it as 'Yes (preview)' — docs disagree.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: low
+- text: Fabric Data Warehouse supports ACID-compliant transactions and enforces snapshot isolation.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/transactions
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The COPY statement loads data from external storage accounts into Azure Synapse Analytics.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: high
+- text: The COPY statement provides the highest-throughput code-rich data ingestion into a Fabric warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data
+  accessed: *id001
+  confidence: high
+- text: The Fabric Migration Assistant migrates a warehouse by uploading a DACPAC file or a zip archive of .sql/.bteq files, then copies data with a copy job.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-assistant
+  accessed: *id001
+  confidence: high
+- text: Microsoft's Synapse-to-Fabric migration planning guide recommends building an inventory of data and processes and automating wherever possible.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-synapse-dedicated-sql-pool-planning
+  accessed: *id001
+  confidence: high
+- text: The dbt adapter for Fabric Data Warehouse lets existing dbt projects target a Fabric warehouse with a configuration change.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-synapse-dedicated-sql-pool-methods
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: *id001
+  confidence: high
+- text: Pipelines in Fabric Data Factory can ingest data into a Fabric warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-pipelines
+  accessed: *id001
+  confidence: high
+- text: The Fabric Migration Assistant migrates a warehouse by uploading a DACPAC file or a zip archive of .sql/.bteq files, then copies data with a copy job.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-assistant
+  accessed: *id001
+  confidence: high
+- text: Azure Synapse Analytics is a distributed system designed to perform analytics on large data, per Microsoft's migration guide.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/migrate-to-synapse-analytics-guide
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Column-level security restricts column access and is implemented with the GRANT T-SQL statement.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Row-level security in Fabric uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking limits sensitive data exposure by masking it for nonprivileged users.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/dynamic-data-masking
+  accessed: *id001
+  confidence: high
+- text: Microsoft Entra authentication is an alternative to SQL authentication for the warehouse and SQL analytics endpoint.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/entra-id-authentication
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_triggers
+  claim:
+    text: Triggers are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_materialized_views
+  claim:
+    text: Materialized views are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_recursive_queries
+  claim:
+    text: Recursive queries are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_dwumanaged_distrib
+  claim:
+    text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_triggers
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- for: ufeat_materialized_views
+  claim:
+    text: CREATE TABLE AS SELECT (CTAS) creates a new Fabric warehouse table from a query.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-tsql
+    accessed: *id001
+    confidence: high
+- for: ufeat_recursive_queries
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: low
+    notes: Same T-SQL family; check tsql-surface-area gaps (triggers, MVs, recursion).
+  data:
+    level: low
+    notes: Microsoft-guided migration path reduces data risk.
+  security:
+    level: low
+    notes: CLS/RLS/DDM have direct Fabric counterparts; Entra-only auth.
+  governance:
+    level: low
+    notes: Both Microsoft platforms; governance via Fabric workspace + Purview.
+  platform:
+    level: medium
+    notes: DWU → capacity units; test workload fit in preview context.
+  operational:
+    level: low
+    notes: Monitoring moves to Fabric capacity metrics.
+optimization_hints:
+- text: V-Order is a write-time optimisation of the Parquet file format for faster reads in Fabric.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+  accessed: *id001
+  confidence: high
+- text: Fabric Warehouse's query optimizer chooses plans by estimated cost, which requires statistics about the data.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/statistics
+  accessed: *id001
+  confidence: high

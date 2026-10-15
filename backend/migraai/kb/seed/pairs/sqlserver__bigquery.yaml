@@ -1,0 +1,266 @@
+source: sqlserver
+target: bigquery
+architecture_overview:
+- text: A page is a fundamental unit of data storage in the SQL Server Database Engine.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: A columnstore index stores, retrieves and manages data in a columnar format.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: BigQuery is a fully managed, AI-ready data platform with a serverless architecture.
+  url: https://docs.cloud.google.com/bigquery/docs/introduction
+  accessed: *id001
+  confidence: high
+- text: BigQuery separates storage and compute, scaling each independently, and executes queries completely in memory across parallel workers.
+  url: https://docs.cloud.google.com/bigquery/docs/storage_overview
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: A clustered index sorts and stores table rows by its key values, and a table can have only one clustered index.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: A partitioned table in BigQuery is divided into segments called partitions, enabling partition pruning on the partitioning column.
+    url: https://docs.cloud.google.com/bigquery/docs/partitioned-tables
+    accessed: *id001
+    confidence: high
+  - text: A clustered table in BigQuery sorts storage blocks by user-defined clustered columns to reduce scanned bytes.
+    url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Resource governor manages Database Engine resource consumption and enforces policies for user workloads.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: A BigQuery slot is a virtual compute unit used to execute SQL queries.
+    url: https://docs.cloud.google.com/bigquery/docs/slots
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: BigQuery access control uses Identity and Access Management (IAM) predefined roles and permissions.
+    url: https://docs.cloud.google.com/bigquery/docs/access-control
+    accessed: *id001
+    confidence: high
+  - text: BigQuery row-level security uses row access policies to filter rows visible to a user.
+    url: https://docs.cloud.google.com/bigquery/docs/row-level-security-intro
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Partitioned table and index data is divided into units that can be spread across multiple filegroups or kept in one.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: BigQuery separates storage and compute, scaling each independently, and executes queries completely in memory across parallel workers.
+    url: https://docs.cloud.google.com/bigquery/docs/storage_overview
+    accessed: *id001
+    confidence: high
+recommended_strategy: Translate T-SQL to GoogleSQL with the BigQuery batch SQL translator (part of the BigQuery Migration Service), transfer data via the Data Transfer Service or file-based batch loads, and redesign for partition+cluster pruning and slot-based capacity. Map SQL Server security to BigQuery IAM plus row access policies and column-level policy tags.
+object_mapping:
+- source_object: Stored procedure (T-SQL)
+  target_object: SQL stored procedure (GoogleSQL)
+  notes: Procedural language statements supported.
+  claim:
+    text: A BigQuery stored procedure is a collection of statements that supports procedural language statements.
+    url: https://docs.cloud.google.com/bigquery/docs/procedures
+    accessed: *id001
+    confidence: high
+- source_object: User-defined function
+  target_object: UDF (SQL or JavaScript)
+  notes: Rewrite T-SQL UDFs.
+  claim:
+    text: The GoogleSQL procedural language executes multiple statements in one query as a multi-statement query.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language
+    accessed: *id001
+    confidence: high
+- source_object: Indexed view
+  target_object: Materialized view
+  notes: BigQuery materialized views auto-merge fresh data.
+  claim:
+    text: BigQuery materialized views are precomputed tables that optimize query performance and reduce execution costs.
+    url: https://docs.cloud.google.com/bigquery/docs/materialized-views-intro
+    accessed: *id001
+    confidence: high
+- source_object: Trigger
+  target_object: None — redesign
+  notes: No DML triggers; move logic to scheduled queries/pipelines.
+  claim:
+    text: The GoogleSQL procedural language executes multiple statements in one query as a multi-statement query.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language
+    accessed: *id001
+    confidence: high
+- source_object: Table (clustered index)
+  target_object: Partitioned/clustered table
+  notes: Physical design maps to partition + cluster keys.
+  claim:
+    text: A clustered table in BigQuery sorts storage blocks by user-defined clustered columns to reduce scanned bytes.
+    url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: TOP limits the rows returned by a query to a number or percentage of rows.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: MERGE runs insert, update or delete operations on a target table from a join with a source table.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: A common table expression (CTE) is a temporary named result set defined with WITH.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: TRY...CATCH implements error handling in T-SQL.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: BigQuery does not enforce primary and foreign key constraints; they exist for query optimization.
+  url: https://docs.cloud.google.com/bigquery/docs/primary-foreign-keys
+  accessed: *id001
+  confidence: high
+- text: BigQuery supports multi-statement transactions inside a single query or across queries when using sessions.
+  url: https://docs.cloud.google.com/bigquery/docs/transactions
+  accessed: *id001
+  confidence: high
+- text: The GoogleSQL procedural language executes multiple statements in one query as a multi-statement query.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The bcp utility bulk copies data between a SQL Server instance and a data file.
+  url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The BigQuery Data Transfer Service automates data movement into BigQuery on a scheduled, managed basis.
+  url: https://docs.cloud.google.com/bigquery/docs/dts-introduction
+  accessed: *id001
+  confidence: high
+- text: BigQuery supports ELT and ETL approaches for loading data, including batch load.
+  url: https://docs.cloud.google.com/bigquery/docs/loading-data
+  accessed: *id001
+  confidence: high
+- text: BigQuery federated queries use the EXTERNAL_QUERY function over the BigQuery Connection API to query external databases in their own dialect.
+  url: https://docs.cloud.google.com/bigquery/docs/federated-queries-intro
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: SQL Server Integration Services (SSIS) is a platform for building enterprise data integration and transformation solutions.
+  url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The BigQuery batch SQL translator translates scripts written in other SQL dialects into GoogleSQL.
+  url: https://docs.cloud.google.com/bigquery/docs/batch-sql-translator
+  accessed: *id001
+  confidence: high
+- text: The BigQuery Migration Service covers assessment and planning, SQL translation and data transfer.
+  url: https://docs.cloud.google.com/bigquery/docs/migration-intro
+  accessed: *id001
+  confidence: high
+- text: Google recommends automated tools to perform schema and data transfer to BigQuery.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/schema-data-overview
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Row-level security uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: BigQuery row-level security uses row access policies to filter rows visible to a user.
+  url: https://docs.cloud.google.com/bigquery/docs/row-level-security-intro
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts database data and log files at rest.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: BigQuery access control uses Identity and Access Management (IAM) predefined roles and permissions.
+  url: https://docs.cloud.google.com/bigquery/docs/access-control
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking limits sensitive data exposure by masking it to nonprivileged users.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_clr_assemblies
+  claim:
+    text: CLR integration lets database objects such as procedures and functions be written in .NET languages.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-integration-overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_enforced_keys
+  claim:
+    text: BigQuery does not enforce primary and foreign key constraints; they exist for query optimization.
+    url: https://docs.cloud.google.com/bigquery/docs/primary-foreign-keys
+    accessed: *id001
+    confidence: high
+- id: ufeat_linked_servers
+  claim:
+    text: Linked servers let the Database Engine read data from remote data sources and run commands against remote servers.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/linked-servers/linked-servers-database-engine?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_sqlserver_agent
+  claim:
+    text: SQL Server Agent is a Windows service that runs scheduled administrative tasks called jobs.
+    url: https://learn.microsoft.com/en-us/ssms/agent/sql-server-agent
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_clr_assemblies
+  claim:
+    text: The GoogleSQL procedural language executes multiple statements in one query as a multi-statement query.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language
+    accessed: *id001
+    confidence: high
+- for: ufeat_enforced_keys
+  claim:
+    text: BigQuery does not enforce primary and foreign key constraints; they exist for query optimization.
+    url: https://docs.cloud.google.com/bigquery/docs/primary-foreign-keys
+    accessed: *id001
+    confidence: high
+- for: ufeat_linked_servers
+  claim:
+    text: BigQuery federated queries use the EXTERNAL_QUERY function over the BigQuery Connection API to query external databases in their own dialect.
+    url: https://docs.cloud.google.com/bigquery/docs/federated-queries-intro
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: T-SQL to GoogleSQL is a full dialect conversion; translator covers a subset and manual rework remains.
+  data:
+    level: medium
+    notes: No enforced constraints and different datetime semantics; validate post-load.
+  security:
+    level: medium
+    notes: Security model moves to IAM + policy tags/row access policies.
+  governance:
+    level: low
+    notes: Dataplex/catalog integration needs planning.
+  platform:
+    level: high
+    notes: Serverless slot model and table design (partition/cluster) differ fundamentally from instance tuning.
+  operational:
+    level: low
+    notes: No infrastructure ops; monitor slot usage.
+optimization_hints:
+- text: A partitioned table in BigQuery is divided into segments called partitions, enabling partition pruning on the partitioning column.
+  url: https://docs.cloud.google.com/bigquery/docs/partitioned-tables
+  accessed: *id001
+  confidence: high
+- text: A clustered table in BigQuery sorts storage blocks by user-defined clustered columns to reduce scanned bytes.
+  url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+  accessed: *id001
+  confidence: high
+- text: BigQuery materialized views are precomputed tables that optimize query performance and reduce execution costs.
+  url: https://docs.cloud.google.com/bigquery/docs/materialized-views-intro
+  accessed: *id001
+  confidence: high

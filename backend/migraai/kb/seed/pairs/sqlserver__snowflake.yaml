@@ -1,0 +1,284 @@
+source: sqlserver
+target: snowflake
+architecture_overview:
+- text: A page is a fundamental unit of data storage in the SQL Server Database Engine.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: A columnstore index stores, retrieves and manages data in a columnar format.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Snowflake's architecture is a hybrid of traditional shared-disk and shared-nothing database architectures.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: *id001
+  confidence: high
+- text: Snowflake is a self-managed cloud service with no hardware or software to install, configure or manage.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: A clustered index sorts and stores table rows by its key values, and a table can have only one clustered index.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: The max degree of parallelism (MAXDOP) option limits the number of processors used for a parallel plan.
+    url: https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/configure-the-max-degree-of-parallelism-server-configuration-option?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Virtual warehouses provide the compute required for queries and all DML operations including data loading.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: *id001
+    confidence: high
+  - text: A warehouse can be resized at any time, even while running, to add or remove compute resources.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Snowflake access control assigns privileges to roles, which are assigned to users (RBAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Partitioned table and index data is divided into units that can be spread across multiple filegroups or kept in one.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Multi-cluster warehouses let Snowflake scale compute resources for concurrency needs.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: *id001
+    confidence: high
+recommended_strategy: Inventory objects with sys tables/SSMS reports, convert the schema and T-SQL code objects with SnowConvert, move data to cloud staging and load with COPY INTO, then validate. Rebuild SSIS packages as Snowflake tasks/streams or a partner ETL tool, and remap SQL Server roles to Snowflake RBAC.
+object_mapping:
+- source_object: Stored procedure (T-SQL)
+  target_object: Stored procedure (Snowflake Scripting or a supported language handler)
+  notes: T-SQL control flow must be rewritten.
+  claim:
+    text: Snowflake Scripting is an extension to Snowflake SQL that adds procedural logic for stored procedures and UDFs.
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+    accessed: *id001
+    confidence: high
+- source_object: User-defined function
+  target_object: UDF (SQL, JavaScript, etc.)
+  notes: Scalar and table UDFs map to Snowflake UDFs.
+  claim:
+    text: Snowflake Scripting is an extension to Snowflake SQL that adds procedural logic for stored procedures and UDFs.
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+    accessed: *id001
+    confidence: high
+- source_object: Indexed view
+  target_object: Materialized view
+  notes: Indexed views become materialized views (Enterprise Edition).
+  claim:
+    text: A Snowflake materialized view is a pre-computed data set stored for later use, requiring Enterprise Edition.
+    url: https://docs.snowflake.com/en/user-guide/views-materialized
+    accessed: *id001
+    confidence: high
+- source_object: Trigger
+  target_object: Stream + task
+  notes: No DML triggers in Snowflake; streams plus scheduled tasks emulate them.
+  claim:
+    text: A stream object records DML changes (inserts, updates, deletes) made to a table — Snowflake's change data capture.
+    url: https://docs.snowflake.com/en/user-guide/streams-intro
+    accessed: *id001
+    confidence: high
+- source_object: Sequence
+  target_object: Sequence
+  notes: Sequences exist in both; check gap behaviour on failover.
+  claim:
+    text: Snowflake CREATE SEQUENCE creates a sequence generating sequential, unique numbers (gaps not guaranteed).
+    url: https://docs.snowflake.com/en/sql-reference/sql/create-sequence
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: TOP limits the rows returned by a query to a number or percentage of rows.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: In Snowflake, TOP n and LIMIT count are equivalent clauses.
+  url: https://docs.snowflake.com/en/sql-reference/constructs/top_n
+  accessed: *id001
+  confidence: high
+- text: MERGE runs insert, update or delete operations on a target table from a join with a source table.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Snowflake MERGE inserts, updates and deletes values in a table based on values in a second table or subquery.
+  url: https://docs.snowflake.com/en/sql-reference/sql/merge
+  accessed: *id001
+  confidence: high
+- text: A common table expression (CTE) is a temporary named result set defined with WITH.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: TRY...CATCH implements error handling in T-SQL.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: A VARIANT value in Snowflake can store a value of any other type, enabling semi-structured data.
+  url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+  accessed: *id001
+  confidence: high
+- text: Snowflake transactions guarantee ACID properties and are associated with a single session.
+  url: https://docs.snowflake.com/en/sql-reference/transactions
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The bcp utility bulk copies data between a SQL Server instance and a data file.
+  url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: BULK INSERT imports a data file into a table or view in a user-specified format.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: COPY INTO loads data from staged files in cloud storage into a table.
+  url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-table
+  accessed: *id001
+  confidence: high
+- text: Change data capture uses SQL Server Agent to log inserts, updates and deletes on a table.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: A stream object records DML changes (inserts, updates, deletes) made to a table — Snowflake's change data capture.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: SQL Server Integration Services (SSIS) is a platform for building enterprise data integration and transformation solutions.
+  url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: SQL Server Agent is a Windows service that runs scheduled administrative tasks called jobs.
+  url: https://learn.microsoft.com/en-us/ssms/agent/sql-server-agent
+  accessed: *id001
+  confidence: high
+- text: A Snowflake task can run on a fixed schedule or be triggered when a stream has new data.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: *id001
+  confidence: high
+- text: SnowConvert AI is a Snowflake utility that converts source database code from other platforms to Snowflake.
+  url: https://docs.snowflake.com/en/migrations/snowconvert-docs/general/about
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Row-level security uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: A row access policy is a schema-level object that determines whether a given row can be viewed from SELECT, UPDATE, DELETE or MERGE statements.
+  url: https://docs.snowflake.com/en/user-guide/security-row-intro
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking limits sensitive data exposure by masking it to nonprivileged users.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Snowflake Dynamic Data Masking uses masking policies to obfuscate column data at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts database data and log files at rest.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Snowflake access control assigns privileges to roles, which are assigned to users (RBAC).
+  url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_clr_assemblies
+  claim:
+    text: CLR integration lets database objects such as procedures and functions be written in .NET languages.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-integration-overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_linked_servers
+  claim:
+    text: Linked servers let the Database Engine read data from remote data sources and run commands against remote servers.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/linked-servers/linked-servers-database-engine?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_temporal_tables
+  claim:
+    text: System-versioned temporal tables keep a history of every row so data can be queried as of any point in time.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal/overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_sqlserver_agent
+  claim:
+    text: SQL Server Agent is a Windows service that runs scheduled administrative tasks called jobs.
+    url: https://learn.microsoft.com/en-us/ssms/agent/sql-server-agent
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_clr_assemblies
+  claim:
+    text: Snowflake Scripting is an extension to Snowflake SQL that adds procedural logic for stored procedures and UDFs.
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+    accessed: *id001
+    confidence: high
+- for: ufeat_linked_servers
+  claim:
+    text: COPY INTO loads data from staged files in cloud storage into a table.
+    url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-table
+    accessed: *id001
+    confidence: high
+- for: ufeat_temporal_tables
+  claim:
+    text: Snowflake Time Travel enables accessing historical data that has been changed or deleted within a defined period.
+    url: https://docs.snowflake.com/en/user-guide/data-time-travel
+    accessed: *id001
+    confidence: high
+- for: ufeat_sqlserver_agent
+  claim:
+    text: A Snowflake task can run on a fixed schedule or be triggered when a stream has new data.
+    url: https://docs.snowflake.com/en/user-guide/tasks-intro
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: T-SQL procedural code (procedures, triggers, functions) needs Snowflake Scripting rewrite; TOP/DATEDIFF/ISNULL semantics differ.
+  data:
+    level: low
+    notes: Datetime precision and collation differences are the main data-risk areas.
+  security:
+    level: medium
+    notes: SQL logins/roles map to Snowflake users/roles; RLS/DDM map to row access policies and masking policies.
+  governance:
+    level: low
+    notes: Catalog and lineage tooling differ; plan metadata capture separately.
+  platform:
+    level: medium
+    notes: Moving from a single-instance engine to a SaaS MPP service changes ops model and cost controls.
+  operational:
+    level: low
+    notes: Warehouse sizing and credit governance replace instance monitoring.
+optimization_hints:
+- text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+  url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+  accessed: *id001
+  confidence: high
+- text: Multi-cluster warehouses let Snowflake scale compute resources for concurrency needs.
+  url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+  accessed: *id001
+  confidence: high
+- text: A Snowflake materialized view is a pre-computed data set stored for later use, requiring Enterprise Edition.
+  url: https://docs.snowflake.com/en/user-guide/views-materialized
+  accessed: *id001
+  confidence: high
+- text: A warehouse can be resized at any time, even while running, to add or remove compute resources.
+  url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+  accessed: *id001
+  confidence: high

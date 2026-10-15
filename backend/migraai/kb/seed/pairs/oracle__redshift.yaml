@@ -1,0 +1,329 @@
+source: oracle
+target: redshift
+architecture_overview:
+- text: An Oracle database server consists of a database plus at least one database instance.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/introduction-to-oracle-database.html
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+  accessed: *id001
+  confidence: high
+- text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+  accessed: *id001
+  confidence: high
+- text: The core infrastructure component of Amazon Redshift is a cluster of one or more compute nodes, coordinated by a leader node.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: *id001
+  confidence: high
+- text: Amazon Redshift Serverless automatically provisions and scales data warehouse capacity.
+  url: https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-serverless.html
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+    accessed: *id001
+    confidence: high
+  - text: Partitioning splits tables, indexes and index-organized tables into smaller pieces that can be managed and accessed individually.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/partition-concepts.html
+    accessed: *id001
+    confidence: high
+  - text: With AUTO distribution, Amazon Redshift assigns an optimal distribution style based on the size of the table data.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Database Resource Manager controls how resources are allocated within a database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/managing-resources-with-oracle-database-resource-manager.html
+    accessed: *id001
+    confidence: high
+  - text: Automatic WLM manages the resources required to run concurrent queries in Amazon Redshift.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/cm-c-implementing-workload-management.html
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+    accessed: *id001
+    confidence: high
+  - text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+    accessed: *id001
+    confidence: high
+  - text: Redshift role-based access control (RBAC) applies the principle of least permissions through roles assigned to users.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+    accessed: *id001
+    confidence: high
+  - text: Row-level security policies in Redshift restrict access to particular rows of a table.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+    accessed: *id001
+    confidence: high
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Amazon Redshift Serverless automatically provisions and scales data warehouse capacity.
+    url: https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-serverless.html
+    accessed: *id001
+    confidence: high
+recommended_strategy: Use AWS SCT to convert Oracle schema and code to Redshift, unload data (Data Pump/GoldenGate/DMS) to S3, and COPY into Redshift tables with DISTKEY/SORTKEY choices replacing partitioning. Port PL/SQL to Redshift PL/pgSQL procedures, map VPD to row-level security, and use DMS for ongoing replication during cutover.
+object_mapping:
+- source_object: Heap-organized table
+  target_object: Redshift table (DISTSTYLE/DISTKEY)
+  notes: Choose distribution style per table.
+  claim:
+    text: With AUTO distribution, Amazon Redshift assigns an optimal distribution style based on the size of the table data.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: *id001
+    confidence: high
+- source_object: Partitioned table
+  target_object: SORTKEY + distribution design
+  notes: Partitions map to sort/dist key layout.
+  claim:
+    text: Redshift stores columnar data in 1 MB disk blocks and sorts rows by SORTKEY so range-restricted predicates can use block min/max metadata.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view
+  notes: Redshift supports MVs.
+  claim:
+    text: A materialized view in Redshift contains a precomputed result set based on an SQL query over base tables.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: *id001
+    confidence: high
+- source_object: Package (PL/SQL)
+  target_object: Standalone procedures/functions
+  notes: No packages; flatten code.
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- source_object: Sequence
+  target_object: IDENTITY column
+  notes: Redshift supports IDENTITY.
+  claim:
+    text: A Redshift IDENTITY column contains unique autogenerated INT or BIGINT values.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE
+  notes: Redshift supports MERGE.
+  claim:
+    text: Amazon Redshift MERGE combines insert, update and delete operations on a target table, including a REMOVE DUPLICATES mode.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+  accessed: *id001
+  confidence: high
+- text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+  accessed: *id001
+  confidence: high
+- text: The Oracle DATE data type holds both date and time information.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+  accessed: *id001
+  confidence: high
+- text: NVL returns the second argument when the first is null — Oracle's equivalent of COALESCE with two args.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL.html
+  accessed: *id001
+  confidence: high
+- text: DECODE compares an expression to search values one by one — a non-ANSI conditional.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DECODE.html
+  accessed: *id001
+  confidence: high
+- text: LISTAGG orders data within each group and concatenates the measure values.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LISTAGG.html
+  accessed: *id001
+  confidence: high
+- text: Amazon Redshift is based on open standard PostgreSQL, so most SQL client applications work with minimal changes.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: *id001
+  confidence: high
+- text: Amazon Redshift MERGE combines insert, update and delete operations on a target table, including a REMOVE DUPLICATES mode.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+  accessed: *id001
+  confidence: high
+- text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: Oracle Data Pump moves data and metadata between databases at high speed, using the expdp and impdp clients.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-data-pump-overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle GoldenGate provides real-time data integration, replication and transactional change data capture.
+  url: https://docs.oracle.com/en/middleware/goldengate/core/21.3/coredoc/overview-oracle-goldengate.html
+  accessed: *id001
+  applies_to: Oracle GoldenGate 21.3
+  confidence: high
+- text: The COPY command loads data into a Redshift table from data files in Amazon S3, Amazon EMR, DynamoDB or remote hosts.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+  accessed: *id001
+  confidence: high
+- text: AWS SCT converts schemas, database code objects and application code from Oracle Database to supported targets.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Source.Oracle.html
+  accessed: *id001
+  confidence: high
+- text: AWS DMS migrates data from one or many Oracle databases to any DMS-supported target.
+  url: https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.Oracle.html
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: PL/SQL is Oracle's procedural extension of SQL.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle Scheduler, implemented by the DBMS_SCHEDULER package, controls when and where jobs run.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/oracle-scheduler-concepts.html
+  accessed: *id001
+  confidence: high
+- text: AWS SCT converts schemas, database code objects and application code from Oracle Database to supported targets.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Source.Oracle.html
+  accessed: *id001
+  confidence: high
+- text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+  accessed: *id001
+  confidence: high
+- text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+  accessed: *id001
+  confidence: high
+- text: A user role is a named set of privileges that can be granted to users.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html
+  accessed: *id001
+  confidence: high
+- text: Redshift role-based access control (RBAC) applies the principle of least permissions through roles assigned to users.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+  accessed: *id001
+  confidence: high
+- text: Row-level security policies in Redshift restrict access to particular rows of a table.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking in Amazon Redshift protects sensitive data through masking policies applied at query time.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_ddm.html
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_packages
+  claim:
+    text: A stored package is an encapsulated collection of related procedures, functions and other program objects stored together in the database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-PACKAGE.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_autonomous_transactions
+  claim:
+    text: An autonomous transaction is an independent transaction started from within another (main) transaction.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/autonomous-transactions.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_connect_by
+  claim:
+    text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_rowid
+  claim:
+    text: The ROWID pseudocolumn returns the physical address of each row.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROWID-Pseudocolumn.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_enforced_keys
+  claim:
+    text: Unique, primary key and foreign key constraints in Redshift are informational only — they are not enforced by the system.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_packages
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- for: ufeat_autonomous_transactions
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- for: ufeat_connect_by
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- for: ufeat_rowid
+  claim:
+    text: A Redshift IDENTITY column contains unique autogenerated INT or BIGINT values.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    accessed: *id001
+    confidence: high
+- for: ufeat_enforced_keys
+  claim:
+    text: Unique, primary key and foreign key constraints in Redshift are informational only — they are not enforced by the system.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: PL/SQL to PL/pgSQL is a real port; SCT automates but manual fixes remain.
+  data:
+    level: medium
+    notes: DISTKEY/SORTKEY modeling differs from Oracle partitioning.
+  security:
+    level: medium
+    notes: VPD → Redshift RLS; auth model changes to IAM.
+  governance:
+    level: low
+    notes: Align to AWS governance services.
+  platform:
+    level: high
+    notes: RAC/DR concepts replaced by RA3/serverless architecture.
+  operational:
+    level: medium
+    notes: 'New ops model: WLM, snapshots, DMS replication.'
+optimization_hints:
+- text: With AUTO distribution, Amazon Redshift assigns an optimal distribution style based on the size of the table data.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+  accessed: *id001
+  confidence: high
+- text: Automatic WLM manages the resources required to run concurrent queries in Amazon Redshift.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/cm-c-implementing-workload-management.html
+  accessed: *id001
+  confidence: high
+- text: Concurrency scaling lets Amazon Redshift support thousands of concurrent users and queries by adding cluster capacity automatically.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+  accessed: *id001
+  confidence: high
+- text: A materialized view in Redshift contains a precomputed result set based on an SQL query over base tables.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+  accessed: *id001
+  confidence: high

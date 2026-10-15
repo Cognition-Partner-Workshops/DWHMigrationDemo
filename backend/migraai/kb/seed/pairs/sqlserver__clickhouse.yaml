@@ -1,0 +1,268 @@
+source: sqlserver
+target: clickhouse
+architecture_overview:
+- text: A page is a fundamental unit of data storage in the SQL Server Database Engine.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: A columnstore index stores, retrieves and manages data in a columnar format.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: ClickHouse is a high-performance, column-oriented SQL DBMS for online analytical processing (OLAP).
+  url: https://clickhouse.com/docs/get-started/about/intro
+  accessed: *id001
+  confidence: high
+- text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: A clustered index sorts and stores table rows by its key values, and a table can have only one clustered index.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+  - text: The MergeTree primary key does not reference individual rows but blocks of 8192 rows called granules, keeping the index in memory.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Resource governor manages Database Engine resource consumption and enforces policies for user workloads.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: ClickHouse supports access control based on RBAC with user accounts, roles, row policies, settings profiles and quotas.
+    url: https://clickhouse.com/docs/concepts/features/security/access-rights
+    accessed: *id001
+    confidence: high
+  - text: A ClickHouse row policy is a filter used to determine which rows a user can read from a table.
+    url: https://clickhouse.com/docs/reference/statements/create/row-policy
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Partitioned table and index data is divided into units that can be spread across multiple filegroups or kept in one.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'ClickHouse is an OLAP columnar engine with a different data model: denormalize where possible, map tables to MergeTree-family engines with ORDER BY keys (not enforced PKs), and plan that UPDATE/DELETE are heavyweight mutations. Move data via JDBC/ODBC table functions, ClickHouse clients on staged files, or a CDC tool; rewrite T-SQL logic as views, materialized views and dictionaries.'
+object_mapping:
+- source_object: Table with clustered index
+  target_object: MergeTree table (ORDER BY key)
+  notes: Sparse primary index over granules, not row-level PK.
+  claim:
+    text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+- source_object: Stored procedure (T-SQL)
+  target_object: None — rewrite as queries/materialized views
+  notes: ClickHouse has no stored procedures; shift logic to materialized views, scheduled queries or the app layer.
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- source_object: Indexed view
+  target_object: Materialized view (insert-time trigger)
+  notes: CH MVs compute on insert, not on query.
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- source_object: Trigger
+  target_object: Materialized view
+  notes: MVs act as insert-time triggers.
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- source_object: B-tree secondary index
+  target_object: Data skipping index
+  notes: Indexes serve skipping, not point lookups.
+  claim:
+    text: ClickHouse builds and uses a table's sparse primary index for fast filtering over granules.
+    url: https://clickhouse.com/docs/guides/clickhouse/data-modelling/sparse-primary-indexes
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: TOP limits the rows returned by a query to a number or percentage of rows.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: MERGE runs insert, update or delete operations on a target table from a join with a source table.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: A common table expression (CTE) is a temporary named result set defined with WITH.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: TRY...CATCH implements error handling in T-SQL.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: ClickHouse lightweight DELETE is contrasted with the heavyweight ALTER TABLE DELETE mutation.
+  url: https://clickhouse.com/docs/reference/statements/delete
+  accessed: *id001
+  confidence: high
+- text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+  url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+  accessed: *id001
+  confidence: high
+- text: ClickHouse offers fixed-width integer types from Int8 through Int256.
+  url: https://clickhouse.com/docs/reference/data-types/int-uint
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The bcp utility bulk copies data between a SQL Server instance and a data file.
+  url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The jdbc table function queries a remote table via the JDBC driver through a separate clickhouse-jdbc-bridge program.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/jdbc
+  accessed: *id001
+  confidence: high
+- text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+  accessed: *id001
+  confidence: high
+- text: Change data capture uses SQL Server Agent to log inserts, updates and deletes on a table.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: SQL Server Integration Services (SSIS) is a platform for building enterprise data integration and transformation solutions.
+  url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The jdbc table function queries a remote table via the JDBC driver through a separate clickhouse-jdbc-bridge program.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/jdbc
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Row-level security uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse row policy is a filter used to determine which rows a user can read from a table.
+  url: https://clickhouse.com/docs/reference/statements/create/row-policy
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts database data and log files at rest.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: ClickHouse supports access control based on RBAC with user accounts, roles, row policies, settings profiles and quotas.
+  url: https://clickhouse.com/docs/concepts/features/security/access-rights
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_stored_procedures
+  claim:
+    text: ClickHouse has no T-SQL-style stored procedures; procedural logic must move to queries, materialized views or the application.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/conditional-functions
+    accessed: *id001
+    confidence: medium
+- id: ufeat_transactions
+  claim:
+    text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: *id001
+    confidence: high
+- id: ufeat_frequent_updates
+  claim:
+    text: ClickHouse lightweight DELETE is contrasted with the heavyweight ALTER TABLE DELETE mutation.
+    url: https://clickhouse.com/docs/reference/statements/delete
+    accessed: *id001
+    confidence: high
+- id: ufeat_clr_assemblies
+  claim:
+    text: CLR integration lets database objects such as procedures and functions be written in .NET languages.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-integration-overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_stored_procedures
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- for: ufeat_transactions
+  claim:
+    text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: *id001
+    confidence: high
+- for: ufeat_frequent_updates
+  claim:
+    text: ReplacingMergeTree deduplicates rows with the same sorting key during merges.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+    accessed: *id001
+    confidence: high
+- for: ufeat_clr_assemblies
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: T-SQL procedural code has no home in ClickHouse; queries need rewriting to its dialect.
+  data:
+    level: medium
+    notes: Update/delete semantics (mutations) differ; validate row counts after dedup engines.
+  security:
+    level: medium
+    notes: RBAC and row policies exist but are configured via SQL-driven workflow or XML config.
+  governance:
+    level: low
+    notes: No built-in catalog; rely on external governance.
+  platform:
+    level: high
+    notes: MPP+columnar OLAP with sparse indexing is a different tuning discipline.
+  operational:
+    level: medium
+    notes: Mutation management and part merges need operational attention.
+optimization_hints:
+- text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+- text: The MergeTree primary key does not reference individual rows but blocks of 8192 rows called granules, keeping the index in memory.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+- text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: *id001
+  confidence: high

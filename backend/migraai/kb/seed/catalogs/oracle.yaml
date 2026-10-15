@@ -1,0 +1,87 @@
+source: oracle
+mandatory:
+- id: ddl_tables
+  name: Table DDL
+  description: CREATE TABLE statements, including partitioning, constraints and storage clauses, for all in-scope schemas.
+  object_types:
+  - table
+  - partition
+  - constraint
+  extraction_hint: SELECT DBMS_METADATA.GET_DDL('TABLE', table_name, owner) FROM ALL_TABLES WHERE owner IN (...); or Data Pump expdp CONTENT=METADATA_ONLY + impdp SQLFILE=
+- id: ddl_views
+  name: Views and materialized views
+  description: View and materialized view definitions, including refresh mode for materialized views.
+  object_types:
+  - view
+  - materialized_view
+  extraction_hint: ALL_VIEWS.TEXT and ALL_MVIEWS.QUERY; DBMS_METADATA.GET_DDL('VIEW'|'MATERIALIZED_VIEW', name, owner)
+- id: plsql_code
+  name: PL/SQL packages, procedures and functions
+  description: Source of packages (spec and body), standalone procedures, functions and types.
+  object_types:
+  - package
+  - package_body
+  - procedure
+  - function
+  - type
+  extraction_hint: ALL_SOURCE ordered by OWNER, NAME, TYPE, LINE; or DBMS_METADATA.GET_DDL('PACKAGE', name, owner)
+- id: triggers
+  name: Triggers
+  description: DML, DDL and INSTEAD OF trigger definitions with their firing events.
+  object_types:
+  - trigger
+  extraction_hint: ALL_TRIGGERS (TRIGGERING_EVENT, TRIGGER_BODY) or DBMS_METADATA.GET_DDL('TRIGGER', name, owner)
+- id: sequences_synonyms
+  name: Sequences and synonyms
+  description: Sequence definitions (start, increment, cache) and public/private synonyms used by applications.
+  object_types:
+  - sequence
+  - synonym
+  extraction_hint: ALL_SEQUENCES; ALL_SYNONYMS (including OWNER = 'PUBLIC')
+- id: security_objects
+  name: Users, roles and privileges
+  description: Database users, roles, role grants, system and object privileges.
+  object_types:
+  - user
+  - role
+  - grant
+  extraction_hint: DBA_USERS, DBA_ROLES, DBA_ROLE_PRIVS, DBA_SYS_PRIVS, DBA_TAB_PRIVS
+- id: etl_jobs
+  name: Scheduler jobs and ETL definitions
+  description: DBMS_SCHEDULER / DBMS_JOB jobs, programs and chains, plus SQL*Loader control files and external table definitions used for loading.
+  object_types:
+  - job
+  - external_table
+  - etl_script
+  extraction_hint: DBA_SCHEDULER_JOBS, DBA_SCHEDULER_PROGRAMS, DBA_JOBS; ALL_EXTERNAL_TABLES; collect *.ctl files from the ETL server
+- id: db_links
+  name: Database links
+  description: Database links that queries and ETL code depend on for remote access.
+  object_types:
+  - db_link
+  extraction_hint: DBA_DB_LINKS (OWNER, DB_LINK, HOST)
+optional:
+- id: optimizer_statistics
+  name: Optimizer statistics and sizes
+  description: Row counts, segment sizes and column statistics used for sizing and distribution design.
+  object_types:
+  - statistics
+  extraction_hint: ALL_TAB_STATISTICS, ALL_TAB_COL_STATISTICS, DBA_SEGMENTS
+- id: sample_data
+  name: Sample data
+  description: A small, masked sample of rows per table for type and conversion testing.
+  object_types:
+  - sample_data
+  extraction_hint: SELECT * FROM <owner>.<table> SAMPLE (0.1) or FETCH FIRST n ROWS ONLY, masked before export
+- id: workload_history
+  name: SQL workload history
+  description: Top SQL text and execution statistics to prioritise conversion and performance testing.
+  object_types:
+  - query_log
+  extraction_hint: V$SQL / V$SQLAREA; DBA_HIST_SQLTEXT and DBA_HIST_SQLSTAT only where AWR (Diagnostics Pack) is licensed
+- id: vpd_policies
+  name: VPD and redaction policies
+  description: Virtual Private Database row-level policies and their policy functions.
+  object_types:
+  - security_policy
+  extraction_hint: DBA_POLICIES (OBJECT_OWNER, OBJECT_NAME, PF_OWNER, FUNCTION); REDACTION_POLICIES

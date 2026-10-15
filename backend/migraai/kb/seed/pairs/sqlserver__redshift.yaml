@@ -1,0 +1,270 @@
+source: sqlserver
+target: redshift
+architecture_overview:
+- text: A page is a fundamental unit of data storage in the SQL Server Database Engine.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: A columnstore index stores, retrieves and manages data in a columnar format.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The core infrastructure component of Amazon Redshift is a cluster of one or more compute nodes, coordinated by a leader node.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: *id001
+  confidence: high
+- text: Amazon Redshift is based on open standard PostgreSQL, so most SQL client applications work with minimal changes.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: A clustered index sorts and stores table rows by its key values, and a table can have only one clustered index.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: With AUTO distribution, Amazon Redshift assigns an optimal distribution style based on the size of the table data.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Resource governor manages Database Engine resource consumption and enforces policies for user workloads.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Automatic WLM manages the resources required to run concurrent queries in Amazon Redshift.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/cm-c-implementing-workload-management.html
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Redshift role-based access control (RBAC) applies the principle of least permissions through roles assigned to users.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+    accessed: *id001
+    confidence: high
+  - text: Row-level security policies in Redshift restrict access to particular rows of a table.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Partitioned table and index data is divided into units that can be spread across multiple filegroups or kept in one.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Concurrency scaling lets Amazon Redshift support thousands of concurrent users and queries by adding cluster capacity automatically.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+    accessed: *id001
+    confidence: high
+  - text: Amazon Redshift Serverless automatically provisions and scales data warehouse capacity.
+    url: https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-serverless.html
+    accessed: *id001
+    confidence: high
+recommended_strategy: Use AWS SCT to assess and convert the SQL Server schema and T-SQL code to Redshift's PostgreSQL-derived dialect, then migrate data with AWS DMS (full load plus CDC) or bcp/UNLOAD via S3 and COPY. Rebuild SSIS logic in your target ETL tool and map logins/roles to Redshift RBAC.
+object_mapping:
+- source_object: Stored procedure (T-SQL)
+  target_object: Stored procedure (PL/pgSQL)
+  notes: Rewrite T-SQL procedures in PL/pgSQL.
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- source_object: Indexed view
+  target_object: Materialized view
+  notes: Redshift materialized views store precomputed results.
+  claim:
+    text: A materialized view in Redshift contains a precomputed result set based on an SQL query over base tables.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: *id001
+    confidence: high
+- source_object: Trigger
+  target_object: None — redesign
+  notes: Redshift has no DML triggers; move logic into ETL.
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE (or REMOVE DUPLICATES)
+  notes: Redshift MERGE supports matched/not-matched plus dedupe.
+  claim:
+    text: Amazon Redshift MERGE combines insert, update and delete operations on a target table, including a REMOVE DUPLICATES mode.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+    accessed: *id001
+    confidence: high
+- source_object: Table with clustered index
+  target_object: Table with distribution and sort keys
+  notes: Physical ordering is governed by sort keys, not indexes.
+  claim:
+    text: Redshift stores columnar data in 1 MB disk blocks and sorts rows by SORTKEY so range-restricted predicates can use block min/max metadata.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: TOP limits the rows returned by a query to a number or percentage of rows.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: MERGE runs insert, update or delete operations on a target table from a join with a source table.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Amazon Redshift MERGE combines insert, update and delete operations on a target table, including a REMOVE DUPLICATES mode.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+  accessed: *id001
+  confidence: high
+- text: A common table expression (CTE) is a temporary named result set defined with WITH.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: TRY...CATCH implements error handling in T-SQL.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Amazon Redshift is based on open standard PostgreSQL, so most SQL client applications work with minimal changes.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: *id001
+  confidence: high
+- text: Unique, primary key and foreign key constraints in Redshift are informational only — they are not enforced by the system.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The bcp utility bulk copies data between a SQL Server instance and a data file.
+  url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The COPY command loads data into a Redshift table from data files in Amazon S3, Amazon EMR, DynamoDB or remote hosts.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+  accessed: *id001
+  confidence: high
+- text: AWS DMS supports a SQL Server database as a source for migrating data to other supported databases, including Redshift.
+  url: https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.SQLServer.html
+  accessed: *id001
+  confidence: high
+- text: Change data capture uses SQL Server Agent to log inserts, updates and deletes on a table.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: SQL Server Integration Services (SSIS) is a platform for building enterprise data integration and transformation solutions.
+  url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: AWS SCT can create an assessment report and convert schemas, code objects and application code from the source database to Amazon Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html
+  accessed: *id001
+  confidence: medium
+- text: Automatic WLM manages the resources required to run concurrent queries in Amazon Redshift.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/cm-c-implementing-workload-management.html
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Row-level security uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Row-level security policies in Redshift restrict access to particular rows of a table.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking limits sensitive data exposure by masking it to nonprivileged users.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking in Amazon Redshift protects sensitive data through masking policies applied at query time.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_ddm.html
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts database data and log files at rest.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Redshift role-based access control (RBAC) applies the principle of least permissions through roles assigned to users.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_clr_assemblies
+  claim:
+    text: CLR integration lets database objects such as procedures and functions be written in .NET languages.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-integration-overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_enforced_keys
+  claim:
+    text: Unique, primary key and foreign key constraints in Redshift are informational only — they are not enforced by the system.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_linked_servers
+  claim:
+    text: Linked servers let the Database Engine read data from remote data sources and run commands against remote servers.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/linked-servers/linked-servers-database-engine?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_sqlserver_agent
+  claim:
+    text: SQL Server Agent is a Windows service that runs scheduled administrative tasks called jobs.
+    url: https://learn.microsoft.com/en-us/ssms/agent/sql-server-agent
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_clr_assemblies
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- for: ufeat_enforced_keys
+  claim:
+    text: Unique, primary key and foreign key constraints in Redshift are informational only — they are not enforced by the system.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+    accessed: *id001
+    confidence: high
+- for: ufeat_linked_servers
+  claim:
+    text: The COPY command loads data into a Redshift table from data files in Amazon S3, Amazon EMR, DynamoDB or remote hosts.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: T-SQL to PL/pgSQL conversion is the largest effort; SCT automates much but manual fixes remain.
+  data:
+    level: medium
+    notes: Unenforced constraints can silently produce duplicates; validate counts and keys post-load.
+  security:
+    level: medium
+    notes: RLS/DDM equivalents exist; Windows-integrated auth maps to IAM/IdP federated access.
+  governance:
+    level: low
+    notes: Plan catalog/lineage outside the engine.
+  platform:
+    level: medium
+    notes: 'MPP redesign: distribution/sort key choices drive performance.'
+  operational:
+    level: low
+    notes: Serverless option reduces cluster management.
+optimization_hints:
+- text: With AUTO distribution, Amazon Redshift assigns an optimal distribution style based on the size of the table data.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+  accessed: *id001
+  confidence: high
+- text: Automatic WLM manages the resources required to run concurrent queries in Amazon Redshift.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/cm-c-implementing-workload-management.html
+  accessed: *id001
+  confidence: high
+- text: Concurrency scaling lets Amazon Redshift support thousands of concurrent users and queries by adding cluster capacity automatically.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+  accessed: *id001
+  confidence: high
+- text: A materialized view in Redshift contains a precomputed result set based on an SQL query over base tables.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+  accessed: *id001
+  confidence: high

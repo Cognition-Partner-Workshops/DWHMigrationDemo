@@ -1,0 +1,28 @@
+platform: fabric
+allowed_hosts:
+- learn.microsoft.com
+seeds:
+- url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  path_prefix: /en-us/fabric/data-warehouse/
+  topic: architecture
+- url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+  path_prefix: /en-us/fabric/data-warehouse/
+  topic: sql-data-types
+- url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  path_prefix: /en-us/fabric/data-warehouse/
+  topic: sql-reference
+- url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tables
+  path_prefix: /en-us/fabric/data-warehouse/
+  topic: ddl
+- url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+  path_prefix: /en-us/fabric/data-warehouse/
+  topic: security-access-control
+- url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data
+  path_prefix: /en-us/fabric/data-warehouse/
+  topic: data-loading
+- url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-synapse-dedicated-sql-pool-planning
+  path_prefix: /en-us/fabric/data-warehouse/
+  topic: migration-guides
+- url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+  path_prefix: /en-us/fabric/data-factory/
+  topic: etl-tooling
