@@ -1,0 +1,783 @@
+import { useEffect, useRef, useState } from "react";
+import type { DragEvent, FormEvent } from "react";
+
+import {
+  apiRequest,
+  exchangeLaunchToken,
+  type HealthResponse,
+  type Platform,
+  type PlatformResponse,
+  type SettingsResponse,
+  type SettingsUpdate,
+} from "./api";
+import logo from "./assets/logo.png";
+
+const PLAN_SECTIONS = [
+  "Architecture Overview",
+  "Platform Differences",
+  "Migration Strategy",
+  "Migration Phases",
+  "Dependencies",
+  "Deliverables",
+  "Object Mapping",
+  "SQL Dialect Differences",
+  "Compatibility Matrix",
+  "Data Movement Strategy",
+  "ETL Migration Strategy",
+  "Security Migration",
+  "Validation Strategy",
+  "Testing Strategy",
+  "Unsupported Features",
+  "Workarounds",
+  "Estimated Effort",
+  "Risks",
+  "Confidence Score",
+  "Expert Review Items",
+  "Optimization Hints",
+] as const;
+
+const EMPTY_SETTINGS: SettingsResponse = {
+  devin_pat: { configured: false, masked: "" },
+  devin_org_id: "",
+  devin_api_base_url: "https://api.devin.ai",
+  confidence_threshold: 0.85,
+  max_concurrent_sessions: 4,
+  acu_cap_per_run: null,
+};
+
+const MAX_FILE_BYTES = 100 * 1024 * 1024;
+const ALLOWED_EXTENSIONS = new Set([
+  ".sql",
+  ".ddl",
+  ".txt",
+  ".zip",
+  ".xml",
+  ".dtsx",
+  ".dsx",
+  ".py",
+  ".sh",
+  ".scala",
+  ".json",
+  ".yaml",
+  ".yml",
+  ".infa",
+]);
+
+type FileRow = {
+  id: string;
+  file: File;
+  status: "Pending" | "Accepted" | "Error" | "Preview complete";
+  message: string;
+};
+
+type SessionResponse = {
+  session_id: string;
+  source: string;
+  target: string;
+};
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(bytes < 10 * 1024 ? 1 : 0)} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function extensionOf(fileName: string): string {
+  const index = fileName.lastIndexOf(".");
+  return index < 0 ? "" : fileName.slice(index).toLowerCase();
+}
+
+function SectionTitle({
+  number,
+  title,
+  headingId,
+  description,
+}: {
+  number: string;
+  title: string;
+  headingId: string;
+  description?: string;
+}) {
+  return (
+    <div className="section-title">
+      <span className="section-number">{number}</span>
+      <h2 id={headingId}>{title}</h2>
+      {description && <p>{description}</p>}
+    </div>
+  );
+}
+
+function SettingsDialog({
+  open,
+  settings,
+  onClose,
+  onSave,
+}: {
+  open: boolean;
+  settings: SettingsResponse;
+  onClose: () => void;
+  onSave: (updates: SettingsUpdate) => Promise<void>;
+}) {
+  const [pat, setPat] = useState("");
+  const [clearPat, setClearPat] = useState(false);
+  const [orgId, setOrgId] = useState(settings.devin_org_id);
+  const [apiBaseUrl, setApiBaseUrl] = useState(settings.devin_api_base_url);
+  const [threshold, setThreshold] = useState(String(settings.confidence_threshold));
+  const [concurrency, setConcurrency] = useState(String(settings.max_concurrent_sessions));
+  const [acuCap, setAcuCap] = useState(
+    settings.acu_cap_per_run === null ? "" : String(settings.acu_cap_per_run),
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setOrgId(settings.devin_org_id);
+      setApiBaseUrl(settings.devin_api_base_url);
+      setThreshold(String(settings.confidence_threshold));
+      setConcurrency(String(settings.max_concurrent_sessions));
+      setAcuCap(settings.acu_cap_per_run === null ? "" : String(settings.acu_cap_per_run));
+      setPat("");
+      setClearPat(false);
+      setError("");
+    }
+  }, [open, settings]);
+
+  if (!open) {
+    return null;
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    const updates: SettingsUpdate = {
+      devin_org_id: orgId,
+      devin_api_base_url: apiBaseUrl,
+      confidence_threshold: Number(threshold),
+      max_concurrent_sessions: Number(concurrency),
+      acu_cap_per_run: acuCap.trim() === "" ? null : Number(acuCap),
+    };
+    if (clearPat) {
+      updates.devin_pat = "";
+    } else if (pat) {
+      updates.devin_pat = pat;
+    }
+    try {
+      await onSave(updates);
+      onClose();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Unable to save settings.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="dialog-backdrop" role="presentation" onMouseDown={onClose}>
+      <section
+        aria-labelledby="settings-title"
+        aria-modal="true"
+        className="settings-dialog"
+        role="dialog"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <header className="dialog-header">
+          <div>
+            <span className="eyebrow">LOCAL CONFIGURATION</span>
+            <h2 id="settings-title">Settings</h2>
+          </div>
+          <button aria-label="Close settings" className="icon-button" onClick={onClose}>
+            ×
+          </button>
+        </header>
+        <form onSubmit={submit}>
+          <label className="form-field">
+            <span>Devin personal access token</span>
+            {settings.devin_pat.configured && (
+              <small className="muted">Current token: {settings.devin_pat.masked}</small>
+            )}
+            <input
+              autoComplete="new-password"
+              name="devin_pat"
+              onChange={(event) => setPat(event.target.value)}
+              placeholder={
+                settings.devin_pat.configured ? settings.devin_pat.masked : "Enter token"
+              }
+              type="password"
+              value={pat}
+            />
+            {settings.devin_pat.configured && (
+              <span className="clear-token">
+                <input
+                  checked={clearPat}
+                  id="clear-token"
+                  onChange={(event) => setClearPat(event.target.checked)}
+                  type="checkbox"
+                />
+                <label htmlFor="clear-token">Clear saved token</label>
+              </span>
+            )}
+          </label>
+          <label className="form-field">
+            <span>Organization ID</span>
+            <input onChange={(event) => setOrgId(event.target.value)} value={orgId} />
+          </label>
+          <label className="form-field">
+            <span>API base URL</span>
+            <input
+              onChange={(event) => setApiBaseUrl(event.target.value)}
+              type="url"
+              value={apiBaseUrl}
+            />
+          </label>
+          <div className="settings-grid">
+            <label className="form-field">
+              <span>Confidence threshold</span>
+              <input
+                max="1"
+                min="0.5"
+                onChange={(event) => setThreshold(event.target.value)}
+                step="0.01"
+                type="number"
+                value={threshold}
+              />
+            </label>
+            <label className="form-field">
+              <span>Max concurrent sessions</span>
+              <input
+                max="50"
+                min="1"
+                onChange={(event) => setConcurrency(event.target.value)}
+                type="number"
+                value={concurrency}
+              />
+            </label>
+          </div>
+          <label className="form-field">
+            <span>ACU cap per run</span>
+            <input
+              min="0.01"
+              onChange={(event) => setAcuCap(event.target.value)}
+              placeholder="No cap"
+              step="any"
+              type="number"
+              value={acuCap}
+            />
+          </label>
+          {error && <p className="inline-error" role="alert">{error}</p>}
+          <div className="dialog-actions">
+            <button className="button secondary" onClick={onClose} type="button">
+              Cancel
+            </button>
+            <button className="button primary" disabled={saving} type="submit">
+              {saving ? "Saving…" : "Save settings"}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  );
+}
+
+export default function App() {
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [platforms, setPlatforms] = useState<PlatformResponse>({ sources: [], targets: [] });
+  const [settings, setSettings] = useState<SettingsResponse>(EMPTY_SETTINGS);
+  const [source, setSource] = useState("");
+  const [target, setTarget] = useState("");
+  const [sessionConfirmed, setSessionConfirmed] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [session, setSession] = useState<SessionResponse | null>(null);
+  const [files, setFiles] = useState<FileRow[]>([]);
+  const [hasUploaded, setHasUploaded] = useState(false);
+  const [converted, setConverted] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [error, setError] = useState("");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let active = true;
+    async function bootstrap() {
+      const launchToken = new URLSearchParams(window.location.search).get("launch");
+      if (launchToken) {
+        try {
+          await exchangeLaunchToken(launchToken);
+          window.history.replaceState(null, "", window.location.pathname);
+        } catch (launchError) {
+          if (active) {
+            setError(
+              launchError instanceof Error ? launchError.message : "Launch authentication failed.",
+            );
+          }
+        }
+      }
+
+      const nextHealth = await apiRequest<HealthResponse>("/api/health").catch(() => null);
+      const nextPlatforms = await apiRequest<PlatformResponse>("/api/platforms").catch(() => null);
+      const nextSettings = await apiRequest<SettingsResponse>("/api/settings").catch(() => null);
+      if (!active) {
+        return;
+      }
+      if (nextHealth) {
+        setHealth(nextHealth);
+      }
+      if (nextPlatforms) {
+        setPlatforms(nextPlatforms);
+      } else {
+        setError("Open MigraAI using the launch link printed by the local server.");
+      }
+      if (nextSettings) {
+        setSettings(nextSettings);
+      }
+    }
+    void bootstrap();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const canConfirm = Boolean(source && target && source !== target && !confirming);
+  const canUpload =
+    sessionConfirmed &&
+    !hasUploaded &&
+    files.some(
+      (row) =>
+        row.status !== "Error" &&
+        row.file.size <= MAX_FILE_BYTES &&
+        ALLOWED_EXTENSIONS.has(extensionOf(row.file.name)),
+    );
+
+  async function confirmSystems() {
+    if (!canConfirm) {
+      return;
+    }
+    setConfirming(true);
+    setError("");
+    try {
+      const response = await apiRequest<SessionResponse>("/api/session/confirm", {
+        method: "POST",
+        body: { source, target },
+      });
+      setSession(response);
+      setSessionConfirmed(true);
+      setFiles((current) =>
+        current.map((row) =>
+          row.status === "Pending"
+            ? { ...row, message: "Ready to upload after confirmation." }
+            : row,
+        ),
+      );
+      setNotice("Source and target confirmed. Plan generation is planned for Phase 2.");
+    } catch (confirmError) {
+      setError(confirmError instanceof Error ? confirmError.message : "Could not confirm systems.");
+    } finally {
+      setConfirming(false);
+    }
+  }
+
+  function addFiles(fileList: FileList | File[]) {
+    const incoming = Array.from(fileList);
+    setFiles((current) => {
+      const known = new Set(current.map((row) => `${row.file.name}:${row.file.size}`));
+      const rows = incoming
+        .filter((file) => !known.has(`${file.name}:${file.size}`))
+        .map((file, index): FileRow => {
+          const id = `${file.name}-${file.size}-${file.lastModified}-${current.length + index}`;
+          if (file.size > MAX_FILE_BYTES) {
+            return { id, file, status: "Error", message: "File exceeds the 100 MB limit." };
+          }
+          if (!ALLOWED_EXTENSIONS.has(extensionOf(file.name))) {
+            return { id, file, status: "Error", message: "Unsupported file format." };
+          }
+          return {
+            id,
+            file,
+            status: "Pending",
+            message: sessionConfirmed ? "Ready to upload." : "Confirm source and target first.",
+          };
+        });
+      return [...current, ...rows];
+    });
+    setHasUploaded(false);
+    setConverted(false);
+    setNotice("");
+  }
+
+  function uploadFiles() {
+    const hasAcceptedFiles = files.some(
+      (row) =>
+        row.status !== "Error" &&
+        row.file.size <= MAX_FILE_BYTES &&
+        ALLOWED_EXTENSIONS.has(extensionOf(row.file.name)),
+    );
+    setFiles((current) =>
+      current.map((row) =>
+        row.status === "Error"
+          ? row
+          : { ...row, status: "Accepted", message: "Ready for conversion (local Phase 1 preview)." },
+      ),
+    );
+    setHasUploaded(hasAcceptedFiles);
+    setNotice(
+      hasAcceptedFiles
+        ? "Files are listed locally only; upload services are planned for a later phase."
+        : "Choose a supported file no larger than 100 MB.",
+    );
+  }
+
+  function previewConversion() {
+    if (!hasUploaded) {
+      return;
+    }
+    setFiles((current) =>
+      current.map((row) =>
+        row.status === "Accepted"
+          ? { ...row, status: "Preview complete", message: "Preview only; no conversion was run." }
+          : row,
+      ),
+    );
+    setConverted(true);
+    setNotice("This Phase 1 preview does not generate converted files.");
+  }
+
+  function removeFile(id: string) {
+    setFiles((current) => current.filter((row) => row.id !== id));
+    setHasUploaded(false);
+    setConverted(false);
+  }
+
+  async function saveSettings(updates: SettingsUpdate) {
+    const updated = await apiRequest<SettingsResponse>("/api/settings", {
+      method: "PUT",
+      body: updates,
+    });
+    setSettings(updated);
+    setHealth((current) =>
+      current ? { ...current, devin_configured: updated.devin_pat.configured } : current,
+    );
+  }
+
+  function downloadPreview() {
+    setNotice("ZIP packaging is planned for a later phase; no output file was created.");
+  }
+
+  function acceptDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    if (event.dataTransfer.files.length) {
+      addFiles(event.dataTransfer.files);
+    }
+  }
+
+  return (
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="brand">
+          <img alt="" className="brand-logo" src={logo} />
+          <div>
+            <strong>MigraAI</strong>
+            <span>Plan&nbsp; | &nbsp;Assess&nbsp; | &nbsp;Convert&nbsp; | &nbsp;Modernize</span>
+          </div>
+        </div>
+        <p className="topbar-tagline">Your AI-powered data warehouse migration partner</p>
+        <div className="topbar-actions">
+          <span className="local-chip"><span /> Local Mode</span>
+          <button
+            aria-label="Open settings"
+            className="settings-trigger"
+            onClick={() => setSettingsOpen(true)}
+            type="button"
+          >
+            <span aria-hidden="true">⚙</span>
+            Settings
+          </button>
+        </div>
+      </header>
+
+      <main className="dashboard">
+        <section aria-labelledby="system-heading" className="panel system-panel">
+          <div className="panel-heading">
+            <SectionTitle
+              description="Select source and target data warehouse platforms"
+              headingId="system-heading"
+              number="1"
+              title="System Selection"
+            />
+          </div>
+          <div className="system-flow">
+            <label className="platform-select">
+              <span className="database-icon" aria-hidden="true">▤</span>
+              <span className="platform-label">Source Database</span>
+              <select
+                aria-label="Source platform"
+                onChange={(event) => setSource(event.target.value)}
+                value={source}
+              >
+                <option value="">Choose a source…</option>
+                {platforms.sources.map((platform: Platform) => (
+                  <option key={platform.id} value={platform.id}>{platform.name}</option>
+                ))}
+              </select>
+            </label>
+            <span aria-hidden="true" className="flow-arrow">⇄</span>
+            <button className="button primary confirm-button" disabled={!canConfirm} onClick={confirmSystems}>
+              {confirming ? "Confirming…" : "Confirm"}
+              <span aria-hidden="true">→</span>
+            </button>
+            <span aria-hidden="true" className="flow-arrow">⇄</span>
+            <label className="platform-select">
+              <span className="database-icon" aria-hidden="true">▤</span>
+              <span className="platform-label">Target Database</span>
+              <select
+                aria-label="Target platform"
+                onChange={(event) => setTarget(event.target.value)}
+                value={target}
+              >
+                <option value="">Choose a target…</option>
+                {platforms.targets.map((platform: Platform) => (
+                  <option key={platform.id} value={platform.id}>{platform.name}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+          {error && <p className="banner error-banner" role="alert">{error}</p>}
+        </section>
+
+        <section aria-labelledby="planning-heading" className="panel planning-panel">
+          <div className="panel-heading">
+            <SectionTitle
+              description="Comprehensive analysis and step-by-step migration plan"
+              headingId="planning-heading"
+              number="2"
+              title="Migration Planning"
+            />
+            <span className="phase-chip">Phase 2</span>
+          </div>
+          <div className="planning-content">
+            {sessionConfirmed ? (
+              <>
+                <div className="planning-summary">
+                  <span>
+                    <strong>{platforms.sources.find((item) => item.id === session?.source)?.name}</strong>
+                    <small>Source</small>
+                  </span>
+                  <b aria-hidden="true">→</b>
+                  <span>
+                    <strong>{platforms.targets.find((item) => item.id === session?.target)?.name}</strong>
+                    <small>Target</small>
+                  </span>
+                  <span className="generated-note">Plan sections are generated in Phase 2.</span>
+                </div>
+                <div className="plan-section-list">
+                  {PLAN_SECTIONS.map((section, index) => (
+                    <div className="plan-section-placeholder" key={section}>
+                      <span>{String.fromCharCode(65 + index)}</span>
+                      {section}
+                      <small>Generated in Phase 2</small>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="empty-state">
+                <span aria-hidden="true" className="empty-icon">▤</span>
+                <strong>Migration plan will appear here</strong>
+                <p>Choose a source and target, then confirm to begin planning.</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section aria-labelledby="resources-heading" className="panel resources-panel">
+          <div className="panel-heading">
+            <SectionTitle
+              description="Review and confirm available objects from source system"
+              headingId="resources-heading"
+              number="3"
+              title="Resources Confirmation"
+            />
+          </div>
+          <div className="resource-panes">
+            {(["Mandatory", "Optional"] as const).map((kind) => (
+              <div className={`resource-pane ${kind.toLowerCase()}`} key={kind}>
+                <div className="resource-pane-title">
+                  <strong>{kind} Items</strong>
+                  <span>{kind === "Mandatory" ? "(Required for Migration)" : "(Recommended)"}</span>
+                </div>
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th aria-label="Checkbox" className="check-column">☑</th>
+                        <th>Object Type</th>
+                        <th>Description</th>
+                        <th>Available</th>
+                        <th>Count</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="empty-table" colSpan={6}>
+                          Object inventory will be available in Phase 2/3.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="convert-heading" className="panel convert-panel">
+          <div className="panel-heading convert-heading">
+            <SectionTitle
+              description="Upload files, convert using AI, and download results"
+              headingId="convert-heading"
+              number="4"
+              title="Convert Objects"
+            />
+            <div className="convert-actions">
+              <button
+                className="button upload-button"
+                disabled={!canUpload}
+                onClick={uploadFiles}
+                type="button"
+              >
+                <span aria-hidden="true">⇧</span> Upload Files
+              </button>
+              <button
+                className="button primary"
+                disabled={!hasUploaded || converted}
+                onClick={previewConversion}
+                type="button"
+              >
+                <span aria-hidden="true">⚙</span> Convert Items
+              </button>
+              <button
+                className="button download-button"
+                disabled={!converted}
+                onClick={downloadPreview}
+                type="button"
+              >
+                <span aria-hidden="true">⇩</span> Download Converted Files
+              </button>
+            </div>
+          </div>
+          <p className="egress-banner">
+            <span aria-hidden="true">ⓘ</span>
+            Converted objects and their context are sent to Devin cloud for conversion.
+          </p>
+          <div className="convert-content">
+            <div
+              className="drop-zone"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={acceptDrop}
+            >
+              <input
+                accept=".sql,.ddl,.txt,.zip,.xml,.dtsx,.dsx,.py,.sh,.scala,.json,.yaml,.yml,.infa"
+                aria-label="Choose migration files"
+                className="visually-hidden"
+                multiple
+                onChange={(event) => {
+                  if (event.target.files) {
+                    addFiles(event.target.files);
+                    event.target.value = "";
+                  }
+                }}
+                ref={fileInput}
+                type="file"
+              />
+              <span aria-hidden="true" className="upload-cloud">⇧</span>
+              <strong>Drag and drop files here</strong>
+              <span>or click to select files</span>
+              <button className="browse-button" onClick={() => fileInput.current?.click()} type="button">
+                Browse files
+              </button>
+              <small>Supported: SQL, DDL, TXT, ETL exports, ZIP (Max 100 MB)</small>
+            </div>
+            <div className="inventory">
+              <div className="inventory-title">
+                <strong>File Upload &amp; Conversion Status</strong>
+                {files.length > 0 && <span>{files.length} file{files.length === 1 ? "" : "s"}</span>}
+              </div>
+              <div className="table-scroll inventory-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>File Name</th>
+                      <th>Size</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Message</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {files.length === 0 ? (
+                      <tr>
+                        <td className="empty-table" colSpan={6}>No files selected.</td>
+                      </tr>
+                    ) : (
+                      files.map((row) => (
+                        <tr key={row.id}>
+                          <td className="file-name">{row.file.name}</td>
+                          <td>{formatSize(row.file.size)}</td>
+                          <td>{extensionOf(row.file.name) || "—"}</td>
+                          <td>
+                            <span className={`file-status ${row.status.toLowerCase().replaceAll(" ", "-")}`}>
+                              {row.status}
+                            </span>
+                          </td>
+                          <td>{row.message}</td>
+                          <td>
+                            <button
+                              aria-label={`Remove ${row.file.name}`}
+                              className="row-action"
+                              onClick={() => removeFile(row.id)}
+                              type="button"
+                            >
+                              ×
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {notice && <p className="inline-notice" role="status">{notice}</p>}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="statusbar">
+        <span>MigraAI v{health?.version ?? "0.1.0"}</span>
+        <span className="status-separator">|</span>
+        <span>Local enterprise workspace</span>
+        <div className="status-items">
+          <span><i className="status-dot" /> Ready</span>
+          <span><i className="status-dot" /> Local Mode</span>
+          <span>
+            <i className={`status-dot ${health?.devin_configured ? "" : "muted-dot"}`} />
+            Devin: {health?.devin_configured ? "configured" : "not configured"}
+          </span>
+        </div>
+      </footer>
+
+      <SettingsDialog
+        onClose={() => setSettingsOpen(false)}
+        onSave={saveSettings}
+        open={settingsOpen}
+        settings={settings}
+      />
+    </div>
+  );
+}
