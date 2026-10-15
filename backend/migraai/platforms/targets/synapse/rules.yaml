@@ -1,0 +1,269 @@
+target: synapse
+rules:
+  - id: synapse.lint.no_select_star_in_view
+    check: lint
+    languages: [sql]
+    object_types: [view]
+    kind: forbid_regex
+    pattern: '(?is)\bcreate\s+(?:or\s+alter\s+)?view\b[^;]*\bselect\s+\*'
+    severity: error
+    message: Views must list their columns explicitly.
+    replacement: Replace SELECT * with the explicit column list.
+  - id: synapse.lint.no_identity_in_ctas
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bcreate\s+table\b[^;]*?\)\s*as\s+select\b[^;]*\bidentity\s*\('
+    severity: error
+    message: CTAS cannot use the IDENTITY function in its SELECT.
+    replacement: Create the table with an IDENTITY column first, then INSERT ... SELECT into it.
+    claim:
+      text: You can't specify an IDENTITY property in the CREATE TABLE part of a CTAS statement, and you can't use the IDENTITY function in the SELECT part of the CTAS.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-identity
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.lint.columnstore_without_max_types
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bcreate\s+table\b(?![^;]*\b(?:heap|clustered\s+index)\b)[^;]*\b(?:n?varchar|varbinary)\s*\(\s*max\s*\)'
+    severity: error
+    message: Clustered columnstore tables (the default) do not support varchar(max), nvarchar(max) or varbinary(max).
+    replacement: Use a bounded length, or declare the table as HEAP or CLUSTERED INDEX.
+    claim:
+      text: Columnstore tables don't support varchar(max), nvarchar(max) and varbinary(max); consider heap or clustered index instead.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.lint.explicit_distribution
+    check: lint
+    languages: [sql]
+    kind: require_regex
+    pattern: '(?is)\bdistribution\s*=\s*(?:hash|round_robin|replicate)\b|\bcreate\s+table\s+#|^(?![\s\S]*\bcreate\s+table\b)'
+    severity: warning
+    message: State DISTRIBUTION explicitly; ROUND_ROBIN is the silent default.
+    claim:
+      text: DISTRIBUTION can be HASH, ROUND_ROBIN or REPLICATE, and ROUND_ROBIN is the default for Azure Synapse Analytics.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=azure-sqldw-latest
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.no_unsupported_types
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?im)(?:^|[(,])\s*(?:\[[^\]]+\]|"[^"]+"|\w+)\s+(?:geometry|geography|hierarchyid|image|text|ntext|sql_variant|xml|timestamp)\b'
+    severity: error
+    message: Column uses a data type that dedicated SQL pool does not support.
+    replacement: Use varbinary for geometry/geography/image, varchar for text, nvarchar for ntext and hierarchyid, and datetime2 for timestamp.
+    claim:
+      text: Dedicated SQL pool doesn't support geometry, geography, hierarchyid, image, text, ntext, sql_variant, xml or timestamp, and documents varbinary, nvarchar(4000), varchar, nvarchar and datetime2 workarounds.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-data-types
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.no_triggers
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+(?:or\s+alter\s+)?trigger\b'
+    severity: error
+    message: Dedicated SQL pool does not support triggers.
+    replacement: Move trigger logic into the load procedure or pipeline.
+    claim:
+      text: Triggers are listed among the table features that aren't supported in dedicated SQL pool.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.no_sequences
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+sequence\b|\bnext\s+value\s+for\b'
+    severity: error
+    message: Dedicated SQL pool does not support sequences.
+    replacement: Use an IDENTITY column for surrogate keys.
+    claim:
+      text: Sequence is not supported in dedicated SQL pool, and surrogate keys are implemented with IDENTITY.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.no_foreign_key_or_check
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bforeign\s+key\b|\breferences\s+[\w.\[\]"]+\s*\(|\bcheck\s*\('
+    severity: error
+    message: Dedicated SQL pool does not support FOREIGN KEY or CHECK constraints.
+    replacement: Enforce referential and domain rules in the load.
+    claim:
+      text: Foreign key and check table constraints are listed among the table features that aren't supported in dedicated SQL pool.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.pk_unique_not_enforced
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\b(?:primary\s+key|unique)\b(?![^;]*\bnot\s+enforced\b)'
+    severity: error
+    message: Dedicated SQL pool PRIMARY KEY and UNIQUE constraints must be declared NOT ENFORCED.
+    replacement: Use PRIMARY KEY NONCLUSTERED NOT ENFORCED or UNIQUE NOT ENFORCED.
+    claim:
+      text: Azure Synapse Analytics supports PRIMARY KEY NONCLUSTERED NOT ENFORCED and UNIQUE NOT ENFORCED column constraints.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=azure-sqldw-latest
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.no_insert_exec
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\binsert\s+(?:into\s+)?[\w.\[\]#"]+\s*(?:\([^)]*\)\s*)?exec(?:ute)?\b'
+    severity: error
+    message: INSERT ... EXECUTE is not permitted in dedicated SQL pool.
+    replacement: Have the procedure write to a temporary table, then INSERT ... SELECT from it.
+    claim:
+      text: Dedicated SQL pool does not permit consuming the result set of a stored procedure with INSERT..EXECUTE.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.no_unsupported_procedure_options
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bcreate\s+(?:or\s+alter\s+)?proc(?:edure)?\b[^;]*?\bwith\s+(?:encryption|execute\s+as)\b|\breadonly\b|@@nestlevel'
+    severity: error
+    message: Procedure uses a feature that dedicated SQL pool does not implement.
+    replacement: Remove WITH ENCRYPTION / EXECUTE AS, READONLY table-valued parameters and @@NESTLEVEL.
+    claim:
+      text: Dedicated SQL pool does not implement the encryption option, execution contexts, table-valued parameters, read-only parameters or @@NESTLEVEL for stored procedures.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.no_error_line
+    check: rule
+    languages: [sql]
+    kind: forbid_function
+    functions: [error_line]
+    severity: error
+    message: ERROR_LINE() is not supported in dedicated SQL pool.
+    replacement: Log ERROR_NUMBER() and ERROR_MESSAGE() instead.
+    claim:
+      text: SQL pool does not implement or support the ERROR_LINE() function.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-transactions
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.merge_no_hint
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bmerge\s+(?:into\s+)?[\w.\[\]"]+\s+with\s*\('
+    severity: error
+    message: MERGE hints are not supported in Azure Synapse Analytics.
+    replacement: Remove the WITH (...) hint from the MERGE target.
+    claim:
+      text: <merge_hint> isn't supported for Azure Synapse Analytics.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.merge_no_values_source
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bmerge\b[^;]*\busing\s*\(\s*values\b'
+    severity: error
+    message: MERGE in Synapse cannot use a table value constructor as its source.
+    replacement: Build the source with SELECT ... UNION ALL.
+    claim:
+      text: In Azure Synapse Analytics a table value constructor can't be used in the MERGE USING clause; use SELECT ... UNION ALL instead.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.rule.merge_status_review
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bmerge\s+(?:into\s+)?[\w.\[\]"#]+'
+    severity: warning
+    message: MERGE support status in dedicated SQL pool is documented inconsistently; confirm the pool build (10.0.17829.0 or later) and test, or use UPDATE ... FROM plus INSERT.
+    claim:
+      text: The Synapse SQL feature overview lists MERGE for dedicated SQL pool as "Yes (preview)", while the MERGE reference documents it for dedicated SQL pool with build-specific caveats.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/overview-features
+      accessed: 2026-10-15
+      confidence: low
+  - id: synapse.security.no_plaintext_password
+    check: security
+    languages: [sql, python, json, yaml]
+    kind: forbid_regex
+    pattern: "(?i)\\bpassword\\s*[=:]\\s*['\"][^'\"]+['\"]"
+    severity: error
+    message: Do not embed passwords; use Microsoft Entra authentication.
+    replacement: Authenticate with a Microsoft Entra identity or inject the secret at deploy time.
+    claim:
+      text: Microsoft Entra authentication for dedicated SQL pool eliminates storing passwords.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.security.no_storage_secret
+    check: security
+    languages: [sql, python, json, yaml]
+    kind: forbid_regex
+    pattern: "(?i)\\bsecret\\s*=\\s*'[^']+'|\\baccountkey\\s*=|\\bsig=[\\w%]+"
+    severity: error
+    message: Do not embed storage keys or SAS tokens in COPY or credentials.
+    replacement: Use a managed identity or Microsoft Entra ID for COPY.
+    claim:
+      text: COPY INTO can authenticate with a Shared Access Signature credential or a managed identity, giving a finer permission model without exposing storage account keys.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.security.no_grant_all
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+(?:all|control)\b'
+    severity: error
+    message: Do not GRANT ALL or CONTROL; grant specific permissions.
+    replacement: Grant SELECT, INSERT or EXECUTE on a schema to a role.
+    claim:
+      text: As a best practice, grant users the least privileges necessary in dedicated SQL pool.
+      url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.security.no_grant_to_public
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bgrant\b[^;]*\bto\s+(?:[^;]*,\s*)?\[?public\b'
+    severity: error
+    message: Do not grant to public; every database user inherits those permissions.
+    replacement: Grant to a named database role.
+    claim:
+      text: Every database user belongs to the public database role and inherits the permissions granted to public on an object.
+      url: https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles?view=sql-server-ver17
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.security.no_with_grant_option
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bwith\s+grant\s+option\b'
+    severity: error
+    message: Do not let grantees re-grant permissions.
+    replacement: Keep permission administration with the security admin role.
+    claim:
+      text: WITH GRANT OPTION indicates that the grantee will also be given the ability to grant the specified permission to other principals.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql?view=sql-server-ver17
+      accessed: 2026-10-15
+      confidence: high
+  - id: synapse.security.no_ownership_change
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\balter\s+authorization\b|\b(?:exec(?:ute)?\s+)?sp_addrolemember\s+''?db_owner|\balter\s+role\s+\[?db_owner\]?\s+add\s+member\b'
+    severity: error
+    message: Do not change object ownership or add members to db_owner in converted code.
+    replacement: Grant specific permissions to a role.
+    claim:
+      text: ALTER AUTHORIZATION changes the ownership of a securable and applies to Azure Synapse Analytics.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-authorization-transact-sql?view=sql-server-ver17
+      accessed: 2026-10-15
+      confidence: high

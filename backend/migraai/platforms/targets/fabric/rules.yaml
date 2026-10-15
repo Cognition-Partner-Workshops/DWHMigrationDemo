@@ -1,0 +1,290 @@
+target: fabric
+rules:
+  - id: fabric.lint.no_select_star_in_view
+    check: lint
+    languages: [sql]
+    object_types: [view]
+    kind: forbid_regex
+    pattern: '(?is)\bcreate\s+(?:or\s+alter\s+)?view\b[^;]*\bselect\s+\*'
+    severity: error
+    message: Views must list their columns explicitly.
+    replacement: Replace SELECT * with the explicit column list.
+  - id: fabric.lint.identity_requires_bigint
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\b(?:tinyint|smallint|int|integer|decimal|numeric)(?:\s*\([^)]*\))?\s+identity\b'
+    severity: error
+    message: Fabric Warehouse IDENTITY columns must be BIGINT.
+    replacement: Declare the column as BIGINT IDENTITY.
+    claim:
+      text: The bigint data type is required for IDENTITY columns in Fabric Data Warehouse.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/generate-unique-identifiers
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.lint.identity_without_seed_increment
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bidentity\s*\(\s*-?\d'
+    severity: error
+    message: Fabric Warehouse IDENTITY does not take a custom seed or increment.
+    replacement: Write BIGINT IDENTITY without arguments and do not rely on contiguous values.
+    claim:
+      text: In Fabric Data Warehouse you can't specify a custom starting value or increment for IDENTITY, and gaps can appear in the generated values.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/generate-unique-identifiers
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.lint.varchar_max_review
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bvar(?:char|binary)\s*\(\s*max\s*\)'
+    severity: warning
+    message: varchar(max) and varbinary(max) are limited to 16 MB in Fabric Warehouse; confirm source values fit.
+    claim:
+      text: The storage limit for varchar(max) is currently 16 MB in Fabric Data Warehouse.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_unsupported_types
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?im)(?:^|[(,])\s*(?:\[[^\]]+\]|"[^"]+"|\w+)\s+(?:money|smallmoney|datetime|smalldatetime|datetimeoffset|nchar|nvarchar|text|ntext|image|tinyint|geography|geometry|xml|json)\b'
+    severity: error
+    message: Column uses a data type that Fabric Warehouse tables do not support.
+    replacement: Use decimal for money, datetime2(6) for datetime types, char/varchar for nchar/nvarchar/text, varbinary for image and smallint for tinyint.
+    claim:
+      text: Fabric Data Warehouse tables don't support money, smallmoney, datetime, smalldatetime, datetimeoffset, nchar, nvarchar, text, ntext, image, tinyint, geography, geometry, json or xml, and the documented replacements are decimal, datetime2, char/varchar, varbinary and smallint.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_triggers
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+(?:or\s+alter\s+)?trigger\b'
+    severity: error
+    message: Fabric Warehouse does not support triggers.
+    replacement: Move trigger logic into the load procedure or pipeline.
+    claim:
+      text: Triggers are listed as not supported in the Fabric Data Warehouse T-SQL surface area.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_sequences
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+sequence\b|\bnext\s+value\s+for\b'
+    severity: error
+    message: Fabric Warehouse tables do not support sequences.
+    replacement: Use a BIGINT IDENTITY column.
+    claim:
+      text: Sequence is listed among the table features not supported in Fabric Data Warehouse.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tables
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_materialized_views
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+materialized\s+view\b|\bcreate\s+(?:unique\s+)?clustered\s+index\s+\w+\s+on\s+[\w.\[\]]*v_'
+    severity: error
+    message: Fabric Warehouse does not support materialized views.
+    replacement: Use a regular view or a table refreshed by the pipeline.
+    claim:
+      text: Materialized views are listed as not supported in the Fabric Data Warehouse T-SQL surface area.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_unsupported_session_settings
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bset\s+(?:rowcount|transaction\s+isolation\s+level)\b'
+    severity: error
+    message: SET ROWCOUNT and SET TRANSACTION ISOLATION LEVEL are not supported in Fabric Warehouse.
+    replacement: Use TOP for row limits; Fabric enforces snapshot isolation.
+    claim:
+      text: SET ROWCOUNT and SET TRANSACTION ISOLATION LEVEL are listed as not supported in the Fabric Data Warehouse T-SQL surface area.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_for_xml
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bfor\s+xml\b'
+    severity: error
+    message: SELECT ... FOR XML is not supported in Fabric Warehouse.
+    replacement: Use STRING_AGG or produce the document outside the warehouse.
+    claim:
+      text: SELECT - FOR XML is listed as not supported in the Fabric Data Warehouse T-SQL surface area.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_create_user
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+(?:user|login)\b'
+    severity: error
+    message: CREATE USER is not supported in Fabric Warehouse; users are created by GRANT.
+    replacement: Grant permissions to the Microsoft Entra identity directly.
+    claim:
+      text: In Microsoft Fabric, CREATE USER can't be explicitly executed; when GRANT or DENY is executed the user is created automatically.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql?view=sql-server-ver17
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.constraints_not_enforced
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\b(?:primary\s+key|foreign\s+key|unique)\b(?![^;]*\bnot\s+enforced\b)'
+    severity: error
+    message: Fabric Warehouse PRIMARY KEY, UNIQUE and FOREIGN KEY constraints must be NOT ENFORCED.
+    replacement: Add the constraint with ALTER TABLE ... ADD CONSTRAINT ... NONCLUSTERED ... NOT ENFORCED.
+    claim:
+      text: PRIMARY KEY and UNIQUE are only supported with NONCLUSTERED and NOT ENFORCED, and FOREIGN KEY is only supported with NOT ENFORCED.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_inline_constraints
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bcreate\s+table\b[^;]*\b(?:primary\s+key|foreign\s+key|references|unique)\b'
+    severity: error
+    message: Fabric Warehouse constraints cannot be declared inline in CREATE TABLE.
+    replacement: Create the table, then add the constraint with ALTER TABLE.
+    claim:
+      text: To add primary key, foreign key or unique constraints, use ALTER TABLE; you can't create these constraints inline in CREATE TABLE.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_default_constraints
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bcreate\s+table\b[^;]*\bdefault\b'
+    severity: error
+    message: Fabric Warehouse does not support default constraints.
+    replacement: Supply the value in the load statement.
+    claim:
+      text: SQL analytics endpoint and Warehouse don't support default constraints at this time.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.rule.no_distributed_or_named_transactions
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bbegin\s+distributed\s+tran(?:saction)?\b|\bbegin\s+tran(?:saction)?\s+(?!;)[@\w]+|\bsave\s+tran(?:saction)?\b'
+    severity: error
+    message: Distributed, named and savepoint transactions are not supported in Fabric Warehouse.
+    replacement: Use an unnamed BEGIN TRANSACTION ... COMMIT.
+    claim:
+      text: Distributed transactions and named transactions are not supported in Fabric Data Warehouse.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/transactions
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.security.no_plaintext_password
+    check: security
+    languages: [sql, python, json, yaml]
+    kind: forbid_regex
+    pattern: "(?i)\\bpassword\\s*[=:]\\s*['\"][^'\"]+['\"]"
+    severity: error
+    message: Do not embed passwords; use Microsoft Entra authentication.
+    replacement: Authenticate with a Microsoft Entra identity.
+    claim:
+      text: Microsoft Entra authentication is an alternative to usernames and passwords via SQL authentication to the SQL analytics endpoint or the Warehouse.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/entra-id-authentication
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.security.no_storage_secret
+    check: security
+    languages: [sql, python, json, yaml]
+    kind: forbid_regex
+    pattern: "(?i)\\bsecret\\s*=\\s*'[^']+'|\\baccountkey\\s*=|\\bsig=[\\w%]+"
+    severity: error
+    message: Do not embed storage keys or SAS tokens in COPY INTO.
+    replacement: Omit CREDENTIAL and load with the caller's Microsoft Entra identity, or inject the secret at run time.
+    claim:
+      text: COPY INTO accepts a CREDENTIAL whose SECRET is a shared access signature or a service principal key.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=fabric
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.security.no_grant_all
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+all\b'
+    severity: error
+    message: GRANT ALL is deprecated and over-broad; grant specific permissions.
+    replacement: Grant SELECT, INSERT or EXECUTE as needed.
+    claim:
+      text: The GRANT ALL option is deprecated and maintained only for backward compatibility.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql?view=sql-server-ver17
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.security.no_grant_to_public
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bgrant\b[^;]*\bto\s+(?:[^;]*,\s*)?\[?public\b'
+    severity: error
+    message: Do not grant to public; every database user inherits those permissions.
+    replacement: Grant to a named role or Microsoft Entra group.
+    claim:
+      text: Every database user belongs to the public database role and inherits the permissions granted to public on an object.
+      url: https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles?view=sql-server-ver17
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.security.no_with_grant_option
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bwith\s+grant\s+option\b'
+    severity: error
+    message: Do not let grantees re-grant permissions.
+    replacement: Keep permission administration with the workspace admin.
+    claim:
+      text: WITH GRANT OPTION indicates that the grantee will also be given the ability to grant the specified permission to other principals.
+      url: https://learn.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql?view=sql-server-ver17
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.security.no_ownership_change
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\balter\s+authorization\b|\balter\s+role\s+\[?db_owner\]?\s+add\s+member\b'
+    severity: error
+    message: Do not change object ownership or add members to db_owner in converted code.
+    replacement: Follow least privilege and grant specific permissions.
+    claim:
+      text: Always follow the principle of least privilege when granting users access to Fabric Data Warehouse.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+      accessed: 2026-10-15
+      confidence: high
+  - id: fabric.lint.schema_qualified_ddl
+    check: lint
+    languages: [sql]
+    kind: require_regex
+    pattern: '(?is)\b(?:create|alter)\s+(?:or\s+alter\s+)?(?:table|view|proc(?:edure)?|function)\s+(?:\[[^\]]+\]|"[^"]+"|\w+)\.|^(?![\s\S]*\b(?:create|alter)\s+(?:or\s+alter\s+)?(?:table|view|proc(?:edure)?|function)\b)'
+    severity: warning
+    message: Schema-qualify created objects (schema.object) so they do not land in the caller's default schema.
+  - id: fabric.rule.no_predict
+    check: rule
+    languages: [sql]
+    kind: forbid_function
+    functions: [predict]
+    severity: error
+    message: PREDICT is not supported in Fabric Warehouse.
+    replacement: Score the model outside the warehouse, for example in a Fabric notebook, and load the results.
+    claim:
+      text: PREDICT is listed as not supported in the Fabric Data Warehouse T-SQL surface area.
+      url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+      accessed: 2026-10-15
+      confidence: high

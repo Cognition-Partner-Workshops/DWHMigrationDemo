@@ -1,0 +1,19 @@
+target: synapse
+identifier_case: preserve
+quote_char: '"'
+max_identifier_length: 128
+qualification: two_part
+reserved_words: ["ADD", "ALL", "ALTER", "AND", "ANY", "AS", "ASC", "AUTHORIZATION", "BACKUP", "BEGIN", "BETWEEN", "BREAK", "BROWSE", "BULK", "BY", "CASCADE", "CASE", "CHECK", "CHECKPOINT", "CLOSE", "CLUSTERED", "COALESCE", "COLLATE", "COLUMN", "COMMIT", "COMPUTE", "CONSTRAINT", "CONTAINS", "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "DATABASE", "DBCC", "DEALLOCATE", "DECLARE", "DEFAULT", "DELETE", "DENY", "DESC", "DISTINCT", "DISTRIBUTED", "DOUBLE", "DROP", "ELSE", "END", "ESCAPE", "EXCEPT", "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXTERNAL", "FETCH", "FILE", "FOR", "FOREIGN", "FROM", "FULL", "FUNCTION", "GOTO", "GRANT", "GROUP", "HAVING", "IDENTITY", "IF", "IN", "INDEX", "INNER", "INSERT", "INTERSECT", "INTO", "IS", "JOIN", "KEY", "KILL", "LEFT", "LIKE", "LOAD", "MERGE", "NATIONAL", "NONCLUSTERED", "NOT", "NULL", "NULLIF", "OF", "OFF", "ON", "OPEN", "OPENROWSET", "OPTION", "OR", "ORDER", "OUTER", "OVER", "PERCENT", "PIVOT", "PLAN", "PRIMARY", "PRINT", "PROC", "PROCEDURE", "PUBLIC", "RAISERROR", "READ", "REFERENCES", "REPLICATION", "RESTORE", "RETURN", "REVOKE", "RIGHT", "ROLLBACK", "ROWCOUNT", "SCHEMA", "SELECT", "SESSION_USER", "SET", "SOME", "STATISTICS", "SYSTEM_USER", "TABLE", "THEN", "TO", "TOP", "TRAN", "TRANSACTION", "TRIGGER", "TRUNCATE", "UNION", "UNIQUE", "UNPIVOT", "UPDATE", "USE", "USER", "VALUES", "VIEW", "WAITFOR", "WHEN", "WHERE", "WHILE", "WITH"]
+claims:
+  - text: In dedicated SQL pool CREATE TABLE, table and column names can't be greater than 128 characters.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=azure-sqldw-latest
+    accessed: 2026-10-15
+    confidence: high
+  - text: Delimited identifiers are enclosed in double quotation marks or brackets.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers?view=sql-server-ver17
+    accessed: 2026-10-15
+    confidence: high
+  - text: The reserved keywords list covers SQL Server and Azure Synapse Analytics.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver17
+    accessed: 2026-10-15
+    confidence: high
