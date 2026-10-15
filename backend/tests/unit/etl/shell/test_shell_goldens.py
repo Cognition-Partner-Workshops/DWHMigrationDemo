@@ -19,7 +19,7 @@ CASES = {
         "script",
     ),
     "case_for_while": (
-        b"f() {\nfor x in a b; do echo $x; done\nwhile read l; do case $l in a) echo 1;; esac; done\n}\n",
+        b"f() {\nfor x in a b; do echo $x; done\nwhile read l; do case $l in a) echo 1;; esac; done\n}\n",  # noqa: E501
         "j/x.sh",
         "function",
     ),

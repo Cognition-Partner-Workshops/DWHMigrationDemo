@@ -19,7 +19,7 @@ CASES = {
         "function",
     ),
     "table_io": (
-        b"import pandas as pd\ndef f(c):\n    df = pd.read_sql_table('t', c, schema='s')\n    df.to_sql('w', c, schema='m')\n",
+        b"import pandas as pd\ndef f(c):\n    df = pd.read_sql_table('t', c, schema='s')\n    df.to_sql('w', c, schema='m')\n",  # noqa: E501
         "m/x.py",
         "function",
     ),

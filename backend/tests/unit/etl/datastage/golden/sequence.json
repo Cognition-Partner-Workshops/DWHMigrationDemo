@@ -1,0 +1,58 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 5,
+    "start_col": 1,
+    "end_line": 9,
+    "end_col": 1
+  },
+  "name": "datastage.stage",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "run_load",
+      "quoted": false
+    },
+    "stage_type": "CJSJobActivity"
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 5,
+        "start_col": 1,
+        "end_line": 5,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "j1",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_runs"
+    }
+  ]
+}

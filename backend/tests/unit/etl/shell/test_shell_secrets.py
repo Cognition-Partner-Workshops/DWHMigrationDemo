@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import json
 
-import pytest
-
 from migraai.etl.airflow.parse import parse as airflow_parse
 from migraai.etl.python.parse import parse as python_parse
 from migraai.etl.shell.parse import parse as shell_parse
@@ -15,11 +13,18 @@ SECRETS = ["Zebra77", "hunter2", "s3cret", "p4ss", "tok_abc", "k3y"]
 
 
 def _dump(result) -> str:
-    return json.dumps(
-        [o.to_dict() for o in result.objects]
-    ) + json.dumps([e.text for e in result.embedded_sql]) + json.dumps(
-        [i.to_dict() if hasattr(i, "to_dict") else i.message for o in result.objects for i in o.issues]
-    ) + json.dumps([i.message for i in result.issues])
+    return (
+        json.dumps([o.to_dict() for o in result.objects])
+        + json.dumps([e.text for e in result.embedded_sql])
+        + json.dumps(
+            [
+                i.to_dict() if hasattr(i, "to_dict") else i.message
+                for o in result.objects
+                for i in o.issues
+            ]
+        )
+        + json.dumps([i.message for i in result.issues])
+    )
 
 
 def test_shell_no_secret_leaks() -> None:

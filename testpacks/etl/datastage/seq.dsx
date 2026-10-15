@@ -1,0 +1,35 @@
+BEGIN DSJOB
+   Identifier "seq"
+   JobType "2"
+   Name "seq"
+   BEGIN DSRECORD
+      Identifier "act1"
+      OLEType "CJSJobActivity"
+      Name "act1"
+      Jobname "job1"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "act2"
+      OLEType "CJSJobActivity"
+      Name "act2"
+      Jobname "job2"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "act3"
+      OLEType "CJSJobActivity"
+      Name "act3"
+      Jobname "job3"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "act4"
+      OLEType "CJSJobActivity"
+      Name "act4"
+      Jobname "job4"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "act5"
+      OLEType "CJSJobActivity"
+      Name "act5"
+      Jobname "job5"
+   END DSRECORD
+END DSJOB

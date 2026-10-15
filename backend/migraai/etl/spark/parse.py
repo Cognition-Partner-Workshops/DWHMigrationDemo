@@ -179,7 +179,7 @@ def spark_call(call: pyast.Call, scope: Scope, dotted: str, builder: EtlBuilder)
 # .json submit configs + Control-M sniff
 # ---------------------------------------------------------------------------
 
-_CONTROLM_TYPES = ("folder", "simplefolder", "calendar")
+_CONTROLM_TYPES = ("folder", "simplefolder", "calendar", "job", "flow")
 
 
 def _looks_like_controlm(payload: Any) -> bool:

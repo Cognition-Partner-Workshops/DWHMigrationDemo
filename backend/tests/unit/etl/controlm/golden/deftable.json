@@ -1,0 +1,23 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 8,
+    "end_col": 1
+  },
+  "name": "controlm.folder",
+  "args": {
+    "folder_name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "APP",
+      "quoted": false
+    }
+  }
+}

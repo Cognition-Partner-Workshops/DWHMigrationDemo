@@ -1,0 +1,24 @@
+BEGIN DSJOB
+   Identifier "jb"
+   JobType "0"
+   Name "jb"
+   BEGIN DSRECORD
+      Identifier "good1"
+      OLEType "CCustomStage"
+      Name "good1"
+      StageType "OracleConnectorPX"
+      TableName "a"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "bad"
+      OLEType "CCustomStage"
+      Name "bad"
+      @@@unparseable@@@
+   BEGIN DSRECORD
+      Identifier "good2"
+      OLEType "CCustomStage"
+      Name "good2"
+      StageType "ODBCConnectorPX"
+      TableName "b"
+   END DSRECORD
+END DSJOB

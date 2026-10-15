@@ -353,10 +353,7 @@ def convert_statement(node: pyast.stmt, ctx: ConvertContext) -> ast.Node:
         )
     if isinstance(node, pyast.Assign):
         value = convert_expr(node.value, ctx)
-        if any(
-            isinstance(t, pyast.Name) and _SECRET_VALUE_RE.search(t.id)
-            for t in node.targets
-        ):
+        if any(isinstance(t, pyast.Name) and _SECRET_VALUE_RE.search(t.id) for t in node.targets):
             value = ast.Literal(type="string", value="****", span=_pyspan(node.value))
         targets = [convert_expr(target, ctx) for target in node.targets]
         result: ast.Node = ast.Assign(target=targets[0], value=value, span=sp)

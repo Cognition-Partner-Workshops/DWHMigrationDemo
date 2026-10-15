@@ -205,6 +205,110 @@ def _collect_hints(node: ast.Node, hints: list[ast.RefHint], top: bool = True) -
     visit(node)
 
 
+class XmlParseError(Exception):
+    def __init__(self, message: str, line: int = 1) -> None:
+        super().__init__(message)
+        self.line = line
+
+
+@dataclass
+class XmlNode:
+    tag: str
+    attrib: dict[str, str]
+    children: list[XmlNode]
+    text: str
+    line: int
+    end_line: int
+
+    @property
+    def local(self) -> str:
+        return self.tag.split(":", 1)[-1]
+
+    def get(self, name: str, default: str | None = None) -> str | None:
+        for key, value in self.attrib.items():
+            if key.split(":", 1)[-1].casefold() == name.casefold():
+                return value
+        return default
+
+    def find_all(self, local: str) -> list[XmlNode]:
+        return [child for child in self.children if child.local.casefold() == local.casefold()]
+
+    def find(self, local: str) -> XmlNode | None:
+        for child in self.children:
+            if child.local.casefold() == local.casefold():
+                return child
+        return None
+
+
+def parse_xml(data: bytes) -> XmlNode:
+    """Parse XML via defusedxml.sax (§3). Raises XmlParseError on malformed
+    input, DTDs, entities and external references."""
+    from xml.sax import handler
+    from xml.sax.handler import feature_namespaces
+    from xml.sax.xmlreader import AttributesImpl
+
+    from defusedxml.sax import make_parser
+
+    root_holder: list[XmlNode] = []
+    stack: list[XmlNode] = []
+
+    class _Handler(handler.ContentHandler):
+        locator = None
+
+        def setDocumentLocator(self, locator) -> None:  # noqa: N802
+            self.locator = locator
+
+        def startElement(self, name: str, attrs: AttributesImpl) -> None:
+            node = XmlNode(
+                tag=name,
+                attrib={key: attrs.getValue(key) for key in attrs.getNames()},
+                children=[],
+                text="",
+                line=self.locator.getLineNumber() if self.locator else 1,
+                end_line=self.locator.getLineNumber() if self.locator else 1,
+            )
+            if stack:
+                stack[-1].children.append(node)
+            else:
+                root_holder.append(node)
+            stack.append(node)
+
+        def characters(self, content: str) -> None:
+            if stack:
+                stack[-1].text += content
+                if self.locator:
+                    stack[-1].end_line = self.locator.getLineNumber()
+
+        def endElement(self, name: str) -> None:
+            node = stack.pop()
+            if self.locator:
+                node.end_line = self.locator.getLineNumber()
+
+    sax_handler = _Handler()
+    try:
+        parser = make_parser()
+        parser.setFeature(feature_namespaces, False)
+        parser.setContentHandler(sax_handler)
+        import io
+
+        parser.parse(io.BytesIO(data))
+    except Exception as error:
+        line = 1
+        sax_error = getattr(error, "_sax_parser", None) or error
+        get_line = getattr(sax_error, "getLineNumber", None)
+        if callable(get_line):
+            try:
+                line = get_line()
+            except Exception:
+                line = 1
+        elif getattr(error, "getLineNumber", None):
+            line = error.getLineNumber()
+        raise XmlParseError(str(error), max(int(line or 1), 1)) from error
+    if not root_holder:
+        raise XmlParseError("Empty XML document.", 1)
+    return root_holder[0]
+
+
 class EtlBuilder:
     """Builds a consistent EtlParseResult for one file."""
 

@@ -139,13 +139,13 @@ def test_json_livy_submit() -> None:
     assert ("etl_runs", "com.acme.etl.Main") in names(obj)
 
 
-def test_json_controlm_delegation_unavailable() -> None:
+def test_json_controlm_delegation() -> None:
     result = parse(
         json.dumps({"Folder1": {"Type": "Folder"}, "cal": {"Type": "Calendar"}}).encode(),
         "ctm/export.json",
     )
-    assert result.objects == []
-    assert any(i.code == "spark.controlm_unavailable" for i in result.issues)
+    assert any(o.type == "folder" for o in result.objects)
+    assert any(o.type == "calendar" for o in result.objects)
 
 
 def test_json_malformed() -> None:

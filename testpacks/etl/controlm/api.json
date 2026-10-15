@@ -1,0 +1,144 @@
+{
+ "F1": {
+  "Type": "Folder"
+ },
+ "job1": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j1.sh",
+  "eventsToWaitFor": [
+   "done_1"
+  ]
+ },
+ "job2": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j2.sh",
+  "eventsToWaitFor": [
+   "done_2"
+  ]
+ },
+ "job3": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j3.sh",
+  "eventsToWaitFor": [
+   "done_3"
+  ]
+ },
+ "job4": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j4.sh",
+  "eventsToWaitFor": [
+   "done_4"
+  ]
+ },
+ "job5": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j5.sh",
+  "eventsToWaitFor": [
+   "done_5"
+  ]
+ },
+ "job6": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j6.sh",
+  "eventsToWaitFor": [
+   "done_6"
+  ]
+ },
+ "job7": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j7.sh",
+  "eventsToWaitFor": [
+   "done_7"
+  ]
+ },
+ "job8": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j8.sh",
+  "eventsToWaitFor": [
+   "done_8"
+  ]
+ },
+ "job9": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j9.sh",
+  "eventsToWaitFor": [
+   "done_9"
+  ]
+ },
+ "job10": {
+  "Type": "Job:Script",
+  "ParentFolder": "F1",
+  "FilePath": "scripts",
+  "FileName": "j10.sh",
+  "eventsToWaitFor": [
+   "done_10"
+  ]
+ },
+ "sqljob1": {
+  "Type": "Job:Database:EmbeddedQuery",
+  "ParentFolder": "F1",
+  "Query": "SELECT 1 FROM t1"
+ },
+ "sqljob2": {
+  "Type": "Job:Database:EmbeddedQuery",
+  "ParentFolder": "F1",
+  "Query": "SELECT 2 FROM t2"
+ },
+ "sqljob3": {
+  "Type": "Job:Database:EmbeddedQuery",
+  "ParentFolder": "F1",
+  "Query": "SELECT 3 FROM t3"
+ },
+ "sqljob4": {
+  "Type": "Job:Database:EmbeddedQuery",
+  "ParentFolder": "F1",
+  "Query": "SELECT 4 FROM t4"
+ },
+ "sqljob5": {
+  "Type": "Job:Database:EmbeddedQuery",
+  "ParentFolder": "F1",
+  "Query": "SELECT 5 FROM t5"
+ },
+ "sqljob6": {
+  "Type": "Job:Database:EmbeddedQuery",
+  "ParentFolder": "F1",
+  "Query": "SELECT 6 FROM t6"
+ },
+ "sqljob7": {
+  "Type": "Job:Database:EmbeddedQuery",
+  "ParentFolder": "F1",
+  "Query": "SELECT 7 FROM t7"
+ },
+ "fl": {
+  "Type": "Flow",
+  "Sequence": [
+   "job1",
+   "job2",
+   "job3"
+  ]
+ },
+ "cal": {
+  "Type": "Calendar:Weekly"
+ },
+ "weird": {
+  "Type": "Job:Widget"
+ }
+}
