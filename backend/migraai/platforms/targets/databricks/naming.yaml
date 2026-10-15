@@ -1,0 +1,52 @@
+target: databricks
+identifier_case: lower
+quote_char: "`"
+max_identifier_length: 255
+qualification: three_part
+reserved_words:
+  - "ALL"
+  - "ALTER"
+  - "AND"
+  - "ANY"
+  - "ARRAY"
+  - "AS"
+  - "AT"
+  - "AUTHORIZATION"
+  - "ANTI"
+  - "CROSS"
+  - "EXCEPT"
+  - "FULL"
+  - "INNER"
+  - "INTERSECT"
+  - "JOIN"
+  - "LATERAL"
+  - "LEFT"
+  - "MASK"
+  - "MINUS"
+  - "NATURAL"
+  - "ON"
+  - "RIGHT"
+  - "SEMI"
+  - "UNION"
+  - "USING"
+  - "NULL"
+  - "DEFAULT"
+  - "TRUE"
+  - "FALSE"
+  - "BUILTIN"
+  - "INFORMATION_SCHEMA"
+  - "SESSION"
+  - "SQL"
+claims:
+  - text: Databricks object names cannot exceed 255 characters, and Unity Catalog stores object names in lowercase.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-names
+    accessed: 2026-10-15
+    confidence: high
+  - text: Databricks delimited identifiers are enclosed in backticks, and identifiers are case-insensitive when referenced.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-identifiers
+    accessed: 2026-10-15
+    confidence: high
+  - text: Databricks reserves words such as ANTI, CROSS, EXCEPT, JOIN, MINUS, SEMI, UNION and USING, which must be back-quoted to be used as table aliases, and does not enforce the ANSI reserved word list.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-reserved-words
+    accessed: 2026-10-15
+    confidence: high
