@@ -33,15 +33,21 @@ def list_resources(request: Request) -> list[dict]:
     session = _session(request)
     rows = get_catalog(session["source"], db_path=request.app.state.kb_store.current_path)
     available = _availability(session)
-    return [
-        {
-            **row,
-            "available": bool(available.get(str(row["id"]), False)),
-            "count": None,
-            "status": "Awaiting upload",
-        }
-        for row in rows
-    ]
+    result = []
+    for row in rows:
+        count = session["inventory"].count_types(row["object_types"])
+        resource_id = str(row["id"])
+        auto_available = count > 0
+        result.append(
+            {
+                **row,
+                "available": bool(available.get(resource_id, auto_available)),
+                "count": count,
+                "auto_available": auto_available,
+                "status": "Available" if count else "Awaiting upload",
+            }
+        )
+    return result
 
 
 @router.patch("/{resource_id}")

@@ -119,6 +119,7 @@ class ParserBase:
         rel_path: str = "",
         lexer_config: LexerConfig | None = None,
         binary_ops: dict[str, tuple[int, int, str]] | None = None,
+        clock: Callable[[], float] | None = None,
     ) -> None:
         self.text = tokens if isinstance(tokens, str) else ""
         self.rel_path = config if isinstance(config, str) else rel_path
@@ -126,6 +127,7 @@ class ParserBase:
             lexer_config or (config if isinstance(config, LexerConfig) else None) or LexerConfig()
         )
         self.binary_ops = binary_ops if binary_ops is not None else type(self).binary_ops
+        self.clock = clock if clock is not None else time.perf_counter
         self.tokens = list(tokens) if isinstance(tokens, list) else []
         self.index = 0
         self.issues: list[ast.Issue] = []
@@ -146,7 +148,7 @@ class ParserBase:
         else:
             self.issues = []
         self.index = 0
-        self._started = time.monotonic()
+        self._started = self.clock()
         self._next_time_check = self.time_check_interval
         statements: list[ast.Node] = []
         while not self.at(TokenKind.EOF):
@@ -2354,7 +2356,7 @@ class ParserBase:
         if self.index < self._next_time_check:
             return
         self._next_time_check = self.index + self.time_check_interval
-        if time.monotonic() - self._started > self.file_time_limit_seconds:
+        if self.clock() - self._started > self.file_time_limit_seconds:
             raise ParseLimitError(
                 f"Parsing exceeded {self.file_time_limit_seconds:g} seconds.",
                 self.tokens[min(self.index, len(self.tokens) - 1)],

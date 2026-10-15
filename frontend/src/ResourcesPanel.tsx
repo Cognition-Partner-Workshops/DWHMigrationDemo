@@ -31,6 +31,7 @@ function ResourceGroup({
                 <strong>{item.name}</strong>
                 <small>{item.description}</small>
                 <span>{item.status}</span>
+                <small className="resource-count">{item.count ?? 0} objects</small>
               </span>
               <input
                 aria-label={`${item.name} available`}

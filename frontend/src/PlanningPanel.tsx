@@ -120,6 +120,16 @@ export function PlanningPanel({
     }
   }
 
+  function confirmRegeneration() {
+    if (
+      window.confirm(
+        "Regenerate this plan? This starts a new Devin session and uses ACUs.",
+      )
+    ) {
+      void requestPlan(true);
+    }
+  }
+
   const isRunning = Boolean(plan && !TERMINAL_STATES.has(plan.state));
   const sections = plan?.plan?.sections ?? [];
   const activeSection =
@@ -196,18 +206,20 @@ export function PlanningPanel({
                 <button
                   className="button secondary compact-button"
                   disabled={busy}
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Regenerate this plan? This starts a new Devin session and uses ACUs.",
-                      )
-                    ) {
-                      void requestPlan(true);
-                    }
-                  }}
+                  onClick={confirmRegeneration}
                   type="button"
                 >
                   Regenerate
+                </button>
+              )}
+              {plan?.plan && plan.inventory_stale && (
+                <button
+                  className="button secondary compact-button"
+                  disabled={busy}
+                  onClick={confirmRegeneration}
+                  type="button"
+                >
+                  Regenerate with inventory
                 </button>
               )}
             </div>
