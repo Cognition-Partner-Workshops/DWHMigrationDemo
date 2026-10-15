@@ -350,6 +350,83 @@ def test_sql_dialect_quoting_and_masking_rules() -> None:
     )
 
 
+def _valid_job(tasks: list[dict[str, object]]) -> str:
+    return json.dumps({"name": "job", "tasks": tasks})
+
+
+def _job_task(task_key: str, dependencies: list[str] | None = None) -> dict[str, object]:
+    task: dict[str, object] = {
+        "task_key": task_key,
+        "notebook_task": {"notebook_path": f"/{task_key}"},
+    }
+    if dependencies:
+        task["depends_on"] = [{"task_key": dependency} for dependency in dependencies]
+    return task
+
+
+def test_layered_dag() -> None:
+    tasks = []
+    for layer in range(25):
+        for slot in range(2):
+            dependencies = [f"t{layer - 1}_{previous}" for previous in range(2)] if layer else []
+            tasks.append(_job_task(f"t{layer}_{slot}", dependencies))
+    tasks.reverse()
+
+    assert validate_output("databricks.workflows_job", _valid_job(tasks)) == []
+
+
+def test_long_chain() -> None:
+    tasks = [_job_task(f"t{index}", [f"t{index - 1}"] if index else []) for index in range(2000)]
+
+    assert validate_output("databricks.workflows_job", _valid_job(tasks)) == []
+
+
+def test_two_cycles() -> None:
+    tasks = [
+        _job_task("A", ["B"]),
+        _job_task("B", ["A"]),
+        _job_task("C", ["D"]),
+        _job_task("D", ["C"]),
+    ]
+    findings = validate_output("databricks.workflows_job", _valid_job(tasks))
+    cycles = [
+        finding.message for finding in findings if finding.rule_id.endswith(".dependency_cycle")
+    ]
+
+    assert cycles == [
+        "Task dependency cycle: A -> B -> A.",
+        "Task dependency cycle: C -> D -> C.",
+    ]
+
+
+def test_self_loop() -> None:
+    findings = validate_output(
+        "databricks.workflows_job",
+        _valid_job([_job_task("A", ["A"])]),
+    )
+
+    assert [
+        finding.message for finding in findings if finding.rule_id.endswith(".dependency_cycle")
+    ] == ["Task dependency cycle: A -> A."]
+
+
+def test_bigquery_double_quote_escape() -> None:
+    assert validate_output("bigquery.sql", r'SELECT "a\"b";') == []
+    assert validate_output("bigquery.sql", r"SELECT `a\`;") == []
+    assert validate_output("snowflake.sql", r'SELECT "a\";') == []
+
+
+def test_airflow_import_boundary() -> None:
+    findings = validate_output(
+        "redshift.airflow_dag",
+        'import airflow_utils\nDAG("example")\n',
+    )
+
+    assert [finding.rule_id for finding in findings] == [
+        "etl.redshift.airflow_dag.missing_airflow_import"
+    ]
+
+
 def test_safety_of_validator_sources_and_unexecuted_python_payload() -> None:
     package_dir = Path(__file__).resolve().parents[3] / "migraai" / "etl" / "outputs"
     for path in package_dir.glob("*.py"):

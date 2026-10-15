@@ -149,7 +149,11 @@ def _lex_sql(content: str, format_id: str, dialect: _Dialect) -> _LexResult:
             elif delimiter in {"'", '"', "`"}:
                 cursor = index + 1
                 while cursor < size:
-                    if char == "'" and dialect.backslash_strings and content[cursor] == "\\":
+                    if (
+                        token_kind == "string"
+                        and dialect.backslash_strings
+                        and content[cursor] == "\\"
+                    ):
                         cursor += 2
                         continue
                     if content[cursor] == delimiter:

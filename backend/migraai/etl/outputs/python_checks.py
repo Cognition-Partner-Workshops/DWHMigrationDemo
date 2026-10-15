@@ -12,6 +12,10 @@ def _finding(format_id: str, name: str, message: str, line: int | None = None) -
     return Finding("syntax", f"etl.{format_id}.{name}", "error", message, line)
 
 
+def _is_airflow_module(module: str) -> bool:
+    return module == "airflow" or module.startswith("airflow.")
+
+
 def _python_tree(format_id: str, content: str) -> tuple[ast.Module | None, list[Finding]]:
     try:
         tree = ast.parse(content)
@@ -132,9 +136,9 @@ def check_airflow_dag(format_id: str, content: str) -> list[Finding]:
     decorated_functions: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
-            has_airflow_import |= any(alias.name.startswith("airflow") for alias in node.names)
+            has_airflow_import |= any(_is_airflow_module(alias.name) for alias in node.names)
         elif isinstance(node, ast.ImportFrom):
-            has_airflow_import |= bool(node.module and node.module.startswith("airflow"))
+            has_airflow_import |= bool(node.module and _is_airflow_module(node.module))
         elif isinstance(node, ast.Call) and _is_dag_call(node.func):
             dag_calls.append(node)
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and any(
