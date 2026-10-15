@@ -5,8 +5,8 @@ import os
 import time
 from pathlib import Path
 
+from migraai.devin.client import DevinClient, DevinV1Client
 from migraai.planning.context import build_context
-from migraai.planning.devin_client import DevinClient, DevinV1Client
 from migraai.planning.prompt import build_prompt
 from migraai.planning.schema import SCHEMA, Plan
 

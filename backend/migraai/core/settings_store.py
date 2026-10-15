@@ -8,7 +8,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from migraai.core.secrets import SecretProtector
-from migraai.planning.devin_client import normalize_base_url
+from migraai.devin.client import normalize_base_url
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +20,8 @@ DEFAULTS: dict[str, Any] = {
     "acu_cap_per_run": None,
     "plan_acu_cap": 10,
     "plan_timeout_minutes": 30,
+    "conversion_batch_size": 20,
+    "conversion_session_timeout_minutes": 45,
 }
 
 
@@ -38,6 +40,8 @@ class SettingsRead(BaseModel):
     acu_cap_per_run: float | None
     plan_acu_cap: int
     plan_timeout_minutes: int
+    conversion_batch_size: int
+    conversion_session_timeout_minutes: int
 
 
 class SettingsUpdate(BaseModel):
@@ -49,6 +53,8 @@ class SettingsUpdate(BaseModel):
     acu_cap_per_run: float | None = Field(default=None, gt=0)
     plan_acu_cap: int | None = Field(default=None, ge=1, le=100)
     plan_timeout_minutes: int | None = Field(default=None, ge=5, le=120)
+    conversion_batch_size: int | None = Field(default=None, ge=1, le=50)
+    conversion_session_timeout_minutes: int | None = Field(default=None, ge=5, le=240)
 
 
 class SettingsStore:
@@ -101,7 +107,12 @@ class SettingsStore:
                 result[key] = int(raw)
             elif key == "acu_cap_per_run":
                 result[key] = float(raw) if raw else None
-            elif key in {"plan_acu_cap", "plan_timeout_minutes"}:
+            elif key in {
+                "plan_acu_cap",
+                "plan_timeout_minutes",
+                "conversion_batch_size",
+                "conversion_session_timeout_minutes",
+            }:
                 result[key] = int(raw)
             else:
                 result[key] = raw
