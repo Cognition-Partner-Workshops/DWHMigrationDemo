@@ -283,6 +283,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const planningSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -346,6 +347,12 @@ export default function App() {
       const response = await confirmSession(source, target);
       setSession(response);
       setSessionConfirmed(true);
+      requestAnimationFrame(() => {
+        const planningSection = planningSectionRef.current;
+        if (planningSection?.scrollIntoView) {
+          planningSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
       setFiles((current) =>
         current.map((row) =>
           row.status === "Pending"
@@ -554,7 +561,11 @@ export default function App() {
           {error && <p className="banner error-banner" role="alert">{error}</p>}
         </section>
 
-        <section aria-labelledby="planning-heading" className="panel planning-panel">
+        <section
+          aria-labelledby="planning-heading"
+          className="panel planning-panel"
+          ref={planningSectionRef}
+        >
           <div className="panel-heading">
             <SectionTitle
               description="Comprehensive analysis and step-by-step migration plan"

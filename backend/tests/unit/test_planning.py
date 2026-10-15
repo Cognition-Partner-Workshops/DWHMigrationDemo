@@ -133,6 +133,13 @@ def test_local_draft_uses_pair_claims_mappings_and_risks(tmp_path: Path) -> None
                     {
                         "sql": {"level": "medium", "notes": "Review dialect differences"},
                         "data": {"level": "low", "notes": "Validate counts"},
+                        **{
+                            f"risk_{index}": {
+                                "level": "medium",
+                                "notes": f"Review risk {index}",
+                            }
+                            for index in range(13)
+                        },
                     }
                 ),
             ),
@@ -167,21 +174,101 @@ def test_local_draft_uses_pair_claims_mappings_and_risks(tmp_path: Path) -> None
     by_id = {section.id: section for section in plan.sections}
     assert "Teradata architecture profile" in by_id["A"].content
     assert "Pair architecture overview" in by_id["A"].content
+    assert "### Teradata" in by_id["A"].content
+    assert "### Teradata → Snowflake differences" in by_id["A"].content
+    assert "([source](https://docs.example/architecture))" in by_id["A"].content
+    assert "[teradata | architecture]" not in by_id["A"].content
     assert {item.kb_id for item in by_id["A"].citations} == {
         ids["architecture"],
         ids["architecture_overview"],
     }
     assert "Storage differs" in by_id["B"].content
     assert by_id["B"].citations[0].kb_id == ids["storage"]
-    assert "[KB-" in by_id["G"].content
+    assert "([source](https://docs.example/object_mapping))" in by_id["G"].content
     assert by_id["G"].citations[0].kb_id == ids["object_mapping"]
-    assert "| Risk area | Level | Notes |" in by_id["R"].content
+    assert "### Teradata → Snowflake differences" in by_id["R"].content
+    assert "**sql (medium):** Review dialect differences" in by_id["R"].content
+    risk_bullets = by_id["R"].content.split("\n\n", 1)[1].splitlines()
+    assert sum(line.startswith("- ") for line in risk_bullets) == 12
     assert "BYTEINT (https://docs.example/type)" in by_id["I"].content
     assert "no direct equivalent" in by_id["I"].content
     assert len(by_id["I"].citations) == 2
     assert "Tables" in context.markdown
     assert "docs.example" in context.allowed_hosts
     assert ids["architecture_overview"] in context.kb_ids
+
+
+def test_local_draft_markdown_groups_links_and_caps_claims(tmp_path: Path) -> None:
+    store, _, _ = _stores(tmp_path)
+    database = store.current_path
+    embedder = HashEmbedder()
+    with connect(database) as connection:
+        for index in range(13):
+            text = f"[teradata | architecture] Teradata architecture point {index}"
+            vector = embedder.embed([text])[0]
+            insert_chunk(
+                connection,
+                (
+                    None,
+                    text,
+                    f"https://docs.example/teradata/{index}",
+                    "2026-10-15",
+                    "teradata",
+                    None,
+                    None,
+                    "architecture",
+                    None,
+                    "low" if index == 0 else "high",
+                ),
+                vector,
+            )
+        target_text = "[snowflake | architecture] Snowflake architecture profile"
+        insert_chunk(
+            connection,
+            (
+                None,
+                target_text,
+                "https://docs.example/snowflake",
+                "2026-10-15",
+                "snowflake",
+                None,
+                None,
+                "architecture",
+                None,
+                "high",
+            ),
+            embedder.embed([target_text])[0],
+        )
+        pair_text = "[teradata → snowflake | architecture_overview] Pair architecture note"
+        insert_chunk(
+            connection,
+            (
+                None,
+                pair_text,
+                "https://docs.example/pair",
+                "2026-10-15",
+                None,
+                "teradata",
+                "snowflake",
+                "architecture_overview",
+                None,
+                "high",
+            ),
+            embedder.embed([pair_text])[0],
+        )
+
+    plan = build_local_draft("teradata", "snowflake", database)
+    content = next(section.content for section in plan.sections if section.id == "A")
+    assert "### Teradata\n" in content
+    assert "### Snowflake\n" in content
+    assert "### Teradata → Snowflake differences" in content
+    assert "([source](https://docs.example/teradata/0)) **(Manual review)**" in content
+    assert "([source](https://docs.example/pair))" in content
+    assert not any(
+        prefix in content for prefix in ("[teradata | architecture]", "[snowflake | architecture]")
+    )
+    source_claims = content.split("### Teradata\n\n", 1)[1].split("\n\n### ", 1)[0]
+    assert sum(line.startswith("- ") for line in source_claims.splitlines()) == 12
 
 
 def test_devin_client_v3_request_shapes_and_url_normalization() -> None:

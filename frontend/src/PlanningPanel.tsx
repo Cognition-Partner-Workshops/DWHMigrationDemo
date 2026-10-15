@@ -158,12 +158,18 @@ export function PlanningPanel({
           <div className="planning-toolbar">
             <div aria-live="polite" className="plan-progress">
               <span className={`plan-state-dot ${isRunning ? "active" : ""}`} />
-              <strong>
-                {plan
-                  ? plan.progress.phase.replaceAll("_", " ")
-                  : "Preparing plan"}
-              </strong>
-              <span>{formatElapsed(plan?.progress.elapsed_s ?? 0)}</span>
+              {plan?.origin === "local_draft" ? (
+                <strong>Local draft</strong>
+              ) : (
+                <>
+                  <strong>
+                    {plan
+                      ? plan.progress.phase.replaceAll("_", " ")
+                      : "Preparing plan"}
+                  </strong>
+                  <span>{formatElapsed(plan?.progress.elapsed_s ?? 0)}</span>
+                </>
+              )}
               {plan?.progress.devin_url && (
                 <a href={plan.progress.devin_url} rel="noreferrer" target="_blank">
                   Open Devin session
