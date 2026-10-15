@@ -178,6 +178,7 @@ export type InventoryPage = {
   page: number;
   page_size: number;
   total: number;
+  external_total: number;
 };
 
 export type GraphEdge = {
@@ -330,7 +331,7 @@ function uploadError(xhr: XMLHttpRequest): Error {
 export function uploadFiles(
   files: File[],
   onProgress: (loaded: number, total: number) => void,
-): Promise<UploadRecord[]> {
+): Promise<{ uploads: UploadRecord[]; replaced: string[] }> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/uploads");
@@ -353,8 +354,11 @@ export function uploadFiles(
         return;
       }
       try {
-        const payload = JSON.parse(xhr.responseText) as { uploads: UploadRecord[] };
-        resolve(payload.uploads);
+        const payload = JSON.parse(xhr.responseText) as {
+          uploads: UploadRecord[];
+          replaced: string[];
+        };
+        resolve(payload);
       } catch {
         reject(new Error("The upload response could not be read."));
       }

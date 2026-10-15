@@ -23,6 +23,7 @@ describe("InventoryView", () => {
       page: 1,
       page_size: 50,
       total: 120,
+      external_total: 0,
     });
     mocks.getInventoryDetail.mockResolvedValue({
       id: "object-1",
@@ -71,6 +72,25 @@ describe("InventoryView", () => {
         expect.objectContaining({ q: "orders", page: 2, page_size: 50 }),
       ),
     );
+  });
+
+  it("shows an explicit external-reference count when present", async () => {
+    mocks.getInventory.mockResolvedValue({
+      items: [],
+      page: 1,
+      page_size: 50,
+      total: 57,
+      external_total: 1,
+    });
+    render(<InventoryView revision={0} uploads={[]} />);
+
+    expect(await screen.findByText("57 objects · 1 external reference")).toBeInTheDocument();
+  });
+
+  it("shows only the object count when there are no external references", async () => {
+    render(<InventoryView revision={0} uploads={[]} />);
+
+    expect(await screen.findByText("120 objects")).toBeInTheDocument();
   });
 
   it("loads the graph through the mocked lazy component", async () => {

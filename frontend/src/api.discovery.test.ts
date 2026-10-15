@@ -27,6 +27,7 @@ describe("discovery API client", () => {
             object_count: 0,
           },
         ],
+        replaced: ["upload-old"],
       }),
       withCredentials: false,
       open: vi.fn(),
@@ -69,7 +70,10 @@ describe("discovery API client", () => {
     expect(progress).toHaveBeenCalledWith(50, 100);
 
     listeners.get("load")?.(new ProgressEvent("load"));
-    await expect(result).resolves.toHaveLength(1);
+    await expect(result).resolves.toMatchObject({
+      uploads: [{ id: "upload-1" }],
+      replaced: ["upload-old"],
+    });
   });
 
   it("stops polling when discovery is idle", async () => {
@@ -99,7 +103,7 @@ describe("discovery API client", () => {
 
   it("serializes inventory filters and page parameters", async () => {
     const fetchMock = vi.fn(async () =>
-      Response.json({ items: [], page: 2, page_size: 50, total: 0 }),
+      Response.json({ items: [], page: 2, page_size: 50, total: 0, external_total: 0 }),
     );
     vi.stubGlobal("fetch", fetchMock);
 

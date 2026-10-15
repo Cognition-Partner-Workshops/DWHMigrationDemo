@@ -167,16 +167,24 @@ export function UploadPanel({
     setError("");
     setNotice("");
     try {
-      await uploadFiles(validFiles, (loaded, total) => {
+      const result = await uploadFiles(validFiles, (loaded, total) => {
         setProgress(total > 0 ? Math.round((loaded / total) * 100) : 0);
       });
+      const replacedIds = new Set(result.replaced);
+      if (replacedIds.size > 0) {
+        onUploadsChange(uploads.filter((row) => !replacedIds.has(row.id)));
+      }
       const rows = await getUploads();
-      onUploadsChange(rows);
+      onUploadsChange(rows.filter((row) => !replacedIds.has(row.id)));
       onInventoryChanged();
       setSelectedFiles((current) =>
         current.filter(({ file }) => !validFiles.includes(file)),
       );
-      setNotice("Files uploaded. Discovery is processing the selected files.");
+      setNotice(
+        result.replaced.length > 0
+          ? `Replaced ${result.replaced.length} earlier file${result.replaced.length === 1 ? "" : "s"} with the same path.`
+          : "Files uploaded. Discovery is processing the selected files.",
+      );
       startPolling();
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
@@ -216,9 +224,11 @@ export function UploadPanel({
   const noticeMessage =
     discovery?.state === "failed"
       ? "Discovery failed."
-      : discovery?.state === "done" || uploadsFinished
-        ? "Discovery complete."
-        : notice;
+      : notice.startsWith("Replaced ")
+        ? notice
+        : discovery?.state === "done" || uploadsFinished
+          ? "Discovery complete."
+          : notice;
 
   return (
     <div className="upload-workspace">

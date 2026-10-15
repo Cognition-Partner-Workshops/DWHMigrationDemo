@@ -30,7 +30,7 @@ describe("UploadPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getUploads.mockResolvedValue([]);
-    mocks.uploadFiles.mockResolvedValue([upload]);
+    mocks.uploadFiles.mockResolvedValue({ uploads: [upload], replaced: [] });
     mocks.setUploadSelected.mockResolvedValue({ ...upload, selected: false });
     mocks.deleteUpload.mockResolvedValue({ deleted: true });
     mocks.watchDiscoveryStatus.mockReturnValue(() => undefined);
@@ -95,6 +95,34 @@ describe("UploadPanel", () => {
     await user.click(screen.getByRole("button", { name: "Delete tables.sql" }));
     expect(window.confirm).toHaveBeenCalledWith("Delete tables.sql?");
     expect(mocks.deleteUpload).toHaveBeenCalledWith("upload-1");
+  });
+
+  it("removes replaced upload rows and shows a replacement notice", async () => {
+    const user = userEvent.setup();
+    const onUploadsChange = vi.fn();
+    const replacement = { ...upload, id: "upload-new", rel_path: "tables.sql" };
+    mocks.getUploads.mockResolvedValueOnce([]).mockResolvedValueOnce([upload, replacement]);
+    mocks.uploadFiles.mockResolvedValue({
+      uploads: [replacement],
+      replaced: ["upload-1"],
+    });
+    render(
+      <UploadPanel
+        confirmed
+        onInventoryChanged={vi.fn()}
+        onUploadsChange={onUploadsChange}
+        uploads={[{ ...upload, status: "parsing" }]}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Choose files to upload"), {
+      target: { files: [new File(["select 1"], "tables.sql")] },
+    });
+    await user.click(screen.getByRole("button", { name: "Upload Files" }));
+
+    expect(await screen.findByText("Replaced 1 earlier file with the same path."))
+      .toBeInTheDocument();
+    expect(onUploadsChange).toHaveBeenLastCalledWith([replacement]);
   });
 
   it("replaces the processing notice when discovery completes", async () => {

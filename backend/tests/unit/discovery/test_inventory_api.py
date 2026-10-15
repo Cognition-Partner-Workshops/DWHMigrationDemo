@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import threading
 import time
+import zipfile
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -102,8 +104,21 @@ def test_inventory_api_filters_graph_resource_counts_and_privacy(
         node=ast.Unparsed(),
         file_path=row.rel_path,
     )
+    external = ParsedObject(
+        type="external",
+        schema=None,
+        name="private_external",
+        qualified_name="private_external",
+        start_line=3,
+        end_line=3,
+        status="external",
+        references=[],
+        issues=[],
+        node=ast.Unparsed(),
+        file_path=row.rel_path,
+    )
     session["inventory"].replace_discovery(
-        [table, view],
+        [table, view, external],
         [DiscoveryEdge("private_view", "private_object", "reads", False)],
         session["uploads"],
         {row.rel_path: "\n".join(f"line {i}" for i in range(250))},
@@ -117,6 +132,20 @@ def test_inventory_api_filters_graph_resource_counts_and_privacy(
     page = client.get("/api/inventory?type=table&page=1&page_size=1", headers=headers)
     assert page.status_code == 200
     assert page.json()["total"] == 1
+    assert page.json()["external_total"] == 0
+    all_page = client.get("/api/inventory?page_size=50", headers=headers).json()
+    assert all_page["total"] == 3
+    assert all_page["external_total"] == 1
+    external_page = client.get("/api/inventory?type=external", headers=headers).json()
+    assert external_page["total"] == 1
+    assert external_page["external_total"] == 1
+    assert client.get("/api/inventory?status=parsed", headers=headers).json()["external_total"] == 0
+    assert (
+        client.get("/api/inventory?file=private_upload.sql", headers=headers).json()[
+            "external_total"
+        ]
+        == 1
+    )
     object_id = page.json()["items"][0]["id"]
     assert page.json()["items"][0]["upstream_count"] == 1
     detail = client.get(f"/api/inventory/{object_id}", headers=HOST_HEADER).json()
@@ -138,10 +167,19 @@ def test_inventory_api_filters_graph_resource_counts_and_privacy(
     selected = client.patch(f"/api/uploads/{row.id}", json={"selected": False}, headers=headers)
     assert selected.status_code == 200
     assert client.get("/api/inventory?type=table", headers=HOST_HEADER).json()["total"] == 0
+    assert client.get("/api/inventory", headers=HOST_HEADER).json()["external_total"] == 0
     assert client.get("/api/resources", headers=HOST_HEADER).json()[0]["auto_available"] is False
     assert client.delete(f"/api/uploads/{row.id}", headers=headers).json() == {"deleted": True}
     assert client.get("/api/inventory", headers=HOST_HEADER).json()["total"] == 0
 
+    audit_records = [
+        json.loads(line)
+        for line in (data_dir / "logs" / "audit.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert any(
+        record["action"] == "uploads.deleted" and record["details"]["count"] == 1
+        for record in audit_records
+    )
     for log_path in (data_dir / "logs" / "audit.jsonl", data_dir / "logs" / "access.log"):
         contents = log_path.read_text(encoding="utf-8")
         assert "private_upload.sql" not in contents
@@ -331,3 +369,163 @@ def test_upload_endpoint_queues_discovery_without_logging_names(
         assert "secret_filename.sql" not in contents
         assert "secret_object" not in contents
         assert "CREATE TABLE" not in contents
+
+
+def _zip_bytes(entries: dict[str, bytes]) -> bytes:
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for name, content in entries.items():
+            archive.writestr(name, content)
+    return output.getvalue()
+
+
+def _confirm_teradata(client: TestClient, headers: dict[str, str]) -> None:
+    response = client.post(
+        "/api/session/confirm",
+        json={"source": "teradata", "target": "snowflake"},
+        headers=headers,
+    )
+    assert response.status_code == 200
+
+
+def _wait_for_discovery(client: TestClient) -> dict:
+    for _ in range(1000):
+        status = client.get("/api/discovery/status", headers=HOST_HEADER).json()
+        if status["state"] == "done":
+            return status
+        time.sleep(0.01)
+    raise AssertionError(f"Discovery did not finish: {status}")
+
+
+def test_reuploading_teradata_pack_replaces_previous_inventory(client: TestClient) -> None:
+    csrf = launch(client)
+    headers = _headers(csrf)
+    _confirm_teradata(client, headers)
+    pack_root = Path(__file__).resolve().parents[4] / "testpacks" / "teradata"
+    archive_bytes = io.BytesIO()
+    with zipfile.ZipFile(archive_bytes, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(pack_root.glob("*.sql")):
+            archive.write(path, path.name)
+    pack = archive_bytes.getvalue()
+
+    first = client.post(
+        "/api/uploads",
+        files=[("files", ("teradata-pack.zip", pack, "application/zip"))],
+        headers=headers,
+    )
+    assert first.status_code == 200
+    _wait_for_discovery(client)
+    first_uploads = client.get("/api/uploads", headers=HOST_HEADER).json()
+    first_ids = {row["id"] for row in first_uploads}
+    first_total = client.get("/api/inventory?page_size=300", headers=HOST_HEADER).json()["total"]
+    assert first_uploads
+
+    second = client.post(
+        "/api/uploads",
+        files=[("files", ("teradata-pack.zip", pack, "application/zip"))],
+        headers=headers,
+    )
+    assert second.status_code == 200
+    second_payload = second.json()
+    assert first_ids.issubset(set(second_payload["replaced"]))
+    _wait_for_discovery(client)
+
+    uploads = client.get("/api/uploads", headers=HOST_HEADER).json()
+    page = client.get("/api/inventory?page_size=300", headers=HOST_HEADER).json()
+    assert len(uploads) == len(first_uploads)
+    assert page["total"] == first_total
+    for item in page["items"]:
+        detail = client.get(f"/api/inventory/{item['id']}", headers=HOST_HEADER).json()
+        assert not any(issue["code"] == "ambiguous_reference" for issue in detail["issues"])
+
+
+def test_rejected_duplicate_zip_entry_keeps_existing_copy(client: TestClient) -> None:
+    csrf = launch(client)
+    headers = _headers(csrf)
+    _confirm_teradata(client, headers)
+    good = client.post(
+        "/api/uploads",
+        files=[
+            (
+                "files",
+                (
+                    "same-pack.zip",
+                    _zip_bytes({"tables.sql": b"CREATE TABLE sales.kept_table(id INTEGER);"}),
+                    "application/zip",
+                ),
+            )
+        ],
+        headers=headers,
+    )
+    assert good.status_code == 200
+    good_id = good.json()["uploads"][0]["id"]
+    _wait_for_discovery(client)
+
+    rejected = client.post(
+        "/api/uploads",
+        files=[
+            (
+                "files",
+                ("same-pack.zip", _zip_bytes({"tables.sql": b"x" * 50_000}), "application/zip"),
+            )
+        ],
+        headers=headers,
+    )
+    assert rejected.status_code == 200
+    assert rejected.json()["uploads"][0]["status"] == "rejected"
+    assert rejected.json()["replaced"] == []
+    upload_ids = {row["id"] for row in client.get("/api/uploads", headers=HOST_HEADER).json()}
+    assert good_id in upload_ids
+    items = client.get("/api/inventory?page_size=300", headers=HOST_HEADER).json()["items"]
+    assert any(item["qualified_name"] == "sales.kept_table" for item in items)
+
+
+def test_last_accepted_duplicate_path_in_request_wins(client: TestClient) -> None:
+    csrf = launch(client)
+    headers = _headers(csrf)
+    _confirm_teradata(client, headers)
+    single = client.post(
+        "/api/uploads",
+        files=[
+            (
+                "files",
+                ("same.sql", b"CREATE TABLE sales.baseline_table(id INTEGER);", "text/plain"),
+            )
+        ],
+        headers=headers,
+    )
+    assert single.status_code == 200
+    single_upload_id = single.json()["uploads"][0]["id"]
+    _wait_for_discovery(client)
+    single_total = client.get("/api/inventory", headers=HOST_HEADER).json()["total"]
+    assert single_total == 1
+    assert client.delete(f"/api/uploads/{single_upload_id}", headers=headers).json() == {
+        "deleted": True
+    }
+
+    response = client.post(
+        "/api/uploads",
+        files=[
+            ("files", ("same.sql", b"CREATE TABLE sales.first_table(id INTEGER);", "text/plain")),
+            ("files", ("same.sql", b"CREATE TABLE sales.last_table(id INTEGER);", "text/plain")),
+        ],
+        headers=headers,
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert len(payload["uploads"]) == 1
+    assert payload["replaced"] == []
+    _wait_for_discovery(client)
+    uploads = client.get("/api/uploads", headers=HOST_HEADER).json()
+    assert len(uploads) == 1
+    session = client.app.state.current_session
+    matching_session_rows = [
+        row for row in session["uploads"].values() if row.rel_path == "same.sql"
+    ]
+    assert len(matching_session_rows) == 1
+    items = client.get("/api/inventory?page_size=300", headers=HOST_HEADER).json()["items"]
+    names = {item["qualified_name"] for item in items}
+    assert len(items) == single_total
+    assert "sales.last_table" in names
+    assert "sales.first_table" not in names
+    assert "sales.baseline_table" not in names

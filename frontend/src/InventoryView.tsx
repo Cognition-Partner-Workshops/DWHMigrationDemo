@@ -48,6 +48,7 @@ export function InventoryView({
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<InventoryObject[]>([]);
   const [total, setTotal] = useState(0);
+  const [externalTotal, setExternalTotal] = useState(0);
   const [selectedId, setSelectedId] = useState("");
   const [detail, setDetail] = useState<InventoryDetail | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>("qualified_name");
@@ -80,6 +81,7 @@ export function InventoryView({
         if (!active) return;
         setItems(result.items);
         setTotal(result.total);
+        setExternalTotal(result.external_total ?? 0);
         setError("");
       })
       .catch((loadError: unknown) => {
@@ -219,7 +221,13 @@ export function InventoryView({
           </table>
         </div>
         <div className="inventory-pagination">
-          <span>{loading ? "Loading…" : `${total} objects`}</span>
+          <span>
+            {loading
+              ? "Loading…"
+              : externalTotal > 0
+                ? `${total} objects · ${externalTotal} external reference${externalTotal === 1 ? "" : "s"}`
+                : `${total} objects`}
+          </span>
           <button disabled={page <= 1} onClick={() => setPage((current) => current - 1)} type="button">Previous</button>
           <span>Page {page} of {pages}</span>
           <button disabled={page >= pages} onClick={() => setPage((current) => current + 1)} type="button">Next</button>

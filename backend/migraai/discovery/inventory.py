@@ -196,11 +196,11 @@ class Inventory:
             params.append(f"%{file}%")
         where = " AND ".join(clauses)
         with self.lock:
-            total = self.connection.execute(
-                f"""SELECT count(*) FROM object o LEFT JOIN upload u ON u.id=o.upload_id
-                WHERE {where}""",
+            counts = self.connection.execute(
+                f"""SELECT count(*) AS total, COALESCE(sum(o.external), 0) AS external_total
+                FROM object o LEFT JOIN upload u ON u.id=o.upload_id WHERE {where}""",
                 params,
-            ).fetchone()[0]
+            ).fetchone()
             rows = self.connection.execute(
                 f"""SELECT o.*,
                 (SELECT count(*) FROM dependency d WHERE d.target_id=o.id) AS upstream_count,
@@ -213,7 +213,8 @@ class Inventory:
             "items": [dict(row) for row in rows],
             "page": page,
             "page_size": page_size,
-            "total": total,
+            "total": counts["total"],
+            "external_total": counts["external_total"],
         }
 
     def issue_count(self, upload_id: str) -> int:

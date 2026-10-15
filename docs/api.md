@@ -45,12 +45,12 @@ Discovery endpoints require a confirmed source/target pair and return `409` othe
 
 | Method and path | Behavior |
 |---|---|
-| `POST /api/uploads` | Accepts multipart `files` and returns upload rows. Files are encrypted in the session store; ZIP entries are validated and extracted before discovery. |
+| `POST /api/uploads` | Accepts multipart `files` and returns `uploads` plus `replaced`, the IDs of earlier rows removed because a non-rejected file had the same `rel_path`. Rejected rows never replace an existing copy; the last accepted row wins when a request contains the same path more than once. Files are encrypted in the session store; ZIP entries are validated and extracted before discovery. |
 | `GET /api/uploads` | Returns upload rows with status, selection state, byte size, and object count. |
 | `PATCH /api/uploads/{id}` | Accepts `{"selected":true}` or `{"selected":false}` to include/exclude the file's objects from inventory counts and graph results. |
 | `DELETE /api/uploads/{id}` | Deletes an upload and its inventory objects and dependencies. |
 | `GET /api/discovery/status` | Returns `idle`, `running`, `done`, or `failed` plus file-level progress. |
-| `GET /api/inventory?q=…&type=…&status=…&file=…&page=1&page_size=50` | Returns a paged, filterable inventory. |
+| `GET /api/inventory?q=…&type=…&status=…&file=…&page=1&page_size=50` | Returns a paged, filterable inventory with `total` and the filter-matched `external_total` count. |
 | `GET /api/inventory/{id}` | Returns object details, upstream/downstream dependencies, issues, and a plain-text source preview limited to 200 lines. |
 | `GET /api/graph?object_id=…&depth=1` | Returns the selected object's dependency neighbourhood. Depth is 1–3 and the result is capped at 300 nodes. |
 
