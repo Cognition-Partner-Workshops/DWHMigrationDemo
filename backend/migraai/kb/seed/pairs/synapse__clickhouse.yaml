@@ -1,0 +1,284 @@
+source: synapse
+target: clickhouse
+architecture_overview:
+- text: Dedicated SQL pool uses a scale-out architecture that spreads computational processing across multiple nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: The control node receives queries, optimises them for parallel execution and hands the work to compute nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: ClickHouse is a high-performance, column-oriented SQL DBMS for online analytical processing (OLAP).
+  url: https://clickhouse.com/docs/get-started/about/intro
+  accessed: *id001
+  confidence: high
+- text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+  - text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+  - text: The MergeTree primary key does not reference individual rows but blocks of 8192 rows called granules, keeping the index in memory.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Compute power in dedicated SQL pool is measured and scaled in data warehouse units (DWUs).
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Workload management in dedicated SQL pool uses workload classification, importance and isolation to manage resources.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+    accessed: *id001
+    confidence: high
+  - text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+    accessed: *id001
+    confidence: high
+  - text: ClickHouse supports access control based on RBAC with user accounts, roles, row policies, settings profiles and quotas.
+    url: https://clickhouse.com/docs/concepts/features/security/access-rights
+    accessed: *id001
+    confidence: high
+  - text: A ClickHouse row policy is a filter used to determine which rows a user can read from a table.
+    url: https://clickhouse.com/docs/reference/statements/create/row-policy
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: In dedicated SQL pool compute is separate from storage, so compute can be scaled independently of the data held.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool compute resources can be paused and resumed.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'ClickHouse is a distributed column store like Synapse but with a different data model: export tables to Parquet/CSV, recreate them as MergeTree-family tables with ORDER BY keys (distribution via Distributed tables/shards rather than hash columns), and load via file ingest or the JDBC bridge. Rewrite T-SQL procedures and control flow as queries, materialized views and external jobs — ClickHouse lacks T-SQL procedures.'
+object_mapping:
+- source_object: Distributed table
+  target_object: MergeTree + Distributed engine
+  notes: Hash distribution maps to shard keys over a Distributed table.
+  claim:
+    text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+    accessed: *id001
+    confidence: high
+- source_object: Clustered columnstore index
+  target_object: MergeTree ORDER BY
+  notes: Sparse granule index replaces CCI.
+  claim:
+    text: The MergeTree primary key does not reference individual rows but blocks of 8192 rows called granules, keeping the index in memory.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+- source_object: Stored procedure
+  target_object: None — materialized views/external jobs
+  notes: No stored procedures.
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view
+  notes: CH MVs compute at insert time.
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- source_object: IDENTITY column
+  target_object: No identity — use insert-time generation
+  notes: Generate keys in ingest.
+  claim:
+    text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: Mutations/ReplacingMergeTree
+  notes: Upserts modeled via mutations or replacing engines.
+  claim:
+    text: ReplacingMergeTree deduplicates rows with the same sorting key during merges.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: CREATE TABLE AS SELECT (CTAS) creates and populates a new table from a SELECT in one parallel operation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-ctas
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: *id001
+  confidence: high
+- text: ClickHouse lightweight DELETE is contrasted with the heavyweight ALTER TABLE DELETE mutation.
+  url: https://clickhouse.com/docs/reference/statements/delete
+  accessed: *id001
+  confidence: high
+- text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+  url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+  accessed: *id001
+  confidence: high
+- text: ClickHouse offers fixed-width integer types from Int8 through Int256.
+  url: https://clickhouse.com/docs/reference/data-types/int-uint
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The COPY statement loads data from external storage accounts into Azure Synapse Analytics.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: high
+- text: The jdbc table function queries a remote table via the JDBC driver through a separate clickhouse-jdbc-bridge program.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/jdbc
+  accessed: *id001
+  confidence: high
+- text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: *id001
+  confidence: high
+- text: The jdbc table function queries a remote table via the JDBC driver through a separate clickhouse-jdbc-bridge program.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/jdbc
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+  accessed: *id001
+  confidence: high
+- text: ClickHouse supports access control based on RBAC with user accounts, roles, row policies, settings profiles and quotas.
+  url: https://clickhouse.com/docs/concepts/features/security/access-rights
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse row policy is a filter used to determine which rows a user can read from a table.
+  url: https://clickhouse.com/docs/reference/statements/create/row-policy
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_stored_procedures
+  claim:
+    text: ClickHouse has no T-SQL stored procedures; procedural logic must move to queries, materialized views or the application.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/conditional-functions
+    accessed: *id001
+    confidence: medium
+- id: ufeat_transactions
+  claim:
+    text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: *id001
+    confidence: high
+- id: ufeat_frequent_updates
+  claim:
+    text: ClickHouse lightweight DELETE is contrasted with the heavyweight ALTER TABLE DELETE mutation.
+    url: https://clickhouse.com/docs/reference/statements/delete
+    accessed: *id001
+    confidence: high
+- id: ufeat_dwumanaged_distrib
+  claim:
+    text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_stored_procedures
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- for: ufeat_transactions
+  claim:
+    text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: *id001
+    confidence: high
+- for: ufeat_frequent_updates
+  claim:
+    text: ReplacingMergeTree deduplicates rows with the same sorting key during merges.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+    accessed: *id001
+    confidence: high
+- for: ufeat_dwumanaged_distrib
+  claim:
+    text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: No T-SQL procedures; significant dialect and feature translation.
+  data:
+    level: medium
+    notes: Update-heavy workloads fit poorly; redesign ingestion.
+  security:
+    level: medium
+    notes: Auth and row policies differ from Synapse CLS/RLS model.
+  governance:
+    level: medium
+    notes: Self-managed governance vs Azure platform governance.
+  platform:
+    level: high
+    notes: Capacity model and operational ownership change entirely.
+  operational:
+    level: medium
+    notes: Cluster operations and mutations need new runbooks.
+optimization_hints:
+- text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+- text: The MergeTree primary key does not reference individual rows but blocks of 8192 rows called granules, keeping the index in memory.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+- text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: *id001
+  confidence: high

@@ -1,0 +1,28 @@
+platform: sqlserver
+allowed_hosts:
+- learn.microsoft.com
+seeds:
+- url: https://learn.microsoft.com/en-us/sql/t-sql/language-reference?view=sql-server-ver17
+  path_prefix: /en-us/sql/t-sql/
+  topic: sql-reference
+- url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver17
+  path_prefix: /en-us/sql/t-sql/data-types/
+  topic: sql-data-types
+- url: https://learn.microsoft.com/en-us/sql/t-sql/functions/functions?view=sql-server-ver17
+  path_prefix: /en-us/sql/t-sql/functions/
+  topic: sql-functions
+- url: https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver17
+  path_prefix: /en-us/sql/t-sql/statements/
+  topic: ddl
+- url: https://learn.microsoft.com/en-us/sql/relational-databases/security/security-center-for-sql-server-database-engine-and-azure-sql-database?view=sql-server-ver17
+  path_prefix: /en-us/sql/relational-databases/security/
+  topic: security-access-control
+- url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+  path_prefix: /en-us/sql/relational-databases/indexes/
+  topic: architecture-storage
+- url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+  path_prefix: /en-us/sql/tools/
+  topic: data-movement
+- url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+  path_prefix: /en-us/sql/integration-services/
+  topic: etl-tooling

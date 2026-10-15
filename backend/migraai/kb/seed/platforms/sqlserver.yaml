@@ -1,0 +1,128 @@
+id: sqlserver
+name: Microsoft SQL Server
+roles:
+- source
+versions_covered: SQL Server 2016-2025 (claims cite the current sql-server-ver17 documentation view)
+summary: SQL Server is Microsoft's relational database engine, commonly used for departmental and enterprise data warehouses on a single scale-up instance. Data lives in 8 KB pages in rowstore heaps or clustered indexes, with columnstore indexes for analytic workloads. Logic is written in T-SQL procedures, functions and triggers, and ETL is commonly built in SSIS and scheduled with SQL Server Agent.
+facets:
+  architecture:
+  - text: Transact-SQL (T-SQL) is the SQL dialect used to interact with the SQL Server Database Engine.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/language-reference?view=sql-server-ver17
+    accessed: &id001 2026-10-15
+    confidence: medium
+  - text: The tempdb system database is a global resource shared by all users connected to the instance.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/databases/tempdb-database?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  storage:
+  - text: A page is a fundamental unit of data storage in the SQL Server Database Engine.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: An extent is a group of eight physically contiguous pages.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: A clustered index sorts and stores table rows by its key values, and a table can have only one clustered index.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: A columnstore index stores, retrieves and manages data in a columnar format.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: The max degree of parallelism (MAXDOP) option limits the number of processors used for a parallel plan.
+    url: https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/configure-the-max-degree-of-parallelism-server-configuration-option?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Resource governor manages Database Engine resource consumption and enforces policies for user workloads.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Principals are the entities that can request SQL Server resources.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/principals-database-engine?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Transparent data encryption (TDE) encrypts database data and log files at rest.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Always Encrypted is designed to safeguard sensitive information such as credit card and national identification numbers.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/always-encrypted-database-engine?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Partitioned table and index data is divided into units that can be spread across multiple filegroups or kept in one.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: An Always On availability group replicates a discrete set of user databases to secondary replicas.
+    url: https://learn.microsoft.com/en-us/sql/database-engine/availability-groups/windows/overview-of-always-on-availability-groups-sql-server?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  sql_dialect:
+  - text: TRY...CATCH implements error handling in T-SQL.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: TOP limits the rows returned by a query to a number or percentage of rows.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: MERGE runs insert, update or delete operations on a target table from a join with a source table.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: A common table expression (CTE) is a temporary named result set defined with WITH.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  etl_tooling:
+  - text: SQL Server Integration Services (SSIS) is a platform for building enterprise data integration and transformation solutions.
+    url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: SQL Server Agent is a Windows service that runs scheduled administrative tasks called jobs.
+    url: https://learn.microsoft.com/en-us/ssms/agent/sql-server-agent
+    accessed: *id001
+    confidence: high
+  data_movement:
+  - text: The bcp utility bulk copies data between a SQL Server instance and a data file.
+    url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: BULK INSERT imports a data file into a table or view in a user-specified format.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Change data capture uses SQL Server Agent to log inserts, updates and deletes on a table.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Linked servers let the Database Engine read data from remote data sources and run commands against remote servers.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/linked-servers/linked-servers-database-engine?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+unsupported_features:
+- text: CLR integration lets database objects such as procedures and functions be written in .NET languages.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-integration-overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: System-versioned temporal tables keep a history of every row so data can be queried as of any point in time.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal/overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Indexed views store the view result set on disk with a unique clustered index.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/views/create-indexed-views?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: In-Memory OLTP stores memory-optimized tables and natively compiled modules for transaction processing.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/in-memory-oltp/overview-and-usage-scenarios?view=sql-server-ver17
+  accessed: *id001
+  confidence: high

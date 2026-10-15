@@ -1,0 +1,339 @@
+source: oracle
+target: fabric
+architecture_overview:
+- text: An Oracle database server consists of a database plus at least one database instance.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/introduction-to-oracle-database.html
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+  accessed: *id001
+  confidence: high
+- text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+  accessed: *id001
+  confidence: high
+- text: Fabric Data Warehouse is an enterprise-scale relational warehouse on a data lake foundation.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: *id001
+  confidence: high
+- text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+    accessed: *id001
+    confidence: high
+  - text: Partitioning splits tables, indexes and index-organized tables into smaller pieces that can be managed and accessed individually.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/partition-concepts.html
+    accessed: *id001
+    confidence: high
+  - text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+  - text: V-Order is a write-time optimisation of the Parquet file format for faster reads in Fabric.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Database Resource Manager controls how resources are allocated within a database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/managing-resources-with-oracle-database-resource-manager.html
+    accessed: *id001
+    confidence: high
+  - text: Fabric Data Warehouse is an enterprise-scale relational warehouse on a data lake foundation.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+    accessed: *id001
+    confidence: high
+  - text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+    accessed: *id001
+    confidence: high
+  - text: Microsoft Entra authentication is an alternative to SQL authentication for the warehouse and SQL analytics endpoint.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/entra-id-authentication
+    accessed: *id001
+    confidence: high
+  - text: Row-level security in Fabric uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+    accessed: *id001
+    confidence: high
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Fabric Data Warehouse is an enterprise-scale relational warehouse on a data lake foundation.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+recommended_strategy: Extract Oracle tables via ADF/Fabric pipelines (Oracle connector) or Data Pump export, land them in a Fabric warehouse as Delta-backed tables, and translate PL/SQL to T-SQL (SSMA for Oracle accelerates this on the SQL-family side). Map VPD to row-level security and grants to workspace/item roles; plan around Fabric's T-SQL surface gaps (no triggers, no MVs).
+object_mapping:
+- source_object: Heap-organized table
+  target_object: Warehouse table
+  notes: Tables land as Delta files in OneLake.
+  claim:
+    text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+- source_object: Partitioned table
+  target_object: Warehouse table + V-order
+  notes: Partitioning maps to data layout choices.
+  claim:
+    text: V-Order is a write-time optimisation of the Parquet file format for faster reads in Fabric.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Not supported — precomputed table
+  notes: MVs absent; use tables + pipelines.
+  claim:
+    text: Materialized views are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- source_object: Package (PL/SQL)
+  target_object: Stored procedures (T-SQL)
+  notes: SSMA converts PL/SQL to T-SQL.
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- source_object: Sequence
+  target_object: IDENTITY column
+  notes: Sequences unsupported; use IDENTITY.
+  claim:
+    text: In Fabric Data Warehouse, IDENTITY columns automatically generate new numeric values on insert.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/identity
+    accessed: *id001
+    confidence: high
+- source_object: Synonym
+  target_object: View
+  notes: Synonyms are unsupported in Fabric Warehouse; create views instead.
+  claim:
+    text: Synonyms appear in Fabric Warehouse's T-SQL surface-area unsupported-features list.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: medium
+- source_object: MERGE statement
+  target_object: MERGE
+  notes: MERGE supported in Fabric warehouse.
+  claim:
+    text: The T-SQL MERGE reference applies to Warehouse in Microsoft Fabric and runs insert, update, or delete operations on a target table.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+  accessed: *id001
+  confidence: high
+- text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+  accessed: *id001
+  confidence: high
+- text: The Oracle DATE data type holds both date and time information.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+  accessed: *id001
+  confidence: high
+- text: NVL returns the second argument when the first is null — Oracle's equivalent of COALESCE with two args.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL.html
+  accessed: *id001
+  confidence: high
+- text: DECODE compares an expression to search values one by one — a non-ANSI conditional.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DECODE.html
+  accessed: *id001
+  confidence: high
+- text: LISTAGG orders data within each group and concatenates the measure values.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LISTAGG.html
+  accessed: *id001
+  confidence: high
+- text: Fabric Data Warehouse supports ACID-compliant transactions and enforces snapshot isolation.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/transactions
+  accessed: *id001
+  confidence: high
+- text: CREATE TABLE AS SELECT (CTAS) creates a new Fabric warehouse table from a query.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-tsql
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: Oracle Data Pump moves data and metadata between databases at high speed, using the expdp and impdp clients.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-data-pump-overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle GoldenGate provides real-time data integration, replication and transactional change data capture.
+  url: https://docs.oracle.com/en/middleware/goldengate/core/21.3/coredoc/overview-oracle-goldengate.html
+  accessed: *id001
+  applies_to: Oracle GoldenGate 21.3
+  confidence: high
+- text: The COPY statement provides the highest-throughput code-rich data ingestion into a Fabric warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data
+  accessed: *id001
+  confidence: high
+- text: Pipelines in Fabric Data Factory can ingest data into a Fabric warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-pipelines
+  accessed: *id001
+  confidence: high
+- text: Fabric Mirroring continuously replicates data from existing databases, including SQL Server, into OneLake.
+  url: https://learn.microsoft.com/en-us/fabric/mirroring/overview
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: PL/SQL is Oracle's procedural extension of SQL.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle Scheduler, implemented by the DBMS_SCHEDULER package, controls when and where jobs run.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/oracle-scheduler-concepts.html
+  accessed: *id001
+  confidence: high
+- text: Pipelines in Fabric Data Factory can ingest data into a Fabric warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-pipelines
+  accessed: *id001
+  confidence: high
+- text: The dbt adapter for Fabric Data Warehouse lets existing dbt projects target a Fabric warehouse with a configuration change.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-synapse-dedicated-sql-pool-methods
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+  accessed: *id001
+  confidence: high
+- text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+  accessed: *id001
+  confidence: high
+- text: A user role is a named set of privileges that can be granted to users.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html
+  accessed: *id001
+  confidence: high
+- text: Microsoft Entra authentication is an alternative to SQL authentication for the warehouse and SQL analytics endpoint.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/entra-id-authentication
+  accessed: *id001
+  confidence: high
+- text: Row-level security in Fabric uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+  accessed: *id001
+  confidence: high
+- text: Column-level security restricts column access and is implemented with the GRANT T-SQL statement.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking limits sensitive data exposure by masking it for nonprivileged users.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/dynamic-data-masking
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_triggers
+  claim:
+    text: Triggers are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_materialized_views
+  claim:
+    text: Materialized views are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_recursive_queries
+  claim:
+    text: Recursive queries are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_packages
+  claim:
+    text: A stored package is an encapsulated collection of related procedures, functions and other program objects stored together in the database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-PACKAGE.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_autonomous_transactions
+  claim:
+    text: An autonomous transaction is an independent transaction started from within another (main) transaction.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/autonomous-transactions.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_empty_string_null
+  claim:
+    text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_packages
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- for: ufeat_autonomous_transactions
+  claim:
+    text: Fabric Data Warehouse supports ACID-compliant transactions and enforces snapshot isolation.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/transactions
+    accessed: *id001
+    confidence: high
+- for: ufeat_recursive_queries
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- for: ufeat_triggers
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- for: ufeat_materialized_views
+  claim:
+    text: CREATE TABLE AS SELECT (CTAS) creates a new Fabric warehouse table from a query.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-tsql
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: PL/SQL to T-SQL port plus Fabric surface gaps (no triggers/MVs/recursion).
+  data:
+    level: medium
+    notes: Type mappings (NVARCHAR2→varchar, DATE→datetime2) need review.
+  security:
+    level: medium
+    notes: VPD/roles map to RLS/CLS/Entra model.
+  governance:
+    level: medium
+    notes: Fabric workspace governance replaces schema-level model.
+  platform:
+    level: high
+    notes: Full platform change to SaaS lakehouse.
+  operational:
+    level: medium
+    notes: 'New ops surface: capacity units, pipelines, monitoring.'
+optimization_hints:
+- text: V-Order is a write-time optimisation of the Parquet file format for faster reads in Fabric.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+  accessed: *id001
+  confidence: high
+- text: Fabric Warehouse's query optimizer chooses plans by estimated cost, which requires statistics about the data.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/statistics
+  accessed: *id001
+  confidence: high

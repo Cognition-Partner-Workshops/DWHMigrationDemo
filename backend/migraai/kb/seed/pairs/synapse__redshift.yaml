@@ -1,0 +1,280 @@
+source: synapse
+target: redshift
+architecture_overview:
+- text: Dedicated SQL pool uses a scale-out architecture that spreads computational processing across multiple nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: The control node receives queries, optimises them for parallel execution and hands the work to compute nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: The core infrastructure component of Amazon Redshift is a cluster of one or more compute nodes, coordinated by a leader node.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: *id001
+  confidence: high
+- text: Amazon Redshift Serverless automatically provisions and scales data warehouse capacity.
+  url: https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-serverless.html
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+  - text: With AUTO distribution, Amazon Redshift assigns an optimal distribution style based on the size of the table data.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Compute power in dedicated SQL pool is measured and scaled in data warehouse units (DWUs).
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Workload management in dedicated SQL pool uses workload classification, importance and isolation to manage resources.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+    accessed: *id001
+    confidence: high
+  - text: Automatic WLM manages the resources required to run concurrent queries in Amazon Redshift.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/cm-c-implementing-workload-management.html
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+    accessed: *id001
+    confidence: high
+  - text: Redshift role-based access control (RBAC) applies the principle of least permissions through roles assigned to users.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+    accessed: *id001
+    confidence: high
+  - text: Row-level security policies in Redshift restrict access to particular rows of a table.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: In dedicated SQL pool compute is separate from storage, so compute can be scaled independently of the data held.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool compute resources can be paused and resumed.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Amazon Redshift Serverless automatically provisions and scales data warehouse capacity.
+    url: https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-serverless.html
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'Both are MPP column stores, so the move is conceptually familiar: unload tables to S3 via CETAS/PolyBase export, load with COPY into Redshift tables carrying DISTSTYLE/DISTKEY/SORTKEY, translate T-SQL to Redshift SQL (PostgreSQL-derived), and port procs to Redshift stored procedures. AWS SCT automates much of the schema/code conversion from Azure Synapse.'
+object_mapping:
+- source_object: Distributed table (HASH)
+  target_object: Table with DISTKEY
+  notes: Hash distribution concept maps directly to DISTKEY.
+  claim:
+    text: With AUTO distribution, Amazon Redshift assigns an optimal distribution style based on the size of the table data.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: *id001
+    confidence: high
+- source_object: Clustered columnstore index
+  target_object: Columnar storage + SORTKEY
+  notes: Redshift stores data columnar by default; sort keys replace CCI behavior.
+  claim:
+    text: Redshift stores columnar data in 1 MB disk blocks and sorts rows by SORTKEY so range-restricted predicates can use block min/max metadata.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html
+    accessed: *id001
+    confidence: high
+- source_object: Stored procedure (T-SQL)
+  target_object: Stored procedure (PL/pgSQL)
+  notes: Redshift procedures use a PL/pgSQL-derived dialect.
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE
+  notes: Redshift supports MERGE.
+  claim:
+    text: Amazon Redshift MERGE combines insert, update and delete operations on a target table, including a REMOVE DUPLICATES mode.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+    accessed: *id001
+    confidence: high
+- source_object: IDENTITY column
+  target_object: IDENTITY column
+  notes: Redshift supports IDENTITY surrogate keys.
+  claim:
+    text: A Redshift IDENTITY column contains unique autogenerated INT or BIGINT values.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    accessed: *id001
+    confidence: high
+- source_object: Resource class
+  target_object: WLM queue
+  notes: Fixed resource classes map to workload-management queues.
+  claim:
+    text: Automatic WLM manages the resources required to run concurrent queries in Amazon Redshift.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/cm-c-implementing-workload-management.html
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: CREATE TABLE AS SELECT (CTAS) creates and populates a new table from a SELECT in one parallel operation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-ctas
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: *id001
+  confidence: high
+- text: The T-SQL MERGE reference applies MERGE to dedicated SQL pool with no preview flag; the Synapse overview-features page lists it as 'Yes (preview)' — docs disagree.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: low
+- text: Amazon Redshift MERGE combines insert, update and delete operations on a target table, including a REMOVE DUPLICATES mode.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+  accessed: *id001
+  confidence: high
+- text: Amazon Redshift is based on open standard PostgreSQL, so most SQL client applications work with minimal changes.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: *id001
+  confidence: high
+- text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The COPY statement loads data from external storage accounts into Azure Synapse Analytics.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: high
+- text: The COPY command loads data into a Redshift table from data files in Amazon S3, Amazon EMR, DynamoDB or remote hosts.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+  accessed: *id001
+  confidence: high
+- text: AWS SCT converts schemas, code objects and application code from Azure Synapse Analytics to Amazon Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Source.AzureSynapse.html
+  accessed: *id001
+  confidence: high
+- text: AWS DMS supports a SQL Server database as a source for migrating data to other supported databases, including Redshift.
+  url: https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.SQLServer.html
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: *id001
+  confidence: high
+- text: AWS SCT converts schemas, code objects and application code from Azure Synapse Analytics to Amazon Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Source.AzureSynapse.html
+  accessed: *id001
+  confidence: high
+- text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+  accessed: *id001
+  confidence: high
+- text: Azure Synapse Analytics is a distributed system designed to perform analytics on large data, per Microsoft's migration guide.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/migrate-to-synapse-analytics-guide
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+  accessed: *id001
+  confidence: high
+- text: Redshift role-based access control (RBAC) applies the principle of least permissions through roles assigned to users.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+  accessed: *id001
+  confidence: high
+- text: Row-level security policies in Redshift restrict access to particular rows of a table.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking in Amazon Redshift protects sensitive data through masking policies applied at query time.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_ddm.html
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_tsurface_limits
+  claim:
+    text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: *id001
+    confidence: high
+- id: ufeat_enforced_keys
+  claim:
+    text: Unique, primary key and foreign key constraints in Redshift are informational only — they are not enforced by the system.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_polybase_semantics
+  claim:
+    text: PolyBase with T-SQL commands can load data from Azure Blob Storage into dedicated SQL pool tables.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-load-from-azure-blob-storage-with-polybase
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_tsurface_limits
+  claim:
+    text: Redshift CREATE PROCEDURE creates a new stored procedure or replaces an existing procedure for the database.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    accessed: *id001
+    confidence: high
+- for: ufeat_enforced_keys
+  claim:
+    text: Unique, primary key and foreign key constraints in Redshift are informational only — they are not enforced by the system.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+    accessed: *id001
+    confidence: high
+- for: ufeat_polybase_semantics
+  claim:
+    text: The COPY command loads data into a Redshift table from data files in Amazon S3, Amazon EMR, DynamoDB or remote hosts.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: T-SQL vs PostgreSQL-derived SQL; procedural code must be ported.
+  data:
+    level: medium
+    notes: DISTKEY/SORTKEY choices differ from Synapse distribution heuristics.
+  security:
+    level: medium
+    notes: Auth model changes from Entra/SQL to IAM-based Redshift auth.
+  governance:
+    level: low
+    notes: Align on AWS governance (Lake Formation/CloudTrail).
+  platform:
+    level: medium
+    notes: DWU sizing replaced by node types or serverless RPUs.
+  operational:
+    level: low
+    notes: WLM monitoring replaces DMV-based workload tracking.
+optimization_hints:
+- text: With AUTO distribution, Amazon Redshift assigns an optimal distribution style based on the size of the table data.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+  accessed: *id001
+  confidence: high
+- text: Automatic WLM manages the resources required to run concurrent queries in Amazon Redshift.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/cm-c-implementing-workload-management.html
+  accessed: *id001
+  confidence: high
+- text: Concurrency scaling lets Amazon Redshift support thousands of concurrent users and queries by adding cluster capacity automatically.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+  accessed: *id001
+  confidence: high
+- text: A materialized view in Redshift contains a precomputed result set based on an SQL query over base tables.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+  accessed: *id001
+  confidence: high

@@ -1,0 +1,284 @@
+source: synapse
+target: databricks
+architecture_overview:
+- text: Dedicated SQL pool uses a scale-out architecture that spreads computational processing across multiple nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: The control node receives queries, optimises them for parallel execution and hands the work to compute nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: Each query is divided into 60 smaller queries, one per distribution, that run in parallel.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: Delta Lake is the default format for all tables on Databricks.
+  url: https://docs.databricks.com/aws/en/delta
+  accessed: *id001
+  confidence: high
+- text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+  - text: Delta Lake is the default format for all tables on Databricks.
+    url: https://docs.databricks.com/aws/en/delta
+    accessed: *id001
+    confidence: high
+  - text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Compute power in dedicated SQL pool is measured and scaled in data warehouse units (DWUs).
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Workload management in dedicated SQL pool uses workload classification, importance and isolation to manage resources.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+    accessed: *id001
+    confidence: high
+  - text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+    accessed: *id001
+    confidence: high
+  - text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+    accessed: *id001
+    confidence: high
+  - text: Unity Catalog supports row filters and column masks for fine-grained table access control.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: In dedicated SQL pool compute is separate from storage, so compute can be scaled independently of the data held.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool compute resources can be paused and resumed.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'Move off dedicated SQL pools onto the lakehouse: extract tables (PolyBase/CETAS export or COPY) to ADLS as Parquet, recreate them as Delta tables with liquid clustering, translate T-SQL to Databricks SQL, and rebuild SSIS/pipeline logic in Lakeflow or notebooks. Map security to Unity Catalog and compute to serverless SQL warehouses with predictive I/O management.'
+object_mapping:
+- source_object: Distributed table
+  target_object: Delta table
+  notes: HASH/REPLICATE distribution maps to liquid clustering or default partitioning.
+  claim:
+    text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: *id001
+    confidence: high
+- source_object: Clustered columnstore index
+  target_object: Delta Lake (columnar Parquet)
+  notes: No index DDL; liquid clustering + predictive optimization replace CCI.
+  claim:
+    text: Delta Lake is the default format for all tables on Databricks.
+    url: https://docs.databricks.com/aws/en/delta
+    accessed: *id001
+    confidence: high
+- source_object: Stored procedure (T-SQL)
+  target_object: Databricks SQL procedure/script
+  notes: Procedural SQL scripting exists; rewrite TRY/CATCH and loops.
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view
+  notes: MVs supported in Databricks SQL.
+  claim:
+    text: A standalone materialized view is a Unity Catalog managed table that physically stores the results of a query.
+    url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+    accessed: *id001
+    confidence: high
+- source_object: IDENTITY column
+  target_object: GENERATED ALWAYS AS IDENTITY / identity column
+  notes: Delta supports identity columns.
+  claim:
+    text: Delta Lake identity columns are generated columns that assign unique values for each inserted record.
+    url: https://docs.databricks.com/aws/en/tables/features/generated-columns
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE INTO
+  notes: Databricks MERGE is the canonical upsert.
+  claim:
+    text: MERGE merges updates, insertions and deletions from a source into a target Delta table; it is supported only for Delta Lake tables.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/delta-merge-into
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: CREATE TABLE AS SELECT (CTAS) creates and populates a new table from a SELECT in one parallel operation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-ctas
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool implements ACID transactions with READ UNCOMMITTED as the default isolation level.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-transactions
+  accessed: *id001
+  confidence: high
+- text: MERGE merges updates, insertions and deletions from a source into a target Delta table; it is supported only for Delta Lake tables.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/delta-merge-into
+  accessed: *id001
+  confidence: high
+- text: Databricks uses the LIMIT clause to constrain the number of rows returned by a query.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-limit
+  accessed: *id001
+  confidence: high
+- text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The COPY statement loads data from external storage accounts into Azure Synapse Analytics.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: high
+- text: PolyBase with T-SQL commands can load data from Azure Blob Storage into dedicated SQL pool tables.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-load-from-azure-blob-storage-with-polybase
+  accessed: *id001
+  confidence: high
+- text: Lakeflow Connect provides managed CDC ingestion pipelines from SQL Server into Databricks, in gateway-based or integrated CDC mode.
+  url: https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-overview
+  accessed: *id001
+  confidence: high
+- text: Databricks provides guidance for migrating SQL or Hive ETL workloads to Databricks SQL with minimal refactoring.
+  url: https://docs.databricks.com/aws/en/migration
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: *id001
+  confidence: high
+- text: Lakeflow Connect provides managed CDC ingestion pipelines from SQL Server into Databricks, in gateway-based or integrated CDC mode.
+  url: https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-overview
+  accessed: *id001
+  confidence: high
+- text: Databricks provides guidance for migrating SQL or Hive ETL workloads to Databricks SQL with minimal refactoring.
+  url: https://docs.databricks.com/aws/en/migration
+  accessed: *id001
+  confidence: high
+- text: Azure Synapse Analytics is a distributed system designed to perform analytics on large data, per Microsoft's migration guide.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/migrate-to-synapse-analytics-guide
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+  accessed: *id001
+  confidence: high
+- text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+  accessed: *id001
+  confidence: high
+- text: Unity Catalog supports row filters and column masks for fine-grained table access control.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts and decrypts dedicated SQL pool data at rest.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_dwumanaged_distrib
+  claim:
+    text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: *id001
+    confidence: high
+- id: ufeat_tsurface_limits
+  claim:
+    text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: *id001
+    confidence: high
+- id: ufeat_polybase_semantics
+  claim:
+    text: PolyBase with T-SQL commands can load data from Azure Blob Storage into dedicated SQL pool tables.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-load-from-azure-blob-storage-with-polybase
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_dwumanaged_distrib
+  claim:
+    text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: *id001
+    confidence: high
+- for: ufeat_tsurface_limits
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- for: ufeat_polybase_semantics
+  claim:
+    text: Databricks supports ingesting data through Lakeflow Connect using SQL and Spark APIs.
+    url: https://docs.databricks.com/aws/en/ingestion
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: T-SQL surface differs despite shared syntax; procedure nesting and labels need rewriting.
+  data:
+    level: medium
+    notes: Distribution keys map to clustering decisions that affect performance.
+  security:
+    level: medium
+    notes: CLS/RLS map to Unity Catalog privileges and row filters — full re-model needed.
+  governance:
+    level: medium
+    notes: Unity Catalog replaces Synapse workspace governance.
+  platform:
+    level: high
+    notes: Paradigm shift from MPP appliance model to lakehouse; DWU sizing replaced by warehouse sizing.
+  operational:
+    level: medium
+    notes: Monitoring moves from DMVs to system tables and Lakeflow observability.
+optimization_hints:
+- text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+  url: https://docs.databricks.com/aws/en/tables/clustering
+  accessed: *id001
+  confidence: high
+- text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+  url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+  accessed: *id001
+  confidence: high
+- text: A standalone materialized view is a Unity Catalog managed table that physically stores the results of a query.
+  url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+  accessed: *id001
+  confidence: high

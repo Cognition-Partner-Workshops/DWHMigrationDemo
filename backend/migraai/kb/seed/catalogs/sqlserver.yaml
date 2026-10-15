@@ -1,0 +1,92 @@
+source: sqlserver
+mandatory:
+- id: ddl_tables
+  name: Table DDL
+  description: CREATE TABLE scripts with constraints, indexes, partition schemes and computed columns for in-scope databases.
+  object_types:
+  - table
+  - index
+  - constraint
+  - partition
+  extraction_hint: SSMS Generate Scripts or sqlpackage /Action:Extract (dacpac); inventory via sys.tables, sys.columns, sys.indexes, sys.partition_schemes
+- id: ddl_views
+  name: Views
+  description: View definitions, including indexed (schema-bound) views.
+  object_types:
+  - view
+  extraction_hint: sys.views JOIN sys.sql_modules (definition); OBJECTPROPERTY(object_id, 'IsIndexed')
+- id: procedures_functions
+  name: Stored procedures and functions
+  description: T-SQL stored procedures and scalar, inline and multi-statement table-valued functions.
+  object_types:
+  - procedure
+  - function
+  extraction_hint: sys.sql_modules JOIN sys.objects WHERE type IN ('P','FN','IF','TF'); CLR modules in sys.assemblies / sys.assembly_modules
+- id: triggers
+  name: Triggers
+  description: DML and DDL triggers with their parent objects and events.
+  object_types:
+  - trigger
+  extraction_hint: sys.triggers, sys.trigger_events, sys.sql_modules
+- id: sequences_synonyms
+  name: Sequences, synonyms and user-defined types
+  description: Sequence objects, synonyms and alias/table types referenced by code.
+  object_types:
+  - sequence
+  - synonym
+  - type
+  extraction_hint: sys.sequences, sys.synonyms, sys.types WHERE is_user_defined = 1
+- id: security_objects
+  name: Logins, users, roles and permissions
+  description: Server logins, database users, role memberships and object permissions.
+  object_types:
+  - login
+  - user
+  - role
+  - grant
+  extraction_hint: sys.server_principals, sys.database_principals, sys.database_role_members, sys.database_permissions
+- id: etl_ssis_agent
+  name: SSIS packages and SQL Server Agent jobs
+  description: SSIS projects/packages and Agent jobs, steps and schedules that run ETL.
+  object_types:
+  - etl_package
+  - job
+  extraction_hint: SSISDB.catalog.projects / catalog.packages (export .ispac) or msdb.dbo.sysssispackages; msdb.dbo.sysjobs, sysjobsteps, sysschedules
+- id: linked_servers
+  name: Linked servers
+  description: Linked server definitions used by distributed queries and ETL.
+  object_types:
+  - linked_server
+  extraction_hint: sys.servers WHERE is_linked = 1; sys.linked_logins
+optional:
+- id: statistics_sizes
+  name: Statistics and table sizes
+  description: Row counts, space used and statistics metadata for sizing and distribution design.
+  object_types:
+  - statistics
+  extraction_hint: sys.dm_db_partition_stats, sys.stats, sys.dm_db_stats_properties
+- id: sample_data
+  name: Sample data
+  description: A small, masked sample of rows per table for type and conversion testing.
+  object_types:
+  - sample_data
+  extraction_hint: SELECT TOP (n) * FROM <schema>.<table> TABLESAMPLE (1 PERCENT), masked before export; or bcp queryout
+- id: workload_history
+  name: Query workload history
+  description: Frequently run and expensive queries to prioritise conversion and testing.
+  object_types:
+  - query_log
+  extraction_hint: 'Query Store: sys.query_store_query, sys.query_store_query_text, sys.query_store_runtime_stats; or sys.dm_exec_query_stats'
+- id: security_policies
+  name: Row-level security and masking
+  description: RLS security policies/predicates and dynamic data masking rules.
+  object_types:
+  - security_policy
+  extraction_hint: sys.security_policies, sys.security_predicates, sys.masked_columns
+- id: cdc_config
+  name: CDC and temporal configuration
+  description: Tables enabled for change data capture and system-versioned temporal tables.
+  object_types:
+  - cdc
+  - temporal_table
+  extraction_hint: sys.tables (is_tracked_by_cdc, temporal_type); cdc.change_tables

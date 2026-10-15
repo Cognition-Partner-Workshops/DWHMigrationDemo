@@ -1,0 +1,31 @@
+platform: synapse
+allowed_hosts:
+- learn.microsoft.com
+seeds:
+- url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  path_prefix: /en-us/azure/synapse-analytics/sql-data-warehouse/
+  topic: architecture
+- url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-data-types
+  path_prefix: /en-us/azure/synapse-analytics/sql-data-warehouse/
+  topic: sql-data-types
+- url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/overview-features
+  path_prefix: /en-us/azure/synapse-analytics/sql/
+  topic: sql-reference
+- url: https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=azure-sqldw-latest
+  path_prefix: /en-us/sql/t-sql/statements/
+  topic: ddl
+- url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+  path_prefix: /en-us/azure/synapse-analytics/sql-data-warehouse/
+  topic: security-access-control
+- url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  path_prefix: /en-us/azure/synapse-analytics/sql-data-warehouse/
+  topic: data-loading
+- url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+  path_prefix: /en-us/sql/t-sql/statements/
+  topic: data-loading
+- url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/migrate-to-synapse-analytics-guide
+  path_prefix: /en-us/azure/synapse-analytics/migration-guides/
+  topic: migration-guides
+- url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  path_prefix: /en-us/azure/synapse-analytics/sql-data-warehouse/
+  topic: procedural-language

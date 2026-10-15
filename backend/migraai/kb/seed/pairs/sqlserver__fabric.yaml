@@ -1,0 +1,294 @@
+source: sqlserver
+target: fabric
+architecture_overview:
+- text: A page is a fundamental unit of data storage in the SQL Server Database Engine.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: A columnstore index stores, retrieves and manages data in a columnar format.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Fabric Data Warehouse is an enterprise-scale relational warehouse on a data lake foundation.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: *id001
+  confidence: high
+- text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: A clustered index sorts and stores table rows by its key values, and a table can have only one clustered index.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+  - text: V-Order is a write-time optimisation of the Parquet file format for faster reads in Fabric.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Resource governor manages Database Engine resource consumption and enforces policies for user workloads.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: The Warehouse and SQL analytics endpoint have a user session limit of 2048 per workspace.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/workload-management
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Microsoft Fabric permissions and granular SQL permissions work together to govern warehouse access.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+    accessed: *id001
+    confidence: high
+  - text: Row-level security in Fabric uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Partitioned table and index data is divided into units that can be spread across multiple filegroups or kept in one.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: The Warehouse and SQL analytics endpoint have a user session limit of 2048 per workspace.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/workload-management
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'Both platforms speak T-SQL, so this is the lowest-friction target: use the Fabric Migration Assistant (DACPAC upload) or mirrored databases for near-real-time replication, ingest historical data with COPY INTO, and fix flagged gaps (unsupported types like datetime/nvarchar, triggers, materialized views). Map SQL logins to Microsoft Entra and warehouse/workspace permissions.'
+object_mapping:
+- source_object: Stored procedure (T-SQL)
+  target_object: Stored procedure (T-SQL)
+  notes: Direct port; check surface-area limitations.
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- source_object: Table
+  target_object: Warehouse table (Delta/Parquet in OneLake)
+  notes: Storage layer changes to Delta files.
+  claim:
+    text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+- source_object: Indexed view / materialized view
+  target_object: View
+  notes: Materialized views are not supported.
+  claim:
+    text: Materialized views are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- source_object: Trigger
+  target_object: None — redesign
+  notes: Triggers are not supported in Fabric Warehouse.
+  claim:
+    text: Triggers are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- source_object: Primary key / foreign key
+  target_object: NONCLUSTERED NOT ENFORCED key
+  notes: Keys exist for metadata only.
+  claim:
+    text: PRIMARY KEY, UNIQUE and FOREIGN KEY constraints in Fabric Warehouse are supported only when declared NOT ENFORCED.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+    accessed: *id001
+    confidence: high
+- source_object: CTAS
+  target_object: CREATE TABLE AS SELECT
+  notes: CTAS is supported for table creation from a query.
+  claim:
+    text: CREATE TABLE AS SELECT (CTAS) creates a new Fabric warehouse table from a query.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-tsql
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: TOP limits the rows returned by a query to a number or percentage of rows.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: MERGE runs insert, update or delete operations on a target table from a join with a source table.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: A common table expression (CTE) is a temporary named result set defined with WITH.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: TRY...CATCH implements error handling in T-SQL.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Fabric Data Warehouse supports ACID-compliant transactions and enforces snapshot isolation.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/transactions
+  accessed: *id001
+  confidence: high
+- text: PRIMARY KEY, UNIQUE and FOREIGN KEY constraints in Fabric Warehouse are supported only when declared NOT ENFORCED.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+  accessed: *id001
+  confidence: high
+- text: Triggers are not supported in Fabric Warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The bcp utility bulk copies data between a SQL Server instance and a data file.
+  url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The COPY statement provides the highest-throughput code-rich data ingestion into a Fabric warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data
+  accessed: *id001
+  confidence: high
+- text: Fabric Mirroring continuously replicates data from existing databases, including SQL Server, into OneLake.
+  url: https://learn.microsoft.com/en-us/fabric/mirroring/overview
+  accessed: *id001
+  confidence: high
+- text: Change data capture uses SQL Server Agent to log inserts, updates and deletes on a table.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Pipelines in Fabric Data Factory can ingest data into a Fabric warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-pipelines
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: SQL Server Integration Services (SSIS) is a platform for building enterprise data integration and transformation solutions.
+  url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: The Fabric Migration Assistant migrates a warehouse by uploading a DACPAC file or a zip archive of .sql/.bteq files, then copies data with a copy job.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-assistant
+  accessed: *id001
+  confidence: high
+- text: The dbt adapter for Fabric Data Warehouse lets existing dbt projects target a Fabric warehouse with a configuration change.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-synapse-dedicated-sql-pool-methods
+  accessed: *id001
+  confidence: high
+- text: Microsoft's Synapse-to-Fabric migration planning guide recommends building an inventory of data and processes and automating wherever possible.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-synapse-dedicated-sql-pool-planning
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Row-level security uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Row-level security in Fabric uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking limits sensitive data exposure by masking it to nonprivileged users.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Dynamic data masking limits sensitive data exposure by masking it for nonprivileged users.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/dynamic-data-masking
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts database data and log files at rest.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Microsoft Entra authentication is an alternative to SQL authentication for the warehouse and SQL analytics endpoint.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/entra-id-authentication
+  accessed: *id001
+  confidence: high
+- text: Microsoft Fabric permissions and granular SQL permissions work together to govern warehouse access.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_triggers
+  claim:
+    text: Triggers are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_materialized_views
+  claim:
+    text: Materialized views are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_recursive_queries
+  claim:
+    text: Recursive queries are not supported in Fabric Warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- id: ufeat_clr_assemblies
+  claim:
+    text: CLR integration lets database objects such as procedures and functions be written in .NET languages.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-integration-overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_nvarchar_nchar
+  claim:
+    text: nchar and nvarchar are not supported for Fabric warehouse tables; char/varchar are the documented alternatives.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_triggers
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- for: ufeat_materialized_views
+  claim:
+    text: CREATE TABLE AS SELECT (CTAS) creates a new Fabric warehouse table from a query.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-tsql
+    accessed: *id001
+    confidence: high
+- for: ufeat_recursive_queries
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+- for: ufeat_clr_assemblies
+  claim:
+    text: Fabric Data Warehouse supports T-SQL tables, views, stored procedures, functions, permissions and security roles.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: low
+    notes: Same T-SQL dialect, but a subset of types and features (triggers, MVs, recursion) is missing.
+  data:
+    level: low
+    notes: Unsupported types (datetime, nvarchar, money) need explicit conversion; watch collation/storage differences.
+  security:
+    level: medium
+    notes: Security moves to workspace/item permissions plus granular SQL permissions and Entra auth.
+  governance:
+    level: low
+    notes: OneLake/Fabric governance model centralizes estate.
+  platform:
+    level: medium
+    notes: SaaS capacity model (CU seconds, smoothing/throttling) replaces instance sizing.
+  operational:
+    level: low
+    notes: Session limits (2048/workspace) and throttling need capacity planning.
+optimization_hints:
+- text: V-Order is a write-time optimisation of the Parquet file format for faster reads in Fabric.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+  accessed: *id001
+  confidence: high
+- text: Fabric Warehouse's query optimizer chooses plans by estimated cost, which requires statistics about the data.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/statistics
+  accessed: *id001
+  confidence: high

@@ -1,0 +1,492 @@
+platform: sqlserver
+types:
+- native: bigint
+  canonical: int64
+  notes: 8-byte integer, -2^63 to 2^63-1.
+  claim:
+    text: bigint is an 8-byte exact-number integer data type.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver17
+    accessed: &id001 2026-10-15
+    confidence: high
+- native: int
+  canonical: int32
+  notes: 4-byte integer.
+  claim:
+    text: int is a 4-byte exact-number integer data type in SQL Server.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: smallint
+  canonical: int16
+  notes: 2-byte integer.
+  claim:
+    text: smallint is a 2-byte exact-number integer data type in SQL Server.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: tinyint
+  canonical: int8
+  notes: 1-byte unsigned integer, 0 to 255.
+  claim:
+    text: tinyint is a 1-byte exact-number integer data type in SQL Server.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: decimal(p,s) / numeric(p,s)
+  canonical: decimal
+  notes: Fixed precision and scale, up to 38 digits.
+  claim:
+    text: decimal and numeric are synonyms for a fixed precision and scale numeric type with up to 38 digits.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: float(n)
+  canonical: float64
+  notes: Approximate floating point; float(24) is real-equivalent.
+  claim:
+    text: float is an approximate-number data type for floating point numeric data.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: real
+  canonical: float32
+  notes: Single-precision approximate floating point.
+  claim:
+    text: real is an approximate-number data type for floating point numeric data.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: money
+  canonical: decimal
+  notes: Fixed 19,4 monetary value; map to decimal(19,4).
+  claim:
+    text: money is a data type that represents monetary or currency values.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/money-and-smallmoney-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: smallmoney
+  canonical: decimal
+  notes: Smaller monetary type, precision 10,4; map to decimal(10,4).
+  claim:
+    text: smallmoney is a data type that represents monetary or currency values.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/money-and-smallmoney-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: bit
+  canonical: boolean
+  notes: Integer type taking 1, 0 or NULL; map to boolean or int8.
+  claim:
+    text: bit is an integer data type that can take a value of 1, 0, or NULL.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/bit-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: char(n)
+  canonical: char
+  notes: Fixed-size non-Unicode character data.
+  claim:
+    text: char is a fixed-size character data type.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: varchar(n/max)
+  canonical: varchar
+  notes: Variable-size non-Unicode character data; varchar(max) up to 2 GB.
+  claim:
+    text: varchar is a variable-size character data type.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: nchar(n)
+  canonical: char
+  notes: Fixed-size Unicode (UCS-2/UTF-16) character data.
+  claim:
+    text: nchar is a fixed-size Unicode character data type.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/nchar-and-nvarchar-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: nvarchar(n/max)
+  canonical: varchar
+  notes: Variable-size Unicode character data.
+  claim:
+    text: nvarchar is a variable-size Unicode character data type.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/nchar-and-nvarchar-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: binary(n)
+  canonical: binary
+  notes: Fixed-size binary data.
+  claim:
+    text: binary is a fixed-size binary data type in SQL Server.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: varbinary(n/max)
+  canonical: varbinary
+  notes: Variable-size binary data; varbinary(max) up to 2 GB.
+  claim:
+    text: varbinary is a variable-size binary data type in SQL Server.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: date
+  canonical: date
+  notes: Date only; introduced in SQL Server 2008.
+  claim:
+    text: date defines a date value without a time component in SQL Server.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/date-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: datetime
+  canonical: timestamp
+  notes: Legacy date+time with ~3.33ms accuracy; Microsoft recommends datetime2 for new work.
+  claim:
+    text: datetime defines a date combined with a time of day with fractional seconds based on a 24-hour clock.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: datetime2(n)
+  canonical: timestamp
+  notes: Extension of datetime with larger range and configurable fractional-seconds precision.
+  claim:
+    text: datetime2 defines a date combined with a time of day and can be considered an extension of datetime.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: datetimeoffset(n)
+  canonical: timestamp_tz
+  notes: datetime2 plus a time zone offset.
+  claim:
+    text: datetimeoffset adds time zone awareness to a datetime2-like value.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetimeoffset-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: smalldatetime
+  canonical: timestamp
+  notes: Date+time to minute precision, seconds always zero.
+  claim:
+    text: smalldatetime defines a date combined with a time of day where seconds are always zero.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/smalldatetime-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: time(n)
+  canonical: time
+  notes: Time of day without time zone awareness.
+  claim:
+    text: time defines a time of a day without time zone awareness based on a 24-hour clock.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/time-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: uniqueidentifier
+  canonical: uuid
+  notes: 16-byte GUID.
+  claim:
+    text: uniqueidentifier is a 16-byte GUID.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/uniqueidentifier-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: rowversion
+  canonical: binary
+  notes: Auto-generated 8-byte binary row version stamp; no portable equivalent.
+  claim:
+    text: rowversion exposes automatically generated unique binary numbers used for version-stamping rows.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: sql_variant
+  canonical: other
+  notes: Stores values of various SQL Server types; no portable equivalent.
+  claim:
+    text: sql_variant is a data type that stores values of various SQL Server-supported data types.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/sql-variant-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: hierarchyid
+  canonical: other
+  notes: Variable-length type representing position in a hierarchy; no portable equivalent.
+  claim:
+    text: hierarchyid is a variable-length system data type used to represent position in a hierarchy.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/hierarchyid-data-type-method-reference?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: xml
+  canonical: xml
+  notes: Native XML type with XQuery methods.
+  claim:
+    text: xml is the SQL Server data type that stores XML data.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/xml/xml-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: geography
+  canonical: geography
+  notes: Geodetic spatial type (round-earth).
+  claim:
+    text: geography is a spatial data type that represents data in a round-earth coordinate system.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/spatial-geography/spatial-types-geography-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: geometry
+  canonical: geometry
+  notes: Planar spatial type (flat-earth).
+  claim:
+    text: geometry is a spatial data type that represents data in a Euclidean (flat) coordinate system.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/spatial-geometry/spatial-types-geometry-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: json
+  canonical: json
+  notes: Native JSON type in SQL Server 2025+ / Azure SQL; on older versions JSON is stored as nvarchar.
+  claim:
+    text: The json data type stores JSON documents in a native binary format.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/json-data-type?view=sql-server-ver17
+    accessed: *id001
+    applies_to: SQL Server 2025+
+    confidence: high
+- native: ntext/text/image
+  canonical: other
+  notes: Deprecated LOB types slated for removal; convert to nvarchar(max)/varchar(max)/varbinary(max).
+  claim:
+    text: ntext, text, and image are fixed and variable-length data types for large data that will be removed in a future release.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/data-types/ntext-text-and-image-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+functions:
+- native: ISNULL(a,b)
+  canonical: COALESCE(a,b)
+  notes: Two arguments only; result type rules differ from COALESCE.
+  claim:
+    text: ISNULL replaces NULL with the specified replacement value.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/isnull-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: GETDATE()
+  canonical: CURRENT_TIMESTAMP
+  notes: Returns datetime without time zone offset.
+  claim:
+    text: GETDATE returns the current database system timestamp as a datetime value without the database time zone offset.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/getdate-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: GETUTCDATE()
+  canonical: CURRENT_TIMESTAMP
+  notes: Returns current UTC time as datetime; convert target expression to UTC.
+  claim:
+    text: GETUTCDATE returns the current database system timestamp representing the current UTC time.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/getutcdate-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: SYSDATETIME()
+  canonical: CURRENT_TIMESTAMP
+  notes: Returns datetime2(7) — higher fractional precision than GETDATE.
+  claim:
+    text: SYSDATETIME returns a datetime2(7) value with the date and time of the computer running SQL Server.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/sysdatetime-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: DATEADD(part, n, d)
+  canonical: d + INTERVAL n part
+  notes: ANSI interval arithmetic is the closest; target-specific dateadd functions also exist.
+  claim:
+    text: DATEADD adds a signed integer to a datepart of an input date and returns a modified date/time value.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: DATEDIFF(part, d1, d2)
+  canonical: no ANSI equivalent — boundary-crossing difference
+  notes: Counts datepart boundaries crossed between two dates; semantics differ from simple subtraction.
+  claim:
+    text: DATEDIFF returns the count of the specified datepart boundaries crossed between startdate and enddate.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/datediff-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: DATEPART(part, d)
+  canonical: EXTRACT(part FROM d)
+  notes: ''
+  claim:
+    text: DATEPART returns an integer representing the specified datepart of a date.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/datepart-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: DATENAME(part, d)
+  canonical: CAST(EXTRACT(part FROM d) AS VARCHAR)
+  notes: Returns a localized character string (e.g. month name), not just a number — no exact ANSI equivalent.
+  claim:
+    text: DATENAME returns a character string representing the specified datepart of a date.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/datename-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: YEAR(d)
+  canonical: EXTRACT(YEAR FROM d)
+  notes: ''
+  claim:
+    text: YEAR returns an integer that represents the year of the specified date.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/year-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: DATEFROMPARTS(y,m,d)
+  canonical: CAST(y || '-' || m || '-' || d AS DATE)
+  notes: No ANSI constructor; build a date from integer parts via casting or a target function.
+  claim:
+    text: DATEFROMPARTS returns a date value that maps to the specified year, month, and day values.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/datefromparts-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: EOMONTH(d[, offset])
+  canonical: CAST(DATE_TRUNC('MONTH', d) + INTERVAL '1' MONTH - INTERVAL '1' DAY AS DATE)
+  notes: No ANSI function; last day of the month containing the date, with optional month offset.
+  claim:
+    text: EOMONTH returns the last day of the month containing a specified date, with an optional offset.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/eomonth-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: LEN(s)
+  canonical: CHAR_LENGTH(s)
+  notes: LEN excludes trailing spaces, unlike ANSI length semantics — verify on target.
+  claim:
+    text: LEN returns the number of characters of a string expression, excluding trailing spaces.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: CHARINDEX(sub, s[, start])
+  canonical: POSITION(sub IN s)
+  notes: ANSI POSITION lacks the optional start location.
+  claim:
+    text: CHARINDEX searches for one character expression inside another and returns its starting position.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/charindex-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: SUBSTRING(s, start, len)
+  canonical: SUBSTRING(s FROM start FOR len)
+  notes: ''
+  claim:
+    text: SUBSTRING returns part of a character, binary, text, or image expression.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/substring-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: CONCAT(a,b,...)
+  canonical: a || b || ...
+  notes: SQL Server CONCAT takes two or more arguments and treats NULL as empty string.
+  claim:
+    text: CONCAT returns a string resulting from the concatenation of two or more string values.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/concat-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: STRING_AGG(e, sep)
+  canonical: STRING_AGG(e, sep)
+  notes: Widely supported but not ANSI; WITHIN GROUP ordering differs per target.
+  claim:
+    text: STRING_AGG concatenates the values of string expressions and places separator values between them.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: STRING_SPLIT(s, sep)
+  canonical: no ANSI equivalent — table-valued
+  notes: Table-valued function returning rows of substrings; map to target split/table functions.
+  claim:
+    text: STRING_SPLIT is a table-valued function that splits a string into rows of substrings based on a separator.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: REPLICATE(s, n)
+  canonical: REPEAT(s, n)
+  notes: REPEAT is the near-universal equivalent; not strictly ANSI.
+  claim:
+    text: REPLICATE repeats a string value a specified number of times.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/replicate-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: STUFF(s, start, len, r)
+  canonical: no ANSI equivalent
+  notes: Deletes len characters from s at start and inserts r; expressible with SUBSTRING + concatenation.
+  claim:
+    text: STUFF deletes a specified length of characters in a string at a start position and inserts another string.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/stuff-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: IIF(cond, t, f)
+  canonical: CASE WHEN cond THEN t ELSE f END
+  notes: Shorthand for a searched CASE expression.
+  claim:
+    text: IIF returns one of two values depending on whether the Boolean expression evaluates to true or false.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/logical-functions-iif-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: CHOOSE(i, v1, v2, ...)
+  canonical: no ANSI equivalent — index into a list
+  notes: Returns the item at index i from a list; expressible via CASE.
+  claim:
+    text: CHOOSE returns the item at the specified index from a list of values.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/logical-functions-choose-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: CAST(e AS t) / CONVERT(t, e[, style])
+  canonical: CAST(e AS t)
+  notes: CONVERT's style argument has no ANSI equivalent.
+  claim:
+    text: CAST and CONVERT convert an expression of one data type to another.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: TRY_CAST(e AS t)
+  canonical: CAST(e AS t) — no ANSI try-variant
+  notes: Returns NULL instead of erroring on failed casts; use target-specific safe-cast functions.
+  claim:
+    text: TRY_CAST returns a value cast to the specified data type if the cast succeeds, otherwise null.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/try-cast-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: FORMAT(e, fmt[, culture])
+  canonical: no ANSI equivalent
+  notes: CLR-based locale-aware formatting; map to target format functions.
+  claim:
+    text: FORMAT returns a value formatted with the specified format and optional culture.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/format-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: NEWID()
+  canonical: no ANSI equivalent — use target UUID generator
+  notes: Creates an RFC4122-compliant uniqueidentifier.
+  claim:
+    text: NEWID creates a unique value of type uniqueidentifier compliant with RFC4122.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/newid-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: SCOPE_IDENTITY()
+  canonical: no ANSI equivalent
+  notes: Returns the last identity value inserted in the same scope; target identity semantics differ.
+  claim:
+    text: SCOPE_IDENTITY returns the last identity value inserted into an identity column in the same scope.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/scope-identity-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: JSON_VALUE(json, path)
+  canonical: no ANSI equivalent — JSON path scalar extraction
+  notes: Extracts a scalar value from a JSON string; map to target JSON path functions.
+  claim:
+    text: JSON_VALUE extracts a scalar value from a JSON string.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/json-value-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: ROUND(n, len[, func])
+  canonical: ROUND(n, len)
+  notes: The optional func argument (truncate instead of round) has no ANSI equivalent.
+  claim:
+    text: ROUND returns a numeric value rounded to the specified length or precision.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/round-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: UPPER(s)
+  canonical: UPPER(s)
+  notes: ''
+  claim:
+    text: UPPER returns a character expression with lowercase data converted to uppercase.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/upper-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- native: TRIM(s)
+  canonical: TRIM(s)
+  notes: ''
+  claim:
+    text: TRIM removes leading and trailing spaces from a character string.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/functions/trim-transact-sql?view=sql-server-ver17
+    accessed: *id001
+    confidence: high

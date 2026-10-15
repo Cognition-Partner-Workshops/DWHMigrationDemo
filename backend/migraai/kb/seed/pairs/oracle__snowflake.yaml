@@ -1,0 +1,341 @@
+source: oracle
+target: snowflake
+architecture_overview:
+- text: An Oracle database server consists of a database plus at least one database instance.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/introduction-to-oracle-database.html
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+  accessed: *id001
+  confidence: high
+- text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+  accessed: *id001
+  confidence: high
+- text: Snowflake's architecture is a hybrid of traditional shared-disk and shared-nothing database architectures.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: *id001
+  confidence: high
+- text: Snowflake is a self-managed cloud service with no hardware or software to install, configure or manage.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+    accessed: *id001
+    confidence: high
+  - text: Partitioning splits tables, indexes and index-organized tables into smaller pieces that can be managed and accessed individually.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/partition-concepts.html
+    accessed: *id001
+    confidence: high
+  - text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Database Resource Manager controls how resources are allocated within a database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/managing-resources-with-oracle-database-resource-manager.html
+    accessed: *id001
+    confidence: high
+  - text: Virtual warehouses provide the compute required for queries and all DML operations including data loading.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: *id001
+    confidence: high
+  - text: A warehouse can be resized at any time, even while running, to add or remove compute resources.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+    accessed: *id001
+    confidence: high
+  - text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+    accessed: *id001
+    confidence: high
+  - text: Snowflake access control assigns privileges to roles, which are assigned to users (RBAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: *id001
+    confidence: high
+  - text: Snowflake Dynamic Data Masking uses masking policies to obfuscate column data at query time.
+    url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+    accessed: *id001
+    confidence: high
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Virtual warehouses provide the compute required for queries and all DML operations including data loading.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: *id001
+    confidence: high
+  - text: Multi-cluster warehouses let Snowflake scale compute resources for concurrency needs.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: *id001
+    confidence: high
+recommended_strategy: Extract Oracle tables to cloud storage, recreate them as Snowflake tables (micro-partitioned, clustered as needed), translate PL/SQL with SnowConvert's Oracle translation references, and load via COPY INTO. Replace Resource Manager tuning with warehouse sizing and multi-cluster scaling; map VPD to row access policies and TDE to Snowflake's managed encryption.
+object_mapping:
+- source_object: Heap-organized table
+  target_object: Standard table
+  notes: Snowflake stores in micro-partitions.
+  claim:
+    text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: *id001
+    confidence: high
+- source_object: Partitioned table
+  target_object: Clustered table
+  notes: Partition pruning maps to clustering keys.
+  claim:
+    text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view
+  notes: Snowflake supports MVs.
+  claim:
+    text: A Snowflake materialized view is a pre-computed data set stored for later use, requiring Enterprise Edition.
+    url: https://docs.snowflake.com/en/user-guide/views-materialized
+    accessed: *id001
+    confidence: high
+- source_object: Package (PL/SQL)
+  target_object: Snowflake Scripting procedures
+  notes: No package concept; split into procedures.
+  claim:
+    text: Snowflake stored procedures support branching, looping and other programmatic constructs.
+    url: https://docs.snowflake.com/en/developer-guide/stored-procedure/stored-procedures-overview
+    accessed: *id001
+    confidence: high
+- source_object: Sequence
+  target_object: Sequence/AUTOINCREMENT
+  notes: Snowflake has native sequences.
+  claim:
+    text: Snowflake CREATE SEQUENCE creates a sequence generating sequential, unique numbers (gaps not guaranteed).
+    url: https://docs.snowflake.com/en/sql-reference/sql/create-sequence
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE
+  notes: Snowflake supports MERGE.
+  claim:
+    text: Snowflake MERGE inserts, updates and deletes values in a table based on values in a second table or subquery.
+    url: https://docs.snowflake.com/en/sql-reference/sql/merge
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+  accessed: *id001
+  confidence: high
+- text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+  accessed: *id001
+  confidence: high
+- text: The Oracle DATE data type holds both date and time information.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+  accessed: *id001
+  confidence: high
+- text: NVL returns the second argument when the first is null — Oracle's equivalent of COALESCE with two args.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL.html
+  accessed: *id001
+  confidence: high
+- text: DECODE compares an expression to search values one by one — a non-ANSI conditional.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DECODE.html
+  accessed: *id001
+  confidence: high
+- text: LISTAGG orders data within each group and concatenates the measure values.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LISTAGG.html
+  accessed: *id001
+  confidence: high
+- text: In Snowflake, TOP n and LIMIT count are equivalent clauses.
+  url: https://docs.snowflake.com/en/sql-reference/constructs/top_n
+  accessed: *id001
+  confidence: high
+- text: Snowflake MERGE inserts, updates and deletes values in a table based on values in a second table or subquery.
+  url: https://docs.snowflake.com/en/sql-reference/sql/merge
+  accessed: *id001
+  confidence: high
+- text: SnowConvert provides a translation reference mapping Transact-SQL (SQL Server/Azure Synapse) data types to Snowflake types.
+  url: https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/code-conversion/translation-references/transact/transact-data-types
+  accessed: *id001
+  confidence: medium
+- text: Snowflake transactions guarantee ACID properties and are associated with a single session.
+  url: https://docs.snowflake.com/en/sql-reference/transactions
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: Oracle Data Pump moves data and metadata between databases at high speed, using the expdp and impdp clients.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-data-pump-overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle GoldenGate provides real-time data integration, replication and transactional change data capture.
+  url: https://docs.oracle.com/en/middleware/goldengate/core/21.3/coredoc/overview-oracle-goldengate.html
+  accessed: *id001
+  applies_to: Oracle GoldenGate 21.3
+  confidence: high
+- text: SQL*Loader loads data from external files into Oracle tables.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-sql-loader-concepts.html
+  accessed: *id001
+  confidence: high
+- text: COPY INTO loads data from staged files in cloud storage into a table.
+  url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-table
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: PL/SQL is Oracle's procedural extension of SQL.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle Scheduler, implemented by the DBMS_SCHEDULER package, controls when and where jobs run.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/oracle-scheduler-concepts.html
+  accessed: *id001
+  confidence: high
+- text: A Snowflake task can run on a fixed schedule or be triggered when a stream has new data.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: *id001
+  confidence: high
+- text: A stream object records DML changes (inserts, updates, deletes) made to a table — Snowflake's change data capture.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: *id001
+  confidence: high
+- text: SnowConvert provides a translation reference mapping Transact-SQL (SQL Server/Azure Synapse) data types to Snowflake types.
+  url: https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/code-conversion/translation-references/transact/transact-data-types
+  accessed: *id001
+  confidence: medium
+security_migration:
+- text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+  accessed: *id001
+  confidence: high
+- text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+  accessed: *id001
+  confidence: high
+- text: A user role is a named set of privileges that can be granted to users.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html
+  accessed: *id001
+  confidence: high
+- text: Snowflake access control assigns privileges to roles, which are assigned to users (RBAC).
+  url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+  accessed: *id001
+  confidence: high
+- text: Snowflake Dynamic Data Masking uses masking policies to obfuscate column data at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: *id001
+  confidence: high
+- text: A row access policy is a schema-level object that determines whether a given row can be viewed from SELECT, UPDATE, DELETE or MERGE statements.
+  url: https://docs.snowflake.com/en/user-guide/security-row-intro
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_packages
+  claim:
+    text: A stored package is an encapsulated collection of related procedures, functions and other program objects stored together in the database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-PACKAGE.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_autonomous_transactions
+  claim:
+    text: An autonomous transaction is an independent transaction started from within another (main) transaction.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/autonomous-transactions.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_connect_by
+  claim:
+    text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_rowid
+  claim:
+    text: The ROWID pseudocolumn returns the physical address of each row.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROWID-Pseudocolumn.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_empty_string_null
+  claim:
+    text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_packages
+  claim:
+    text: Snowflake Scripting is an extension to Snowflake SQL that adds procedural logic for stored procedures and UDFs.
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+    accessed: *id001
+    confidence: high
+- for: ufeat_autonomous_transactions
+  claim:
+    text: Snowflake transactions guarantee ACID properties and are associated with a single session.
+    url: https://docs.snowflake.com/en/sql-reference/transactions
+    accessed: *id001
+    confidence: high
+- for: ufeat_connect_by
+  claim:
+    text: Snowflake's CONNECT BY joins a table to itself to process hierarchical data.
+    url: https://docs.snowflake.com/en/sql-reference/constructs/connect-by
+    accessed: *id001
+    confidence: high
+- for: ufeat_rowid
+  claim:
+    text: Snowflake CREATE SEQUENCE creates a sequence generating sequential, unique numbers (gaps not guaranteed).
+    url: https://docs.snowflake.com/en/sql-reference/sql/create-sequence
+    accessed: *id001
+    confidence: high
+- for: ufeat_empty_string_null
+  claim:
+    text: COPY INTO loads data from staged files in cloud storage into a table.
+    url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-table
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: PL/SQL translation is substantial; SnowConvert covers much but manual rework remains.
+  data:
+    level: medium
+    notes: DATE/timestamp and ''=NULL semantics need care.
+  security:
+    level: medium
+    notes: VPD → row access policies; TDE → managed encryption.
+  governance:
+    level: low
+    notes: Role hierarchy must be redesigned.
+  platform:
+    level: medium
+    notes: Instance/RAC concepts replaced by credit-based warehouses.
+  operational:
+    level: low
+    notes: Simpler ops; auto-suspend replaces manual resource management.
+optimization_hints:
+- text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+  url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+  accessed: *id001
+  confidence: high
+- text: Multi-cluster warehouses let Snowflake scale compute resources for concurrency needs.
+  url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+  accessed: *id001
+  confidence: high
+- text: A Snowflake materialized view is a pre-computed data set stored for later use, requiring Enterprise Edition.
+  url: https://docs.snowflake.com/en/user-guide/views-materialized
+  accessed: *id001
+  confidence: high
+- text: A warehouse can be resized at any time, even while running, to add or remove compute resources.
+  url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+  accessed: *id001
+  confidence: high

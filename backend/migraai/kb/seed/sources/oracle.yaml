@@ -1,0 +1,34 @@
+platform: oracle
+allowed_hosts:
+- docs.oracle.com
+seeds:
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/index.html
+  path_prefix: /en/database/oracle/oracle-database/19/sqlrf/
+  topic: sql-reference
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+  path_prefix: /en/database/oracle/oracle-database/19/sqlrf/
+  topic: sql-data-types
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Functions.html
+  path_prefix: /en/database/oracle/oracle-database/19/sqlrf/
+  topic: sql-functions
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html
+  path_prefix: /en/database/oracle/oracle-database/19/sqlrf/
+  topic: ddl
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/overview.html
+  path_prefix: /en/database/oracle/oracle-database/19/lnpls/
+  topic: procedural-language
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/introduction-to-oracle-database-security.html
+  path_prefix: /en/database/oracle/oracle-database/19/dbseg/
+  topic: security-access-control
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-data-pump-overview.html
+  path_prefix: /en/database/oracle/oracle-database/19/sutil/
+  topic: data-movement
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/introduction-to-oracle-database.html
+  path_prefix: /en/database/oracle/oracle-database/19/cncpt/
+  topic: architecture
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/partition-concepts.html
+  path_prefix: /en/database/oracle/oracle-database/19/vldbg/
+  topic: partitioning-parallelism
+- url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dwhsg/basic-materialized-views.html
+  path_prefix: /en/database/oracle/oracle-database/19/dwhsg/
+  topic: data-warehousing
