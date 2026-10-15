@@ -56,12 +56,7 @@ def qname(text: str, *, split: bool = True) -> ast.QualifiedName:
 
 
 def ref_name(target: str) -> ast.QualifiedName:
-    """Qualified name for a local-style ETL reference target.
-
-    The resolver keys objects by ``qualified_name.split(".")``, so a reference
-    to ``jobs/run_all.sh::main`` must carry exactly the parts
-    ``["jobs/run_all", "sh::main"]`` — a raw split on every dot would mis-key it.
-    """
+    """Reference name for a path-like target, split the way the resolver keys objects."""
     return ast.QualifiedName(
         parts=[ast.Identifier(value=part) for part in target.split(".") if part != ""]
     )
