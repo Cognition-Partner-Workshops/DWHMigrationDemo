@@ -153,7 +153,11 @@ def test_events_to_delete_json() -> None:
     data = b'{"j": {"Type": "Job:Command", "Command": "sh x.sh", "eventsToDelete": ["e1"]}}'
     r = parse(data, "x.json")
     job = next(o for o in r.objects if o.name == "j")
-    assert job.node.args.get("events_to_delete") == ["e1"]
+    from migraai.discovery import ast as _ast
+
+    dele = job.node.args.get("events_to_delete")
+    assert isinstance(dele, _ast.ArrayLiteral)
+    assert [i.value for i in dele.items] == ["e1"]
 
 
 def test_sqlscript_and_embedded_dialect() -> None:
@@ -223,3 +227,26 @@ def test_when_schedule_structured() -> None:
     assert sched is not None and sched.name == "controlm.schedule"
     when = sched.args["when"]
     assert when.name == "controlm.when" and "months" in when.args
+
+
+def test_parse_sniffs_xml_directly() -> None:
+    r = parse(XML, "x.xml")
+    assert any(o.type == "job" for o in r.objects)
+    r2 = parse(JSON, "x.json")
+    assert any(o.type == "job" for o in r2.objects)
+
+
+def test_when_nested_collections_typed() -> None:
+    from migraai.discovery import ast as _ast
+
+    data = (
+        b'{"j": {"Type": "Job:Command", "Command": "sh x.sh",'
+        b' "When": {"RuleBasedCalendars": {"MONTH_END": {"Days": ["L1"]}}, "MaxWait": 3}}}'
+    )
+    r = parse(data, "x.json")
+    job = next(o for o in r.objects if o.name == "j")
+    when = job.node.args["schedule"].args["when"]
+    rbc = when.args["rulebasedcalendars"]
+    assert isinstance(rbc, _ast.StructLiteral)
+    assert isinstance(when.args["maxwait"], _ast.Literal)
+    assert when.args["maxwait"].type == "number"

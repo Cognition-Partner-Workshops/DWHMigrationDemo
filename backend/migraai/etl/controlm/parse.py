@@ -11,8 +11,11 @@ from migraai.etl.python.common import (
     EtlBuilder,
     EtlParseResult,
     XmlNode,
+    XmlParseError,
     decode,
+    json_node,
     normalize_path,
+    parse_xml,
     span,
 )
 
@@ -20,9 +23,24 @@ _PCT_VAR = re.compile(r"%%([A-Za-z_][A-Za-z_0-9]*)")
 
 
 def parse(data: bytes, rel_path: str) -> EtlParseResult:
-    """Automation API JSON entry point (XML comes in via parse_deftable)."""
+    """Automation API JSON / DEFTABLE XML entry point."""
     builder = EtlBuilder("controlm", rel_path)
     text = decode(data)
+    if text.lstrip("\ufeff \t\r\n").startswith("<"):
+        from migraai.etl.python.common import file_unparsed
+
+        try:
+            root = parse_xml(data)
+        except XmlParseError as error:
+            builder.issue("error", "malformed_xml", str(error), span(error.line))
+            builder.objects.append(file_unparsed(rel_path, "malformed XML", error.line))
+            return builder.result()
+        if root.local in {"DEFTABLE", "FOLDER", "SMART_FOLDER"}:
+            parse_deftable(root, builder, rel_path)
+        else:
+            builder.issue("warning", "unrecognized_xml", "Not a DEFTABLE document.")
+            builder.objects.append(file_unparsed(rel_path, "unrecognized XML", root.line))
+        return builder.result()
     try:
         payload = json.loads(text)
     except json.JSONDecodeError as error:
@@ -186,11 +204,31 @@ def _shell_command(
     from migraai.etl.shell.parse import extract_invocations, parse_command_line
 
     script = parse_command_line(command, builder.rel_path, line)
-    for stmt_ in script.statements:
-        if isinstance(stmt_, ast.Unparsed) and issues is not None:
-            issues.append(
-                ast.Issue("error", "controlm.syntax", stmt_.reason or "Bad CMDLINE.", span(line))
-            )
+    if issues is not None:
+        seen = False
+        for issue in script.issues:
+            if issue.severity == "error":
+                issues.append(
+                    ast.Issue(
+                        "error",
+                        "controlm.syntax",
+                        issue.message or "Bad CMDLINE.",
+                        span(line),
+                    )
+                )
+                seen = True
+        if not seen:
+            for stmt_ in script.statements:
+                if any(isinstance(n, ast.Unparsed) for n in stmt_.walk()):
+                    issues.append(
+                        ast.Issue(
+                            "error",
+                            "controlm.syntax",
+                            "Bad CMDLINE.",
+                            span(line),
+                        )
+                    )
+                    break
     for invocation in extract_invocations(script.statements, builder.rel_path, script.variables):
         if invocation.kind == "sql" and invocation.text:
             builder.embed(owner, invocation.text, "cmdline", invocation.dialect_hint)
@@ -296,7 +334,7 @@ def _emit_job_json(
         hints.append(builder.ref(str(cond), "etl_reads", span(line)))
     deleted = [str(c) for c in spec.get("eventsToDelete") or []]
     if deleted:
-        args["events_to_delete"] = deleted
+        args["events_to_delete"] = json_node(deleted)
     for cond in spec.get("eventsToAdd") or []:
         hints.append(builder.ref(str(cond), "etl_writes", span(line)))
         if str(cond) not in seen_conditions:
@@ -320,10 +358,7 @@ def _emit_job_json(
     if when:
         when_args: dict = {}
         for key, val in when.items():
-            if isinstance(val, (dict, list)):
-                when_args[key.casefold()] = ast.Identifier(value=json.dumps(val, sort_keys=True))
-            else:
-                when_args[key.casefold()] = ast.Literal(type="string", value=str(val))
+            when_args[key.casefold()] = json_node(val)
         args["schedule"] = ast.DialectExpr(
             name="controlm.schedule",
             args={"when": ast.DialectExpr(name="controlm.when", args=when_args, span=span(line))},

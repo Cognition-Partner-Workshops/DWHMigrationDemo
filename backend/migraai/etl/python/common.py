@@ -423,3 +423,23 @@ __all__ = [
     "redact",
     "span",
 ]
+
+
+def json_node(value: Any) -> ast.Node:
+    """Convert a JSON-derived scalar/collection into typed AST nodes."""
+    if isinstance(value, dict):
+        return ast.StructLiteral(
+            fields=[
+                ast.StructField(name=ast.Identifier(value=str(k)), value=json_node(v))
+                for k, v in value.items()
+            ]
+        )
+    if isinstance(value, list):
+        return ast.ArrayLiteral(items=[json_node(v) for v in value])
+    if value is None:
+        return ast.Literal(type="null", value="null")
+    if isinstance(value, bool):
+        return ast.Literal(type="boolean", value=str(value))
+    if isinstance(value, (int, float)):
+        return ast.Literal(type="number", value=str(value))
+    return ast.Literal(type="string", value=str(value))

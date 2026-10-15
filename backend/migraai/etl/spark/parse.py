@@ -25,6 +25,7 @@ from migraai.etl.python.common import (
     EtlParseResult,
     decode,
     file_unparsed,
+    json_node,
     normalize_path,
     qname,
     span,
@@ -271,24 +272,10 @@ def _spark_submit_object(
     for key in ("args", "jars", "pyFiles", "files", "archives"):
         value = payload.get(key)
         if isinstance(value, list):
-            args[key] = ast.ArrayLiteral(
-                items=[
-                    ast.Literal(type="string", value=str(item))
-                    for item in value
-                    if isinstance(item, (str, int, float))
-                ]
-            )
+            args[key] = json_node(value)
     conf = payload.get("conf") or payload.get("spark_conf")
     if isinstance(conf, dict):
-        args["conf"] = ast.StructLiteral(
-            fields=[
-                ast.StructField(
-                    name=ast.Identifier(value=str(key)),
-                    value=ast.Literal(type="string", value=str(value)),
-                )
-                for key, value in conf.items()
-            ]
-        )
+        args["conf"] = json_node(conf)
     node = ast.DialectStatement(name="spark.submit", args=args, references=refs, span=span(1, 1))
     builder.add("spark_submit", rel_path.replace("\\", "/"), node, 1, 1)
 

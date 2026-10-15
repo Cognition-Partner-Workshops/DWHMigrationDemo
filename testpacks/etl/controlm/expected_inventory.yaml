@@ -82,7 +82,7 @@ objects:
   status: parsed
 - type: job
   qualified_name: RETAIL_RECON.bad_quote
-  status: parsed
+  status: partial
 - type: job
   qualified_name: RETAIL_RECON.legacy_widget
   status: parsed
