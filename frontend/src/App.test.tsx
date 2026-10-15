@@ -69,6 +69,20 @@ function mockApi(
     if (path.endsWith("/api/resources")) {
       return Response.json([]);
     }
+    if (path.endsWith("/api/uploads")) {
+      return Response.json([]);
+    }
+    if (path.endsWith("/api/discovery/status")) {
+      return Response.json({
+        state: "idle",
+        files_total: 0,
+        files_completed: 0,
+        current_file: null,
+      });
+    }
+    if (path.startsWith("/api/inventory?")) {
+      return Response.json({ items: [], page: 1, page_size: 50, total: 0 });
+    }
     if (path.endsWith("/api/kb/status")) {
       return Response.json({
         current_version: 1,
@@ -239,7 +253,7 @@ describe("MigraAI foundation UI", () => {
     });
   });
 
-  it("keeps Upload disabled until confirmation and Convert disabled until upload", async () => {
+  it("keeps Upload disabled until confirmation and Convert disabled until a server upload", async () => {
     const user = userEvent.setup();
     mockApi();
     render(<App />);
@@ -250,7 +264,6 @@ describe("MigraAI foundation UI", () => {
     expect(
       screen.getByText("1. Browse or drop files · 2. Upload Files · 3. Convert Items"),
     ).toBeInTheDocument();
-    expect(upload).toHaveAttribute("title", "Confirm source and target, then add files");
     expect(convert).toHaveAttribute("title", "Upload files first");
     expect(download).toHaveAttribute(
       "title",
@@ -261,22 +274,14 @@ describe("MigraAI foundation UI", () => {
     expect(download).toBeDisabled();
 
     const file = new File(["select 1"], "tables.sql", { type: "text/plain" });
-    fireEvent.change(screen.getByLabelText("Choose migration files"), {
+    fireEvent.change(screen.getByLabelText("Choose files to upload"), {
       target: { files: [file] },
     });
     expect(upload).toBeDisabled();
     await confirmSystems(user);
     expect(upload).toBeEnabled();
     expect(convert).toBeDisabled();
-
-    await user.click(upload);
-    expect(convert).toBeEnabled();
     expect(download).toBeDisabled();
-    await user.click(convert);
-    expect(download).toBeDisabled();
-    expect(
-      await screen.findByText("Preview complete — no conversion was run."),
-    ).toBeInTheDocument();
   });
 
   it("shows the PAT as masked settings metadata, not as an input value", async () => {

@@ -191,7 +191,10 @@ class Inventory:
                 params,
             ).fetchone()[0]
             rows = self.connection.execute(
-                f"""SELECT o.* FROM object o LEFT JOIN upload u ON u.id=o.upload_id
+                f"""SELECT o.*,
+                (SELECT count(*) FROM dependency d WHERE d.target_id=o.id) AS upstream_count,
+                (SELECT count(*) FROM dependency d WHERE d.source_id=o.id) AS downstream_count
+                FROM object o LEFT JOIN upload u ON u.id=o.upload_id
                 WHERE {where} ORDER BY o.qualified_name LIMIT ? OFFSET ?""",
                 (*params, page_size, (page - 1) * page_size),
             ).fetchall()
@@ -201,6 +204,14 @@ class Inventory:
             "page_size": page_size,
             "total": total,
         }
+
+    def issue_count(self, upload_id: str) -> int:
+        with self.lock:
+            return int(
+                self.connection.execute(
+                    "SELECT count(*) FROM issue WHERE upload_id=?", (upload_id,)
+                ).fetchone()[0]
+            )
 
     def detail(self, object_id: str) -> dict[str, Any] | None:
         with self.lock:

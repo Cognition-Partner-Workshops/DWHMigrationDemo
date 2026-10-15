@@ -29,6 +29,9 @@ class DiscoveryRunner:
     def submit(self, upload_id: str) -> None:
         if not self._closed:
             self._queue.put(upload_id)
+            with self._lock:
+                if self._status["state"] not in {"running", "queued"}:
+                    self._status["state"] = "queued"
 
     def status(self) -> dict[str, Any]:
         with self._lock:
@@ -44,7 +47,7 @@ class DiscoveryRunner:
                 self._discover()
             except Exception:
                 with self._lock:
-                    self._status["state"] = "failed"
+                    self._status["state"] = "queued" if self._queue.qsize() else "failed"
                     self._status["current_file"] = None
             finally:
                 self._queue.task_done()
@@ -118,7 +121,7 @@ class DiscoveryRunner:
                     message="File could not be parsed.",
                 )
             with self._lock:
-                self._status["state"] = "done"
+                self._status["state"] = "queued" if self._queue.qsize() else "done"
                 self._status["current_file"] = None
             self.audit.append(
                 "system",

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import type { DragEvent, FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { FormEvent } from "react";
 
 import {
   apiRequest,
@@ -7,16 +7,20 @@ import {
   exchangeLaunchToken,
   getCurrentSession,
   getPlan,
+  getUploads,
   type HealthResponse,
   type Platform,
   type PlatformResponse,
   type SessionView,
   type SettingsResponse,
   type SettingsUpdate,
+  type UploadRecord,
 } from "./api";
 import { KnowledgeBaseSettings } from "./KnowledgeBaseSettings";
+import { InventoryView } from "./InventoryView";
 import { PlanningPanel } from "./PlanningPanel";
 import { ResourcesPanel } from "./ResourcesPanel";
+import { UploadPanel } from "./UploadPanel";
 import logo from "./assets/logo.png";
 
 const EMPTY_SETTINGS: SettingsResponse = {
@@ -29,47 +33,8 @@ const EMPTY_SETTINGS: SettingsResponse = {
   acu_cap_per_run: null,
 };
 
-const MAX_FILE_BYTES = 100 * 1024 * 1024;
 // Enable when a later phase produces real converted output.
 const downloadAvailable = false;
-const ALLOWED_EXTENSIONS = new Set([
-  ".sql",
-  ".ddl",
-  ".txt",
-  ".zip",
-  ".xml",
-  ".dtsx",
-  ".dsx",
-  ".py",
-  ".sh",
-  ".scala",
-  ".json",
-  ".yaml",
-  ".yml",
-  ".infa",
-]);
-
-type FileRow = {
-  id: string;
-  file: File;
-  status: "Pending" | "Accepted" | "Error" | "Preview complete";
-  message: string;
-};
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(bytes < 10 * 1024 ? 1 : 0)} KB`;
-  }
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function extensionOf(fileName: string): string {
-  const index = fileName.lastIndexOf(".");
-  return index < 0 ? "" : fileName.slice(index).toLowerCase();
-}
 
 function SectionTitle({
   number,
@@ -282,15 +247,25 @@ export default function App() {
   const [sessionConfirmed, setSessionConfirmed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [session, setSession] = useState<SessionView | null>(null);
-  const [files, setFiles] = useState<FileRow[]>([]);
-  const [hasUploaded, setHasUploaded] = useState(false);
+  const [uploads, setUploads] = useState<UploadRecord[]>([]);
+  const [inventoryRevision, setInventoryRevision] = useState(0);
+  const [workspaceTab, setWorkspaceTab] = useState<"planning" | "inventory">("planning");
   const [converted, setConverted] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const fileInput = useRef<HTMLInputElement>(null);
   const mainRef = useRef<HTMLElement | null>(null);
   const planningSectionRef = useRef<HTMLElement | null>(null);
+  const updateUploads = useCallback((next: UploadRecord[]) => setUploads(next), []);
+  const refreshInventory = useCallback(
+    () => setInventoryRevision((current) => current + 1),
+    [],
+  );
+  const hasUploaded = uploads.some((row) => row.status !== "rejected");
+  const objectCount = uploads.reduce(
+    (total, row) => total + (row.selected ? row.object_count : 0),
+    0,
+  );
 
   useEffect(() => {
     let active = true;
@@ -318,9 +293,13 @@ export default function App() {
       if (!active) {
         return;
       }
-      let restoredPlan = null;
+      let restoredPlan: SessionView["plan"] = null;
+      let restoredUploads: UploadRecord[] = [];
       if (currentSession?.confirmed && currentSession.source && currentSession.target) {
-        restoredPlan = await getPlan().catch(() => null);
+        [restoredPlan, restoredUploads] = await Promise.all([
+          getPlan().catch(() => null),
+          getUploads().catch(() => []),
+        ]);
       }
       if (!active) {
         return;
@@ -346,6 +325,7 @@ export default function App() {
           target: currentSession.target,
           plan: restoredPlan,
         });
+        setUploads(restoredUploads);
       }
     }
     void bootstrap();
@@ -361,16 +341,6 @@ export default function App() {
       !confirming &&
       (source !== confirmedPair?.source || target !== confirmedPair?.target),
   );
-  const canUpload =
-    sessionConfirmed &&
-    !hasUploaded &&
-    files.some(
-      (row) =>
-        row.status !== "Error" &&
-        row.file.size <= MAX_FILE_BYTES &&
-        ALLOWED_EXTENSIONS.has(extensionOf(row.file.name)),
-    );
-
   async function confirmSystems() {
     if (!canConfirm) {
       return;
@@ -382,6 +352,10 @@ export default function App() {
       setSession({ source: response.source, target: response.target, plan: response.plan });
       setConfirmedPair({ source: response.source, target: response.target });
       setSessionConfirmed(true);
+      setUploads([]);
+      setInventoryRevision((current) => current + 1);
+      setWorkspaceTab("planning");
+      setConverted(false);
       requestAnimationFrame(() => {
         const main = mainRef.current;
         const planningSection = planningSectionRef.current;
@@ -394,13 +368,6 @@ export default function App() {
           });
         }
       });
-      setFiles((current) =>
-        current.map((row) =>
-          row.status === "Pending"
-            ? { ...row, message: "Ready to upload after confirmation." }
-            : row,
-        ),
-      );
       setNotice("Source and target confirmed. Migration planning has started.");
     } catch (confirmError) {
       setError(confirmError instanceof Error ? confirmError.message : "Could not confirm systems.");
@@ -409,79 +376,12 @@ export default function App() {
     }
   }
 
-  function addFiles(fileList: FileList | File[]) {
-    const incoming = Array.from(fileList);
-    setFiles((current) => {
-      const known = new Set(current.map((row) => `${row.file.name}:${row.file.size}`));
-      const rows = incoming
-        .filter((file) => !known.has(`${file.name}:${file.size}`))
-        .map((file, index): FileRow => {
-          const id = `${file.name}-${file.size}-${file.lastModified}-${current.length + index}`;
-          if (file.size > MAX_FILE_BYTES) {
-            return { id, file, status: "Error", message: "File exceeds the 100 MB limit." };
-          }
-          if (!ALLOWED_EXTENSIONS.has(extensionOf(file.name))) {
-            return { id, file, status: "Error", message: "Unsupported file format." };
-          }
-          return {
-            id,
-            file,
-            status: "Pending",
-            message: sessionConfirmed ? "Ready to upload." : "Confirm source and target first.",
-          };
-        });
-      return [...current, ...rows];
-    });
-    setHasUploaded(false);
-    setConverted(false);
-    setNotice("");
-  }
-
-  function uploadFiles() {
-    const hasAcceptedFiles = files.some(
-      (row) =>
-        row.status !== "Error" &&
-        row.file.size <= MAX_FILE_BYTES &&
-        ALLOWED_EXTENSIONS.has(extensionOf(row.file.name)),
-    );
-    setFiles((current) =>
-      current.map((row) =>
-        row.status === "Error"
-          ? row
-          : { ...row, status: "Accepted", message: "Ready for conversion (local Phase 1 preview)." },
-      ),
-    );
-    setHasUploaded(hasAcceptedFiles);
-    setNotice(
-      hasAcceptedFiles
-        ? "Files are listed locally only; upload services are planned for a later phase."
-        : "Choose a supported file no larger than 100 MB.",
-    );
-  }
-
   function previewConversion() {
     if (!hasUploaded) {
       return;
     }
-    setFiles((current) =>
-      current.map((row) =>
-        row.status === "Accepted"
-          ? {
-              ...row,
-              status: "Preview complete",
-              message: "Preview complete — no conversion was run.",
-            }
-          : row,
-      ),
-    );
     setConverted(true);
     setNotice("This Phase 1 preview does not generate converted files.");
-  }
-
-  function removeFile(id: string) {
-    setFiles((current) => current.filter((row) => row.id !== id));
-    setHasUploaded(false);
-    setConverted(false);
   }
 
   async function saveSettings(updates: SettingsUpdate) {
@@ -495,12 +395,6 @@ export default function App() {
     );
   }
 
-  function acceptDrop(event: DragEvent<HTMLDivElement>) {
-    event.preventDefault();
-    if (event.dataTransfer.files.length) {
-      addFiles(event.dataTransfer.files);
-    }
-  }
 
   return (
     <div className="app-shell">
@@ -603,25 +497,71 @@ export default function App() {
         </section>
 
         <section
-          aria-labelledby="planning-heading"
+          aria-label="Migration Planning"
           className="panel planning-panel"
           ref={planningSectionRef}
         >
-          <div className="panel-heading">
-            <SectionTitle
-              description="Comprehensive analysis and step-by-step migration plan"
-              headingId="planning-heading"
-              number="2"
-              title="Migration Planning"
-            />
-            <span className="phase-chip">Phase 2</span>
+          <div className="panel-heading workspace-heading">
+            <div aria-label="Workspace views" className="workspace-tabs" role="tablist">
+              <button
+                aria-controls="planning-panel"
+                aria-selected={workspaceTab === "planning"}
+                className="workspace-tab"
+                id="planning-tab"
+                onClick={() => setWorkspaceTab("planning")}
+                role="tab"
+                type="button"
+              >
+                <span className="section-number">2</span>
+                Migration Planning
+              </button>
+              <button
+                aria-controls="inventory-panel"
+                aria-selected={workspaceTab === "inventory"}
+                className="workspace-tab"
+                disabled={objectCount === 0}
+                id="inventory-tab"
+                onClick={() => setWorkspaceTab("inventory")}
+                role="tab"
+                type="button"
+              >
+                Inventory
+                {objectCount > 0 && <span className="tab-count">{objectCount}</span>}
+              </button>
+            </div>
+            <span className="phase-chip">Phase 3</span>
           </div>
-          <PlanningPanel
-            confidenceThreshold={settings.confidence_threshold}
-            session={sessionConfirmed ? session : null}
-            sourceName={platforms.sources.find((item) => item.id === session?.source)?.name ?? ""}
-            targetName={platforms.targets.find((item) => item.id === session?.target)?.name ?? ""}
-          />
+          {workspaceTab === "planning" ? (
+            <div
+              aria-labelledby="planning-tab"
+              className="workspace-tabpanel planning-tabpanel"
+              id="planning-panel"
+              role="tabpanel"
+            >
+              <PlanningPanel
+                confidenceThreshold={settings.confidence_threshold}
+                session={sessionConfirmed ? session : null}
+                sourceName={
+                  platforms.sources.find((item) => item.id === session?.source)?.name ?? ""
+                }
+                targetName={
+                  platforms.targets.find((item) => item.id === session?.target)?.name ?? ""
+                }
+              />
+            </div>
+          ) : (
+            <div
+              aria-labelledby="inventory-tab"
+              className="workspace-tabpanel inventory-tabpanel"
+              id="inventory-panel"
+              role="tabpanel"
+            >
+              <InventoryView
+                revision={inventoryRevision}
+                uploads={uploads}
+              />
+            </div>
+          )}
         </section>
 
         <section aria-labelledby="resources-heading" className="panel resources-panel">
@@ -645,15 +585,6 @@ export default function App() {
               title="Convert Objects"
             />
             <div className="convert-actions">
-              <button
-                className="button upload-button"
-                disabled={!canUpload}
-                onClick={uploadFiles}
-                title={canUpload ? undefined : "Confirm source and target, then add files"}
-                type="button"
-              >
-                <span aria-hidden="true">⇧</span> Upload Files
-              </button>
               <button
                 className="button primary"
                 disabled={!hasUploaded || converted}
@@ -687,87 +618,13 @@ export default function App() {
             </svg>
             Converted objects and their context are sent to Devin cloud for conversion.
           </p>
-          <div className="convert-content">
-            <div
-              className="drop-zone"
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={acceptDrop}
-            >
-              <input
-                accept=".sql,.ddl,.txt,.zip,.xml,.dtsx,.dsx,.py,.sh,.scala,.json,.yaml,.yml,.infa"
-                aria-label="Choose migration files"
-                className="visually-hidden"
-                multiple
-                onChange={(event) => {
-                  if (event.target.files) {
-                    addFiles(event.target.files);
-                    event.target.value = "";
-                  }
-                }}
-                ref={fileInput}
-                type="file"
-              />
-              <span aria-hidden="true" className="upload-cloud">⇧</span>
-              <strong>Drag and drop files here</strong>
-              <span>or click to select files</span>
-              <button className="browse-button" onClick={() => fileInput.current?.click()} type="button">
-                Browse files
-              </button>
-              <small>Supported: SQL, DDL, TXT, ETL exports, ZIP (Max 100 MB)</small>
-            </div>
-            <div className="inventory">
-              <div className="inventory-title">
-                <strong>File Upload &amp; Conversion Status</strong>
-                {files.length > 0 && <span>{files.length} file{files.length === 1 ? "" : "s"}</span>}
-              </div>
-              <div className="table-scroll inventory-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>File Name</th>
-                      <th>Size</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Message</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {files.length === 0 ? (
-                      <tr>
-                        <td className="empty-table" colSpan={6}>No files selected.</td>
-                      </tr>
-                    ) : (
-                      files.map((row) => (
-                        <tr key={row.id}>
-                          <td className="file-name">{row.file.name}</td>
-                          <td>{formatSize(row.file.size)}</td>
-                          <td>{extensionOf(row.file.name) || "—"}</td>
-                          <td>
-                            <span className={`file-status ${row.status.toLowerCase().replaceAll(" ", "-")}`}>
-                              {row.status}
-                            </span>
-                          </td>
-                          <td>{row.message}</td>
-                          <td>
-                            <button
-                              aria-label={`Remove ${row.file.name}`}
-                              className="row-action"
-                              onClick={() => removeFile(row.id)}
-                              type="button"
-                            >
-                              ×
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              {notice && <p className="inline-notice" role="status">{notice}</p>}
-            </div>
-          </div>
+          <UploadPanel
+            confirmed={sessionConfirmed}
+            onInventoryChanged={refreshInventory}
+            onUploadsChange={updateUploads}
+            uploads={uploads}
+          />
+          {notice && <p className="inline-notice" role="status">{notice}</p>}
         </section>
       </main>
 

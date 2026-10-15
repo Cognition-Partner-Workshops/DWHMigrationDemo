@@ -26,6 +26,11 @@ def _row(request: Request, upload_id: str) -> UploadRow:
     return row
 
 
+def _upload_dict(request: Request, row: UploadRow) -> dict[str, object]:
+    inventory = _session(request)["inventory"]
+    return {**row.to_dict(), "issue_count": inventory.issue_count(row.id)}
+
+
 class UploadSelection(BaseModel):
     selected: bool
 
@@ -62,13 +67,13 @@ def post_uploads(request: Request, files: list[UploadFile] = FILES_FIELD) -> dic
             "sha256": digest,
         },
     )
-    return {"uploads": [row.to_dict() for row in rows]}
+    return {"uploads": [_upload_dict(request, row) for row in rows]}
 
 
 @router.get("/uploads")
 def get_uploads(request: Request) -> list[dict[str, object]]:
     session = _session(request)
-    return [row.to_dict() for row in session.get("uploads", {}).values()]
+    return [_upload_dict(request, row) for row in session.get("uploads", {}).values()]
 
 
 @router.patch("/uploads/{upload_id}")
@@ -77,7 +82,7 @@ def patch_upload(upload_id: str, payload: UploadSelection, request: Request) -> 
     row = _row(request, upload_id)
     row.selected = payload.selected
     session["inventory"].set_selected(upload_id, payload.selected)
-    return row.to_dict()
+    return _upload_dict(request, row)
 
 
 @router.delete("/uploads/{upload_id}")

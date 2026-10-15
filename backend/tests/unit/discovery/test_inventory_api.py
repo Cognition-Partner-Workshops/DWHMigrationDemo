@@ -106,10 +106,17 @@ def test_inventory_api_filters_graph_resource_counts_and_privacy(
         session["uploads"],
         {row.rel_path: "\n".join(f"line {i}" for i in range(250))},
     )
+    session["inventory"].add_issue(
+        row.id,
+        severity="warning",
+        code="test_warning",
+        message="A sample issue.",
+    )
     page = client.get("/api/inventory?type=table&page=1&page_size=1", headers=headers)
     assert page.status_code == 200
     assert page.json()["total"] == 1
     object_id = page.json()["items"][0]["id"]
+    assert page.json()["items"][0]["upstream_count"] == 1
     detail = client.get(f"/api/inventory/{object_id}", headers=HOST_HEADER).json()
     assert len(detail["source_preview"].splitlines()) == 200
     graph = client.get(f"/api/graph?object_id={object_id}&depth=1", headers=HOST_HEADER).json()
@@ -122,7 +129,10 @@ def test_inventory_api_filters_graph_resource_counts_and_privacy(
         "get_catalog",
         lambda *args, **kwargs: [{"id": "r1", "object_types": ["table"]}],
     )
-    assert client.get("/api/resources", headers=HOST_HEADER).json()[0]["count"] == 1
+    resources = client.get("/api/resources", headers=HOST_HEADER).json()
+    assert resources[0]["count"] == 1
+    assert resources[0]["available"] is True
+    assert client.get("/api/uploads", headers=HOST_HEADER).json()[0]["issue_count"] == 1
     selected = client.patch(f"/api/uploads/{row.id}", json={"selected": False}, headers=headers)
     assert selected.status_code == 200
     assert client.get("/api/inventory?type=table", headers=HOST_HEADER).json()["total"] == 0

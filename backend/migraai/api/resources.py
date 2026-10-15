@@ -36,12 +36,14 @@ def list_resources(request: Request) -> list[dict]:
     result = []
     for row in rows:
         count = session["inventory"].count_types(row["object_types"])
+        resource_id = str(row["id"])
+        auto_available = count > 0
         result.append(
             {
                 **row,
-                "available": bool(available.get(str(row["id"]), False)),
+                "available": bool(available.get(resource_id, auto_available)),
                 "count": count,
-                "auto_available": count > 0,
+                "auto_available": auto_available,
                 "status": "Available" if count else "Awaiting upload",
             }
         )
