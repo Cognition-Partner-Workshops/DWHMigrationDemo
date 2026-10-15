@@ -1,0 +1,147 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 62
+  },
+  "routine_kind": "procedure",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 18,
+      "end_line": 1,
+      "end_col": 29
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 18,
+          "end_line": 1,
+          "end_col": 21
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 22,
+          "end_line": 1,
+          "end_col": 29
+        },
+        "value": "refresh",
+        "quoted": false
+      }
+    ]
+  },
+  "params": [
+    {
+      "kind": "routine_param",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 30,
+          "end_line": 1,
+          "end_col": 33
+        },
+        "value": "@id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 37
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 34,
+            "end_line": 1,
+            "end_col": 37
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 34,
+                "end_line": 1,
+                "end_col": 37
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "body": {
+    "kind": "block",
+    "span": {
+      "start_line": 1,
+      "start_col": 41,
+      "end_line": 1,
+      "end_col": 46
+    },
+    "statements": [
+      {
+        "kind": "query",
+        "span": {
+          "start_line": 1,
+          "start_col": 47,
+          "end_line": 1,
+          "end_col": 57
+        },
+        "body": {
+          "kind": "select",
+          "span": {
+            "start_line": 1,
+            "start_col": 47,
+            "end_line": 1,
+            "end_col": 53
+          },
+          "distinct": false,
+          "projections": [
+            {
+              "kind": "select_item",
+              "span": {
+                "start_line": 1,
+                "start_col": 54,
+                "end_line": 1,
+                "end_col": 57
+              },
+              "expr": {
+                "kind": "variable",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 54,
+                  "end_line": 1,
+                  "end_col": 57
+                },
+                "name": "@id"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

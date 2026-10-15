@@ -1,0 +1,244 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 87
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 23
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 17
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 18,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "Child",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 25,
+          "end_line": 1,
+          "end_col": 27
+        },
+        "value": "id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 28,
+          "end_line": 1,
+          "end_col": 31
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 28,
+            "end_line": 1,
+            "end_col": 31
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 28,
+                "end_line": 1,
+                "end_col": 31
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "identity": {
+        "kind": "dialect_expr",
+        "span": {
+          "start_line": 1,
+          "start_col": 32,
+          "end_line": 1,
+          "end_col": 40
+        },
+        "name": "identity",
+        "args": {
+          "args": [
+            {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 41,
+                "end_line": 1,
+                "end_col": 42
+              },
+              "type": "number",
+              "value": "1"
+            },
+            {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 43,
+                "end_line": 1,
+                "end_col": 44
+              },
+              "type": "number",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 47,
+          "end_line": 1,
+          "end_col": 56
+        },
+        "value": "parent_id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 57,
+          "end_line": 1,
+          "end_col": 60
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 57,
+            "end_line": 1,
+            "end_col": 60
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 57,
+                "end_line": 1,
+                "end_col": 60
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "constraints": [
+        {
+          "kind": "column_constraint",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "constraint_kind": "foreign_key",
+          "ref_table": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 72,
+              "end_line": 1,
+              "end_col": 82
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 72,
+                  "end_line": 1,
+                  "end_col": 75
+                },
+                "value": "dbo",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 76,
+                  "end_line": 1,
+                  "end_col": 82
+                },
+                "value": "Parent",
+                "quoted": false
+              }
+            ]
+          },
+          "ref_columns": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 83,
+                "end_line": 1,
+                "end_col": 85
+              },
+              "value": "id",
+              "quoted": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "temporary": false,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false
+}

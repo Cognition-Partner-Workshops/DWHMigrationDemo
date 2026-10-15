@@ -1,0 +1,122 @@
+{
+  "kind": "if",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 46
+  },
+  "branches": [
+    [
+      {
+        "kind": "binary",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "op": ">",
+        "left": {
+          "kind": "variable",
+          "span": {
+            "start_line": 1,
+            "start_col": 4,
+            "end_line": 1,
+            "end_col": 7
+          },
+          "name": "@id"
+        },
+        "right": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 10,
+            "end_line": 1,
+            "end_col": 11
+          },
+          "type": "number",
+          "value": "0"
+        }
+      },
+      [
+        {
+          "kind": "block",
+          "span": {
+            "start_line": 1,
+            "start_col": 12,
+            "end_line": 1,
+            "end_col": 17
+          },
+          "statements": [
+            {
+              "kind": "dialect_statement",
+              "span": {
+                "start_line": 1,
+                "start_col": 18,
+                "end_line": 1,
+                "end_col": 27
+              },
+              "name": "print",
+              "args": {
+                "expr": {
+                  "kind": "variable",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 24,
+                    "end_line": 1,
+                    "end_col": 27
+                  },
+                  "name": "@id"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  ],
+  "else_": [
+    {
+      "kind": "query",
+      "span": {
+        "start_line": 1,
+        "start_col": 38,
+        "end_line": 1,
+        "end_col": 46
+      },
+      "body": {
+        "kind": "select",
+        "span": {
+          "start_line": 1,
+          "start_col": 38,
+          "end_line": 1,
+          "end_col": 44
+        },
+        "distinct": false,
+        "projections": [
+          {
+            "kind": "select_item",
+            "span": {
+              "start_line": 1,
+              "start_col": 45,
+              "end_line": 1,
+              "end_col": 46
+            },
+            "expr": {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 45,
+                "end_line": 1,
+                "end_col": 46
+              },
+              "type": "number",
+              "value": "0"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

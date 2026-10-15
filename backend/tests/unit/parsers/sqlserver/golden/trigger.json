@@ -1,0 +1,171 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 88
+  },
+  "routine_kind": "trigger",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 16,
+      "end_line": 1,
+      "end_col": 23
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 20,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "trg",
+        "quoted": false
+      }
+    ]
+  },
+  "body": {
+    "kind": "block",
+    "span": {
+      "start_line": 1,
+      "start_col": 54,
+      "end_line": 1,
+      "end_col": 59
+    },
+    "statements": [
+      {
+        "kind": "query",
+        "span": {
+          "start_line": 1,
+          "start_col": 60,
+          "end_line": 1,
+          "end_col": 83
+        },
+        "body": {
+          "kind": "select",
+          "span": {
+            "start_line": 1,
+            "start_col": 60,
+            "end_line": 1,
+            "end_col": 66
+          },
+          "distinct": false,
+          "projections": [
+            {
+              "kind": "select_item",
+              "span": {
+                "start_line": 1,
+                "start_col": 67,
+                "end_line": 1,
+                "end_col": 69
+              },
+              "expr": {
+                "kind": "column_ref",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 67,
+                  "end_line": 1,
+                  "end_col": 69
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 67,
+                    "end_line": 1,
+                    "end_col": 69
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 67,
+                        "end_line": 1,
+                        "end_col": 69
+                      },
+                      "value": "id",
+                      "quoted": false
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "from_": [
+            {
+              "kind": "dialect_expr",
+              "span": {
+                "start_line": 1,
+                "start_col": 75,
+                "end_line": 1,
+                "end_col": 83
+              },
+              "name": "trigger_pseudo_table",
+              "args": {
+                "name": "inserted"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "options": {
+    "timing": "after",
+    "events": [
+      {
+        "event": "insert"
+      }
+    ],
+    "trigger_on": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 27,
+        "end_line": 1,
+        "end_col": 37
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 27,
+            "end_line": 1,
+            "end_col": 30
+          },
+          "value": "dbo",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 31,
+            "end_line": 1,
+            "end_col": 37
+          },
+          "value": "Orders",
+          "quoted": false
+        }
+      ]
+    }
+  }
+}
