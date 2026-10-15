@@ -19,6 +19,7 @@ dependencies = [
   "sqlite-vec>=0.1.6",
   "uvicorn>=0.34",
   "xhtml2pdf>=0.2.16",
+  "defusedxml>=0.7.1",
 ]
 
 [dependency-groups]
@@ -26,6 +27,7 @@ dev = [
   "pytest>=8.3",
   "pypdf>=5.1",
   "ruff>=0.11",
+  "hypothesis>=6.169.4",
 ]
 
 [tool.hatch.build.targets.wheel]

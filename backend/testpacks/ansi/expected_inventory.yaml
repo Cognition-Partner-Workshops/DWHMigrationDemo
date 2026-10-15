@@ -1,0 +1,35 @@
+objects:
+  - {type: table, qualified_name: agg_returns, status: parsed}
+  - {type: table, qualified_name: agg_sales, status: parsed}
+  - {type: table, qualified_name: audit_events, status: parsed}
+  - {type: table, qualified_name: data_watermarks, status: parsed}
+  - {type: table, qualified_name: dim_customers, status: parsed}
+  - {type: table, qualified_name: dim_dates, status: parsed}
+  - {type: table, qualified_name: dim_products, status: parsed}
+  - {type: table, qualified_name: dim_stores, status: parsed}
+  - {type: table, qualified_name: etl_batches, status: parsed}
+  - {type: table, qualified_name: fact_orders, status: parsed}
+  - {type: table, qualified_name: inventory_snapshot, status: parsed}
+  - {type: table, qualified_name: job_runs, status: parsed}
+  - {type: table, qualified_name: payment_events, status: parsed}
+  - {type: table, qualified_name: promotion_rules, status: parsed}
+  - {type: table, qualified_name: quality_checks, status: parsed}
+  - {type: table, qualified_name: raw_customers, status: parsed}
+  - {type: table, qualified_name: raw_orders, status: parsed}
+  - {type: table, qualified_name: raw_products, status: parsed}
+  - {type: table, qualified_name: ref_country, status: parsed}
+  - {type: table, qualified_name: ref_currency, status: parsed}
+  - {type: table, qualified_name: ref_status, status: parsed}
+  - {type: table, qualified_name: service_accounts, status: parsed}
+  - {type: table, qualified_name: shipment_events, status: parsed}
+  - {type: table, qualified_name: stage_customers, status: parsed}
+  - {type: table, qualified_name: stage_orders, status: parsed}
+  - {type: view, qualified_name: v_customer_orders, status: parsed}
+  - {type: view, qualified_name: v_external, status: parsed}
+  - {type: view, qualified_name: v_sales_by_product, status: parsed}
+edges:
+  - {from: v_customer_orders, to: dim_customers, kind: reads, external: false}
+  - {from: v_customer_orders, to: fact_orders, kind: reads, external: false}
+  - {from: v_external, to: legacy_archive, kind: reads, external: true}
+  - {from: v_sales_by_product, to: dim_products, kind: reads, external: false}
+  - {from: v_sales_by_product, to: fact_orders, kind: reads, external: false}

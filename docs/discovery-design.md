@@ -62,6 +62,7 @@ The lexer never raises. A bad character becomes an `OPERATOR` token and an issue
 All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 - `span: Span(start_line, start_col, end_line, end_col)`
 - `kind: ClassVar[str]`, the class name in snake_case
+- No AST node field may be named `kind`; reserve it for the snake_case node discriminator.
 
 `to_dict()` gives stable JSON with keys in order and `None` or empty fields omitted. It is used for golden tests and as Phase 4 context. `walk(node)` yields nodes depth-first. Identifiers are `Identifier(value, quoted)` and names are `QualifiedName(parts: list[Identifier])`.
 
@@ -76,7 +77,7 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 - `Case(operand, whens: list[When(cond, result)], else_)`
 - `Cast(expr, to: DataType, style: "cast"|"try_cast"|"safe_cast"|"double_colon"|"convert", format: Expr|None)`
 - `FunctionCall(name: QualifiedName, args: list[Expr|NamedArg], distinct, star, filter, within_group: list[OrderItem], over: WindowSpec|None, ignore_nulls: bool|None)`
-- `WindowSpec(name, partition_by, order_by, frame: Frame|None)`, `Frame(unit, start, end, exclude)`
+- `WindowSpec(name, partition_by, order_by, frame: Frame|None)`, `Frame(unit, start, end, exclude)`, `FrameBound(bound_type, value)`
 - `Interval(value, unit, to_unit)`, `Extract(field, expr)`, `Subquery(query)`
 - `ArrayLiteral(items)`, `StructLiteral(fields)`, `Subscript(expr, index)`, `FieldAccess(expr, field)`, `Collate(expr, collation)`, `Lambda(params, body)`
 - `DialectExpr(name: str, args: dict[str, Node|list|str|None])` — the single extension point for dialect-only expression forms such as Oracle `(+)`, `PRIOR` and `CONNECT_BY_ROOT`, the Teradata `(FORMAT 'x')` and `(TITLE ...)` attributes, and Snowflake `:path` access. Each dialect documents its names in its package README.
@@ -93,7 +94,7 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
   - `TableRef(name, alias, column_aliases, temporal: DialectExpr|None, sample, hints)`
   - `SubqueryRef(query, alias, lateral)`
   - `TableFunctionRef(call, alias, lateral)`
-  - `Join(kind: inner|left|right|full|cross|semi|anti|natural, left, right, on, using)`
+  - `Join(join_type: inner|left|right|full|cross|semi|anti|natural, left, right, on, using)`
   - `Pivot`/`Unpivot` as `DialectExpr` on the `TableRef`
   - `ValuesRef`
 
@@ -106,8 +107,8 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 
 **DDL**
 - `DataType(name, params: list[Expr|str], children: list[DataType|StructField], array_dims)`
-- `ColumnDef(name, type, constraints: list[ColumnConstraint], default, identity, generated, comment, collation, options: dict)`
-- `TableConstraint(kind: primary_key|unique|foreign_key|check, name, columns, ref_table, ref_columns, expr, options)`
+- `ColumnDef(name, type, constraints: list[ColumnConstraint], default, identity, generated, comment, collation, options: dict)`, `ColumnConstraint(constraint_kind, name, columns, ref_table, ref_columns, expr, options)`
+- `TableConstraint(constraint_kind: primary_key|unique|foreign_key|check, name, columns, ref_table, ref_columns, expr, options)`
 - `CreateTable(name, columns, constraints, as_query, like, temporary, external, replace, if_not_exists, options: dict[str, Node|str|list])` — `options` holds dialect properties such as `primary_index`, `distribution`, `partitioned_by`, `stored_as`, `cluster_by`, `organize_on` and `set_multiset`
 - `CreateView(name, columns, query, materialized, replace, secure, options)`
 - `CreateIndex(name, table, columns, unique, options)`
@@ -118,7 +119,7 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 **Security**
 - `Grant(privileges, object_kind, object_name, grantees, with_grant_option)`, `Revoke(...)`
 - `CreatePrincipal(principal_kind: user|role|login|group, name, options)`
-- Policies, masks, row permissions and row-access policies are `DialectStatement`s with `references` hints
+- Policies, masks, row permissions and row-access policies are `DialectStatement`s with `references: list[RefHint(name, ref_kind)]`
 
 **Procedural**
 - `Block(label, declarations: list[Declare|CursorDecl|HandlerDecl], statements, exception_handlers: list[ExceptionHandler(conditions, statements)])`
@@ -168,7 +169,7 @@ All nodes are `@dataclass(slots=True)` subclasses of `Node`. Every node has:
 
 `references.extract(node, dialect) -> list[Reference]`
 
-`Reference(name: QualifiedName, kind, span)`, where `kind` is one of:
+`Reference(name: QualifiedName, ref_kind, span)`, where `ref_kind` is one of:
 - `reads` — `TableRef` in a query
 - `writes` — DML or CTAS target
 - `calls` — `Call`, a function call to a non-builtin name, or the `parsed` contents of `DynamicSql`
@@ -208,6 +209,15 @@ Graph            {nodes: [{id, label, type, status, external, center}], edges: [
 - `source_preview` is at most 200 lines and is returned as plain text; the UI escapes it.
 - `GET /api/graph?object_id=&depth=1..3` caps the result at 300 nodes and sets `truncated` when it hits the cap.
 - `GET /api/resources` adds `count` and `auto_available` to each item.
+
+## Appendix: How to add a dialect
+
+1. Add `migraai.discovery.parsers.<dialect>` and export `Parser`, subclassing `ParserBase`.
+2. Set the dialect's `LexerConfig`, `case_rule`, `default_schema`, and `builtin_functions`.
+3. Override `parse_primary_ext()`, `parse_postfix_ext(left)`, or `parse_statement_ext()` for dialect syntax. Return `None` to fall through to the base parser; extend `binary_ops` with entries shaped as `(left_binding_power, right_binding_power, operator_name)`.
+4. Add the dialect id to `registry.SQL_PARSERS`, unit tests, and a golden test pack.
+
+The `ansi` package is the reference: it uses `ParserBase` with standard quoted-identifier, Oracle q-quote, nested-comment, and dollar-body lexer options. Test packs live under `backend/testpacks/<id>/`; `expected_inventory.yaml` contains exact objects and edges. An optional `pack.yaml` can specify `kind: sql` or `kind: etl` and `source_dialect: <dialect id>`. `kind` defaults to `sql`; SQL packs default their source dialect to the pack id, while ETL packs must set `source_dialect` (typically `ansi` for embedded SQL).
 
 ## 9. Test packs
 
