@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import os
+import struct
 from pathlib import Path
+from typing import BinaryIO
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+_STREAM_MAGIC = b"MIGRAAI-STREAM\x01"
+_STREAM_RECORD = struct.Struct(">I")
 
 
 class SessionCipher:
@@ -43,7 +48,58 @@ class EncryptedFileStore:
             self.cipher.encrypt(data, aad=str(target.relative_to(self.directory)).encode())
         )
 
+    def write_stream(
+        self,
+        rel_path: str | Path,
+        source: BinaryIO,
+        *,
+        chunk_size: int = 64 * 1024,
+    ) -> int:
+        target = self._resolve(rel_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temporary = target.with_name(f".{target.name}.{os.urandom(8).hex()}.tmp")
+        aad = str(target.relative_to(self.directory)).encode()
+        total = 0
+        index = 0
+        try:
+            with temporary.open("wb") as output:
+                output.write(_STREAM_MAGIC)
+                while chunk := source.read(chunk_size):
+                    total += len(chunk)
+                    output.write(_STREAM_RECORD.pack(len(chunk)))
+                    output.write(self.cipher.encrypt(chunk, aad + b":" + str(index).encode()))
+                    index += 1
+                output.write(_STREAM_RECORD.pack(0))
+            temporary.replace(target)
+        finally:
+            temporary.unlink(missing_ok=True)
+        return total
+
     def read(self, rel_path: str | Path) -> bytes:
         target = self._resolve(rel_path)
-        data = target.read_bytes()
-        return self.cipher.decrypt(data, aad=str(target.relative_to(self.directory)).encode())
+        aad = str(target.relative_to(self.directory)).encode()
+        with target.open("rb") as source:
+            if source.read(len(_STREAM_MAGIC)) != _STREAM_MAGIC:
+                source.seek(0)
+                return self.cipher.decrypt(source.read(), aad=aad)
+            output = bytearray()
+            index = 0
+            while True:
+                record = source.read(_STREAM_RECORD.size)
+                if len(record) != _STREAM_RECORD.size:
+                    raise ValueError("Encrypted stream is truncated.")
+                size = _STREAM_RECORD.unpack(record)[0]
+                if size == 0:
+                    break
+                encrypted = source.read(size + 28)
+                if len(encrypted) != size + 28:
+                    raise ValueError("Encrypted stream is truncated.")
+                chunk = self.cipher.decrypt(encrypted, aad + b":" + str(index).encode())
+                if len(chunk) != size:
+                    raise ValueError("Encrypted stream record length is invalid.")
+                output.extend(chunk)
+                index += 1
+            return bytes(output)
+
+    def delete(self, rel_path: str | Path) -> None:
+        self._resolve(rel_path).unlink(missing_ok=True)

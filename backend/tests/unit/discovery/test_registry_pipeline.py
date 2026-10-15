@@ -44,7 +44,8 @@ def test_pipeline_parses_embedded_sql_and_adds_etl_references(monkeypatch) -> No
     monkeypatch.setattr(pipeline, "get_sql_parser", lambda _dialect: Parser)
 
     objects, edges = discover_files({"job.py": b"pass"}, "ansi")
-    assert objects == [owner]
+    assert owner in objects
+    assert all(item.type == "external" for item in objects if item is not owner)
     assert any(reference.ref_kind == "etl_reads" for reference in owner.references)
     assert any(reference.ref_kind == "etl_writes" for reference in owner.references)
     assert {edge.kind for edge in edges} == {"etl_reads", "etl_writes"}

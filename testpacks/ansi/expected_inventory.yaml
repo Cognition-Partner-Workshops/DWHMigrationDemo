@@ -26,6 +26,7 @@ objects:
   - {type: table, qualified_name: shipment_events, status: parsed}
   - {type: table, qualified_name: stage_customers, status: parsed}
   - {type: table, qualified_name: stage_orders, status: parsed}
+  - {type: external, qualified_name: legacy_archive, status: external}
   - {type: function, qualified_name: fn_adjust_total, status: parsed}
   - {type: function, qualified_name: fn_order_total, status: parsed}
   - {type: grant, qualified_name: "INSERT, UPDATE on dim_customers", status: parsed}

@@ -38,3 +38,20 @@ All KB endpoints use the same session-cookie, CSRF, and local Host protections d
 | `PATCH /api/resources/{id}` | Updates per-session resource availability; state is encrypted and cleared on session replacement. |
 
 A successful `POST /api/session/confirm` also starts the plan flow and includes its state in the response. Devin credentials are never returned by the settings API. `token_kind` is `v3`, `legacy`, or `none`; `apk_` keys use Devin v1 without an organization ID, while `cog_` keys use Devin v3 and require an organization ID.
+
+## Phase 3 discovery
+
+Discovery endpoints require a confirmed source/target pair and return `409` otherwise. They use the same session-cookie, CSRF, and local Host protections described above.
+
+| Method and path | Behavior |
+|---|---|
+| `POST /api/uploads` | Accepts multipart `files` and returns upload rows. Files are encrypted in the session store; ZIP entries are validated and extracted before discovery. |
+| `GET /api/uploads` | Returns upload rows with status, selection state, byte size, and object count. |
+| `PATCH /api/uploads/{id}` | Accepts `{"selected":true}` or `{"selected":false}` to include/exclude the file's objects from inventory counts and graph results. |
+| `DELETE /api/uploads/{id}` | Deletes an upload and its inventory objects and dependencies. |
+| `GET /api/discovery/status` | Returns `idle`, `running`, `done`, or `failed` plus file-level progress. |
+| `GET /api/inventory?q=…&type=…&status=…&file=…&page=1&page_size=50` | Returns a paged, filterable inventory. |
+| `GET /api/inventory/{id}` | Returns object details, upstream/downstream dependencies, issues, and a plain-text source preview limited to 200 lines. |
+| `GET /api/graph?object_id=…&depth=1` | Returns the selected object's dependency neighbourhood. Depth is 1–3 and the result is capped at 300 nodes. |
+
+`GET /api/resources` includes `count` for catalog object types in selected uploads and `auto_available`, which is true when the count is non-zero. Inventory and discovery state are session-local; session replacement and application shutdown clear them.
