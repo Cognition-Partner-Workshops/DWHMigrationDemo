@@ -89,6 +89,18 @@ async function confirmSystems(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: /confirm/i }));
 }
 
+function mockPlanningScroll() {
+  const main = screen.getByRole("main");
+  const planningSection = screen.getByRole("region", { name: "Migration Planning" });
+  Object.defineProperty(main, "offsetTop", { configurable: true, value: 58 });
+  Object.defineProperty(planningSection, "offsetTop", { configurable: true, value: 558 });
+  const scrollTo = vi.fn();
+  const scrollIntoView = vi.fn();
+  main.scrollTo = scrollTo;
+  planningSection.scrollIntoView = scrollIntoView;
+  return { scrollIntoView, scrollTo };
+}
+
 describe("MigraAI foundation UI", () => {
   beforeEach(() => {
     vi.unstubAllGlobals();
@@ -108,6 +120,35 @@ describe("MigraAI foundation UI", () => {
     expect(confirm).toBeDisabled();
     await user.selectOptions(screen.getByLabelText("Target platform"), "databricks");
     expect(confirm).toBeEnabled();
+  });
+
+  it("scrolls only the main container to Planning after Confirm", async () => {
+    const user = userEvent.setup();
+    mockApi(false);
+    render(<App />);
+    const { scrollIntoView, scrollTo } = mockPlanningScroll();
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: false }));
+
+    await confirmSystems(user);
+
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenCalledWith({ top: 500, behavior: "smooth" }),
+    );
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it("uses automatic main scrolling when reduced motion is preferred", async () => {
+    const user = userEvent.setup();
+    mockApi(false);
+    render(<App />);
+    const { scrollTo } = mockPlanningScroll();
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+
+    await confirmSystems(user);
+
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenCalledWith({ top: 500, behavior: "auto" }),
+    );
   });
 
   it("keeps Upload disabled until confirmation and Convert disabled until upload", async () => {

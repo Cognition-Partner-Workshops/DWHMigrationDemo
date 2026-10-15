@@ -283,6 +283,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
   const planningSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -348,9 +349,15 @@ export default function App() {
       setSession(response);
       setSessionConfirmed(true);
       requestAnimationFrame(() => {
+        const main = mainRef.current;
         const planningSection = planningSectionRef.current;
-        if (planningSection?.scrollIntoView) {
-          planningSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (main && planningSection && typeof main.scrollTo === "function") {
+          const prefersReducedMotion =
+            window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+          main.scrollTo({
+            top: planningSection.offsetTop - main.offsetTop,
+            behavior: prefersReducedMotion ? "auto" : "smooth",
+          });
         }
       });
       setFiles((current) =>
@@ -512,7 +519,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="dashboard">
+      <main className="dashboard" ref={mainRef}>
         <section aria-labelledby="system-heading" className="panel system-panel">
           <div className="panel-heading">
             <SectionTitle
