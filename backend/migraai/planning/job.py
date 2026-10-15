@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import os
 import threading
 import time
 from urllib.parse import urlsplit
 
 from migraai.core.audit import AuditLog
-from migraai.devin.client import DevinClient, DevinV1Client, build_devin_client
+from migraai.devin.client import DevinClient, DevinV1Client
 from migraai.kb.store import KBStore
 from migraai.planning.context import PlanContext, build_context
 from migraai.planning.local_draft import build_local_draft
@@ -220,8 +219,6 @@ class PlanJob(threading.Thread):
                 self.client = self.client_factory(self.base_url, self.org_id, self.pat)
             elif self.client_factory and self.pat.startswith("cog_") and self.org_id:
                 self.client = self.client_factory(self.base_url, self.org_id, self.pat)
-            elif os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1":
-                self.client = build_devin_client(self.base_url, self.org_id, self.pat)
             elif self.pat.startswith("apk_"):
                 self.client = DevinV1Client(self.base_url, self.pat)
             elif self.pat.startswith("cog_") and self.org_id:

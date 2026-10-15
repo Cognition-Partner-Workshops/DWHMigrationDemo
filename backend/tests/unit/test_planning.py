@@ -1189,6 +1189,7 @@ def test_plan_job_selects_client_from_token_prefix(
 ) -> None:
     import migraai.planning.job as job_module
 
+    monkeypatch.setenv("MIGRAAI_TEST_MOCK_DEVIN", "1")
     selected: list[str] = []
     monkeypatch.setattr(
         job_module,
