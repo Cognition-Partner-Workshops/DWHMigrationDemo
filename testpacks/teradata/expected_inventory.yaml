@@ -9,9 +9,9 @@ objects:
   - {type: view, qualified_name: "sales.account_payments", status: parsed}
   - {type: table, qualified_name: "sales.account_snapshot", status: parsed}
   - {type: procedure, qualified_name: "sales.add_payment", status: parsed}
-  - {type: user, qualified_name: "sales.analyst", status: parsed}
+  - {type: user, qualified_name: "analyst", status: parsed}
   - {type: table, qualified_name: "sales.audit_log", status: parsed}
-  - {type: role, qualified_name: "sales.auditor", status: parsed}
+  - {type: role, qualified_name: "auditor", status: parsed}
   - {type: table, qualified_name: "sales.branch", status: parsed}
   - {type: procedure, qualified_name: "sales.capture_snapshot", status: parsed}
   - {type: table, qualified_name: "sales.card", status: parsed}
@@ -33,17 +33,17 @@ objects:
   - {type: index, qualified_name: "sales.ix_account_customer", status: parsed}
   - {type: index, qualified_name: "sales.ix_customer_status", status: parsed}
   - {type: join_index, qualified_name: "sales.jix_order", status: parsed}
-  - {type: user, qualified_name: "sales.loader", status: parsed}
+  - {type: user, qualified_name: "loader", status: parsed}
   - {type: table, qualified_name: "sales.loan", status: parsed}
   - {type: table, qualified_name: "sales.loan_payment", status: parsed}
-  - {type: role, qualified_name: "sales.operator", status: parsed}
+  - {type: role, qualified_name: "operator", status: parsed}
   - {type: view, qualified_name: "sales.order_detail", status: parsed}
   - {type: table, qualified_name: "sales.order_header", status: parsed}
   - {type: table, qualified_name: "sales.order_line", status: parsed}
   - {type: table, qualified_name: "sales.payment", status: parsed}
   - {type: procedure, qualified_name: "sales.post_transfer", status: parsed}
   - {type: table, qualified_name: "sales.product", status: parsed}
-  - {type: role, qualified_name: "sales.reader", status: parsed}
+  - {type: role, qualified_name: "reader", status: parsed}
   - {type: table, qualified_name: "sales.recovered_after_error", status: parsed}
   - {type: table, qualified_name: "sales.recovered_table", status: parsed}
   - {type: macro, qualified_name: "sales.refresh_daily", status: parsed}

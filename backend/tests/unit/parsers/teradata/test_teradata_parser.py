@@ -79,6 +79,39 @@ def test_teradata_expressions_precedence_and_special_forms() -> None:
     assert isinstance(forms.body.projections[0].expr.args[1], ast.NamedArg)
 
 
+def test_teradata_top_qualify_exec_macro_and_collect_statistics() -> None:
+    top_query = _one(
+        "SELECT TOP 5 PERCENT WITH TIES id FROM sales.orders "
+        "QUALIFY ROW_NUMBER() OVER (ORDER BY id) = 1"
+    )
+    assert isinstance(top_query, ast.Query)
+    assert isinstance(top_query.body.top, ast.Top)
+    assert top_query.body.top.count.value == "5"
+    assert top_query.body.top.percent is True
+    assert top_query.body.top.with_ties is True
+    assert isinstance(top_query.body.qualify, ast.Binary)
+    assert top_query.body.qualify.op == "="
+
+    macro = _one(
+        "CREATE MACRO sales.set_one(p INTEGER DEFAULT 1) AS "
+        "(INSERT INTO sales.orders (id) VALUES (p))"
+    )
+    assert isinstance(macro, ast.CreateRoutine)
+    assert macro.routine_kind == "macro"
+    executed = _one("EXEC sales.set_one(1)")
+    assert isinstance(executed, ast.Call)
+
+    statistics = _one("COLLECT STATISTICS USING SAMPLE 10 PERCENT COLUMN (id) ON sales.orders")
+    assert isinstance(statistics, ast.DialectStatement)
+    assert statistics.name == "collect_statistics"
+    assert statistics.args["columns"][0][0].value == "id"
+    assert statistics.args["using"]["sample"].value == "10"
+    assert statistics.args["using"]["percent"] is True
+    statistics_after_table = _one("COLLECT STATISTICS ON sales.orders COLUMN id")
+    assert isinstance(statistics_after_table, ast.DialectStatement)
+    assert statistics_after_table.args["columns"][0][0].value == "id"
+
+
 def test_teradata_table_attributes_partitions_and_indexes_are_typed() -> None:
     table = _one(
         "CREATE SET VOLATILE TABLE sales.t (id BYTEINT FORMAT '99', "
@@ -103,6 +136,9 @@ def test_teradata_table_attributes_partitions_and_indexes_are_typed() -> None:
         "range_n",
         "case_n",
     ]
+    like_table = _one("CREATE TABLE sales.copy AS sales.source WITH NO DATA")
+    assert isinstance(like_table, ast.CreateTable)
+    assert like_table.like.parts[-1].value == "source"
 
 
 def test_teradata_psm_declarations_handler_labels_and_recovery() -> None:
@@ -197,6 +233,12 @@ def test_teradata_sampling_alias_dml_and_partition_forms() -> None:
     deleted = _one("DEL sales.orders ALL")
     assert isinstance(deleted, ast.Delete)
     assert deleted.where is None
+    merged = _one(
+        "MERGE INTO sales.orders AS target USING sales.source AS src "
+        "ON target.id = src.id WHEN MATCHED THEN UPDATE SET id = src.id "
+        "WHEN NOT MATCHED THEN INSERT (id) VALUES (src.id)"
+    )
+    assert isinstance(merged, ast.Merge)
 
     range_query = _one(
         "SELECT RANGE_N(id BETWEEN * AND 100 EACH 10, "
@@ -289,6 +331,20 @@ def test_teradata_table_options_principals_grants_and_view_locks() -> None:
     assert isinstance(view, ast.CreateView)
     assert view.replace is True
     assert view.options["locking"][0].args["mode"] == "access"
+    locking = _one("LOCKING ROW FOR ACCESS SEL id FROM sales.orders")
+    assert isinstance(locking, ast.DialectStatement)
+    assert locking.name == "locking"
+    assert isinstance(locking.args["statement"], ast.Query)
+
+
+def test_teradata_principals_are_not_scoped_by_database() -> None:
+    result = Parser().parse("DATABASE sales; CREATE ROLE auditor; CREATE USER analyst FROM dbc")
+    roles_and_users = [node for node in result.statements if isinstance(node, ast.CreatePrincipal)]
+    assert [node.name.to_dict()["parts"][-1]["value"] for node in roles_and_users] == [
+        "auditor",
+        "analyst",
+    ]
+    assert all(len(node.name.parts) == 1 for node in roles_and_users)
 
 
 def test_teradata_logon_redacts_all_suffix_text_and_tracks_schema() -> None:
@@ -305,6 +361,11 @@ def test_teradata_logon_redacts_all_suffix_text_and_tracks_schema() -> None:
     parser = Parser()
     parser.parse("DATABASE sales; SET DATABASE reporting;")
     assert parser.default_schema == "reporting"
+    broken_before_logon = Parser().parse(
+        "CREATE TABLE sales.broken (id);\nBROKEN SQL HERE;\n.LOGON db/user,hidden-password\n"
+    )
+    assert "hidden-password" not in json.dumps(broken_before_logon.to_dict())
+    assert any(isinstance(node, ast.ClientCommand) for node in broken_before_logon.statements)
 
 
 def test_teradata_top_level_error_recovery() -> None:
@@ -332,8 +393,18 @@ def test_teradata_references_and_outer_join_contract() -> None:
         Parser().parse("CREATE HASH INDEX sales.ix (id) ON sales.orders"), "x.sql", Parser
     )
     assert objects[0].type == "hash_index"
-    joined = _one("SELECT a.id FROM a LEFT OUTER JOIN b ON a.id = b.id")
-    assert isinstance(joined, ast.Query)
+    secondary = _one("CREATE UNIQUE INDEX sales.by_id (id) ON sales.orders")
+    assert isinstance(secondary, ast.CreateIndex)
+    join_index = _one(
+        "CREATE JOIN INDEX sales.order_join AS SELECT o.id FROM sales.orders o "
+        "JOIN sales.customer c ON o.customer_id = c.id"
+    )
+    assert isinstance(join_index, ast.DialectStatement)
+    assert join_index.name == "create_join_index"
+    assert isinstance(join_index.args["query"], ast.Query)
+    for join_type in ("LEFT OUTER", "RIGHT OUTER", "FULL OUTER"):
+        joined = _one(f"SELECT a.id FROM a {join_type} JOIN b ON a.id = b.id")
+        assert isinstance(joined, ast.Query)
     invalid = Parser().parse("SELECT * FROM a, b WHERE a.id = b.id(+)")
     assert invalid.issues
 

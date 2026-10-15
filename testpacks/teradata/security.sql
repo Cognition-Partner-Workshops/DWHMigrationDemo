@@ -1,12 +1,12 @@
-CREATE ROLE sales.reader;
-CREATE ROLE sales.operator;
-CREATE ROLE sales.auditor;
+CREATE ROLE reader;
+CREATE ROLE operator;
+CREATE ROLE auditor;
 
-CREATE USER sales.analyst WITH PASSWORD 'demo-secret' IN GROUP sales.reader;
-CREATE USER sales.loader WITH PASSWORD 'demo-secret' IN GROUP sales.operator;
+CREATE USER analyst WITH PASSWORD 'demo-secret' IN GROUP reader;
+CREATE USER loader WITH PASSWORD 'demo-secret' IN GROUP operator;
 
-GRANT SELECT ON TABLE sales.customer_accounts TO sales.reader;
-GRANT SELECT ON TABLE sales.account_payments TO sales.reader;
-GRANT SELECT, INSERT ON TABLE sales.payment TO sales.operator;
-GRANT SELECT ON TABLE sales.audit_log TO sales.auditor;
-GRANT EXECUTE PROCEDURE ON sales.add_payment TO sales.operator;
+GRANT SELECT ON TABLE sales.customer_accounts TO reader;
+GRANT SELECT ON TABLE sales.account_payments TO reader;
+GRANT SELECT, INSERT ON TABLE sales.payment TO operator;
+GRANT SELECT ON TABLE sales.audit_log TO auditor;
+GRANT EXECUTE PROCEDURE ON sales.add_payment TO operator;
