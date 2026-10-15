@@ -1,0 +1,333 @@
+source: snowflake
+target: bigquery
+architecture_overview:
+- text: Snowflake combines shared-disk and shared-nothing designs in a hybrid architecture.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery is a fully managed serverless data warehouse.
+  url: https://docs.cloud.google.com/bigquery/docs/introduction
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery separates compute and storage layers.
+  url: https://docs.cloud.google.com/bigquery/docs/introduction
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Snowflake automatically divides table data into 50-500 MB (uncompressed) micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery stores table data in columnar format.
+    url: https://docs.cloud.google.com/bigquery/docs/storage_overview
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Snowflake warehouses bill per second with a 60-second minimum each time they start.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery executes queries on slots, virtual compute units.
+    url: https://docs.cloud.google.com/bigquery/docs/slots
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Snowflake assigns privileges to roles, which are granted to users (RBAC), alongside object ownership (DAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery access control is based on IAM roles and permissions.
+    url: https://docs.cloud.google.com/bigquery/docs/access-control
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Snowflake multi-cluster warehouses start extra clusters automatically, up to a configured maximum, for concurrency.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery offers on-demand (bytes processed) and capacity-based billing.
+    url: https://docs.cloud.google.com/bigquery/docs/reservations-intro
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Inventory Snowflake objects with GET_DDL and ACCOUNT_USAGE, convert DDL and SQL with an automated translator, then move data by unloading to Parquet in object storage (or using a native connector/federation where available). Rebuild tasks, streams and pipes as BigQuery orchestration and incremental-load constructs, re-create roles, masking and row policies, and validate with row counts and checksums before cutover.
+object_mapping:
+- source_object: TABLE (permanent/transient)
+  target_object: Partitioned and clustered table
+  notes: ''
+  claim:
+    text: BigQuery tables can be partitioned by ingestion time or integer range among others.
+    url: https://docs.cloud.google.com/bigquery/docs/partitioned-tables
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW / SECURE VIEW
+  target_object: Logical / authorized view
+  notes: ''
+  claim:
+    text: BigQuery authorized views restrict what columns analysts see.
+    url: https://docs.cloud.google.com/bigquery/docs/authorized-views
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: BigQuery precomputes materialized views in the background.
+    url: https://docs.cloud.google.com/bigquery/docs/materialized-views-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: STORED PROCEDURE (Snowflake Scripting/JavaScript/Python)
+  target_object: SQL stored procedure
+  notes: ''
+  claim:
+    text: BigQuery supports SQL stored procedures.
+    url: https://docs.cloud.google.com/bigquery/docs/procedures
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: TASK / task graph
+  target_object: Scheduled query
+  notes: ''
+  claim:
+    text: BigQuery scheduled queries run on a recurring basis.
+    url: https://docs.cloud.google.com/bigquery/docs/scheduling-queries
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: STREAM
+  target_object: Storage Write API / MERGE
+  notes: ''
+  claim:
+    text: The Storage Write API ingests via gRPC.
+    url: https://docs.cloud.google.com/bigquery/docs/write-api-grpc
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: PIPE (Snowpipe) / COPY INTO
+  target_object: Load job / Data Transfer Service
+  notes: ''
+  claim:
+    text: BigQuery batch loading supports Parquet and ORC.
+    url: https://docs.cloud.google.com/bigquery/docs/batch-loading-data
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE / STAGE
+  target_object: BigLake / external table
+  notes: ''
+  claim:
+    text: BigLake tables query external data with access delegation.
+    url: https://docs.cloud.google.com/bigquery/docs/biglake-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VARIANT column
+  target_object: JSON or STRUCT/ARRAY column
+  notes: ''
+  claim:
+    text: BigQuery has a native JSON type.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Snowflake stores and resolves unquoted identifiers in uppercase.
+  url: https://docs.snowflake.com/en/sql-reference/identifiers-syntax
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake TIMESTAMP_LTZ stores UTC and operates in the session time zone, while TIMESTAMP_NTZ ignores time zones.
+  url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake FLATTEN explodes compound values into multiple rows.
+  url: https://docs.snowflake.com/en/sql-reference/functions/flatten
+  accessed: '2026-10-15'
+  confidence: high
+- text: GoogleSQL quoted identifiers use backticks.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/lexical
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery does not allow arrays of arrays.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery integer aliases (INT, BIGINT, TINYINT, ...) all map to INT64.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery primary keys are declared NOT ENFORCED.
+  url: https://docs.cloud.google.com/bigquery/docs/primary-foreign-keys
+  accessed: '2026-10-15'
+  confidence: high
+- text: GoogleSQL procedural scripts declare variables with DECLARE.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake TIMESTAMP defaults to TIMESTAMP_NTZ, which maps to BigQuery DATETIME.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/snowflake-sql
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery migration converts untyped Snowflake arrays (ARRAY<VARIANT>) to ARRAY<JSON>.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/snowflake-sql
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake NUMBER supports 38 digits of precision and 37 of scale.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/snowflake-sql
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Snowflake supports bulk unloading of table or query data to files.
+  url: https://docs.snowflake.com/en/user-guide/data-unload-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: COPY INTO <location> unloads table or query data to files and supports PARTITION BY.
+  url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-location
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery batch loads support Avro, Parquet, ORC and other formats.
+  url: https://docs.cloud.google.com/bigquery/docs/batch-loading-data
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery external data source tables keep metadata in BigQuery while data stays external.
+  url: https://docs.cloud.google.com/bigquery/docs/external-data-sources
+  accessed: '2026-10-15'
+  confidence: high
+- text: The BigQuery Data Transfer Service Snowflake connector schedules automated migrations from Snowflake.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/snowflake-transfer
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Snowflake tasks run on schedules or events and can be chained into task graphs.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake streams provide change data capture (CDC) on tables.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowpipe loads files continuously on Snowflake-managed serverless compute.
+  url: https://docs.snowflake.com/en/user-guide/data-load-snowpipe-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery scheduled queries run on a recurring basis.
+  url: https://docs.cloud.google.com/bigquery/docs/scheduling-queries
+  accessed: '2026-10-15'
+  confidence: high
+- text: The BigQuery Data Transfer Service automates data movement into BigQuery.
+  url: https://docs.cloud.google.com/bigquery/docs/dts-introduction
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery provides batch and interactive SQL translation for Snowflake SQL.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/snowflake-migration-intro
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Snowflake Dynamic Data Masking applies masking policies to columns at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake network policies allow or block requests based on their origin.
+  url: https://docs.snowflake.com/en/user-guide/network-policies
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery column-level access control uses policy tags.
+  url: https://docs.cloud.google.com/bigquery/docs/column-level-security-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery tables can have multiple row-level access policies.
+  url: https://docs.cloud.google.com/bigquery/docs/row-level-security-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery authorized views share query results without granting access to source tables.
+  url: https://docs.cloud.google.com/bigquery/docs/authorized-views
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: sf_variant
+  claim:
+    text: Snowflake VARIANT can hold a value of any type, including OBJECT and ARRAY, up to 128 MB.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_time_travel
+  claim:
+    text: Snowflake Time Travel retention can be set up to 90 days on Enterprise Edition or higher.
+    url: https://docs.snowflake.com/en/user-guide/data-time-travel
+    accessed: '2026-10-15'
+    applies_to: Enterprise Edition+
+    confidence: high
+- id: sf_streams_tasks
+  claim:
+    text: Snowflake streams record change data capture information for tables.
+    url: https://docs.snowflake.com/en/user-guide/streams-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_data_sharing
+  claim:
+    text: Snowflake Secure Data Sharing shares selected database objects with other Snowflake accounts.
+    url: https://docs.snowflake.com/en/user-guide/data-sharing-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: bq_no_nested_arrays
+  claim:
+    text: BigQuery arrays cannot contain arrays.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- id: bq_time_travel_7d
+  claim:
+    text: BigQuery time travel is limited to a maximum of seven days.
+    url: https://docs.cloud.google.com/bigquery/docs/time-travel
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: sf_variant
+  claim:
+    text: BigQuery has a native JSON type.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_time_travel
+  claim:
+    text: BigQuery table snapshots preserve table data beyond the seven-day time travel window.
+    url: https://docs.cloud.google.com/bigquery/docs/table-snapshots-intro
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_streams_tasks
+  claim:
+    text: The Storage Write API streams data into BigQuery over gRPC.
+    url: https://docs.cloud.google.com/bigquery/docs/write-api-grpc
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_data_sharing
+  claim:
+    text: BigQuery sharing (formerly Analytics Hub) is a data exchange platform.
+    url: https://docs.cloud.google.com/bigquery/docs/analytics-hub-introduction
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Dialect rewrites (Snowflake specifics to BigQuery)
+  data:
+    level: low
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the BigQuery model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: low
+    notes: Feature gaps between Snowflake and BigQuery need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: BigQuery materialized views are precomputed and updated incrementally in the background.
+  url: https://docs.cloud.google.com/bigquery/docs/materialized-views-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery clustering sorts data into blocks by clustering columns.
+  url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+  accessed: '2026-10-15'
+  confidence: high
+- text: Migration to BigQuery can denormalise using nested and repeated fields.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/schema-data-overview
+  accessed: '2026-10-15'
+  confidence: high

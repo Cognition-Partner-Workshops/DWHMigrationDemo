@@ -1,0 +1,330 @@
+source: hive
+target: bigquery
+architecture_overview:
+- text: HiveServer2 runs a Thrift-based Hive service (TCP or HTTP) with a Jetty web UI in one process.
+  url: https://hive.apache.org/docs/latest/user/hiveserver2-overview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery is a fully managed serverless data warehouse.
+  url: https://docs.cloud.google.com/bigquery/docs/introduction
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery separates compute and storage layers.
+  url: https://docs.cloud.google.com/bigquery/docs/introduction
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Hive owns managed-table data (dropped with the table) but not external-table data.
+    url: https://hive.apache.org/docs/latest/language/managed-vs--external-tables/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery stores table data in columnar format.
+    url: https://docs.cloud.google.com/bigquery/docs/storage_overview
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Hive executes queries using Apache Tez or MapReduce.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery executes queries on slots, virtual compute units.
+    url: https://docs.cloud.google.com/bigquery/docs/slots
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Hive storage based authorization relies on HDFS permissions and works at database, table and partition level.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery access control is based on IAM roles and permissions.
+    url: https://docs.cloud.google.com/bigquery/docs/access-control
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Hive global ORDER BY needs a single reducer for the final sort.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery offers on-demand (bytes processed) and capacity-based billing.
+    url: https://docs.cloud.google.com/bigquery/docs/reservations-intro
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Extract Hive DDL, partitions and HPL/SQL scripts from the metastore and edge nodes, compact ACID tables, then copy ORC/Parquet files from HDFS to cloud object storage and load or register them in BigQuery. Rewrite HiveQL-specific clauses (SORT BY, DISTRIBUTE BY, LATERAL VIEW, multi-insert), replace Oozie/scheduled queries with BigQuery orchestration, map Ranger/SQL-standard grants to BigQuery security, and validate partition-by-partition.
+object_mapping:
+- source_object: Managed (ACID/ORC) table
+  target_object: Partitioned and clustered table
+  notes: ''
+  claim:
+    text: BigQuery tables can be partitioned by ingestion time or integer range among others.
+    url: https://docs.cloud.google.com/bigquery/docs/partitioned-tables
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW
+  target_object: Logical / authorized view
+  notes: ''
+  claim:
+    text: BigQuery authorized views restrict what columns analysts see.
+    url: https://docs.cloud.google.com/bigquery/docs/authorized-views
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: BigQuery precomputes materialized views in the background.
+    url: https://docs.cloud.google.com/bigquery/docs/materialized-views-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: HPL/SQL procedure
+  target_object: SQL stored procedure
+  notes: ''
+  claim:
+    text: BigQuery supports SQL stored procedures.
+    url: https://docs.cloud.google.com/bigquery/docs/procedures
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Scheduled query (Hive 4) / Oozie workflow
+  target_object: Scheduled query
+  notes: ''
+  claim:
+    text: BigQuery scheduled queries run on a recurring basis.
+    url: https://docs.cloud.google.com/bigquery/docs/scheduling-queries
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ACID table delta files
+  target_object: Storage Write API / MERGE
+  notes: ''
+  claim:
+    text: The Storage Write API ingests via gRPC.
+    url: https://docs.cloud.google.com/bigquery/docs/write-api-grpc
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: LOAD DATA / INSERT OVERWRITE
+  target_object: Load job / Data Transfer Service
+  notes: ''
+  claim:
+    text: BigQuery batch loading supports Parquet and ORC.
+    url: https://docs.cloud.google.com/bigquery/docs/batch-loading-data
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE on HDFS
+  target_object: BigLake / external table
+  notes: ''
+  claim:
+    text: BigLake tables query external data with access delegation.
+    url: https://docs.cloud.google.com/bigquery/docs/biglake-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ARRAY/MAP/STRUCT column
+  target_object: JSON or STRUCT/ARRAY column
+  notes: ''
+  claim:
+    text: BigQuery has a native JSON type.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Hive SORT BY orders rows only within each reducer, so output may be only partially ordered.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive LATERAL VIEW applies a UDTF such as explode() to each input row.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-lateralview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: HiveQL SELECT has non-standard CLUSTER BY, DISTRIBUTE BY and SORT BY clauses.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+  accessed: '2026-10-15'
+  confidence: high
+- text: GoogleSQL quoted identifiers use backticks.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/lexical
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery does not allow arrays of arrays.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery integer aliases (INT, BIGINT, TINYINT, ...) all map to INT64.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery primary keys are declared NOT ENFORCED.
+  url: https://docs.cloud.google.com/bigquery/docs/primary-foreign-keys
+  accessed: '2026-10-15'
+  confidence: high
+- text: GoogleSQL procedural scripts declare variables with DECLARE.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language
+  accessed: '2026-10-15'
+  confidence: high
+- text: Most Hive types map to BigQuery types, with exceptions such as MAP and UNION.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/hive-sql
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive LATERAL VIEW explode is rewritten with UNNEST in BigQuery.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/hive-sql
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Hive LOAD DATA moves files into a table or partition without transformation.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive EXPORT writes table or partition data plus metadata to an output location.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-importexport/
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery batch loads support Avro, Parquet, ORC and other formats.
+  url: https://docs.cloud.google.com/bigquery/docs/batch-loading-data
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery external data source tables keep metadata in BigQuery while data stays external.
+  url: https://docs.cloud.google.com/bigquery/docs/external-data-sources
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive migration to BigQuery copies data from the source cluster to Cloud Storage and then loads it.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/hive
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery can query external Hive-partitioned data.
+  url: https://docs.cloud.google.com/bigquery/docs/hive-partitioned-queries
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: HPL/SQL provides procedural SQL for Hive from Hive 2.0.0.
+  url: https://hive.apache.org/docs/latest/language/hplsql/
+  accessed: '2026-10-15'
+  applies_to: Hive 2.0+
+  confidence: high
+- text: Hive 4.0 added scheduled queries executed by HiveServer2.
+  url: https://hive.apache.org/docs/latest/language/scheduled-queries/
+  accessed: '2026-10-15'
+  applies_to: Hive 4.0+
+  confidence: high
+- text: BigQuery scheduled queries run on a recurring basis.
+  url: https://docs.cloud.google.com/bigquery/docs/scheduling-queries
+  accessed: '2026-10-15'
+  confidence: high
+- text: The BigQuery Data Transfer Service automates data movement into BigQuery.
+  url: https://docs.cloud.google.com/bigquery/docs/dts-introduction
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Hive SQL standard based authorization grants privileges to users and roles for HiveServer2 clients.
+  url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive storage based authorization does not provide column- or row-level control.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery column-level access control uses policy tags.
+  url: https://docs.cloud.google.com/bigquery/docs/column-level-security-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery tables can have multiple row-level access policies.
+  url: https://docs.cloud.google.com/bigquery/docs/row-level-security-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery authorized views share query results without granting access to source tables.
+  url: https://docs.cloud.google.com/bigquery/docs/authorized-views
+  accessed: '2026-10-15'
+  confidence: high
+- text: In Hive, users with HDFS access can read files behind tables directly.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/hive
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: hive_uniontype
+  claim:
+    text: Hive UNIONTYPE is effectively pass-through only and fails in JOIN, WHERE or GROUP BY.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_sort_distribute_by
+  claim:
+    text: Hive SORT BY / DISTRIBUTE BY control per-reducer ordering and row distribution.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_no_explicit_txn
+  claim:
+    text: Hive has no BEGIN/COMMIT/ROLLBACK; every statement auto-commits.
+    url: https://hive.apache.org/docs/latest/user/hive-transactions/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_hplsql
+  claim:
+    text: Hive stored procedures are written in HPL/SQL.
+    url: https://hive.apache.org/docs/latest/language/hplsql/
+    accessed: '2026-10-15'
+    confidence: high
+- id: bq_no_nested_arrays
+  claim:
+    text: BigQuery arrays cannot contain arrays.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- id: bq_time_travel_7d
+  claim:
+    text: BigQuery time travel is limited to a maximum of seven days.
+    url: https://docs.cloud.google.com/bigquery/docs/time-travel
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: hive_uniontype
+  claim:
+    text: BigQuery has a native JSON type.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_sort_distribute_by
+  claim:
+    text: BigQuery clustering organises data into blocks by clustering columns.
+    url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_no_explicit_txn
+  claim:
+    text: BigQuery supports multi-statement transactions.
+    url: https://docs.cloud.google.com/bigquery/docs/transactions
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_hplsql
+  claim:
+    text: BigQuery supports SQL stored procedures.
+    url: https://docs.cloud.google.com/bigquery/docs/procedures
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Dialect rewrites (Hive specifics to BigQuery)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the BigQuery model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: low
+    notes: Feature gaps between Hive and BigQuery need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: BigQuery materialized views are precomputed and updated incrementally in the background.
+  url: https://docs.cloud.google.com/bigquery/docs/materialized-views-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery clustering sorts data into blocks by clustering columns.
+  url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+  accessed: '2026-10-15'
+  confidence: high
+- text: Migration to BigQuery can denormalise using nested and repeated fields.
+  url: https://docs.cloud.google.com/bigquery/docs/migration/schema-data-overview
+  accessed: '2026-10-15'
+  confidence: high

@@ -1,0 +1,310 @@
+source: hive
+target: fabric
+architecture_overview:
+- text: HiveServer2 runs a Thrift-based Hive service (TCP or HTTP) with a Jetty web UI in one process.
+  url: https://hive.apache.org/docs/latest/user/hiveserver2-overview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse stores data as Delta tables (Parquet plus a transaction log).
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse is developed primarily with T-SQL.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Hive owns managed-table data (dropped with the table) but not external-table data.
+    url: https://hive.apache.org/docs/latest/language/managed-vs--external-tables/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: OneLake shortcuts reflect source schema changes without manual updates.
+    url: https://learn.microsoft.com/en-us/fabric/onelake/onelake-shortcuts
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Hive executes queries using Apache Tez or MapReduce.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Fabric Data Warehouse applies smoothing and throttling to capacity consumption.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/compute-capacity-smoothing-throttling
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Hive storage based authorization relies on HDFS permissions and works at database, table and partition level.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Fabric workspace roles grant permissions for all warehouses in a workspace.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Hive global ORDER BY needs a single reducer for the final sort.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The Fabric query optimizer relies on persisted column statistics.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/guidelines-warehouse-performance
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Extract Hive DDL, partitions and HPL/SQL scripts from the metastore and edge nodes, compact ACID tables, then copy ORC/Parquet files from HDFS to cloud object storage and load or register them in Microsoft Fabric Data Warehouse. Rewrite HiveQL-specific clauses (SORT BY, DISTRIBUTE BY, LATERAL VIEW, multi-insert), replace Oozie/scheduled queries with Microsoft Fabric Data Warehouse orchestration, map Ranger/SQL-standard grants to Microsoft Fabric Data Warehouse security, and validate partition-by-partition.
+object_mapping:
+- source_object: Managed (ACID/ORC) table
+  target_object: Warehouse table (Delta)
+  notes: ''
+  claim:
+    text: Fabric Warehouse tables are stored as Delta tables.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW
+  target_object: T-SQL view
+  notes: ''
+  claim:
+    text: Fabric supports T-SQL views.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Table refreshed by pipeline (no materialized view)
+  notes: ''
+  claim:
+    text: Dataflow Gen2 can transform data before loading tables.
+    url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: HPL/SQL procedure
+  target_object: T-SQL stored procedure
+  notes: ''
+  claim:
+    text: Fabric supports T-SQL procedures.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Scheduled query (Hive 4) / Oozie workflow
+  target_object: Data Factory pipeline
+  notes: ''
+  claim:
+    text: Fabric Data Factory provides orchestration and data movement.
+    url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ACID table delta files
+  target_object: Data Factory incremental load
+  notes: ''
+  claim:
+    text: Fabric Data Factory handles data movement into Warehouse and Lakehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: LOAD DATA / INSERT OVERWRITE
+  target_object: COPY INTO
+  notes: ''
+  claim:
+    text: COPY INTO is the recommended ingestion statement.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-copy
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE on HDFS
+  target_object: OneLake shortcut
+  notes: ''
+  claim:
+    text: OneLake shortcuts can link to tables in other locations.
+    url: https://learn.microsoft.com/en-us/fabric/onelake/onelake-shortcuts
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ARRAY/MAP/STRUCT column
+  target_object: varchar(max) JSON text
+  notes: ''
+  claim:
+    text: varchar(max) storage is limited to 16 MB.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Hive SORT BY orders rows only within each reducer, so output may be only partially ordered.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive LATERAL VIEW applies a UDTF such as explode() to each input row.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-lateralview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: HiveQL SELECT has non-standard CLUSTER BY, DISTRIBUTE BY and SORT BY clauses.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric varchar(max) storage is currently limited to 16 MB.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric datetime2 and time support at most 6 fractional-second digits.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric lacks nchar/nvarchar; char and varchar are used instead.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric PRIMARY KEY requires NONCLUSTERED and NOT ENFORCED.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports MERGE as a generally available feature.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Hive LOAD DATA moves files into a table or partition without transformation.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive EXPORT writes table or partition data plus metadata to an output location.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-importexport/
+  accessed: '2026-10-15'
+  confidence: high
+- text: COPY INTO is the recommended T-SQL ingestion statement for new code in Fabric Warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-copy
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Warehouse bulk loads via T-SQL/TDS or via Spark writing Delta tables.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: '2026-10-15'
+  confidence: high
+- text: Azure Data Factory and Synapse pipelines can copy data from Hive with the Copy activity.
+  url: https://learn.microsoft.com/en-us/azure/data-factory/connector-hive
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: HPL/SQL provides procedural SQL for Hive from Hive 2.0.0.
+  url: https://hive.apache.org/docs/latest/language/hplsql/
+  accessed: '2026-10-15'
+  applies_to: Hive 2.0+
+  confidence: high
+- text: Hive 4.0 added scheduled queries executed by HiveServer2.
+  url: https://hive.apache.org/docs/latest/language/scheduled-queries/
+  accessed: '2026-10-15'
+  applies_to: Hive 4.0+
+  confidence: high
+- text: Fabric Data Factory Dataflow Gen2 applies transformations before loading a warehouse or lakehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric supports T-SQL views, functions and procedures.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Hive SQL standard based authorization grants privileges to users and roles for HiveServer2 clients.
+  url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive storage based authorization does not provide column- or row-level control.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric item permissions can give SQL permissions without granting them inside SQL.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports row-level security.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports dynamic data masking.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/dynamic-data-masking
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: hive_uniontype
+  claim:
+    text: Hive UNIONTYPE is effectively pass-through only and fails in JOIN, WHERE or GROUP BY.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_sort_distribute_by
+  claim:
+    text: Hive SORT BY / DISTRIBUTE BY control per-reducer ordering and row distribution.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_no_explicit_txn
+  claim:
+    text: Hive has no BEGIN/COMMIT/ROLLBACK; every statement auto-commits.
+    url: https://hive.apache.org/docs/latest/user/hive-transactions/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_hplsql
+  claim:
+    text: Hive stored procedures are written in HPL/SQL.
+    url: https://hive.apache.org/docs/latest/language/hplsql/
+    accessed: '2026-10-15'
+    confidence: high
+- id: fabric_no_nvarchar
+  claim:
+    text: Fabric Warehouse has no nchar/nvarchar types.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- id: fabric_unenforced_keys
+  claim:
+    text: Fabric FOREIGN KEY constraints must be NOT ENFORCED.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: hive_uniontype
+  claim:
+    text: Fabric varchar(max) can hold up to 16 MB, usable for JSON text.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_sort_distribute_by
+  claim:
+    text: The Fabric Warehouse query optimizer uses persisted column statistics.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/guidelines-warehouse-performance
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_no_explicit_txn
+  claim:
+    text: Fabric Warehouse provides full multi-table transactions in T-SQL.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_hplsql
+  claim:
+    text: Fabric supports T-SQL procedures.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Dialect rewrites (Hive specifics to Microsoft Fabric Data Warehouse)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the Microsoft Fabric Data Warehouse model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: medium
+    notes: Feature gaps between Hive and Microsoft Fabric Data Warehouse need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: Fabric performance guidance covers ingestion, table management, statistics and querying.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/guidelines-warehouse-performance
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric supports cloning tables.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/clone-table
+  accessed: '2026-10-15'
+  confidence: high
