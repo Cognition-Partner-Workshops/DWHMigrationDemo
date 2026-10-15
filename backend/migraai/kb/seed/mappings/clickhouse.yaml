@@ -73,34 +73,10 @@ types:
     accessed: '2026-10-15'
     confidence: high
 - native: String
-  canonical: varchar
-  notes: No length limit enforced.
-  claim:
-    text: ClickHouse String holds arbitrary-length byte strings.
-    url: https://clickhouse.com/docs/reference/data-types/string
-    accessed: '2026-10-15'
-    confidence: high
-- native: String
   canonical: string
-  notes: ''
+  notes: Also used for canonical varchar, binary, varbinary.
   claim:
     text: ClickHouse String holds arbitrary-length byte strings.
-    url: https://clickhouse.com/docs/reference/data-types/string
-    accessed: '2026-10-15'
-    confidence: high
-- native: String
-  canonical: binary
-  notes: String stores arbitrary bytes.
-  claim:
-    text: ClickHouse String can store arbitrary bytes.
-    url: https://clickhouse.com/docs/reference/data-types/string
-    accessed: '2026-10-15'
-    confidence: high
-- native: String
-  canonical: varbinary
-  notes: String stores arbitrary bytes.
-  claim:
-    text: ClickHouse String can store arbitrary bytes.
     url: https://clickhouse.com/docs/reference/data-types/string
     accessed: '2026-10-15'
     confidence: high

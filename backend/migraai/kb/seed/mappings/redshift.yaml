@@ -1,16 +1,8 @@
 platform: redshift
 types:
 - native: SMALLINT
-  canonical: int8
-  notes: No 1-byte integer; SMALLINT is the smallest.
-  claim:
-    text: Redshift SMALLINT (INT2) is a 2-byte signed integer.
-    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
-    accessed: '2026-10-15'
-    confidence: high
-- native: SMALLINT
   canonical: int16
-  notes: ''
+  notes: Also used for canonical int8.
   claim:
     text: Redshift SMALLINT (INT2) is a 2-byte signed integer.
     url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
@@ -90,15 +82,7 @@ types:
     confidence: high
 - native: VARBYTE(n)
   canonical: varbinary
-  notes: ''
-  claim:
-    text: Redshift VARBYTE stores variable-length binary values.
-    url: https://docs.aws.amazon.com/redshift/latest/dg/r_VARBYTE_type.html
-    accessed: '2026-10-15'
-    confidence: high
-- native: VARBYTE(n)
-  canonical: binary
-  notes: No fixed-length binary type.
+  notes: Also used for canonical binary.
   claim:
     text: Redshift VARBYTE stores variable-length binary values.
     url: https://docs.aws.amazon.com/redshift/latest/dg/r_VARBYTE_type.html
@@ -154,25 +138,9 @@ types:
     confidence: high
 - native: SUPER
   canonical: json
-  notes: ''
+  notes: Also used for canonical array, struct.
   claim:
     text: Redshift SUPER stores semi-structured data such as JSON.
-    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
-    accessed: '2026-10-15'
-    confidence: high
-- native: SUPER
-  canonical: array
-  notes: SUPER holds arrays.
-  claim:
-    text: Redshift SUPER can hold arrays and nested structures.
-    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
-    accessed: '2026-10-15'
-    confidence: high
-- native: SUPER
-  canonical: struct
-  notes: SUPER holds nested objects.
-  claim:
-    text: Redshift SUPER can hold arrays and nested structures.
     url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
     accessed: '2026-10-15'
     confidence: high
