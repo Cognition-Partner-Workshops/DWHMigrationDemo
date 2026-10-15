@@ -6,7 +6,7 @@ import yaml
 
 from migraai.discovery.pipeline import discover_files
 
-ROOT = Path(__file__).resolve().parents[2] / "testpacks"
+ROOT = Path(__file__).resolve().parents[3] / "testpacks"
 
 
 def _expected(pack: Path) -> dict[str, Any]:

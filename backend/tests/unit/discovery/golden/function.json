@@ -1,0 +1,177 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 50
+  },
+  "routine_kind": "function",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 17,
+      "end_line": 1,
+      "end_col": 18
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 18
+        },
+        "value": "f",
+        "quoted": false
+      }
+    ]
+  },
+  "params": [
+    {
+      "kind": "routine_param",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 19,
+          "end_line": 1,
+          "end_col": 20
+        },
+        "value": "x",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 21,
+          "end_line": 1,
+          "end_col": 24
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 21,
+            "end_line": 1,
+            "end_col": 24
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 21,
+                "end_line": 1,
+                "end_col": 24
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "returns": {
+    "kind": "data_type",
+    "span": {
+      "start_line": 1,
+      "start_col": 34,
+      "end_line": 1,
+      "end_col": 37
+    },
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 34,
+        "end_line": 1,
+        "end_col": 37
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 34,
+            "end_line": 1,
+            "end_col": 37
+          },
+          "value": "INT",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "body": {
+    "kind": "return",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 1
+    },
+    "expr": {
+      "kind": "binary",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "op": "+",
+      "left": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 45,
+          "end_line": 1,
+          "end_col": 46
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 45,
+            "end_line": 1,
+            "end_col": 46
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 45,
+                "end_line": 1,
+                "end_col": 46
+              },
+              "value": "x",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "right": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 49,
+          "end_line": 1,
+          "end_col": 50
+        },
+        "type": "number",
+        "value": "1"
+      }
+    }
+  }
+}

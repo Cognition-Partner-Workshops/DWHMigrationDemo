@@ -33,6 +33,9 @@ class ParserBase:
         ">": (30, 31, ">"),
         "<=": (30, 31, "<="),
         ">=": (30, 31, ">="),
+        "BETWEEN": (30, 31, "between"),
+        "IN": (30, 31, "in"),
+        "IS": (30, 31, "is"),
         "IS DISTINCT FROM": (30, 31, "is_distinct_from"),
         "IS NOT DISTINCT FROM": (30, 31, "is_not_distinct_from"),
         "LIKE": (30, 31, "like"),
@@ -475,9 +478,10 @@ class ParserBase:
                     self.expect(TokenKind.PUNCT, "(")
                     query = self.parse_query()
                     self.expect(TokenKind.PUNCT, ")")
-                    left = ast.Quantified(
+                    quantified = ast.Quantified(
                         op=operator.casefold(), quantifier=quantifier, query=query
                     )
+                    left = ast.Binary(op=operator.casefold(), left=left, right=quantified)
                     continue
                 if operator.upper() in {"IN", "LIKE", "ILIKE", "SIMILAR TO", "RLIKE", "REGEXP"}:
                     if operator.upper() == "IN":
@@ -628,11 +632,12 @@ class ParserBase:
                 query = self.parse_query()
                 self.expect(TokenKind.PUNCT, ")")
                 return ast.Exists(query=query, span=self._token_span(token))
-            if self.at_keyword("NOT") or self.at_keyword("PRIOR"):
+            if self.at_keyword("NOT"):
                 self.advance()
-                return ast.Unary(
-                    token.text.casefold(), self.parse_expr(80), span=self._token_span(token)
-                )
+                return ast.Unary("not", self.parse_expr(25), span=self._token_span(token))
+            if self.at_keyword("PRIOR"):
+                self.advance()
+                return ast.Unary("prior", self.parse_expr(80), span=self._token_span(token))
             if any(self.at_keyword(kind) for kind in ("CAST", "TRY_CAST", "SAFE_CAST")):
                 self.advance()
                 self.expect(TokenKind.PUNCT, "(")
@@ -1266,7 +1271,17 @@ class ParserBase:
                 end = self._parse_frame_bound()
             else:
                 start, end = self._parse_frame_bound(), None
-            frame = ast.Frame(unit, start, end)
+            exclude = None
+            if self.accept_keyword("EXCLUDE"):
+                if self.accept_keyword("NO"):
+                    self.expect_keyword("OTHERS")
+                    exclude = "no_others"
+                elif self.accept_keyword("CURRENT"):
+                    self.expect_keyword("ROW")
+                    exclude = "current_row"
+                else:
+                    exclude = self.advance().text.casefold()
+            frame = ast.Frame(unit, start, end, exclude)
         self.expect(TokenKind.PUNCT, ")")
         return ast.WindowSpec(name, partition_by, order_by, frame)
 
@@ -1500,7 +1515,27 @@ class ParserBase:
         if self.at_keyword("SEQUENCE"):
             self.advance()
             name = self.parse_qualified_name()
-            options = self._parse_options()
+            options: dict[str, Any] = {}
+            while not self._statement_end():
+                if self.accept_keyword("START"):
+                    self.accept_keyword("WITH")
+                    options["start_with"] = self.parse_expr(80)
+                elif self.accept_keyword("INCREMENT"):
+                    self.accept_keyword("BY")
+                    options["increment_by"] = self.parse_expr(80)
+                elif self.accept_keyword("MINVALUE", "MAXVALUE", "CACHE"):
+                    key = self.tokens[self.index - 1].text.casefold()
+                    options[key] = self.parse_expr(80)
+                elif self.accept_keyword("NO"):
+                    options[f"no_{self.advance().text.casefold()}"] = True
+                elif self.accept_keyword("CYCLE", "ORDER"):
+                    options[self.tokens[self.index - 1].text.casefold()] = True
+                elif self.accept_keyword("OWNED"):
+                    self.expect_keyword("BY")
+                    options["owned_by"] = self.parse_qualified_name()
+                else:
+                    key = self.advance().text.casefold()
+                    options[key] = self.parse_expr(80) if not self._statement_end() else True
             return ast.CreateSequence(name, options, span=self._token_span(start))
         if self.at_keyword("SYNONYM"):
             self.advance()
@@ -1914,7 +1949,35 @@ class ParserBase:
             if self.at(TokenKind.TERMINATOR):
                 self.advance()
                 continue
-            statements.append(self.parse_statement())
+            statement_start = self.index
+            try:
+                statements.append(self.parse_statement())
+            except ParseLimitError as error:
+                if error.code == "parser.time_limit":
+                    raise
+                self.issues.append(
+                    ast.Issue("error", error.code, str(error), self._token_span(error.token))
+                )
+                statements.append(
+                    ast.Unparsed(
+                        text=self._slice_tokens(statement_start, self.index),
+                        reason=str(error),
+                        span=self._token_span(self.tokens[statement_start]),
+                    )
+                )
+                self._recover(statement_start)
+            except ParseError as error:
+                self.issues.append(
+                    ast.Issue("error", "parser.syntax", str(error), self._token_span(error.token))
+                )
+                statements.append(
+                    ast.Unparsed(
+                        text=self._slice_tokens(statement_start, self.index),
+                        reason=str(error),
+                        span=self._token_span(self.tokens[statement_start]),
+                    )
+                )
+                self._recover(statement_start)
             self.accept(TokenKind.TERMINATOR)
         handlers: list[ast.ExceptionHandler] = []
         if self.accept_keyword("EXCEPTION"):
@@ -1939,9 +2002,46 @@ class ParserBase:
             self.expect_keyword("HANDLER")
             self.expect_keyword("FOR")
             condition_tokens = []
-            while not self.at_keyword("BEGIN") and not self.at(TokenKind.TERMINATOR, ";"):
+            while (
+                not self.at_keyword(
+                    "BEGIN",
+                    "SET",
+                    "INSERT",
+                    "UPDATE",
+                    "DELETE",
+                    "MERGE",
+                    "SELECT",
+                    "CALL",
+                    "EXEC",
+                    "EXECUTE",
+                    "SIGNAL",
+                    "RETURN",
+                    "RAISE",
+                    "OPEN",
+                    "FETCH",
+                    "CLOSE",
+                    "COMMIT",
+                    "ROLLBACK",
+                    "IF",
+                    "WHILE",
+                    "LOOP",
+                    "FOR",
+                    "CASE",
+                    "REPEAT",
+                    "LEAVE",
+                    "EXIT",
+                    "CONTINUE",
+                )
+                and not self.at(TokenKind.EOF)
+                and not self.at(TokenKind.TERMINATOR, ";")
+            ):
                 condition_tokens.append(self.advance().text)
-            statements = self.parse_block().statements if self.at_keyword("BEGIN") else []
+            if self.at_keyword("BEGIN"):
+                statements = self.parse_block().statements
+            elif not self._statement_end():
+                statements = [self.parse_statement()]
+            else:
+                statements = []
             return ast.HandlerDecl(" ".join([action, *condition_tokens]), statements)
         name = self.parse_identifier()
         if self.accept_keyword("CURSOR"):
@@ -2141,6 +2241,7 @@ class ParserBase:
         if not self._is_name():
             return False
         return self.peek().text.upper() not in {
+            "INTO",
             "FROM",
             "WHERE",
             "GROUP",
@@ -2148,6 +2249,7 @@ class ParserBase:
             "QUALIFY",
             "ORDER",
             "LIMIT",
+            "OFFSET",
             "FETCH",
             "UNION",
             "INTERSECT",
@@ -2163,6 +2265,7 @@ class ParserBase:
             "ON",
             "USING",
             "WITH",
+            "WINDOW",
             "FOR",
             "TABLESAMPLE",
             "SAMPLE",
@@ -2171,6 +2274,8 @@ class ParserBase:
             "WHEN",
             "THEN",
             "ELSE",
+            "DO",
+            "LOOP",
             "END",
             "SET",
             "RETURNING",

@@ -1,0 +1,240 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 46
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 9
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 12
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 12
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 9
+                },
+                "value": "a",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 10,
+                  "end_line": 1,
+                  "end_col": 12
+                },
+                "value": "id",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "join",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "join_type": "left",
+        "left": {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 18,
+            "end_line": 1,
+            "end_col": 19
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 18,
+              "end_line": 1,
+              "end_col": 19
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 18,
+                  "end_line": 1,
+                  "end_col": 19
+                },
+                "value": "a",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "right": {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 30,
+            "end_line": 1,
+            "end_col": 31
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 30,
+              "end_line": 1,
+              "end_col": 31
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 30,
+                  "end_line": 1,
+                  "end_col": 31
+                },
+                "value": "b",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "on": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "=",
+          "left": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 35,
+              "end_line": 1,
+              "end_col": 39
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 35,
+                "end_line": 1,
+                "end_col": 39
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 35,
+                    "end_line": 1,
+                    "end_col": 36
+                  },
+                  "value": "a",
+                  "quoted": false
+                },
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 37,
+                    "end_line": 1,
+                    "end_col": 39
+                  },
+                  "value": "id",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "right": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 42,
+              "end_line": 1,
+              "end_col": 46
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 42,
+                "end_line": 1,
+                "end_col": 46
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 42,
+                    "end_line": 1,
+                    "end_col": 43
+                  },
+                  "value": "b",
+                  "quoted": false
+                },
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 44,
+                    "end_line": 1,
+                    "end_col": 46
+                  },
+                  "value": "id",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

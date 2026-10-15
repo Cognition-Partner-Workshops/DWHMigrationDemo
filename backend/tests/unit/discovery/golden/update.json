@@ -1,0 +1,136 @@
+{
+  "kind": "update",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 44
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 8,
+      "end_line": 1,
+      "end_col": 20
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 20
+        },
+        "value": "target_table",
+        "quoted": false
+      }
+    ]
+  },
+  "assignments": [
+    {
+      "kind": "assignment",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "target": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 25,
+          "end_line": 1,
+          "end_col": 27
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 25,
+            "end_line": 1,
+            "end_col": 27
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 25,
+                "end_line": 1,
+                "end_col": 27
+              },
+              "value": "id",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "value": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 30,
+          "end_line": 1,
+          "end_col": 31
+        },
+        "type": "number",
+        "value": "2"
+      }
+    }
+  ],
+  "where": {
+    "kind": "binary",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 1
+    },
+    "op": "=",
+    "left": {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 38,
+        "end_line": 1,
+        "end_col": 40
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 38,
+          "end_line": 1,
+          "end_col": 40
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 38,
+              "end_line": 1,
+              "end_col": 40
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 43,
+        "end_line": 1,
+        "end_col": 44
+      },
+      "type": "number",
+      "value": "1"
+    }
+  }
+}

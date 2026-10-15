@@ -1,0 +1,192 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 64
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 14
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 14
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 14
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 14
+                },
+                "value": "region",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 20,
+          "end_line": 1,
+          "end_col": 25
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 20,
+            "end_line": 1,
+            "end_col": 25
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 20,
+                "end_line": 1,
+                "end_col": 25
+              },
+              "value": "sales",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "group_by": {
+      "kind": "group_by",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "rollup": [
+        {
+          "kind": "rollup",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "items": [
+            {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 42,
+                "end_line": 1,
+                "end_col": 48
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 42,
+                  "end_line": 1,
+                  "end_col": 48
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 42,
+                      "end_line": 1,
+                      "end_col": 48
+                    },
+                    "value": "region",
+                    "quoted": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "cube": [
+        {
+          "kind": "cube",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "items": [
+            {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 56,
+                "end_line": 1,
+                "end_col": 63
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 56,
+                  "end_line": 1,
+                  "end_col": 63
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 56,
+                      "end_line": 1,
+                      "end_col": 63
+                    },
+                    "value": "channel",
+                    "quoted": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "all": false
+    }
+  }
+}

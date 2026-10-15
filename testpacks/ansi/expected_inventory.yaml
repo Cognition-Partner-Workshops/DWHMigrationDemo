@@ -1,4 +1,5 @@
 objects:
+  - {type: table, qualified_name: after_unknown_construct, status: parsed}
   - {type: table, qualified_name: agg_returns, status: parsed}
   - {type: table, qualified_name: agg_sales, status: parsed}
   - {type: table, qualified_name: audit_events, status: parsed}
@@ -17,6 +18,7 @@ objects:
   - {type: table, qualified_name: raw_customers, status: parsed}
   - {type: table, qualified_name: raw_orders, status: parsed}
   - {type: table, qualified_name: raw_products, status: parsed}
+  - {type: table, qualified_name: recovery_survivor, status: parsed}
   - {type: table, qualified_name: ref_country, status: parsed}
   - {type: table, qualified_name: ref_currency, status: parsed}
   - {type: table, qualified_name: ref_status, status: parsed}
@@ -24,12 +26,31 @@ objects:
   - {type: table, qualified_name: shipment_events, status: parsed}
   - {type: table, qualified_name: stage_customers, status: parsed}
   - {type: table, qualified_name: stage_orders, status: parsed}
+  - {type: function, qualified_name: fn_adjust_total, status: parsed}
+  - {type: function, qualified_name: fn_order_total, status: parsed}
+  - {type: grant, qualified_name: "INSERT, UPDATE on dim_customers", status: parsed}
+  - {type: grant, qualified_name: "SELECT on fact_orders", status: parsed}
+  - {type: grant, qualified_name: "SELECT on v_customer_summary", status: parsed}
+  - {type: procedure, qualified_name: p_audit_order, status: parsed}
+  - {type: procedure, qualified_name: p_validate_order, status: parsed}
+  - {type: view, qualified_name: v_cte_shadow, status: parsed}
   - {type: view, qualified_name: v_customer_orders, status: parsed}
+  - {type: view, qualified_name: v_customer_summary, status: parsed}
   - {type: view, qualified_name: v_external, status: parsed}
   - {type: view, qualified_name: v_sales_by_product, status: parsed}
 edges:
+  - {from: "INSERT, UPDATE on dim_customers", to: dim_customers, kind: grant_on, external: false}
+  - {from: "SELECT on fact_orders", to: fact_orders, kind: grant_on, external: false}
+  - {from: "SELECT on v_customer_summary", to: v_customer_summary, kind: grant_on, external: false}
+  - {from: p_validate_order, to: p_audit_order, kind: calls, external: false}
+  - {from: p_audit_order, to: audit_events, kind: writes, external: false}
+  - {from: fn_adjust_total, to: fn_order_total, kind: calls, external: false}
+  - {from: fact_orders, to: dim_customers, kind: foreign_key, external: false}
   - {from: v_customer_orders, to: dim_customers, kind: reads, external: false}
   - {from: v_customer_orders, to: fact_orders, kind: reads, external: false}
-  - {from: v_external, to: legacy_archive, kind: reads, external: true}
   - {from: v_sales_by_product, to: dim_products, kind: reads, external: false}
   - {from: v_sales_by_product, to: fact_orders, kind: reads, external: false}
+  - {from: v_external, to: legacy_archive, kind: reads, external: true}
+  - {from: v_cte_shadow, to: fact_orders, kind: reads, external: false}
+  - {from: v_customer_summary, to: dim_customers, kind: reads, external: false}
+  - {from: v_customer_summary, to: fact_orders, kind: reads, external: false}

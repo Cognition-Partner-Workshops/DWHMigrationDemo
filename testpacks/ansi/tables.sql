@@ -1,4 +1,4 @@
-CREATE TABLE fact_orders (id INT);
+CREATE TABLE fact_orders (id INT, customer_id INT REFERENCES dim_customers(id));
 CREATE TABLE dim_customers (id INT);
 CREATE TABLE dim_products (id INT);
 CREATE TABLE dim_dates (id INT);
@@ -24,4 +24,6 @@ CREATE TABLE promotion_rules (id INT);
 CREATE TABLE service_accounts (id INT);
 CREATE TABLE data_watermarks (id INT);
 CREATE TABLE broken_table (id INT,);
+CREATE TABLE recovery_survivor (id INT);
 CREATE WIDGET unsupported_construct;
+CREATE TABLE after_unknown_construct (id INT);

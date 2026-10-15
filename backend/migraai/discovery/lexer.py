@@ -314,6 +314,8 @@ class Lexer:
 
     def _scan_quoted_identifier(self) -> bool:
         char = self.text[self._offset]
+        if char == "[" and self._is_bracket_subscript():
+            return False
         closing = self.config.ident_quotes.get(char)
         if closing is None:
             return False
@@ -346,6 +348,48 @@ class Lexer:
             )
         )
         return True
+
+    def _is_bracket_subscript(self) -> bool:
+        if not self.tokens:
+            return False
+        previous = self.tokens[-1]
+        if self._offset != previous.offset + len(previous.text):
+            return False
+        if previous.kind is TokenKind.IDENT and previous.text.upper() in {
+            "SELECT",
+            "FROM",
+            "WHERE",
+            "HAVING",
+            "QUALIFY",
+            "GROUP",
+            "ORDER",
+            "BY",
+            "ON",
+            "AS",
+            "INTO",
+            "VALUES",
+            "SET",
+            "WHEN",
+            "THEN",
+            "ELSE",
+            "AND",
+            "OR",
+            "NOT",
+            "IN",
+            "IS",
+            "LIKE",
+            "BETWEEN",
+            "RETURN",
+        }:
+            return False
+        return previous.kind in {
+            TokenKind.IDENT,
+            TokenKind.QUOTED_IDENT,
+            TokenKind.NUMBER,
+            TokenKind.STRING,
+            TokenKind.NATIONAL_STRING,
+            TokenKind.DOLLAR_BODY,
+        } or (previous.kind is TokenKind.PUNCT and previous.text in {")", "]"})
 
     def _scan_string(self) -> bool:
         remaining = self.text[self._offset :]

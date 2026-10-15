@@ -1,0 +1,60 @@
+{
+  "kind": "revoke",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 49
+  },
+  "privileges": [
+    "SELECT"
+  ],
+  "object_kind": "table",
+  "object_name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 24,
+      "end_line": 1,
+      "end_col": 36
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 36
+        },
+        "value": "target_table",
+        "quoted": false
+      }
+    ]
+  },
+  "grantees": [
+    {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 42,
+        "end_line": 1,
+        "end_col": 49
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 42,
+            "end_line": 1,
+            "end_col": 49
+          },
+          "value": "analyst",
+          "quoted": false
+        }
+      ]
+    }
+  ],
+  "with_grant_option": false
+}

@@ -105,3 +105,25 @@ def test_oracle_q_quote_supports_nonpaired_delimiters() -> None:
 
     assert lexer.tokenize()[1].value == "literal"
     assert not lexer.issues
+
+
+def test_bracket_identifiers_and_adjacent_subscripts_are_distinguished() -> None:
+    tokens = Lexer(
+        "SELECT [order], a[1].b[index]",
+        LexerConfig(ident_quotes={'"': '"', "`": "`", "[": "]"}),
+    ).tokenize()
+    significant = [token for token in tokens if token.kind is not TokenKind.EOF]
+    assert [(token.kind, token.text) for token in significant] == [
+        (TokenKind.IDENT, "SELECT"),
+        (TokenKind.QUOTED_IDENT, "[order]"),
+        (TokenKind.PUNCT, ","),
+        (TokenKind.IDENT, "a"),
+        (TokenKind.PUNCT, "["),
+        (TokenKind.NUMBER, "1"),
+        (TokenKind.PUNCT, "]"),
+        (TokenKind.PUNCT, "."),
+        (TokenKind.IDENT, "b"),
+        (TokenKind.PUNCT, "["),
+        (TokenKind.IDENT, "index"),
+        (TokenKind.PUNCT, "]"),
+    ]
