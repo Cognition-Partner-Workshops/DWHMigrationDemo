@@ -25,6 +25,7 @@ objects:
   - {type: table, qualified_name: analytics.raw.discounts, status: parsed}
   - {type: table, qualified_name: analytics.raw.events, status: parsed}
   - {type: table, qualified_name: analytics.raw.inventory, status: parsed}
+  - {type: external, qualified_name: analytics.raw.legacy_archive, status: external}
   - {type: table, qualified_name: analytics.raw.order_lines, status: parsed}
   - {type: table, qualified_name: analytics.raw.orders, status: parsed}
   - {type: table, qualified_name: analytics.raw.payments, status: parsed}

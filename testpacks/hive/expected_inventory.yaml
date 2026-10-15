@@ -19,6 +19,7 @@ objects:
   - {type: table, qualified_name: etl_batches, status: parsed}
   - {type: table, qualified_name: fact_sales, status: parsed}
   - {type: table, qualified_name: job_runs, status: parsed}
+  - {type: external, qualified_name: legacy_archive, status: external}
   - {type: table, qualified_name: quality_checks, status: parsed}
   - {type: table, qualified_name: raw_addresses, status: parsed}
   - {type: table, qualified_name: raw_clickstream, status: parsed}
