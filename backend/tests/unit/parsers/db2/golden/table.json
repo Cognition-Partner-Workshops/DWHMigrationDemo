@@ -1,0 +1,187 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 80
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 27
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 18
+        },
+        "value": "BANK",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 19,
+          "end_line": 1,
+          "end_col": 27
+        },
+        "value": "ACCOUNTS",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 29,
+          "end_line": 1,
+          "end_col": 31
+        },
+        "value": "ID",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 32,
+          "end_line": 1,
+          "end_col": 35
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 32,
+            "end_line": 1,
+            "end_col": 35
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 32,
+                "end_line": 1,
+                "end_col": 35
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "constraints": [
+        {
+          "kind": "column_constraint",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "constraint_kind": "not_null"
+        }
+      ]
+    },
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 46,
+          "end_line": 1,
+          "end_col": 50
+        },
+        "value": "NAME",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 51,
+          "end_line": 1,
+          "end_col": 62
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 51,
+            "end_line": 1,
+            "end_col": 58
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 51,
+                "end_line": 1,
+                "end_col": 58
+              },
+              "value": "VARCHAR",
+              "quoted": false
+            }
+          ]
+        },
+        "params": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 59,
+              "end_line": 1,
+              "end_col": 61
+            },
+            "type": "number",
+            "value": "40"
+          }
+        ]
+      },
+      "default": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 79,
+          "end_line": 1,
+          "end_col": 82
+        },
+        "type": "string",
+        "value": "x"
+      }
+    }
+  ],
+  "temporary": false,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false,
+  "options": {}
+}

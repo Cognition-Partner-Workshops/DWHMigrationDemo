@@ -1,0 +1,60 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 24
+  },
+  "name": "values_into",
+  "args": {
+    "values": [
+      {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 9
+        },
+        "type": "number",
+        "value": "1"
+      },
+      {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 11,
+          "end_line": 1,
+          "end_col": 12
+        },
+        "type": "number",
+        "value": "2"
+      }
+    ],
+    "targets": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "value": ":A",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "value": ":B",
+        "quoted": false
+      }
+    ]
+  }
+}

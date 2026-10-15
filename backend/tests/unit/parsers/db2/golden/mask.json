@@ -1,0 +1,262 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 124
+  },
+  "name": "create_mask",
+  "args": {
+    "object_type": "column_mask",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 13,
+        "end_line": 1,
+        "end_col": 30
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 13,
+            "end_line": 1,
+            "end_col": 17
+          },
+          "value": "BANK",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 18,
+            "end_line": 1,
+            "end_col": 30
+          },
+          "value": "ACCOUNT_MASK",
+          "quoted": false
+        }
+      ]
+    },
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 34,
+        "end_line": 1,
+        "end_col": 47
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 34,
+            "end_line": 1,
+            "end_col": 38
+          },
+          "value": "BANK",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 39,
+            "end_line": 1,
+            "end_col": 47
+          },
+          "value": "ACCOUNTS",
+          "quoted": false
+        }
+      ]
+    },
+    "correlation": "A",
+    "column": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 64,
+        "end_line": 1,
+        "end_col": 68
+      },
+      "value": "NAME",
+      "quoted": false
+    },
+    "return": {
+      "kind": "case",
+      "span": {
+        "start_line": 1,
+        "start_col": 76,
+        "end_line": 1,
+        "end_col": 80
+      },
+      "whens": [
+        {
+          "kind": "when",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "cond": {
+            "kind": "binary",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "op": "=",
+            "left": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 86,
+                "end_line": 1,
+                "end_col": 90
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 86,
+                  "end_line": 1,
+                  "end_col": 90
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 86,
+                      "end_line": 1,
+                      "end_col": 87
+                    },
+                    "value": "A",
+                    "quoted": false
+                  },
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 88,
+                      "end_line": 1,
+                      "end_col": 90
+                    },
+                    "value": "ID",
+                    "quoted": false
+                  }
+                ]
+              }
+            },
+            "right": {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 93,
+                "end_line": 1,
+                "end_col": 94
+              },
+              "type": "number",
+              "value": "1"
+            }
+          },
+          "result": {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 103,
+              "end_line": 1,
+              "end_col": 106
+            },
+            "type": "string",
+            "value": "x"
+          }
+        }
+      ],
+      "else_": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 109,
+          "end_line": 1,
+          "end_col": 113
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 109,
+            "end_line": 1,
+            "end_col": 113
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 109,
+                "end_line": 1,
+                "end_col": 113
+              },
+              "value": "NAME",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    },
+    "enabled": true
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 34,
+              "end_line": 1,
+              "end_col": 38
+            },
+            "value": "BANK",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 39,
+              "end_line": 1,
+              "end_col": 47
+            },
+            "value": "ACCOUNTS",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "grant_on"
+    }
+  ]
+}
