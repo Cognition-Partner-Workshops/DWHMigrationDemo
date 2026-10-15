@@ -1,0 +1,28 @@
+nightly_batch:
+  default_args:
+    owner: etl
+  schedule_interval: "0 3 * * *"
+  tasks:
+    stage_extract:
+      operator: airflow.operators.bash.BashOperator
+      bash_command: sh scripts/stage.sh
+    stage_verify:
+      operator: airflow.operators.empty.EmptyOperator
+      dependencies: [stage_extract]
+    load_mart:
+      operator: airflow.providers.mssql.operators.mssql.MsSqlOperator
+      sql: INSERT INTO mart.nightly SELECT * FROM stg.nightly
+      dependencies: [stage_verify]
+    rebuild_idx:
+      operator: airflow.operators.bash.BashOperator
+      bash_command: sh scripts/reindex.sh
+      dependencies: [load_mart]
+    publish:
+      operator: airflow.operators.empty.EmptyOperator
+      dependencies: [rebuild_idx]
+    cleanup:
+      operator: custom.ops.CleanupOperator
+      dependencies: [publish]
+    notify:
+      operator: airflow.operators.empty.EmptyOperator
+      dependencies: [cleanup]
