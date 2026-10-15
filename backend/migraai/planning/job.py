@@ -7,16 +7,11 @@ from urllib.parse import urlsplit
 from migraai.core.audit import AuditLog
 from migraai.kb.store import KBStore
 from migraai.planning.context import PlanContext, build_context
-from migraai.planning.devin_client import DevinClient
+from migraai.planning.devin_client import DevinClient, DevinV1Client
 from migraai.planning.local_draft import build_local_draft
 from migraai.planning.prompt import build_prompt
 from migraai.planning.schema import SCHEMA, Plan
 from migraai.planning.store import PlanStore
-
-LEGACY_TOKEN_REASON = (
-    "Legacy Devin API key (apk_) is not supported; create a cog_ personal access token "
-    "in Devin Settings > Devin API"
-)
 
 
 class PlanJob(threading.Thread):
@@ -34,7 +29,7 @@ class PlanJob(threading.Thread):
         pat: str,
         acu_cap: int = 10,
         timeout_minutes: int = 30,
-        client_factory=DevinClient,
+        client_factory=None,
     ) -> None:
         super().__init__(daemon=True)
         self.source = source
@@ -186,9 +181,18 @@ class PlanJob(threading.Thread):
         context = None
         try:
             if self.pat.startswith("apk_"):
-                self._fallback(context, LEGACY_TOKEN_REASON)
-                return
-            if not self.pat.startswith("cog_") or not self.org_id:
+                self.client = (
+                    self.client_factory(self.base_url, self.org_id, self.pat)
+                    if self.client_factory
+                    else DevinV1Client(self.base_url, self.pat)
+                )
+            elif self.pat.startswith("cog_") and self.org_id:
+                self.client = (
+                    self.client_factory(self.base_url, self.org_id, self.pat)
+                    if self.client_factory
+                    else DevinClient(self.base_url, self.org_id, self.pat)
+                )
+            else:
                 self._fallback(context, "Devin token not configured")
                 return
             self._phase("building_context")
@@ -196,7 +200,6 @@ class PlanJob(threading.Thread):
             if self.cancel_event.is_set():
                 self._phase("cancelled")
                 return
-            self.client = self.client_factory(self.base_url, self.org_id, self.pat)
             self._phase("uploading")
             attachment_url = self.client.upload_attachment(
                 "migration-context.md", context.markdown.encode("utf-8")
@@ -225,30 +228,27 @@ class PlanJob(threading.Thread):
                 if self.cancel_event.is_set():
                     self._phase("cancelled")
                     return
-                status = str(session.get("status", "")).casefold()
-                detail = session.get("status_detail")
+                state = str(session.get("state", "working")).casefold()
+                detail = session.get("detail", "")
                 output = session.get("structured_output")
-                if status in {"waiting_for_user", "waiting_for_approval"} and output is None:
+                if state == "blocked" and output is None:
                     waiting_count += 1
                     if waiting_count >= 2:
                         self._fallback(context, "Devin asked for input")
                         return
                 else:
                     waiting_count = 0
-                terminal_success = status == "exit" or (
-                    status == "running" and str(detail).casefold() == "finished"
-                )
-                if terminal_success and output is None:
+                if state == "done" and output is None:
                     self._fallback(context, "Devin returned an invalid plan")
                     return
-                if output is not None and terminal_success:
+                if state in {"done", "blocked"} and output is not None:
                     try:
                         self._complete(output, context)
                     except Exception:
                         self._fallback(context, "Devin returned an invalid plan")
                     return
-                if status in {"error", "suspended"}:
-                    self._fallback(context, f"Devin session {status}: {detail}")
+                if state == "failed":
+                    self._fallback(context, f"Devin session ended: {detail}")
                     return
                 interval = min(interval * 2, 60)
         except Exception:

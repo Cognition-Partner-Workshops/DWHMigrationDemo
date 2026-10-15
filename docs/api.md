@@ -36,4 +36,4 @@ All KB endpoints use the same session-cookie, CSRF, and local Host protections d
 | `GET /api/resources` | Returns the confirmed source platform's catalog with upload availability state. |
 | `PATCH /api/resources/{id}` | Updates per-session resource availability; state is encrypted and cleared on session replacement. |
 
-A successful `POST /api/session/confirm` also starts the plan flow and includes its state in the response. Devin credentials are never returned by the settings API. `token_kind` is `v3`, `legacy`, or `none`; legacy `apk_` keys are not sent to Devin v3.
+A successful `POST /api/session/confirm` also starts the plan flow and includes its state in the response. Devin credentials are never returned by the settings API. `token_kind` is `v3`, `legacy`, or `none`; `apk_` keys use Devin v1 without an organization ID, while `cog_` keys use Devin v3 and require an organization ID.

@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 from migraai.planning.context import build_context
-from migraai.planning.devin_client import DevinClient
+from migraai.planning.devin_client import DevinClient, DevinV1Client
 from migraai.planning.prompt import build_prompt
 from migraai.planning.schema import SCHEMA, Plan
 
@@ -19,14 +19,22 @@ def main() -> None:
     parser.add_argument("--acu-cap", type=int, default=10)
     args = parser.parse_args()
     pat = os.environ["MIGRAAI_DEVIN_PAT"]
-    org_id = os.environ["MIGRAAI_DEVIN_ORG_ID"]
+    org_id = os.environ.get("MIGRAAI_DEVIN_ORG_ID", "")
     base_url = os.environ.get("MIGRAAI_DEVIN_API_BASE_URL", "https://api.devinenterprise.com")
+    if pat.startswith("apk_"):
+        client = DevinV1Client(base_url, pat)
+        api_version = "v1"
+    elif pat.startswith("cog_") and org_id:
+        client = DevinClient(base_url, org_id, pat)
+        api_version = "v3"
+    else:
+        raise SystemExit("Provide an apk_ key, or a cog_ key and MIGRAAI_DEVIN_ORG_ID.")
     started = time.monotonic()
     context_started = time.monotonic()
     context = build_context(args.source, args.target, args.kb_db)
     context_s = time.monotonic() - context_started
-    client = DevinClient(base_url, org_id, pat)
     try:
+        print(f"api_version={api_version}")
         upload_started = time.monotonic()
         attachment = client.upload_attachment("migration-context.md", context.markdown.encode())
         upload_s = time.monotonic() - upload_started
@@ -43,13 +51,20 @@ def main() -> None:
         print(f"session_id={session_id}")
         print(f"session_url={session_url}")
         poll_started = time.monotonic()
+        blocked_polls = 0
         while True:
             result = client.get_session(session_id)
-            status = result.get("status")
-            if status in {"exit", "error", "suspended"} or (
-                status == "running" and result.get("status_detail") == "finished"
+            status = result.get("state")
+            if status in {"done", "failed"} or (
+                status == "blocked" and result.get("structured_output") is not None
             ):
                 break
+            if status == "blocked":
+                blocked_polls += 1
+                if blocked_polls >= 2:
+                    break
+            else:
+                blocked_polls = 0
             time.sleep(15)
         poll_s = time.monotonic() - poll_started
         output = result.get("structured_output")

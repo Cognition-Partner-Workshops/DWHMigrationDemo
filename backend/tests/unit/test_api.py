@@ -208,8 +208,8 @@ def test_reconfirm_wipes_only_previous_session_and_audits_replacement(
     assert replacement["details"] == {"new_session_id": replacement_session_id}
 
 
-def test_confirm_starts_legacy_fallback_and_resources_are_session_scoped(
-    client: TestClient, data_dir: Path
+def test_confirm_starts_v1_without_org_and_resources_are_session_scoped(
+    client: TestClient, data_dir: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     assert client.get("/api/resources", headers=HOST_HEADER).status_code == 401
     csrf = launch(client)
@@ -221,23 +221,34 @@ def test_confirm_starts_legacy_fallback_and_resources_are_session_scoped(
             (source,tier,id,name,description,object_types,extraction_hint)
             VALUES('teradata','mandatory','tables','Tables','Table inventory','[]','query')"""
         )
-    client.app.state.settings_store.update(
-        SettingsUpdate(devin_pat="apk_legacy", devin_org_id="org-enterprise")
-    )
+    client.app.state.settings_store.update(SettingsUpdate(devin_pat="apk_legacy", devin_org_id=""))
+    from migraai.api import plan as plan_api
+
+    started: list[dict] = []
+
+    class StubPlanJob:
+        def __init__(self, **kwargs) -> None:
+            started.append(kwargs)
+
+        def start(self) -> None:
+            return None
+
+        def snapshot(self) -> dict:
+            return {"state": "queued", "origin": "devin", "reason": None}
+
+        def is_alive(self) -> bool:
+            return False
+
+    monkeypatch.setattr(plan_api, "PlanJob", StubPlanJob)
     first = client.post(
         "/api/session/confirm",
         json={"source": "teradata", "target": "snowflake"},
         headers=headers,
     )
     assert first.status_code == 200
-    assert first.json()["plan"]["origin"] == "local_draft"
-    assert first.json()["plan"]["reason"] == (
-        "Legacy Devin API key (apk_) is not supported; create a cog_ personal access token "
-        "in Devin Settings > Devin API"
-    )
-    pdf = client.get("/api/plan.pdf", headers=HOST_HEADER)
-    assert pdf.status_code == 200
-    assert pdf.headers["content-type"] == "application/pdf"
+    assert first.json()["plan"]["origin"] == "devin"
+    assert first.json()["plan"]["reason"] is None
+    assert started[0]["org_id"] == ""
     first_session = first.json()["session_id"]
     updated = client.patch(
         "/api/resources/tables",

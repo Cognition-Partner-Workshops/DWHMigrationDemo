@@ -14,10 +14,11 @@ from migraai.core.audit import AuditLog
 from migraai.kb.embed import HashEmbedder
 from migraai.kb.store import KBStore, connect, insert_chunk
 from migraai.planning.context import build_context
-from migraai.planning.devin_client import DevinClient, normalize_base_url
+from migraai.planning.devin_client import DevinClient, DevinV1Client, normalize_base_url
 from migraai.planning.job import PlanJob
 from migraai.planning.local_draft import build_local_draft
 from migraai.planning.pdf import render_markdown, render_plan_pdf
+from migraai.planning.prompt import build_prompt
 from migraai.planning.schema import SCHEMA
 from migraai.planning.sections import SECTIONS
 from migraai.planning.store import PlanStore
@@ -235,7 +236,11 @@ def test_devin_client_v3_request_shapes_and_url_normalization() -> None:
         title="Migration plan",
         tags=["migraai"],
     )
-    assert client.get_session(session_id)["status"] == "running"
+    assert client.get_session(session_id) == {
+        "state": "working",
+        "detail": "running",
+        "structured_output": None,
+    }
     client.terminate_session(session_id)
     assert session_url == "https://devin.test/123"
     assert all(request.headers["authorization"] == "Bearer cog_secret" for request in requests)
@@ -248,6 +253,175 @@ def test_devin_client_v3_request_shapes_and_url_normalization() -> None:
     assert create["structured_output_required"] is True
     assert create["max_acu_limit"] == 10
     assert requests[-1].method == "DELETE"
+    client.close()
+
+
+def test_devin_v1_client_request_shapes_and_string_attachment_response() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.method == "POST" and request.url.path == "/v1/attachments":
+            return httpx.Response(200, json="https://files.test/context", request=request)
+        if request.method == "POST" and request.url.path == "/v1/sessions":
+            return httpx.Response(
+                200,
+                json={
+                    "session_id": "legacy-session",
+                    "url": "https://devin.test/legacy-session",
+                    "is_new_session": True,
+                },
+                request=request,
+            )
+        if request.method == "GET":
+            return httpx.Response(
+                200,
+                json={"status": "Working", "status_enum": "working", "structured_output": None},
+                request=request,
+            )
+        return httpx.Response(204, request=request)
+
+    client = DevinV1Client(
+        "https://api.devinenterprise.com/v1/sessions?ignored=yes",
+        "apk_secret",
+        transport=httpx.MockTransport(handler),
+    )
+    attachment = client.upload_attachment("context.md", b"# context")
+    prompt = f'Build the plan.\nATTACHMENT:"{attachment}"\n'
+    session_id, session_url = client.create_session(
+        prompt,
+        schema={"type": "object"},
+        max_acu_limit=10,
+        title="Migration plan",
+        tags=["migraai"],
+    )
+    assert client.get_session(session_id)["state"] == "working"
+    client.terminate_session(session_id)
+    assert session_url == "https://devin.test/legacy-session"
+    assert [request.url.path for request in requests] == [
+        "/v1/attachments",
+        "/v1/sessions",
+        "/v1/sessions/legacy-session",
+        "/v1/sessions/legacy-session",
+    ]
+    assert all(request.headers["authorization"] == "Bearer apk_secret" for request in requests)
+    assert b'name="file"' in requests[0].read()
+    create = json.loads(requests[1].content)
+    assert create == {
+        "prompt": prompt,
+        "structured_output_schema": {"type": "object"},
+        "max_acu_limit": 10,
+        "title": "Migration plan",
+        "tags": ["migraai"],
+        "idempotent": False,
+    }
+    assert "attachment_urls" not in create
+    assert "structured_output_required" not in create
+    assert requests[-1].method == "DELETE"
+    client.close()
+
+    dict_response_client = DevinV1Client(
+        "https://api.example.test",
+        "apk_key",
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(
+                200, json={"url": "https://files.test/dict"}, request=request
+            )
+        ),
+    )
+    assert (
+        dict_response_client.upload_attachment("context.md", b"context")
+        == "https://files.test/dict"
+    )
+    dict_response_client.close()
+
+
+def test_shared_prompt_requires_structured_output() -> None:
+    prompt = build_prompt("teradata", "snowflake", "https://files.test/context")
+    assert (
+        "You MUST finish by calling provide_structured_output with the complete plan; "
+        "do not end without it."
+    ) in prompt
+
+
+@pytest.mark.parametrize(
+    ("status_enum", "expected"),
+    [
+        ("working", "working"),
+        ("blocked", "blocked"),
+        ("expired", "failed"),
+        ("finished", "done"),
+        ("suspend_requested", "failed"),
+        ("suspend_requested_frontend", "failed"),
+        ("resume_requested", "working"),
+        ("resume_requested_frontend", "working"),
+        ("resumed", "working"),
+        (None, "working"),
+    ],
+)
+def test_devin_v1_session_state_mapping(status_enum: str | None, expected: str) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "status": "Raw status",
+                "status_enum": status_enum,
+                "structured_output": {"result": "plan"},
+            },
+            request=request,
+        )
+
+    client = DevinV1Client(
+        "https://api.example.test",
+        "apk_key",
+        transport=httpx.MockTransport(handler),
+    )
+    result = client.get_session("legacy-session")
+    assert result == {
+        "state": expected,
+        "detail": "Raw status" + (f"; {status_enum}" if status_enum else ""),
+        "structured_output": {"result": "plan"},
+    }
+    client.close()
+
+
+@pytest.mark.parametrize(
+    ("status", "status_detail", "expected"),
+    [
+        ("exit", None, "done"),
+        ("running", "finished", "done"),
+        ("running", "waiting_for_user", "blocked"),
+        ("running", "waiting_for_approval", "blocked"),
+        ("error", "worker failed", "failed"),
+        ("suspended", None, "failed"),
+        ("running", None, "working"),
+    ],
+)
+def test_devin_v3_session_state_mapping(
+    status: str, status_detail: str | None, expected: str
+) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "status": status,
+                "status_detail": status_detail,
+                "structured_output": {"result": "plan"},
+            },
+            request=request,
+        )
+
+    client = DevinClient(
+        "https://api.example.test",
+        "org-test",
+        "cog_key",
+        transport=httpx.MockTransport(handler),
+    )
+    result = client.get_session("devin-123")
+    assert result["state"] == expected
+    expected_detail = "; ".join(value for value in (status, status_detail) if value)
+    assert result["detail"] == expected_detail
+    assert result["structured_output"] == {"result": "plan"}
     client.close()
 
 
@@ -276,9 +450,64 @@ class FakeClient:
         self.closed = True
 
 
+def _v1_job(
+    tmp_path: Path,
+    responses: list[dict],
+    *,
+    requests: list[httpx.Request] | None = None,
+    session_created: threading.Event | None = None,
+) -> tuple[PlanJob, KBStore, list[httpx.Request]]:
+    kb_store, plan_store, audit = _stores(tmp_path)
+    captured = requests if requests is not None else []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured.append(request)
+        if request.method == "POST" and request.url.path == "/v1/attachments":
+            return httpx.Response(200, json="https://files.test/context", request=request)
+        if request.method == "POST" and request.url.path == "/v1/sessions":
+            if session_created:
+                session_created.set()
+            return httpx.Response(
+                200,
+                json={
+                    "session_id": "legacy-session",
+                    "url": "https://devin.test/legacy-session",
+                    "is_new_session": True,
+                },
+                request=request,
+            )
+        if request.method == "GET":
+            result = responses.pop(0)
+            if result.get("structured_output") == "local-draft":
+                result["structured_output"] = build_local_draft(
+                    "teradata", "snowflake", kb_store.current_path
+                ).model_dump()
+            return httpx.Response(200, json=result, request=request)
+        return httpx.Response(204, request=request)
+
+    job = PlanJob(
+        source="teradata",
+        target="snowflake",
+        db_path=kb_store.current_path,
+        kb_store=kb_store,
+        plan_store=plan_store,
+        audit=audit,
+        base_url="https://api.devinenterprise.com",
+        org_id="",
+        pat="apk_legacy",
+        client_factory=lambda base_url, _org_id, api_key: DevinV1Client(
+            base_url, api_key, transport=httpx.MockTransport(handler)
+        ),
+    )
+    return job, kb_store, captured
+
+
 def _job(tmp_path: Path, fake: FakeClient, **kwargs) -> PlanJob:
     kb_store, plan_store, audit = _stores(tmp_path)
     timeout_minutes = kwargs.pop("timeout_minutes", 30)
+    org_id = kwargs.pop("org_id", "org-test")
+    pat = kwargs.pop("pat", "cog_test")
+    client_factory = kwargs.pop("client_factory", lambda *_: fake)
     return PlanJob(
         source="teradata",
         target="snowflake",
@@ -287,10 +516,10 @@ def _job(tmp_path: Path, fake: FakeClient, **kwargs) -> PlanJob:
         plan_store=plan_store,
         audit=audit,
         base_url="https://api.devinenterprise.com",
-        org_id="org-test",
-        pat="cog_test",
+        org_id=org_id,
+        pat=pat,
         timeout_minutes=timeout_minutes,
-        client_factory=lambda *_: fake,
+        client_factory=client_factory,
         **kwargs,
     )
 
@@ -309,6 +538,55 @@ class ImmediateEvent:
         return self.cancelled
 
 
+def test_v1_job_finished_and_blocked_outputs_complete(tmp_path: Path) -> None:
+    for index, enum in enumerate(("finished", "blocked")):
+        job, store, _ = _v1_job(
+            tmp_path / str(index),
+            [{"status": "Raw status", "status_enum": enum, "structured_output": "local-draft"}],
+        )
+        job.cancel_event = ImmediateEvent()
+        job.run()
+        assert job.snapshot()["state"] == "done"
+
+
+def test_v1_job_blocked_twice_and_expired_fall_back(tmp_path: Path) -> None:
+    blocked, _, _ = _v1_job(
+        tmp_path / "blocked",
+        [
+            {"status": "Blocked", "status_enum": "blocked"},
+            {"status": "Blocked", "status_enum": "blocked"},
+        ],
+    )
+    blocked.cancel_event = ImmediateEvent()
+    blocked.run()
+    assert blocked.snapshot()["reason"] == "Devin asked for input"
+
+    expired, _, _ = _v1_job(
+        tmp_path / "expired",
+        [{"status": "Expired", "status_enum": "expired"}],
+    )
+    expired.cancel_event = ImmediateEvent()
+    expired.run()
+    assert expired.snapshot()["reason"] == "Devin session ended: Expired; expired"
+
+
+def test_v1_job_cancel_issues_delete(tmp_path: Path) -> None:
+    created = threading.Event()
+    job, _, requests = _v1_job(tmp_path, [], session_created=created)
+    job.start()
+    assert created.wait(2)
+    deadline = time.monotonic() + 2
+    while job.session_id is None and time.monotonic() < deadline:
+        time.sleep(0.001)
+    job.cancel()
+    job.join(2)
+    assert job.snapshot()["state"] == "cancelled"
+    assert any(
+        request.method == "DELETE" and request.url.path == "/v1/sessions/legacy-session"
+        for request in requests
+    )
+
+
 def test_plan_job_validates_citations_and_saves_devin_plan(tmp_path: Path) -> None:
     kb_store, plan_store, audit = _stores(tmp_path)
     draft = build_local_draft("teradata", "snowflake", kb_store.current_path).model_dump()
@@ -316,7 +594,7 @@ def test_plan_job_validates_citations_and_saves_devin_plan(tmp_path: Path) -> No
         {"kb_id": 999, "note": "unknown"},
         {"url": "https://untrusted.example/doc", "note": "external"},
     ]
-    fake = FakeClient([{"status": "exit", "structured_output": draft}])
+    fake = FakeClient([{"state": "done", "detail": "exit", "structured_output": draft}])
     job = PlanJob(
         source="teradata",
         target="snowflake",
@@ -350,14 +628,14 @@ def test_plan_job_validates_citations_and_saves_devin_plan(tmp_path: Path) -> No
 @pytest.mark.parametrize(
     ("status", "detail", "reason"),
     [
-        ("error", "worker failed", "Devin session error: worker failed"),
-        ("suspended", "paused", "Devin session suspended: paused"),
+        ("error", "worker failed", "Devin session ended: error; worker failed"),
+        ("suspended", "paused", "Devin session ended: suspended; paused"),
     ],
 )
 def test_plan_job_error_statuses_fall_back(
     tmp_path: Path, status: str, detail: str, reason: str
 ) -> None:
-    fake = FakeClient([{"status": status, "status_detail": detail}])
+    fake = FakeClient([{"state": "failed", "detail": f"{status}; {detail}"}])
     job = _job(tmp_path, fake)
     job.cancel_event = ImmediateEvent()
     job.run()
@@ -367,16 +645,32 @@ def test_plan_job_error_statuses_fall_back(
 
 
 def test_plan_job_waiting_invalid_and_timeout_fallbacks(tmp_path: Path) -> None:
-    fake = FakeClient([{"status": "waiting_for_user"}, {"status": "waiting_for_user"}])
+    fake = FakeClient(
+        [
+            {"state": "blocked", "detail": "running; waiting_for_user"},
+            {"state": "blocked", "detail": "running; waiting_for_user"},
+        ]
+    )
     waiting = _job(tmp_path / "wait", fake)
     waiting.cancel_event = ImmediateEvent()
     waiting.run()
     assert waiting.snapshot()["reason"] == "Devin asked for input"
 
-    invalid = _job(tmp_path / "invalid", FakeClient([{"status": "exit", "structured_output": {}}]))
+    invalid = _job(
+        tmp_path / "invalid",
+        FakeClient([{"state": "done", "detail": "exit", "structured_output": {}}]),
+    )
     invalid.cancel_event = ImmediateEvent()
     invalid.run()
     assert invalid.snapshot()["reason"] == "Devin returned an invalid plan"
+
+    missing_output = _job(
+        tmp_path / "missing-output",
+        FakeClient([{"state": "done", "detail": "finished", "structured_output": None}]),
+    )
+    missing_output.cancel_event = ImmediateEvent()
+    missing_output.run()
+    assert missing_output.snapshot()["reason"] == "Devin returned an invalid plan"
 
     store, _, _ = _stores(tmp_path / "http")
     invalid_url_plan = build_local_draft("teradata", "snowflake", store.current_path).model_dump()
@@ -385,7 +679,7 @@ def test_plan_job_waiting_invalid_and_timeout_fallbacks(tmp_path: Path) -> None:
     ]
     invalid_url = _job(
         tmp_path / "invalid-url",
-        FakeClient([{"status": "exit", "structured_output": invalid_url_plan}]),
+        FakeClient([{"state": "done", "detail": "exit", "structured_output": invalid_url_plan}]),
     )
     invalid_url.cancel_event = ImmediateEvent()
     invalid_url.run()
@@ -412,6 +706,57 @@ def test_plan_job_cancel_terminates_session(tmp_path: Path) -> None:
     assert job.snapshot()["state"] == "cancelled"
 
 
+def test_plan_job_completes_blocked_v3_output(tmp_path: Path) -> None:
+    store, _, _ = _stores(tmp_path)
+    output = build_local_draft("teradata", "snowflake", store.current_path).model_dump()
+    job = _job(
+        tmp_path,
+        FakeClient(
+            [
+                {
+                    "state": "blocked",
+                    "detail": "running; waiting_for_user",
+                    "structured_output": output,
+                }
+            ]
+        ),
+    )
+    job.cancel_event = ImmediateEvent()
+    job.run()
+    assert job.snapshot()["state"] == "done"
+
+
+def test_plan_job_selects_client_from_token_prefix(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import migraai.planning.job as job_module
+
+    selected: list[str] = []
+    monkeypatch.setattr(
+        job_module,
+        "DevinV1Client",
+        lambda *_: selected.append("v1") or FakeClient([{"state": "failed", "detail": "test"}]),
+    )
+    monkeypatch.setattr(
+        job_module,
+        "DevinClient",
+        lambda *_: selected.append("v3") or FakeClient([{"state": "failed", "detail": "test"}]),
+    )
+    v1 = _job(tmp_path / "v1", FakeClient([]), pat="apk_key", org_id="", client_factory=None)
+    v1.cancel_event = ImmediateEvent()
+    v1.run()
+    v3 = _job(
+        tmp_path / "v3",
+        FakeClient([]),
+        pat="cog_key",
+        org_id="org-test",
+        client_factory=None,
+    )
+    v3.cancel_event = ImmediateEvent()
+    v3.run()
+    assert selected == ["v1", "v3"]
+
+
 def test_pdf_has_all_sections_and_escapes_raw_html(tmp_path: Path) -> None:
     store, plan_store, _ = _stores(tmp_path)
     plan = build_local_draft("teradata", "snowflake", store.current_path)
@@ -430,5 +775,12 @@ def test_pdf_has_all_sections_and_escapes_raw_html(tmp_path: Path) -> None:
     assert content.startswith(b"%PDF")
     reader = PdfReader(__import__("io").BytesIO(content))
     text = "\n".join(page.extract_text() or "" for page in reader.pages)
+    record["devin_session_id"] = "legacy-session-1"
+    assert "Devin session: legacy-session-1" in "\n".join(
+        page.extract_text() or ""
+        for page in PdfReader(
+            __import__("io").BytesIO(render_plan_pdf(record, logo_path=logo))
+        ).pages
+    )
     for _, title in SECTIONS:
         assert title in text

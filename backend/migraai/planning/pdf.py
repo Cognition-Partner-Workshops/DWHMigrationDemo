@@ -39,7 +39,12 @@ def render_plan_pdf(record: dict[str, Any], logo_path: Path) -> bytes:
             f'<section><h2 id="{section.id}">{section.id}. {escape(section.title)}</h2>'
             f"{content}{citation_html}</section>"
         )
-    details = escape(record.get("devin_session_id") or record.get("reason") or "")
+    session_id = record.get("devin_session_id")
+    details = (
+        f"<p>Devin session: {escape(session_id)}</p>"
+        if session_id
+        else f"<p>{escape(record.get('reason') or '')}</p>"
+    )
     logo = logo_path.resolve().as_uri()
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>
     @page {{ size: A4; margin: 18mm; }} body {{ font-family: sans-serif; }}
@@ -52,7 +57,7 @@ def render_plan_pdf(record: dict[str, Any], logo_path: Path) -> bytes:
     <h2>{escape(plan.source)} → {escape(plan.target)}</h2>
     <p>Date: {escape(str(record.get("created_at", "")))}</p>
     <p>KB version: {escape(str(record.get("kb_version", "")))}</p>
-    <p>Origin: {escape(record.get("origin", ""))}</p><p>{details}</p></div>
+    <p>Origin: {escape(record.get("origin", ""))}</p>{details}</div>
     <h1>Table of Contents</h1><ol>{"".join(toc)}</ol>{"".join(sections)}
     </body></html>"""
     output = BytesIO()

@@ -59,6 +59,7 @@ def test_settings_normalize_api_base_url_and_classify_token_prefix(tmp_path: Pat
 
     assert store.read().devin_api_base_url == entered
     assert store.read().token_kind == "legacy"
+    assert store.read().devin_org_id == ""
     assert store.runtime_devin_config()[1] == "https://api.devinenterprise.com"
 
     store.update(SettingsUpdate(devin_pat="cog_personal"))

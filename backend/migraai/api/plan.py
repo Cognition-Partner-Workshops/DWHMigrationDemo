@@ -63,12 +63,7 @@ def start_plan_flow(request: Request, regenerate: bool = False) -> dict:
     version = int(app.state.kb_store.current_version or 1)
     settings = app.state.settings_store.read()
     local_reason = None
-    if settings.token_kind == "legacy":
-        local_reason = (
-            "Legacy Devin API key (apk_) is not supported; create a cog_ personal access token "
-            "in Devin Settings > Devin API"
-        )
-    elif settings.token_kind != "v3" or not settings.devin_org_id:
+    if settings.token_kind == "none" or (settings.token_kind == "v3" and not settings.devin_org_id):
         local_reason = "Devin token not configured"
     previous_job = app.state.plan_job
     if previous_job and previous_job.is_alive():
@@ -102,8 +97,6 @@ def start_plan_flow(request: Request, regenerate: bool = False) -> dict:
     if local_reason:
         return _save_local(request, source, target, local_reason)
     org_id, base_url, pat = app.state.settings_store.runtime_devin_config()
-    if not pat.startswith("cog_"):
-        return _save_local(request, source, target, "Devin token not configured")
     db_path = app.state.kb_store.current_path
     if db_path is None:
         raise HTTPException(status_code=503, detail="Knowledge base is not available.")

@@ -13,5 +13,6 @@ For Q, S, and T set platform_level_estimate to true because object-level discove
 happened.
 Set manual_review to true wherever evidence is uncertain. Do not open repositories, ask
 questions, or wait for input. Return the result only through structured output.
+You MUST finish by calling provide_structured_output with the complete plan; do not end without it.
 ATTACHMENT:"{attachment_url}"
 """
