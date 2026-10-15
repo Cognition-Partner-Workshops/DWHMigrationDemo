@@ -47,9 +47,6 @@ objects:
 - type: unsupported
   qualified_name: conf/misc.json
   status: unparsed
-- type: unsupported
-  qualified_name: conf/submit_orders.json
-  status: unparsed
 - type: external
   qualified_name: dwh.customer_dt
   status: external
@@ -226,6 +223,15 @@ objects:
   status: external
 - type: external
   qualified_name: stg.ref_codes_out
+  status: external
+- type: spark_submit
+  qualified_name: conf/submit_orders.json
+  status: parsed
+- type: external
+  qualified_name: com.acme.etl.TransformJob
+  status: external
+- type: external
+  qualified_name: jobs/transform.py
   status: external
 edges:
 - from: com.acme.etl.Reconcile.main
@@ -435,4 +441,12 @@ edges:
 - from: jobs.transform.write_orders
   to: mart.orders
   kind: etl_writes
+  external: true
+- from: conf/submit_orders.json
+  to: com.acme.etl.TransformJob
+  kind: etl_runs
+  external: true
+- from: conf/submit_orders.json
+  to: jobs/transform.py
+  kind: etl_runs
   external: true

@@ -31,17 +31,17 @@ def _pack_config(pack: Path) -> tuple[str, str]:
 
 def _pack_dirs() -> list[Path]:
     return (
-        sorted(
-            path
-            for path in ROOT.iterdir()
-            if path.is_dir() and (path / "expected_inventory.yaml").is_file()
-        )
+        sorted(path.parent for path in ROOT.rglob("expected_inventory.yaml"))
         if ROOT.is_dir()
         else []
     )
 
 
-@pytest.mark.parametrize("pack", _pack_dirs(), ids=lambda path: path.name)
+def _pack_id(pack: Path) -> str:
+    return pack.relative_to(ROOT).as_posix()
+
+
+@pytest.mark.parametrize("pack", _pack_dirs(), ids=_pack_id)
 def test_testpack_inventory_matches_golden(pack: Path) -> None:
     _kind, source_dialect = _pack_config(pack)
     files = {
@@ -85,6 +85,14 @@ def test_testpack_inventory_matches_golden(pack: Path) -> None:
     )
     assert actual_objects == expected_objects
     assert actual_edges == expected_edges
+
+
+def test_nested_pack_discovery_finds_all_sql_and_etl_packs() -> None:
+    pack_ids = [_pack_id(pack) for pack in _pack_dirs()]
+
+    assert len(pack_ids) == 17
+    assert sum("/" not in pack_id for pack_id in pack_ids) == 9
+    assert sum(pack_id.startswith("etl/") for pack_id in pack_ids) == 8
 
 
 def test_pack_configuration_defaults_and_requires_etl_source_dialect(tmp_path: Path) -> None:

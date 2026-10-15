@@ -7,6 +7,7 @@ This is the shared contract for every Phase 3 workstream. The core (W1) owns eve
 ```
 backend/migraai/discovery/
   ast.py           W1  AST node dataclasses (§3) + to_dict()/walk()
+  etl.py           W1  shared ETL result types (§7)
   lexer.py         W1  configurable lexer (§2)
   parser_base.py   W1  token cursor, Pratt expression parser, ANSI statement/query/DDL parsing (§4)
   references.py    W1  generic reference extraction from the AST (§6)
@@ -187,7 +188,8 @@ Extraction is generic over the AST. Dialects add only `DialectStatement.referenc
 ## 7. Registry, ETL contract and resolution
 
 - `registry.SQL_PARSERS` maps each dialect id to `"migraai.discovery.parsers.<id>"`; `registry.ETL_PARSERS` maps each ETL id to `"migraai.etl.<id>.parse"`. Modules are imported lazily. A missing module makes those files "Unsupported type" with an issue, so groups can land in any order.
-- ETL `parse(data, rel_path) -> EtlParseResult(objects: list[ParsedObject], embedded_sql: list[EmbeddedSql(owner_qualified_name, text, location: str, dialect_hint: str|None)], issues)`.
+- Core defines and re-exports `EmbeddedSql(owner_qualified_name: str, text: str, location: str, dialect_hint: str|None = None)` and `EtlParseResult(objects: list[ParsedObject] = field(default_factory=list), embedded_sql: list[EmbeddedSql] = field(default_factory=list), issues: list[Issue] = field(default_factory=list))` from `migraai.discovery.etl`.
+- ETL `parse(data, rel_path) -> EtlParseResult`.
   - The core parses each `EmbeddedSql` with the confirmed source dialect, or with `dialect_hint` if it names a registered dialect. The resulting references are added to the owner as `etl_reads` and `etl_writes`.
   - All XML is parsed with `defusedxml`; Python with `ast`; nothing is ever executed or imported.
 - **Resolution** (`resolver.py`) uses the dialect's `case_rule` (`upper`, `lower` or `insensitive`) and `default_schema` (the last `USE`, `SET SCHEMA` or `DATABASE` statement in the file).
@@ -221,7 +223,7 @@ Graph            {nodes: [{id, label, type, status, external, center}], edges: [
 
 The `ansi` package is the reference: it uses `ParserBase` with standard quoted-identifier, Oracle q-quote, nested-comment, and dollar-body lexer options. Test packs live under `testpacks/<id>/`; `expected_inventory.yaml` contains exact objects and edges. An optional `pack.yaml` can specify `kind: sql` or `kind: etl` and `source_dialect: <dialect id>`. `kind` defaults to `sql`; SQL packs default their source dialect to the pack id, while ETL packs must set `source_dialect` (typically `ansi` for embedded SQL).
 
-Deferred: SQL A request #6 to move `PsmMixin` and reusable PSM/special forms into `ParserBase` is intentionally not part of this shared-core extension; the existing package-local mixins remain in place.
+Deferred shared-core requests: SQL A request #6 to move `PsmMixin` and reusable PSM/special forms into `ParserBase` remains deferred; existing package-local mixins remain in place. ETL PR #9 requests #4–6 (`LexerConfig.param_patterns`, `ParserBase.parse_fragment()`, and `ParsedObject.name_parts` for path-like resolver keys) are also deferred.
 
 ## 9. Test packs
 

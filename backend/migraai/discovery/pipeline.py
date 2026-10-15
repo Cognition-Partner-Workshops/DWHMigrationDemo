@@ -5,6 +5,7 @@ from typing import Any
 
 from migraai.discovery import ast
 from migraai.discovery.detect import decode_source, detect_file
+from migraai.discovery.etl import EmbeddedSql, EtlParseResult
 from migraai.discovery.objects import ParsedObject
 from migraai.discovery.objects import extract as extract_objects
 from migraai.discovery.references import Reference
@@ -70,27 +71,25 @@ def discover_files(
         if parser is None:
             objects.append(_unsupported(rel_path, source_dialect, detection.detected_type))
             continue
-        result = parser(data, rel_path)
-        etl_objects = list(getattr(result, "objects", []))
+        result: EtlParseResult = parser(data, rel_path)
+        etl_objects = result.objects
         for etl_object in etl_objects:
             etl_object.file_path = rel_path
         objects.extend(etl_objects)
         object_files.update({id(item): rel_path for item in etl_objects})
-        etl_issues = list(getattr(result, "issues", []))
         for etl_object in etl_objects:
-            etl_object.issues.extend(etl_issues)
-        for embedded in getattr(result, "embedded_sql", []):
-            hint = getattr(embedded, "dialect_hint", None)
+            etl_object.issues.extend(result.issues)
+        for embedded in result.embedded_sql:
+            embedded: EmbeddedSql
+            hint = embedded.dialect_hint
             embedded_dialect = (
                 hint if hint and get_sql_parser(str(hint)) is not None else source_dialect
             )
             sql_parser_type = get_sql_parser(embedded_dialect)
             if sql_parser_type is None:
-                owner_name = getattr(embedded, "owner_qualified_name", "")
-                if isinstance(owner_name, ast.QualifiedName):
-                    owner_name = ".".join(part.value for part in owner_name.parts)
+                owner_name = embedded.owner_qualified_name
                 owner = next(
-                    (item for item in etl_objects if item.qualified_name == str(owner_name)),
+                    (item for item in etl_objects if item.qualified_name == owner_name),
                     None,
                 )
                 if owner is not None:
@@ -104,19 +103,17 @@ def discover_files(
                 continue
             sql_parser = sql_parser_type()
             parsed_sql = sql_parser.parse(
-                str(getattr(embedded, "text", "")),
-                str(getattr(embedded, "location", rel_path)),
+                embedded.text,
+                embedded.location or rel_path,
             )
             sql_objects = extract_objects(
                 parsed_sql,
-                str(getattr(embedded, "location", rel_path)),
+                embedded.location or rel_path,
                 sql_parser_type,
             )
-            owner_name = getattr(embedded, "owner_qualified_name", "")
-            if isinstance(owner_name, ast.QualifiedName):
-                owner_name = ".".join(part.value for part in owner_name.parts)
+            owner_name = embedded.owner_qualified_name
             owner = next(
-                (item for item in etl_objects if item.qualified_name == str(owner_name)),
+                (item for item in etl_objects if item.qualified_name == owner_name),
                 None,
             )
             if owner is not None:

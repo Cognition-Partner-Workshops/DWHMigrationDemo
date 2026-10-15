@@ -1,36 +1,21 @@
-"""Shared helpers for the ETL parser packages.
+"""Shared helpers for ETL parser packages.
 
-The core lacks an ETL result/builder model, so these live in this package
-(core change requests are tracked in docs). All ETL tools share the same
-conventions: decode bytes, redact secrets, normalise paths, and build
-ParsedObject entries whose nodes are ``ast.DialectStatement`` trees.
+All ETL tools share the same conventions: decode bytes, redact secrets,
+normalise paths, and build ParsedObject entries whose nodes are
+``ast.DialectStatement`` trees.
 """
 
 from __future__ import annotations
 
 import posixpath
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from migraai.discovery import ast
+from migraai.discovery.etl import EmbeddedSql, EtlParseResult
 from migraai.discovery.objects import ParsedObject
 from migraai.discovery.references import Reference
-
-
-@dataclass(slots=True)
-class EmbeddedSql:
-    owner_qualified_name: str
-    text: str
-    location: str
-    dialect_hint: str | None = None
-
-
-@dataclass(slots=True)
-class EtlParseResult:
-    objects: list[ParsedObject] = field(default_factory=list)
-    embedded_sql: list[EmbeddedSql] = field(default_factory=list)
-    issues: list[ast.Issue] = field(default_factory=list)
 
 
 def decode(data: bytes) -> str:

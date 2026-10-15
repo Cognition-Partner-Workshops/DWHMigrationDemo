@@ -6,6 +6,7 @@ import json
 import re
 from dataclasses import dataclass, field
 
+import yaml
 from defusedxml import ElementTree
 
 _XML_ROOTS = {
@@ -111,8 +112,20 @@ def detect_file(rel_path: str, data: bytes, source_dialect: str) -> Detection:
             )
             if keys & {"definitions", "jobs", "folders", "run_now", "runnow"}:
                 return Detection("controlm", "controlm", text=text, issues=issues)
+            if keys & {"classname", "mainclass", "file", "pyfiles", "jars"}:
+                return Detection("spark", "spark", text=text, issues=issues)
         except (json.JSONDecodeError, RecursionError):
             pass
+    if suffix in {".yml", ".yaml"}:
+        try:
+            document = yaml.safe_load(text)
+        except (yaml.YAMLError, RecursionError):
+            document = None
+        if isinstance(document, dict) and any(
+            isinstance(value, dict) and {"default_args", "tasks"} & value.keys()
+            for value in document.values()
+        ):
+            return Detection("airflow", "airflow", text=text, issues=issues)
     if suffix == ".py":
         airflow, spark = _python_kinds(text)
         if airflow:
