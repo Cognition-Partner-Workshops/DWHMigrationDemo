@@ -11,6 +11,7 @@ from migraai.etl.python.common import (
     XmlParseError,
     file_unparsed,
     parse_xml,
+    redact,
     span,
 )
 
@@ -102,15 +103,9 @@ def _parse_informatica(root: XmlNode, builder: EtlBuilder) -> None:
         for src in folder.find_all("SOURCE"):
             key = src.get("NAME") or ""
             sources[key] = (src.get("DATABASETYPE"), src.get("DBDNAME"))
-        shortcut_names = {
-            sc.get("NAME") for sc in folder.find_all("SHORTCUT") if sc.get("NAME")
-        }
+        shortcut_names = {sc.get("NAME") for sc in folder.find_all("SHORTCUT") if sc.get("NAME")}
         folder_hint = next(
-            (
-                _dbtype_hint(dbtype)
-                for dbtype, _dbdname in sources.values()
-                if _dbtype_hint(dbtype)
-            ),
+            (_dbtype_hint(dbtype) for dbtype, _dbdname in sources.values() if _dbtype_hint(dbtype)),
             None,
         )
         for child in folder.children:
@@ -238,9 +233,7 @@ def _emit_workflow(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
     )
 
 
-def _emit_session(
-    node: XmlNode, folder: str, builder: EtlBuilder, hint: str | None = None
-) -> None:
+def _emit_session(node: XmlNode, folder: str, builder: EtlBuilder, hint: str | None = None) -> None:
     name = node.get("NAME", "?") or "?"
     qualified = f"{folder}.{name}"
     hints: list[ast.RefHint] = []
@@ -295,7 +288,10 @@ def _emit_mapping(
             for inst in node.find_all("INSTANCE")
             if (inst.get("TYPE") or inst.get("TRANSFORMATION_TYPE") or "").upper() == "SOURCE"
             for dbtype in (
-                (inst.get("DATABASETYPE") or (sources.get(inst.get("TRANSFORMATION_NAME") or "") or (None,))[0]),
+                (
+                    inst.get("DATABASETYPE")
+                    or (sources.get(inst.get("TRANSFORMATION_NAME") or "") or (None,))[0]
+                ),
             )
             if (hint := _dbtype_hint(dbtype))
         ),
@@ -323,9 +319,7 @@ def _emit_mapping(
         elif inst.get("REUSABLE", "").upper() == "YES" or inst_type == "MAPPLET":
             hints.append(builder.ref(f"{folder}.{tname}", "calls", span(inst.line)))
         else:
-            _emit_transformation(
-                inst, folder, f"{qualified}.{inst_name}", builder, mapping_hint
-            )
+            _emit_transformation(inst, folder, f"{qualified}.{inst_name}", builder, mapping_hint)
     for child in node.find_all("TRANSFORMATION"):
         if child.get("REUSABLE", "").upper() != "YES":
             cname = child.get("NAME", "?") or "?"
@@ -409,7 +403,33 @@ def _emit_transformation(
         elif attr.casefold() == "stored procedure name" and value.strip():
             hints.append(builder.ref(value, "calls", span(at.line)))
         elif attr.casefold() in {"source filter", "user defined join"} and value.strip():
-            args[attr] = ast.Literal(type="string", value=value, span=span(at.line))
+            if attr.casefold() == "user defined join":
+                from migraai.discovery.parsers.ansi import Parser as _AnsiParser
+
+                res = _AnsiParser().parse(f"SELECT * FROM {value}")
+                if res.statements and not isinstance(res.statements[0], ast.Unparsed):
+                    fexpr, fissues = res.statements[0], []
+                else:
+                    fexpr, fissues = (
+                        ast.Unparsed(
+                            text=redact(value), reason="user defined join", span=span(at.line)
+                        ),
+                        [],
+                    )
+            else:
+                fexpr, fissues, _fcalls = parse_expr(value, at.line)
+            if isinstance(fexpr, ast.Unparsed):
+                issues.append(
+                    ast.Issue(
+                        "warning",
+                        "informatica.filter_unparsed",
+                        f"Could not parse {attr!r} expression.",
+                        span(at.line),
+                    )
+                )
+            else:
+                issues.extend(fissues)
+            args[attr] = fexpr
     if ttype and ttype.casefold() not in _KNOWN_TRANSFORMS:
         issues.append(
             ast.Issue(

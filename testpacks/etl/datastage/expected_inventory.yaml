@@ -36,9 +36,6 @@ objects:
   qualified_name: dw_orders_load
   status: parsed
 - type: stage
-  qualified_name: dw_orders_load.P_BATCH_DT
-  status: parsed
-- type: stage
   qualified_name: dw_orders_load.sql_items
   status: parsed
 - type: stage

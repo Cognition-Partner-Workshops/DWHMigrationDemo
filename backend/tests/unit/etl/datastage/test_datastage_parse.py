@@ -423,3 +423,39 @@ def test_dsexport_xml_pins_direction() -> None:
     by_name = {o.name: o for o in r.objects}
     assert ("etl_reads", "ods.x") in names(by_name["src_x"])
     assert ("etl_writes", "mart.y") in names(by_name["tgt_y"])
+
+
+def test_job_parameters_as_dialect_expr() -> None:
+    data = b"""BEGIN DSJOB
+   Identifier "jpar"
+   JobType "0"
+   Name "jpar"
+   BEGIN DSRECORD
+      Identifier "p1"
+      OLEType "CJobParameter"
+      Name "P_BATCH_DT"
+      Prompt "Batch date"
+      Default "#NA#"
+      ParamType "0"
+   END DSRECORD
+END DSJOB"""
+    r = parse(data, "x.dsx")
+    job = next(o for o in r.objects if o.type == "job")
+    params = job.node.args.get("parameters")
+    assert params and params[0].name == "datastage.parameter"
+    assert params[0].args["default"].__class__.__name__ == "Param"
+    assert not any(o.name == "P_BATCH_DT" for o in r.objects)
+
+
+def test_dsexport_xml_parameters() -> None:
+    data = b"""<DSExport><Job Identifier="jx"><Record Identifier="ROOT" Type="JobDefn">
+<Property Name="Name">jx</Property><Property Name="JobType">0</Property>
+<Collection Name="Parameters" Type="Parameters"><SubRecord>
+<Property Name="Name">P_REGION</Property>
+<Property Name="Default">NA</Property><Property Name="ParamType">0</Property>
+</SubRecord></Collection></Record></Job></DSExport>"""
+    r = parse(data, "x.xml")
+    job = next(o for o in r.objects if o.type == "job")
+    params = job.node.args.get("parameters")
+    assert params and params[0].name == "datastage.parameter"
+    assert params[0].args["default"].__class__.__name__ == "Literal"

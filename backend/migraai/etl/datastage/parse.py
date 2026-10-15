@@ -219,7 +219,11 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
     stages: list[tuple[str, Record]] = []
     inputs: dict[str, int] = {}
     outputs: dict[str, int] = {}
+    parameters: list[ast.Node] = []
     for rec in job.records:
+        if rec.ole_type == "CJobParameter":
+            parameters.append(_param_node(rec))
+            continue
         ole = rec.ole_type
         if ole in {"CTrxOutput", "CCustomOutput", "CJSActivityOutput", "CCustomInput", "CTrxInput"}:
             partner = rec.props.get("Partner", "")
@@ -267,7 +271,6 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
         if (
             ole
             in {
-                "CJobParameter",
                 "CTrxStage",
                 "CCustomStage",
                 "CJsJobActivity",
@@ -352,6 +355,12 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
     else:
         job_args_links = []
     jargs: dict = {"name": ast.Identifier(value=job.name), "job_type": job_type}
+    for rec in job.records:
+        for sub in rec.subrecords:
+            if sub.ole_type == "CJobParameter":
+                parameters.append(_param_node(sub))
+    if parameters:
+        jargs["parameters"] = parameters
     if job_args_links:
         jargs["links"] = job_args_links
     stmt = ast.DialectStatement(
@@ -364,6 +373,29 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
         job.line,
         job.end_line,
         issues,
+    )
+
+
+def _param_node(rec: Record) -> ast.Node:
+    raw_default = (rec.props.get("Default") or "").strip()
+    default: ast.Node | None
+    if not raw_default:
+        default = None
+    elif raw_default.startswith("#") and raw_default.endswith("#"):
+        default = ast.Param(text="@" + raw_default.strip("#"), span=span(rec.line))
+    else:
+        default = ast.Literal(type="string", value=raw_default, span=span(rec.line))
+    return ast.DialectExpr(
+        name="datastage.parameter",
+        args={
+            "name": ast.Identifier(value=rec.props.get("Name") or rec.name),
+            "prompt": ast.Literal(
+                type="string", value=rec.props.get("Prompt", ""), span=span(rec.line)
+            ),
+            "default": default,
+            "type": ast.Identifier(value=rec.props.get("ParamType") or rec.props.get("Type", "")),
+        },
+        span=span(rec.line, rec.end_line),
     )
 
 
@@ -436,9 +468,14 @@ def _record_from_xml(el: XmlNode) -> Record:
             else:
                 props[pname] = child.text.strip()
         elif child.local == "Collection":
-            if child.get("Name", "") in {"InputPins", "OutputPins"}:
-                props[child.get("Name", "")] = "true"
-            subs.extend(_record_from_xml(s) for s in child.find_all("SubRecord"))
+            cname = child.get("Name", "")
+            if cname in {"InputPins", "OutputPins"}:
+                props[cname] = "true"
+            for s in child.find_all("SubRecord"):
+                sub = _record_from_xml(s)
+                if cname == "Parameters" and not sub.ole_type:
+                    sub.ole_type = "CJobParameter"
+                subs.append(sub)
         elif child.local == "SubRecord":
             subs.append(_record_from_xml(child))
     return Record(

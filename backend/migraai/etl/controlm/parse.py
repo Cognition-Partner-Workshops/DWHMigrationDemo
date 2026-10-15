@@ -318,9 +318,15 @@ def _emit_job_json(
     for cal in spec.get("Calendars") or when.get("Calendars") or []:
         hints.append(builder.ref(str(cal), "schedules", span(line)))
     if when:
+        when_args: dict = {}
+        for key, val in when.items():
+            if isinstance(val, (dict, list)):
+                when_args[key.casefold()] = ast.Identifier(value=json.dumps(val, sort_keys=True))
+            else:
+                when_args[key.casefold()] = ast.Literal(type="string", value=str(val))
         args["schedule"] = ast.DialectExpr(
             name="controlm.schedule",
-            args={"when": ast.Literal(type="string", value=json.dumps(when, sort_keys=True))},
+            args={"when": ast.DialectExpr(name="controlm.when", args=when_args, span=span(line))},
             span=span(line),
         )
     if jtype.endswith(":Command") or jtype == "Job:Command":

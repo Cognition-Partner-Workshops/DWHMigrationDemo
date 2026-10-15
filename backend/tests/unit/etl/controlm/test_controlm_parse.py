@@ -210,3 +210,16 @@ def test_expr_precedence_full() -> None:
     assert getattr(n1, "op", "").casefold() == "or"
     n2, _ = parse_expr("(a or b) and c")
     assert getattr(n2, "op", "").casefold() == "and"
+
+
+def test_when_schedule_structured() -> None:
+    data = (
+        b'{"j": {"Type": "Job:Command", "Command": "sh x.sh",'
+        b' "When": {"Months": ["JAN"], "From": "0800"}}}'
+    )
+    r = parse(data, "x.json")
+    job = next(o for o in r.objects if o.name == "j")
+    sched = job.node.args.get("schedule")
+    assert sched is not None and sched.name == "controlm.schedule"
+    when = sched.args["when"]
+    assert when.name == "controlm.when" and "months" in when.args

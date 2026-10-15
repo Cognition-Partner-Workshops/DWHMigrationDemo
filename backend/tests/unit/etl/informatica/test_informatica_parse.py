@@ -274,3 +274,32 @@ def test_dialect_hint_from_databasetype() -> None:
     data2 = data.replace(b'DATABASETYPE="Oracle"', b'DATABASETYPE="HiveMQ"')
     r2 = parse(data2, "x.xml")
     assert all(e.dialect_hint is None for e in r2.embedded_sql)
+
+
+def test_source_filter_parsed_and_param_rewrite() -> None:
+    from migraai.discovery import ast as _ast
+
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F">
+<MAPPING NAME="m"><TRANSFORMATION NAME="sq" TRANSFORMATION_TYPE="Source Qualifier">
+<TABLEATTRIBUTE NAME="Source Filter" VALUE="BATCH_ID = $$BatchId AND FLAG &lt;&gt; 'X'"/>
+<TABLEATTRIBUTE NAME="User Defined Join" VALUE="a join b on a.k = b.k"/>
+</TRANSFORMATION></MAPPING></FOLDER></REPOSITORY></POWERMART>"""
+    r = parse(data, "x.xml")
+    sq = next(o for o in r.objects if o.name == "sq")
+    filt = sq.node.args["Source Filter"]
+    assert not isinstance(filt, _ast.Literal)
+    assert any(isinstance(n, _ast.Param) for n in filt.walk())
+    assert sq.status == "parsed"
+
+
+def test_source_filter_unparsed_marks_partial() -> None:
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F">
+<MAPPING NAME="m"><TRANSFORMATION NAME="sq" TRANSFORMATION_TYPE="Source Qualifier">
+<TABLEATTRIBUTE NAME="Source Filter" VALUE="a = = ("/>
+</TRANSFORMATION></MAPPING>
+<MAPPING NAME="ok"><INSTANCE NAME="t" TYPE="TARGET" TRANSFORMATION_NAME="T"/></MAPPING>
+</FOLDER></REPOSITORY></POWERMART>"""
+    r = parse(data, "x.xml")
+    sq = next(o for o in r.objects if o.name == "sq")
+    assert sq.status == "partial"
+    assert any(i.code == "informatica.filter_unparsed" for i in sq.issues)
