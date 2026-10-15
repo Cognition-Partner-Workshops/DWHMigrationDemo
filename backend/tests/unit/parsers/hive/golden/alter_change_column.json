@@ -1,0 +1,121 @@
+{
+  "kind": "alter",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 82
+  },
+  "object_kind": "table",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 13,
+      "end_line": 1,
+      "end_col": 19
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "events",
+        "quoted": false
+      }
+    ]
+  },
+  "actions": [
+    {
+      "kind": "dialect_statement",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "change_column",
+      "args": {
+        "old_name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 34,
+            "end_line": 1,
+            "end_col": 42
+          },
+          "value": "old_name",
+          "quoted": false
+        },
+        "new_name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 43,
+            "end_line": 1,
+            "end_col": 51
+          },
+          "value": "new_name",
+          "quoted": false
+        },
+        "type": {
+          "kind": "data_type",
+          "span": {
+            "start_line": 1,
+            "start_col": 52,
+            "end_line": 1,
+            "end_col": 58
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 52,
+              "end_line": 1,
+              "end_col": 58
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 52,
+                  "end_line": 1,
+                  "end_col": 58
+                },
+                "value": "STRING",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "comment": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 73,
+            "end_line": 1,
+            "end_col": 79
+          },
+          "type": "string",
+          "value": "name"
+        },
+        "position": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 80,
+            "end_line": 1,
+            "end_col": 82
+          },
+          "value": "id",
+          "quoted": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 31
+  },
+  "name": "create_file_format",
+  "args": {
+    "object_type": "file_format",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 20,
+        "end_line": 1,
+        "end_col": 22
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 20,
+            "end_line": 1,
+            "end_col": 22
+          },
+          "value": "ff",
+          "quoted": false
+        }
+      ]
+    },
+    "replace": false,
+    "if_not_exists": false,
+    "temporary": false,
+    "properties": {
+      "type": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 28,
+          "end_line": 1,
+          "end_col": 31
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 28,
+              "end_line": 1,
+              "end_col": 31
+            },
+            "value": "CSV",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  }
+}

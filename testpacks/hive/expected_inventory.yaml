@@ -1,0 +1,78 @@
+objects:
+  - {type: table, qualified_name: agg_daily_sales, status: parsed}
+  - {type: table, qualified_name: agg_sales, status: parsed}
+  - {type: table, qualified_name: audit_events, status: parsed}
+  - {type: database, qualified_name: analytics, status: parsed}
+  - {type: table, qualified_name: data_watermarks, status: parsed}
+  - {type: table, qualified_name: daily_rollup, status: parsed}
+  - {type: table, qualified_name: post_unsupported, status: parsed}
+  - {type: table, qualified_name: dim_channels, status: parsed}
+  - {type: table, qualified_name: dim_currency, status: parsed}
+  - {type: table, qualified_name: dim_customers, status: parsed}
+  - {type: table, qualified_name: dim_dates, status: parsed}
+  - {type: table, qualified_name: dim_products, status: parsed}
+  - {type: table, qualified_name: dim_promotion, status: parsed}
+  - {type: table, qualified_name: dim_regions, status: parsed}
+  - {type: table, qualified_name: dim_status, status: parsed}
+  - {type: table, qualified_name: dim_stores, status: parsed}
+  - {type: table, qualified_name: dim_suppliers, status: parsed}
+  - {type: table, qualified_name: etl_batches, status: parsed}
+  - {type: table, qualified_name: fact_sales, status: parsed}
+  - {type: table, qualified_name: job_runs, status: parsed}
+  - {type: external, qualified_name: legacy_archive, status: external}
+  - {type: table, qualified_name: quality_checks, status: parsed}
+  - {type: table, qualified_name: raw_addresses, status: parsed}
+  - {type: table, qualified_name: raw_clickstream, status: parsed}
+  - {type: table, qualified_name: raw_currencies, status: parsed}
+  - {type: table, qualified_name: raw_customers, status: parsed}
+  - {type: table, qualified_name: raw_discounts, status: parsed}
+  - {type: table, qualified_name: raw_events, status: parsed}
+  - {type: table, qualified_name: raw_inventory, status: parsed}
+  - {type: table, qualified_name: raw_order_lines, status: parsed}
+  - {type: external_table, qualified_name: raw_orders, status: parsed}
+  - {type: table, qualified_name: raw_payments, status: parsed}
+  - {type: table, qualified_name: raw_products, status: parsed}
+  - {type: table, qualified_name: raw_promotions, status: parsed}
+  - {type: table, qualified_name: raw_refunds, status: parsed}
+  - {type: table, qualified_name: raw_regions, status: parsed}
+  - {type: table, qualified_name: raw_returns, status: parsed}
+  - {type: table, qualified_name: raw_reviews, status: parsed}
+  - {type: table, qualified_name: raw_sessions, status: parsed}
+  - {type: table, qualified_name: raw_shipments, status: parsed}
+  - {type: table, qualified_name: raw_suppliers, status: parsed}
+  - {type: table, qualified_name: raw_tax_rates, status: parsed}
+  - {type: table, qualified_name: recovery_survivor, status: parsed}
+  - {type: table, qualified_name: stage_addresses, status: parsed}
+  - {type: table, qualified_name: stage_customers, status: parsed}
+  - {type: table, qualified_name: stage_discounts, status: parsed}
+  - {type: table, qualified_name: stage_events, status: parsed}
+  - {type: table, qualified_name: stage_inventory, status: parsed}
+  - {type: table, qualified_name: stage_orders, status: parsed}
+  - {type: table, qualified_name: stage_payments, status: parsed}
+  - {type: table, qualified_name: stage_products, status: parsed}
+  - {type: table, qualified_name: stage_returns, status: parsed}
+  - {type: table, qualified_name: stage_shipments, status: parsed}
+  - {type: database, qualified_name: staging, status: parsed}
+  - {type: function, qualified_name: normalize, status: parsed}
+  - {type: view, qualified_name: v_customer_orders, status: parsed}
+  - {type: view, qualified_name: v_event_tags, status: parsed}
+  - {type: view, qualified_name: v_external_legacy, status: parsed}
+  - {type: view, qualified_name: v_normalized_customer, status: parsed}
+  - {type: script, qualified_name: 90_loads.sql, status: parsed}
+edges:
+  - {from: 90_loads.sql, to: agg_sales, kind: writes, external: false}
+  - {from: 90_loads.sql, to: audit_events, kind: writes, external: false}
+  - {from: 90_loads.sql, to: daily_rollup, kind: writes, external: false}
+  - {from: 90_loads.sql, to: raw_orders, kind: reads, external: false}
+  - {from: 90_loads.sql, to: stage_orders, kind: writes, external: false}
+  - {from: agg_daily_sales, to: agg_daily_sales, kind: writes, external: false}
+  - {from: agg_daily_sales, to: raw_orders, kind: reads, external: false}
+  - {from: agg_sales, to: agg_sales, kind: writes, external: false}
+  - {from: agg_sales, to: v_customer_orders, kind: reads, external: false}
+  - {from: v_customer_orders, to: raw_customers, kind: reads, external: false}
+  - {from: v_customer_orders, to: raw_orders, kind: reads, external: false}
+  - {from: v_external_legacy, to: legacy_archive, kind: reads, external: true}
+  - {from: v_normalized_customer, to: normalize, kind: calls, external: false}
+  - {from: v_normalized_customer, to: raw_customers, kind: reads, external: false}
+  - {from: v_event_tags, to: raw_events, kind: reads, external: false}
+  - {from: 90_loads.sql, to: fact_sales, kind: writes, external: false}

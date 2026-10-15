@@ -1,0 +1,89 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 61
+  },
+  "name": "describe",
+  "args": {
+    "mode": "formatted",
+    "object_kind": "table",
+    "target": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 26,
+        "end_line": 1,
+        "end_col": 32
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 26,
+            "end_line": 1,
+            "end_col": 32
+          },
+          "value": "events",
+          "quoted": false
+        }
+      ]
+    },
+    "partition": [
+      {
+        "kind": "assignment",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 44,
+              "end_line": 1,
+              "end_col": 47
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 44,
+                  "end_line": 1,
+                  "end_col": 47
+                },
+                "value": "day",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "value": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 60,
+            "end_line": 1,
+            "end_col": 72
+          },
+          "type": "string",
+          "value": "2025-01-01"
+        }
+      }
+    ]
+  }
+}

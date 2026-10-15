@@ -1,0 +1,96 @@
+objects:
+  - {type: table, qualified_name: analytics.curated.agg_daily_sales, status: parsed}
+  - {type: table, qualified_name: analytics.curated.agg_return_rates, status: parsed}
+  - {type: sequence, qualified_name: analytics.curated.seq_batch_id, status: parsed}
+  - {type: sequence, qualified_name: analytics.curated.seq_order_id, status: parsed}
+  - {type: view, qualified_name: analytics.curated.v_customer_orders, status: parsed}
+  - {type: view, qualified_name: analytics.curated.v_external_legacy, status: parsed}
+  - {type: view, qualified_name: analytics.curated.v_inventory_risk, status: parsed}
+  - {type: view, qualified_name: analytics.curated.v_monthly_revenue, status: parsed}
+  - {type: view, qualified_name: analytics.curated.v_event_items, status: parsed}
+  - {type: materialized_view, qualified_name: analytics.curated.mv_monthly_revenue, status: parsed}
+  - {type: database, qualified_name: analytics, status: parsed}
+  - {type: schema, qualified_name: analytics.curated, status: parsed}
+  - {type: schema, qualified_name: analytics.raw, status: parsed}
+  - {type: schema, qualified_name: analytics.security, status: parsed}
+  - {type: function, qualified_name: analytics.curated.fn_tax, status: parsed}
+  - {type: procedure, qualified_name: analytics.curated.p_refresh, status: parsed}
+  - {type: procedure, qualified_name: analytics.curated.p_transform_js, status: parsed}
+  - {type: task, qualified_name: analytics.curated.task_orders, status: parsed}
+  - {type: task, qualified_name: analytics.curated.task_rebuild, status: parsed}
+  - {type: task, qualified_name: analytics.curated.task_stage, status: parsed}
+  - {type: table, qualified_name: analytics.raw.addresses, status: parsed}
+  - {type: table, qualified_name: analytics.raw.currencies, status: parsed}
+  - {type: table, qualified_name: analytics.raw.customers, status: parsed}
+  - {type: table, qualified_name: analytics.raw.discounts, status: parsed}
+  - {type: table, qualified_name: analytics.raw.events, status: parsed}
+  - {type: table, qualified_name: analytics.raw.inventory, status: parsed}
+  - {type: external, qualified_name: analytics.raw.legacy_archive, status: external}
+  - {type: table, qualified_name: analytics.raw.order_lines, status: parsed}
+  - {type: table, qualified_name: analytics.raw.orders, status: parsed}
+  - {type: table, qualified_name: analytics.raw.payments, status: parsed}
+  - {type: table, qualified_name: analytics.raw.products, status: parsed}
+  - {type: table, qualified_name: analytics.raw.recovery_survivor, status: parsed}
+  - {type: table, qualified_name: analytics.raw.regions, status: parsed}
+  - {type: table, qualified_name: analytics.raw.returns, status: parsed}
+  - {type: table, qualified_name: analytics.raw.shipping, status: parsed}
+  - {type: table, qualified_name: analytics.raw.suppliers, status: parsed}
+  - {type: file_format, qualified_name: analytics.raw.ff_csv, status: parsed}
+  - {type: pipe, qualified_name: analytics.raw.pipe_orders, status: parsed}
+  - {type: stage, qualified_name: analytics.raw.stage_ingest, status: parsed}
+  - {type: stream, qualified_name: analytics.raw.stream_orders, status: parsed}
+  - {type: role, qualified_name: role_analyst, status: parsed}
+  - {type: role, qualified_name: role_engineer, status: parsed}
+  - {type: role, qualified_name: role_loader, status: parsed}
+  - {type: grant, qualified_name: "apply masking policy on analytics.raw.customers", status: parsed}
+  - {type: grant, qualified_name: "role on role_loader", status: parsed}
+  - {type: grant, qualified_name: "select on analytics.curated.v_customer_orders", status: parsed}
+  - {type: grant, qualified_name: "usage on analytics", status: parsed}
+  - {type: share, qualified_name: share_partner, status: parsed}
+  - {type: user, qualified_name: user_service, status: parsed}
+  - {type: policy, qualified_name: analytics.security.mask_email, status: parsed}
+  - {type: policy, qualified_name: analytics.security.row_region, status: parsed}
+  - {type: tag, qualified_name: analytics.security.sensitivity, status: parsed}
+  - {type: warehouse, qualified_name: analytics.wh_etl, status: parsed}
+  - {type: script, qualified_name: 90_loads.sql, status: parsed}
+edges:
+  - {from: analytics.curated.agg_daily_sales, to: analytics.curated.agg_daily_sales, kind: writes, external: false}
+  - {from: analytics.curated.agg_daily_sales, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: analytics.curated.agg_return_rates, to: analytics.curated.agg_return_rates, kind: writes, external: false}
+  - {from: analytics.curated.agg_return_rates, to: analytics.raw.returns, kind: reads, external: false}
+  - {from: analytics.security.row_region, to: analytics.raw.regions, kind: reads, external: false}
+  - {from: analytics.curated.task_orders, to: analytics.curated.agg_daily_sales, kind: writes, external: false}
+  - {from: analytics.curated.task_orders, to: analytics.curated.task_stage, kind: schedules, external: false}
+  - {from: analytics.curated.task_orders, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: analytics.curated.task_orders, to: analytics.raw.stream_orders, kind: reads, external: false}
+  - {from: analytics.curated.task_stage, to: analytics.raw.events, kind: writes, external: false}
+  - {from: analytics.curated.task_stage, to: analytics.raw.stage_ingest, kind: reads, external: false}
+  - {from: analytics.curated.v_customer_orders, to: analytics.raw.customers, kind: reads, external: false}
+  - {from: analytics.curated.v_customer_orders, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: analytics.curated.v_external_legacy, to: analytics.raw.legacy_archive, kind: reads, external: true}
+  - {from: analytics.curated.v_inventory_risk, to: analytics.raw.inventory, kind: reads, external: false}
+  - {from: analytics.curated.v_inventory_risk, to: analytics.raw.products, kind: reads, external: false}
+  - {from: analytics.curated.v_monthly_revenue, to: analytics.raw.order_lines, kind: reads, external: false}
+  - {from: analytics.curated.v_monthly_revenue, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: analytics.raw.pipe_orders, to: analytics.raw.ff_csv, kind: reads, external: false}
+  - {from: analytics.raw.pipe_orders, to: analytics.raw.orders, kind: writes, external: false}
+  - {from: analytics.raw.pipe_orders, to: analytics.raw.stage_ingest, kind: reads, external: false}
+  - {from: analytics.raw.stage_ingest, to: analytics.raw.ff_csv, kind: reads, external: false}
+  - {from: analytics.raw.stream_orders, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: "apply masking policy on analytics.raw.customers", to: analytics.raw.customers, kind: grant_on, external: false}
+  - {from: "role on role_loader", to: role_loader, kind: grant_on, external: false}
+  - {from: "select on analytics.curated.v_customer_orders", to: analytics.curated.v_customer_orders, kind: grant_on, external: false}
+  - {from: "usage on analytics", to: analytics, kind: grant_on, external: false}
+  - {from: 90_loads.sql, to: analytics.curated.agg_daily_sales, kind: writes, external: false}
+  - {from: 90_loads.sql, to: analytics.curated.agg_return_rates, kind: writes, external: false}
+  - {from: 90_loads.sql, to: analytics.raw.ff_csv, kind: reads, external: false}
+  - {from: 90_loads.sql, to: analytics.raw.order_lines, kind: reads, external: false}
+  - {from: 90_loads.sql, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: 90_loads.sql, to: analytics.raw.orders, kind: writes, external: false}
+  - {from: 90_loads.sql, to: analytics.raw.stage_ingest, kind: reads, external: false}
+  - {from: analytics.curated.mv_monthly_revenue, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: analytics.curated.p_refresh, to: analytics.curated.agg_daily_sales, kind: writes, external: false}
+  - {from: analytics.curated.p_refresh, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: analytics.curated.task_rebuild, to: analytics.curated.p_refresh, kind: calls, external: false}
+  - {from: analytics.curated.task_rebuild, to: analytics.curated.task_orders, kind: schedules, external: false}
+  - {from: analytics.curated.v_event_items, to: analytics.raw.events, kind: reads, external: false}

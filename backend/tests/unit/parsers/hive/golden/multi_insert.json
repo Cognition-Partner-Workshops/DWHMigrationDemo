@@ -1,0 +1,233 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 84
+  },
+  "name": "multi_insert",
+  "args": {
+    "from": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 6,
+          "end_line": 1,
+          "end_col": 9
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 6,
+            "end_line": 1,
+            "end_col": 9
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 6,
+                "end_line": 1,
+                "end_col": 9
+              },
+              "value": "src",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "inserts": [
+      {
+        "kind": "insert",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 33,
+            "end_line": 1,
+            "end_col": 38
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 33,
+                "end_line": 1,
+                "end_col": 38
+              },
+              "value": "out_a",
+              "quoted": false
+            }
+          ]
+        },
+        "source": {
+          "kind": "query",
+          "span": {
+            "start_line": 1,
+            "start_col": 39,
+            "end_line": 1,
+            "end_col": 45
+          },
+          "body": {
+            "kind": "select",
+            "span": {
+              "start_line": 1,
+              "start_col": 39,
+              "end_line": 1,
+              "end_col": 45
+            },
+            "distinct": false,
+            "projections": [
+              {
+                "kind": "select_item",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 46,
+                  "end_line": 1,
+                  "end_col": 48
+                },
+                "expr": {
+                  "kind": "column_ref",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 46,
+                    "end_line": 1,
+                    "end_col": 48
+                  },
+                  "name": {
+                    "kind": "qualified_name",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 46,
+                      "end_line": 1,
+                      "end_col": 48
+                    },
+                    "parts": [
+                      {
+                        "kind": "identifier",
+                        "span": {
+                          "start_line": 1,
+                          "start_col": 46,
+                          "end_line": 1,
+                          "end_col": 48
+                        },
+                        "value": "id",
+                        "quoted": false
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "overwrite": true
+      },
+      {
+        "kind": "insert",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 67,
+            "end_line": 1,
+            "end_col": 72
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 67,
+                "end_line": 1,
+                "end_col": 72
+              },
+              "value": "out_b",
+              "quoted": false
+            }
+          ]
+        },
+        "source": {
+          "kind": "query",
+          "span": {
+            "start_line": 1,
+            "start_col": 73,
+            "end_line": 1,
+            "end_col": 79
+          },
+          "body": {
+            "kind": "select",
+            "span": {
+              "start_line": 1,
+              "start_col": 73,
+              "end_line": 1,
+              "end_col": 79
+            },
+            "distinct": false,
+            "projections": [
+              {
+                "kind": "select_item",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 80,
+                  "end_line": 1,
+                  "end_col": 84
+                },
+                "expr": {
+                  "kind": "column_ref",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 80,
+                    "end_line": 1,
+                    "end_col": 84
+                  },
+                  "name": {
+                    "kind": "qualified_name",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 80,
+                      "end_line": 1,
+                      "end_col": 84
+                    },
+                    "parts": [
+                      {
+                        "kind": "identifier",
+                        "span": {
+                          "start_line": 1,
+                          "start_col": 80,
+                          "end_line": 1,
+                          "end_col": 84
+                        },
+                        "value": "name",
+                        "quoted": false
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "overwrite": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 85
+  },
+  "routine_kind": "function",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 17,
+      "end_line": 1,
+      "end_col": 19
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "js",
+        "quoted": false
+      }
+    ]
+  },
+  "params": [
+    {
+      "kind": "routine_param",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 20,
+          "end_line": 1,
+          "end_col": 21
+        },
+        "value": "x",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 22,
+          "end_line": 1,
+          "end_col": 27
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 22,
+            "end_line": 1,
+            "end_col": 27
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 22,
+                "end_line": 1,
+                "end_col": 27
+              },
+              "value": "FLOAT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "returns": {
+    "kind": "data_type",
+    "span": {
+      "start_line": 1,
+      "start_col": 37,
+      "end_line": 1,
+      "end_col": 42
+    },
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 37,
+        "end_line": 1,
+        "end_col": 42
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 37,
+            "end_line": 1,
+            "end_col": 42
+          },
+          "value": "FLOAT",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "language": "javascript",
+  "body": " return x * 2; ",
+  "options": {
+    "replace": false,
+    "secure": false,
+    "temporary": false
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 28
+  },
+  "name": "create_stream",
+  "args": {
+    "object_type": "stream",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 15,
+        "end_line": 1,
+        "end_col": 17
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 15,
+            "end_line": 1,
+            "end_col": 17
+          },
+          "value": "st",
+          "quoted": false
+        }
+      ]
+    },
+    "replace": false,
+    "if_not_exists": false,
+    "temporary": false,
+    "on_kind": "table",
+    "on": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 27,
+        "end_line": 1,
+        "end_col": 28
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 27,
+            "end_line": 1,
+            "end_col": 28
+          },
+          "value": "t",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 27,
+          "end_line": 1,
+          "end_col": 28
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 27,
+              "end_line": 1,
+              "end_col": 28
+            },
+            "value": "t",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "reads"
+    }
+  ]
+}

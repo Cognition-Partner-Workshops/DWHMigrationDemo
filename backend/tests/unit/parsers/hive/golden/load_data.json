@@ -1,0 +1,134 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 95
+  },
+  "name": "load_data",
+  "args": {
+    "local": true,
+    "path": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 38,
+        "end_line": 1,
+        "end_col": 52
+      },
+      "type": "string",
+      "value": "/tmp/day.csv"
+    },
+    "overwrite": true,
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 60,
+        "end_line": 1,
+        "end_col": 66
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 60,
+            "end_line": 1,
+            "end_col": 66
+          },
+          "value": "events",
+          "quoted": false
+        }
+      ]
+    },
+    "partition": [
+      {
+        "kind": "assignment",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 78,
+              "end_line": 1,
+              "end_col": 81
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 78,
+                  "end_line": 1,
+                  "end_col": 81
+                },
+                "value": "day",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "value": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 94,
+            "end_line": 1,
+            "end_col": 106
+          },
+          "type": "string",
+          "value": "2025-01-01"
+        }
+      }
+    ]
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 5
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 60,
+          "end_line": 1,
+          "end_col": 66
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 60,
+              "end_line": 1,
+              "end_col": 66
+            },
+            "value": "events",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "writes"
+    }
+  ]
+}

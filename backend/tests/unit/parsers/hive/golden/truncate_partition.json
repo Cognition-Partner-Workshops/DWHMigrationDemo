@@ -1,0 +1,121 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 51
+  },
+  "name": "truncate_table",
+  "args": {
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 16,
+        "end_line": 1,
+        "end_col": 22
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 16,
+            "end_line": 1,
+            "end_col": 22
+          },
+          "value": "events",
+          "quoted": false
+        }
+      ]
+    },
+    "partition": [
+      {
+        "kind": "assignment",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 34,
+              "end_line": 1,
+              "end_col": 37
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 34,
+                  "end_line": 1,
+                  "end_col": 37
+                },
+                "value": "day",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "value": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 50,
+            "end_line": 1,
+            "end_col": 62
+          },
+          "type": "string",
+          "value": "2025-01-01"
+        }
+      }
+    ]
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 9
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 22
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 16,
+              "end_line": 1,
+              "end_col": 22
+            },
+            "value": "events",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "writes"
+    }
+  ]
+}

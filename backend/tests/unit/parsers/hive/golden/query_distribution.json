@@ -1,0 +1,226 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 86
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 10
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 10
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 10
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 10
+                },
+                "value": "id",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 22
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 16,
+            "end_line": 1,
+            "end_col": 22
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 16,
+                "end_line": 1,
+                "end_col": 22
+              },
+              "value": "events",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "limit": {
+    "kind": "limit",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 1
+    },
+    "count": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 84,
+        "end_line": 1,
+        "end_col": 86
+      },
+      "type": "number",
+      "value": "10"
+    },
+    "fetch_first": false,
+    "with_ties": false,
+    "percent": false
+  },
+  "distribute_by": [
+    {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 37,
+        "end_line": 1,
+        "end_col": 43
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 37,
+          "end_line": 1,
+          "end_col": 43
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 37,
+              "end_line": 1,
+              "end_col": 43
+            },
+            "value": "region",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  ],
+  "sort_by": [
+    {
+      "kind": "order_item",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "expr": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 52,
+          "end_line": 1,
+          "end_col": 54
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 52,
+            "end_line": 1,
+            "end_col": 54
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 52,
+                "end_line": 1,
+                "end_col": 54
+              },
+              "value": "id",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "desc": true
+    }
+  ],
+  "cluster_by": [
+    {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 71,
+        "end_line": 1,
+        "end_col": 77
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 71,
+          "end_line": 1,
+          "end_col": 77
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 71,
+              "end_line": 1,
+              "end_col": 77
+            },
+            "value": "bucket",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  ]
+}

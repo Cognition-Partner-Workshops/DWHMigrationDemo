@@ -1,0 +1,197 @@
+{
+  "kind": "insert",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 85
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 24,
+      "end_line": 1,
+      "end_col": 30
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 30
+        },
+        "value": "events",
+        "quoted": false
+      }
+    ]
+  },
+  "source": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 68,
+      "end_line": 1,
+      "end_col": 74
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 68,
+        "end_line": 1,
+        "end_col": 74
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 75,
+            "end_line": 1,
+            "end_col": 76
+          },
+          "expr": {
+            "kind": "star",
+            "span": {
+              "start_line": 1,
+              "start_col": 75,
+              "end_line": 1,
+              "end_col": 76
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 82,
+            "end_line": 1,
+            "end_col": 85
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 82,
+              "end_line": 1,
+              "end_col": 85
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 82,
+                  "end_line": 1,
+                  "end_col": 85
+                },
+                "value": "src",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "overwrite": true,
+  "partition": [
+    {
+      "kind": "assignment",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "target": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 42,
+            "end_line": 1,
+            "end_col": 45
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 42,
+                "end_line": 1,
+                "end_col": 45
+              },
+              "value": "day",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "value": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 58,
+          "end_line": 1,
+          "end_col": 70
+        },
+        "type": "string",
+        "value": "2025-01-01"
+      }
+    },
+    {
+      "kind": "assignment",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "target": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 60,
+            "end_line": 1,
+            "end_col": 66
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 60,
+                "end_line": 1,
+                "end_col": 66
+              },
+              "value": "region",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 140
+  },
+  "routine_kind": "function",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 27,
+      "end_line": 1,
+      "end_col": 36
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 27,
+          "end_line": 1,
+          "end_col": 36
+        },
+        "value": "normalize",
+        "quoted": false
+      }
+    ]
+  },
+  "language": "java",
+  "options": {
+    "class_name": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 63,
+        "end_line": 1,
+        "end_col": 86
+      },
+      "type": "string",
+      "value": "com.example.Normalize"
+    },
+    "resources": [
+      {
+        "type": "jar",
+        "uri": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 91,
+            "end_line": 1,
+            "end_col": 108
+          },
+          "type": "string",
+          "value": "hdfs:///udf.jar"
+        }
+      },
+      {
+        "type": "file",
+        "uri": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 119,
+            "end_line": 1,
+            "end_col": 140
+          },
+          "type": "string",
+          "value": "hdfs:///config.json"
+        }
+      }
+    ],
+    "temporary": true
+  }
+}

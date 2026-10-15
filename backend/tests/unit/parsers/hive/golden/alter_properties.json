@@ -1,0 +1,59 @@
+{
+  "kind": "alter",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 59
+  },
+  "object_kind": "table",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 13,
+      "end_line": 1,
+      "end_col": 19
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "events",
+        "quoted": false
+      }
+    ]
+  },
+  "actions": [
+    {
+      "kind": "dialect_statement",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "set_tblproperties",
+      "args": {
+        "properties": {
+          "owner": {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 58,
+              "end_line": 1,
+              "end_col": 69
+            },
+            "type": "string",
+            "value": "warehouse"
+          }
+        }
+      }
+    }
+  ]
+}

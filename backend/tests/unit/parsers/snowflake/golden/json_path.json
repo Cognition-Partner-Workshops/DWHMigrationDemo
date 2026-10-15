@@ -1,0 +1,198 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 52
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 15
+        },
+        "expr": {
+          "kind": "cast",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "expr": {
+            "kind": "subscript",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "expr": {
+              "kind": "field_access",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "expr": {
+                "kind": "dialect_expr",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 1,
+                  "end_line": 1,
+                  "end_col": 1
+                },
+                "name": "json_path",
+                "args": {
+                  "expr": {
+                    "kind": "column_ref",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 8,
+                      "end_line": 1,
+                      "end_col": 15
+                    },
+                    "name": {
+                      "kind": "qualified_name",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 8,
+                        "end_line": 1,
+                        "end_col": 15
+                      },
+                      "parts": [
+                        {
+                          "kind": "identifier",
+                          "span": {
+                            "start_line": 1,
+                            "start_col": 8,
+                            "end_line": 1,
+                            "end_col": 15
+                          },
+                          "value": "payload",
+                          "quoted": false
+                        }
+                      ]
+                    }
+                  },
+                  "key": {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 16,
+                      "end_line": 1,
+                      "end_col": 24
+                    },
+                    "value": "customer",
+                    "quoted": false
+                  }
+                }
+              },
+              "field": {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 25,
+                  "end_line": 1,
+                  "end_col": 29
+                },
+                "value": "name",
+                "quoted": false
+              }
+            },
+            "index": {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 30,
+                "end_line": 1,
+                "end_col": 31
+              },
+              "type": "number",
+              "value": "0"
+            }
+          },
+          "to": {
+            "kind": "data_type",
+            "span": {
+              "start_line": 1,
+              "start_col": 34,
+              "end_line": 1,
+              "end_col": 40
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 34,
+                "end_line": 1,
+                "end_col": 40
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 34,
+                    "end_line": 1,
+                    "end_col": 40
+                  },
+                  "value": "STRING",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "style": "double_colon"
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 46,
+          "end_line": 1,
+          "end_col": 52
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 46,
+            "end_line": 1,
+            "end_col": 52
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 46,
+                "end_line": 1,
+                "end_col": 52
+              },
+              "value": "events",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
