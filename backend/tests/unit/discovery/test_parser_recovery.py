@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
-import migraai.discovery.parser_base as parser_base
 from migraai.discovery import ast
 from migraai.discovery.parser_base import ParserBase
 from migraai.discovery.parsers.ansi import Parser
@@ -50,10 +47,9 @@ def test_default_depth_limit_is_500_and_rejects_deep_parentheses() -> None:
     assert any(isinstance(statement, ast.Unparsed) for statement in result.statements)
 
 
-def test_file_time_budget_uses_injected_clock(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_file_time_budget_uses_injected_clock() -> None:
     times = iter((100.0, 131.0))
-    monkeypatch.setattr(parser_base.time, "monotonic", lambda: next(times))
-    parser = ParserBase()
+    parser = ParserBase(clock=lambda: next(times))
     parser.time_check_interval = 1
     result = parser.parse("SELECT 1 + 2", "budget.sql")
     assert parser.file_time_limit_seconds == 30.0

@@ -16,7 +16,18 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, Response
 
-from migraai.api import auth, health, kb, plan, platforms, resources, session, settings
+from migraai.api import (
+    auth,
+    health,
+    inventory,
+    kb,
+    plan,
+    platforms,
+    resources,
+    session,
+    settings,
+    uploads,
+)
 from migraai.core.audit import AuditLog
 from migraai.core.config import get_data_root
 from migraai.core.logging import AccessLogger
@@ -216,6 +227,14 @@ def create_app(
         try:
             yield
         finally:
+            current_session = app.state.current_session
+            if current_session:
+                discovery = current_session.get("discovery")
+                if discovery is not None:
+                    discovery.close()
+                inventory_store = current_session.get("inventory")
+                if inventory_store is not None:
+                    inventory_store.close()
             app.state.audit_log.append("system", "app.stop", "application")
             wipe_sessions(resolved_data_dir)
 
@@ -263,6 +282,8 @@ def create_app(
     app.include_router(kb.router)
     app.include_router(plan.router)
     app.include_router(resources.router)
+    app.include_router(uploads.router)
+    app.include_router(inventory.router)
 
     spa_fallback = _serve_spa(resolved_web_dir)
 

@@ -22,11 +22,22 @@ class PlanStore:
                 source TEXT NOT NULL,target TEXT NOT NULL,kb_version INTEGER NOT NULL,
                 origin TEXT NOT NULL CHECK(origin IN ('devin','local_draft')),
                 devin_session_id TEXT,devin_url TEXT,reason TEXT,created_at TEXT NOT NULL,
-                payload TEXT NOT NULL)"""
+                payload TEXT NOT NULL, inventory_fingerprint TEXT NOT NULL DEFAULT '')"""
             )
+            columns = {
+                str(row[1]) for row in connection.execute("PRAGMA table_info(plans)").fetchall()
+            }
+            if "inventory_fingerprint" not in columns:
+                connection.execute(
+                    "ALTER TABLE plans ADD COLUMN inventory_fingerprint TEXT NOT NULL DEFAULT ''"
+                )
             connection.execute(
                 "CREATE INDEX IF NOT EXISTS plans_pair_version "
                 "ON plans(source,target,kb_version,id)"
+            )
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS plans_cache_key "
+                "ON plans(source,target,kb_version,inventory_fingerprint,id)"
             )
 
     def save(
@@ -40,13 +51,15 @@ class PlanStore:
         devin_session_id: str | None = None,
         devin_url: str | None = None,
         reason: str | None = None,
+        inventory_fingerprint: str = "",
     ) -> dict[str, Any]:
         payload = plan.model_dump(mode="json")
         with sqlite3.connect(self.database) as connection:
             cursor = connection.execute(
                 """INSERT INTO plans
-                (source,target,kb_version,origin,devin_session_id,devin_url,reason,created_at,payload)
-                VALUES(?,?,?,?,?,?,?,?,?)""",
+                (source,target,kb_version,origin,devin_session_id,devin_url,reason,
+                created_at,payload,inventory_fingerprint)
+                VALUES(?,?,?,?,?,?,?,?,?,?)""",
                 (
                     source,
                     target,
@@ -57,6 +70,7 @@ class PlanStore:
                     reason,
                     datetime.now(UTC).isoformat(),
                     json.dumps(payload, ensure_ascii=False),
+                    inventory_fingerprint,
                 ),
             )
             plan_id = int(cursor.lastrowid)
@@ -79,6 +93,7 @@ class PlanStore:
         *,
         kb_version: int | None = None,
         origin: str | None = None,
+        inventory_fingerprint: str | None = None,
     ) -> dict[str, Any] | None:
         clauses = ["source=?", "target=?"]
         params: list[Any] = [source, target]
@@ -88,6 +103,9 @@ class PlanStore:
         if origin is not None:
             clauses.append("origin=?")
             params.append(origin)
+        if inventory_fingerprint is not None:
+            clauses.append("inventory_fingerprint=?")
+            params.append(inventory_fingerprint)
         with sqlite3.connect(self.database) as connection:
             connection.row_factory = sqlite3.Row
             row = connection.execute(

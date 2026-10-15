@@ -39,6 +39,23 @@ TEMPLATES = {
     "S": "Platform-level estimate; refined after object discovery.",
     "T": "Platform-level estimate; refined after object discovery.",
 }
+# Relative person-days per object for the aggregate-only local sizing estimate.
+EFFORT_WEIGHTS = {
+    "table": 0.8,
+    "view": 0.5,
+    "materialized_view": 0.8,
+    "procedure": 1.5,
+    "function": 1.0,
+    "trigger": 0.7,
+    "index": 0.3,
+    "sequence": 0.2,
+    "schema": 0.2,
+    "database": 0.2,
+    "package": 1.5,
+    "type": 0.7,
+    "grant": 0.1,
+    "external": 1.0,
+}
 PLATFORM_NAMES = {item["id"]: item["name"] for item in (*SOURCES, *TARGETS)}
 
 
@@ -52,6 +69,48 @@ def _text(value: Any) -> str:
 
 def _platform_name(platform: str) -> str:
     return PLATFORM_NAMES.get(platform, platform.replace("_", " ").title())
+
+
+def _inventory_section(section_id: str, aggregates: dict[str, Any]) -> str:
+    type_counts = aggregates["objects_by_type"]
+    status_counts = aggregates["parse_status_counts"]
+    total_objects = sum(int(count) for count in status_counts.values())
+    if total_objects == 0:
+        return TEMPLATES[section_id]
+
+    if section_id == "Q":
+        effort = sum(
+            int(count) * EFFORT_WEIGHTS.get(object_type, 1.0)
+            for object_type, count in type_counts.items()
+        )
+        type_summary = ", ".join(
+            f"{object_type}={type_counts[object_type]}" for object_type in sorted(type_counts)
+        )
+        return (
+            f"Aggregate inventory estimate: approximately {effort:.1f} person-days across "
+            f"{total_objects} objects ({type_summary}). This is a coarse estimate."
+        )
+    if section_id == "S":
+        unparsed_share = int(status_counts.get("unparsed", 0)) / total_objects
+        partial_share = int(status_counts.get("partial", 0)) / total_objects
+        confidence = max(0.0, 1.0 - unparsed_share - partial_share)
+        return (
+            f"Aggregate inventory confidence: {confidence:.0%}; unparsed share "
+            f"{unparsed_share:.0%}, partial share {partial_share:.0%}."
+        )
+
+    unparsed = int(status_counts.get("unparsed", 0))
+    partial = int(status_counts.get("partial", 0))
+    issue_counts = aggregates["issues_by_severity"]
+    issue_summary = (
+        ", ".join(f"{severity}={issue_counts[severity]}" for severity in sorted(issue_counts))
+        or "none"
+    )
+    return (
+        f"Manual review counts: {unparsed} unparsed objects, {partial} partial objects, "
+        f"{aggregates['external_reference_count']} external references; issues by severity: "
+        f"{issue_summary}."
+    )
 
 
 def _pair_heading(source: str, target: str) -> str:
@@ -91,7 +150,12 @@ def _render_claim_groups(
     return "\n\n".join(content), selected
 
 
-def build_local_draft(source: str, target: str, db_path: Path) -> Plan:
+def build_local_draft(
+    source: str,
+    target: str,
+    db_path: Path,
+    inventory_aggregates: dict[str, Any] | None = None,
+) -> Plan:
     pair = get_pair(source, target, db_path=db_path)
     with connect(db_path) as connection:
         profile = connection.execute(
@@ -272,9 +336,13 @@ def build_local_draft(source: str, target: str, db_path: Path) -> Plan:
                 for row in compatibility_claims
             )
         elif section_id in TEMPLATES:
-            content = f"### {_pair_heading(source, target)}\n\n- " + TEMPLATES[section_id].format(
-                source=_platform_name(source),
-                target=_platform_name(target),
+            template = (
+                _inventory_section(section_id, inventory_aggregates)
+                if inventory_aggregates and section_id in {"Q", "S", "T"}
+                else TEMPLATES[section_id]
+            )
+            content = f"### {_pair_heading(source, target)}\n\n- " + template.format(
+                source=_platform_name(source), target=_platform_name(target)
             )
         else:
             content = "No curated knowledge for this pair yet."

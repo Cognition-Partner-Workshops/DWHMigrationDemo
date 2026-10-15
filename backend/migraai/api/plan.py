@@ -24,7 +24,12 @@ def _session(request: Request) -> dict:
     return session
 
 
-def _record_view(record: dict, current_version: int | None, cached: bool = False) -> dict:
+def _record_view(
+    record: dict,
+    current_version: int | None,
+    current_inventory_fingerprint: str = "",
+    cached: bool = False,
+) -> dict:
     return {
         "state": "done" if record["origin"] == "devin" else "failed_fallback",
         "progress": {"phase": "done", "elapsed_s": 0, "devin_url": record["devin_url"]},
@@ -34,16 +39,29 @@ def _record_view(record: dict, current_version: int | None, cached: bool = False
         "cached": cached,
         "kb_version": record["kb_version"],
         "stale": record["kb_version"] != current_version,
+        "inventory_stale": record["inventory_fingerprint"] != current_inventory_fingerprint,
         "created_at": record["created_at"],
         "devin_session_id": record["devin_session_id"],
         "label": ("Local draft (Devin unavailable)" if record["origin"] == "local_draft" else None),
     }
 
 
-def _save_local(request: Request, source: str, target: str, reason: str) -> dict:
+def _save_local(
+    request: Request,
+    source: str,
+    target: str,
+    reason: str,
+    inventory_aggregates: dict | None,
+    inventory_fingerprint: str,
+) -> dict:
     app = request.app
     version = int(app.state.kb_store.current_version or 1)
-    plan = build_local_draft(source, target, app.state.kb_store.current_path)
+    plan = build_local_draft(
+        source,
+        target,
+        app.state.kb_store.current_path,
+        inventory_aggregates=inventory_aggregates,
+    )
     record = app.state.plan_store.save(
         plan,
         source=source,
@@ -51,17 +69,28 @@ def _save_local(request: Request, source: str, target: str, reason: str) -> dict
         kb_version=version,
         origin="local_draft",
         reason=reason,
+        inventory_fingerprint=inventory_fingerprint,
     )
     app.state.audit_log.append(
         "system", "plan.fallback", f"{source}:{target}", {"reason": reason, "kb_version": version}
     )
-    return _record_view(record, app.state.kb_store.current_version)
+    return _record_view(
+        record,
+        app.state.kb_store.current_version,
+        current_inventory_fingerprint=inventory_fingerprint,
+    )
 
 
 def start_plan_flow(request: Request, regenerate: bool = False) -> dict:
     app = request.app
     session = _session(request)
     source, target = session["source"], session["target"]
+    with session["inventory"].lock:
+        inventory_aggregates = session["inventory"].aggregates()
+        inventory_fingerprint = session["inventory"].fingerprint()
+    has_inventory_summary = bool(inventory_aggregates["objects_by_type"])
+    if not inventory_fingerprint:
+        inventory_aggregates = None
     version = int(app.state.kb_store.current_version or 1)
     settings = app.state.settings_store.read()
     local_reason = None
@@ -71,7 +100,13 @@ def start_plan_flow(request: Request, regenerate: bool = False) -> dict:
     if previous_job and previous_job.is_alive():
         previous_job.cancel()
     if not regenerate:
-        cached = app.state.plan_store.latest(source, target, kb_version=version, origin="devin")
+        cached = app.state.plan_store.latest(
+            source,
+            target,
+            kb_version=version,
+            origin="devin",
+            inventory_fingerprint=inventory_fingerprint,
+        )
         if cached:
             app.state.audit_log.append(
                 "user",
@@ -87,7 +122,12 @@ def start_plan_flow(request: Request, regenerate: bool = False) -> dict:
             app.state.audit_log.append(
                 "system", "plan.cache_hit", f"{source}:{target}", {"kb_version": version}
             )
-            return _record_view(cached, version, cached=True)
+            return _record_view(
+                cached,
+                version,
+                current_inventory_fingerprint=inventory_fingerprint,
+                cached=True,
+            )
 
     origin = "local_draft" if local_reason else "devin"
     app.state.audit_log.append(
@@ -97,7 +137,21 @@ def start_plan_flow(request: Request, regenerate: bool = False) -> dict:
         {"origin": origin, "source": source, "target": target, "kb_version": version},
     )
     if local_reason:
-        return _save_local(request, source, target, local_reason)
+        if has_inventory_summary:
+            app.state.audit_log.append(
+                "system",
+                "plan.inventory_summary",
+                session["session_id"],
+                {"inventory_fingerprint": inventory_fingerprint},
+            )
+        return _save_local(
+            request,
+            source,
+            target,
+            local_reason,
+            inventory_aggregates,
+            inventory_fingerprint,
+        )
     org_id, base_url, pat = app.state.settings_store.runtime_devin_config()
     db_path = app.state.kb_store.current_path
     if db_path is None:
@@ -114,10 +168,21 @@ def start_plan_flow(request: Request, regenerate: bool = False) -> dict:
         pat=pat,
         acu_cap=settings.plan_acu_cap,
         timeout_minutes=settings.plan_timeout_minutes,
+        inventory_aggregates=inventory_aggregates,
+        inventory_fingerprint=inventory_fingerprint,
     )
     app.state.plan_job = job
+    if has_inventory_summary:
+        app.state.audit_log.append(
+            "system",
+            "plan.inventory_summary",
+            session["session_id"],
+            {"inventory_fingerprint": inventory_fingerprint},
+        )
     job.start()
-    return job.snapshot()
+    result = job.snapshot()
+    result["inventory_stale"] = getattr(job, "inventory_fingerprint", "") != inventory_fingerprint
+    return result
 
 
 @router.post("/plan")
@@ -129,11 +194,15 @@ def post_plan(payload: PlanRequest, request: Request) -> dict:
 def get_plan(request: Request) -> dict:
     session = _session(request)
     current_version = request.app.state.kb_store.current_version
+    current_inventory_fingerprint = session["inventory"].fingerprint()
     job = request.app.state.plan_job
     if job and (job.source, job.target) == (session["source"], session["target"]):
         result = job.snapshot()
         record = job.record
         result["stale"] = bool(record and record["kb_version"] != current_version)
+        result["inventory_stale"] = (
+            getattr(job, "inventory_fingerprint", "") != current_inventory_fingerprint
+        )
         return result
     record = request.app.state.plan_store.latest(session["source"], session["target"])
     if not record:
@@ -146,8 +215,13 @@ def get_plan(request: Request) -> dict:
             "cached": False,
             "kb_version": current_version,
             "stale": False,
+            "inventory_stale": False,
         }
-    return _record_view(record, current_version)
+    return _record_view(
+        record,
+        current_version,
+        current_inventory_fingerprint=current_inventory_fingerprint,
+    )
 
 
 @router.delete("/plan/job")
