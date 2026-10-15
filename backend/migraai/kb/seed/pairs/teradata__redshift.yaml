@@ -1,0 +1,241 @@
+source: teradata
+target: redshift
+architecture_overview:
+- text: Teradata PE and AMP vprocs share neither memory nor disk, giving a shared-nothing design.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+  accessed: '2026-10-15'
+  confidence: high
+- text: A provisioned Amazon Redshift cluster has a leader node that parses queries and coordinates compute nodes.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Each Redshift compute node is divided into slices that each process a share of the node's data.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Teradata row partitioning (PPI) enables row partition elimination for large query gains.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/Advantages-and-Disadvantages-of-Partitioned-Primary-Indexes
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift stores table data in columnar format to reduce I/O for analytic queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_columnar_storage_disk_mem_mgmnt.html
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Choosing primary indexes so joined rows hash to the same AMP avoids redistributing rows across the BYNET.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift workload management (WLM) routes queries to queues to manage concurrency and memory.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift role-based access control (RBAC) grants permissions to roles that are then granted to users.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Teradata balances work by spreading rows evenly across AMPs, each solely responsible for its own data.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift concurrency scaling adds transient cluster capacity to handle bursts of concurrent queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Teradata resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into Redshift, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for Redshift instead of copying Teradata structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: TABLE (primary index)
+  target_object: Table with DISTSTYLE / sort key
+  notes: ''
+  claim:
+    text: 'Redshift tables use one of four distribution styles: AUTO, EVEN, KEY or ALL.'
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MACRO
+  target_object: Stored procedure (PL/pgSQL)
+  notes: ''
+  claim:
+    text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: SQL stored procedure
+  target_object: Stored procedure (PL/pgSQL)
+  notes: ''
+  claim:
+    text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Row-level security constraint
+  target_object: RLS policy
+  notes: ''
+  claim:
+    text: Redshift row-level security (RLS) policies restrict which rows a user or role can see.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Foreign table (NOS)
+  target_object: External table (Spectrum)
+  notes: ''
+  claim:
+    text: Redshift CREATE EXTERNAL TABLE defines a table in an external schema over data in Amazon S3.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: JSON column
+  target_object: SUPER column
+  notes: ''
+  claim:
+    text: The Redshift SUPER type stores semi-structured data such as JSON documents.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: A Teradata macro is one or more SQL statements run as a single request.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata ZEROIFNULL converts null to 0.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/ZEROIFNULL
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata OREPLACE replaces every occurrence of a search string.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/OREPLACE
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift supports the QUALIFY clause to filter on window function results.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift MERGE conditionally inserts, updates or deletes target rows from a source table.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift does not support PostgreSQL types such as arrays, XML and UUID.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-datatypes.html
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Teradata NOS can authenticate to Amazon S3 buckets with IAM credentials for READ_NOS and WRITE_NOS.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/Authentication-for-External-Object-Stores/Using-IAM-Credentials-with-Amazon-S3-Buckets
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift COPY loads data in parallel from files in Amazon S3 and other sources such as DynamoDB and EMR.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: AWS SCT data extraction agents extract data from a source warehouse and upload it to Amazon S3 for loading into Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/agents.html
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Teradata Parallel Transporter (TPT) is a client for parallel extraction, loading and updating that builds on FastLoad, MultiLoad, FastExport and TPump.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20/Introduction-to-Teradata-PT/High-Level-Description
+  accessed: '2026-10-15'
+  applies_to: TPT 17.20
+  confidence: high
+- text: AWS Schema Conversion Tool (AWS SCT) converts source database schemas and code to a target such as Amazon Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift stored procedures are written in PL/pgSQL.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: AWS SCT supports Teradata as a source for conversion to Amazon Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Source.Teradata.html
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Teradata privileges are acquired implicitly through ownership, automatically on creation, by inheritance or by explicit grant.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata directory users inherit privileges of mapped database users and of external roles mapped to their groups.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift role-based access control (RBAC) grants permissions to roles that are then granted to users.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift dynamic data masking applies masking policies to columns at query time.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_ddm.html
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: td_pi_distribution
+  claim:
+    text: Teradata hashes each row to an AMP using the row hash of its primary index or primary AMP index.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+- id: td_macros
+  claim:
+    text: A Teradata macro is one or more SQL statements run as a single request.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+    accessed: '2026-10-15'
+    confidence: high
+- id: td_rls_labels
+  claim:
+    text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: td_pi_distribution
+  claim:
+    text: 'Redshift tables use one of four distribution styles: AUTO, EVEN, KEY or ALL.'
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: td_macros
+  claim:
+    text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: td_rls_labels
+  claim:
+    text: Redshift row-level security (RLS) policies restrict which rows a user or role can see.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: Teradata extensions and procedural code need rewriting for Redshift.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: low
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: medium
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: Redshift sort keys order rows on disk so the planner can skip blocks outside a range predicate.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift applies column-level compression encodings to reduce storage and I/O.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
+  accessed: '2026-10-15'
+  confidence: high

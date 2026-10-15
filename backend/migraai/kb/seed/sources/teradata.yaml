@@ -1,0 +1,29 @@
+platform: teradata
+allowed_hosts:
+- docs.teradata.com
+- www.teradata.com
+seeds:
+- url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Numeric-Data-Types/BYTEINT-Data-Type
+  path_prefix: /r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals
+  topic: sql-data-types
+- url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/ZEROIFNULL
+  path_prefix: /r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates
+  topic: sql-functions
+- url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+  path_prefix: /r/Enterprise_IntelliFlex_VMware/Database-Design
+  topic: ddl-database-design
+- url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+  path_prefix: /r/Enterprise_IntelliFlex_VMware/Database-Introduction
+  topic: database-objects
+- url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+  path_prefix: /r/Enterprise_IntelliFlex_VMware/Security-Administration
+  topic: security-access-control
+- url: https://docs.teradata.com/r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20/Introduction-to-Teradata-PT/High-Level-Description
+  path_prefix: /r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20
+  topic: data-loading-tpt
+- url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/Authentication-for-External-Object-Stores/Using-IAM-Credentials-with-Amazon-S3-Buckets
+  path_prefix: /r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide
+  topic: data-movement-nos
+- url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Temporal-Table-Support/Getting-Started/Introduction-to-Temporal-Table-Support
+  path_prefix: /r/Enterprise_IntelliFlex_VMware/Temporal-Table-Support
+  topic: temporal-tables

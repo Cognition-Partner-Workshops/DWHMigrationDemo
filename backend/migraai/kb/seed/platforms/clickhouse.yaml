@@ -1,0 +1,144 @@
+id: clickhouse
+name: ClickHouse
+roles:
+- target
+versions_covered: ClickHouse current docs (open source and ClickHouse Cloud)
+summary: ClickHouse is a column-oriented analytical database built around the MergeTree engine family, which writes immutable parts and merges them in the background. Primary keys are sparse indexes, updates and deletes are lightweight or mutation based, and data is often ingested from object storage.
+facets:
+  architecture:
+  - text: ClickHouse is a column-oriented database that stores each column separately.
+    url: https://clickhouse.com/docs/concepts/core-concepts/academic-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: MergeTree is ClickHouse's main table engine family for high ingest rates and large data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Each INSERT into a ClickHouse MergeTree table creates an immutable data part.
+    url: https://clickhouse.com/docs/concepts/core-concepts/parts
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: ClickHouse background merges combine smaller data parts into larger ones.
+    url: https://clickhouse.com/docs/concepts/core-concepts/merges
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse primary keys build a sparse index over granules of rows rather than an index entry per row.
+    url: https://clickhouse.com/docs/concepts/core-concepts/primary-indexes
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse LowCardinality wraps a type with dictionary encoding to speed up low-cardinality columns.
+    url: https://clickhouse.com/docs/reference/data-types/lowcardinality
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: ClickHouse parallelizes a query across CPU cores by splitting data into processing lanes.
+    url: https://clickhouse.com/docs/concepts/core-concepts/query-parallelism
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse dictionaries are in-memory key-value structures used for fast lookups instead of joins.
+    url: https://clickhouse.com/docs/concepts/features/dictionaries
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: ClickHouse access control supports users, roles, settings profiles, quotas and row policies.
+    url: https://clickhouse.com/docs/concepts/features/security/access-rights
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A ClickHouse row policy is a filter that defines which rows a user or role can read.
+    url: https://clickhouse.com/docs/reference/statements/create/row-policy
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse can authenticate users against an external LDAP server.
+    url: https://clickhouse.com/docs/concepts/features/security/external-authenticators/ldap
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse GRANT gives privileges to users or roles, with optional WITH GRANT OPTION.
+    url: https://clickhouse.com/docs/reference/statements/grant
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse provides CREATE MASKING POLICY for column masking.
+    url: https://clickhouse.com/docs/reference/statements/create/masking-policy
+    accessed: '2026-10-15'
+    confidence: medium
+  scalability:
+  - text: ClickHouse replication is provided by Replicated* variants of MergeTree engines.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replication
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse parallelizes a query across CPU cores by splitting data into processing lanes.
+    url: https://clickhouse.com/docs/concepts/core-concepts/query-parallelism
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: ClickHouse SELECT supports standard join types including INNER, LEFT, RIGHT, FULL and CROSS.
+    url: https://clickhouse.com/docs/reference/statements/select/join
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse supports a QUALIFY clause for filtering on window function results.
+    url: https://clickhouse.com/docs/reference/statements/select/qualify
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse lightweight DELETE marks rows as deleted so they are hidden immediately and removed during later merges.
+    url: https://clickhouse.com/docs/concepts/features/operations/delete/lightweight-delete
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse supports UPDATE statements for modifying rows in MergeTree tables.
+    url: https://clickhouse.com/docs/reference/statements/update
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse CREATE FUNCTION defines a SQL user-defined function from a lambda expression.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: ClickHouse integrates with third-party ETL/ELT tools for loading data from other systems.
+    url: https://clickhouse.com/docs/get-started/migrate/other-methods/etl-tool-to-clickhouse
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse documents migration paths from other databases, ETL tools and object storage.
+    url: https://clickhouse.com/docs/get-started/migrate/overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse incremental materialized views run their query on each inserted block and write results to a target table.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse refreshable materialized views rerun their query on a schedule.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/refreshable-materialized-view
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: The ClickHouse S3 table engine reads and writes data in Amazon S3 or S3-compatible storage.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/s3
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The ClickHouse PostgreSQL table engine runs SELECT and INSERT against tables on a remote PostgreSQL server.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/postgresql
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The ClickHouse JDBC table engine connects to external databases through the clickhouse-jdbc-bridge.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/jdbc
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse can ingest data exported to cloud object storage such as S3, GCS or Azure Blob storage.
+    url: https://clickhouse.com/docs/get-started/migrate/other-methods/object-storage-to-clickhouse
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse recommends inserting data in large batches or using asynchronous inserts.
+    url: https://clickhouse.com/docs/concepts/best-practices/selecting-an-insert-strategy
+    accessed: '2026-10-15'
+    confidence: high
+unsupported_features:
+- text: ClickHouse documents INSERT atomicity, isolation and durability case by case rather than offering general multi-statement transactions.
+  url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+  accessed: '2026-10-15'
+  confidence: low
+- text: ReplacingMergeTree removes rows with duplicate sorting keys only during background merges, so duplicates can persist until merged.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse best practice is to avoid frequent mutations (ALTER UPDATE/DELETE) because they rewrite data parts.
+  url: https://clickhouse.com/docs/concepts/best-practices/avoid-mutations
+  accessed: '2026-10-15'
+  confidence: high

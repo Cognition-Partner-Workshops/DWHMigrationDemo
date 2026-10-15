@@ -1,0 +1,80 @@
+source: netezza
+mandatory:
+- id: ddl_tables
+  name: Table DDL
+  description: CREATE TABLE statements including DISTRIBUTE ON and ORGANIZE ON clauses.
+  object_types:
+  - table
+  extraction_hint: nz_ddl_table utility or nzsql \d <table>; list from _v_table
+- id: ddl_views
+  name: View DDL
+  description: CREATE VIEW statements for all in-scope views.
+  object_types:
+  - view
+  extraction_hint: nz_ddl_view utility; list from _v_view
+- id: materialized_views
+  name: Materialized views
+  description: Materialized view definitions.
+  object_types:
+  - materialized_view
+  extraction_hint: nzsql \dm; definitions from _v_view
+- id: procedures
+  name: Stored procedures
+  description: NZPLSQL stored procedure source.
+  object_types:
+  - procedure
+  extraction_hint: SHOW PROCEDURE ALL VERBOSE; list from _v_procedure
+- id: functions_udfs
+  name: UDFs and UDXs
+  description: User-defined functions, aggregates and libraries.
+  object_types:
+  - function
+  - aggregate
+  - library
+  extraction_hint: SHOW FUNCTION / SHOW AGGREGATE; list from _v_function and _v_aggregate
+- id: security_objects
+  name: Users, groups and grants
+  description: Users, groups, group membership, object privileges and row-secure table labels.
+  object_types:
+  - user
+  - group
+  - grant
+  extraction_hint: _v_user, _v_group, _v_groupusers; nz_ddl_grant_user / nz_ddl_grant_group utilities
+- id: etl_definitions
+  name: ETL and load jobs
+  description: nzload control files, external table definitions and scheduler jobs.
+  object_types:
+  - etl_job
+  - external_table
+  extraction_hint: Export nzload scripts from the ETL repository; external tables from _v_table where objtype is external
+- id: sequences
+  name: Sequences
+  description: Sequence definitions and current values.
+  object_types:
+  - sequence
+  extraction_hint: nz_ddl_sequence utility; list from _v_sequence
+optional:
+- id: statistics
+  name: Table statistics
+  description: Row counts and statistics used by the optimizer.
+  object_types:
+  - statistics
+  extraction_hint: _v_table reltuples; GENERATE STATISTICS history
+- id: sample_data
+  name: Sample data
+  description: Representative row samples per table for validation tests.
+  object_types:
+  - sample
+  extraction_hint: SELECT * FROM <tbl> LIMIT 1000;
+- id: query_history
+  name: Query history
+  description: Query history for workload analysis.
+  object_types:
+  - query_log
+  extraction_hint: Query history database configured by the history configuration, if enabled
+- id: skew_report
+  name: Data skew
+  description: Rows per data slice to judge distribution quality.
+  object_types:
+  - metric
+  extraction_hint: SELECT datasliceid, COUNT(*) FROM <tbl> GROUP BY 1;

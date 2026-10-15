@@ -1,0 +1,248 @@
+source: netezza
+target: databricks
+architecture_overview:
+- text: Netezza spreads processing across SPUs that each own memory and data slices in a shared-nothing design.
+  url: https://www.ibm.com/docs/en/netezza?topic=keys-distribution-collocated-joins
+  accessed: '2026-10-15'
+  confidence: high
+- text: Delta Lake is the default table format on Databricks and adds ACID transactions to Parquet files.
+  url: https://docs.databricks.com/aws/en/delta/
+  accessed: '2026-10-15'
+  confidence: high
+- text: A Databricks SQL warehouse is a compute resource for running SQL queries.
+  url: https://docs.databricks.com/aws/en/compute/sql-warehouse/
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Netezza zone maps let the storage manager skip table extents that cannot contain rows matching a restricted scan.
+    url: https://www.ibm.com/docs/en/netezza?topic=statistics-zone-maps
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Delta Lake is the default table format on Databricks and adds ACID transactions to Parquet files.
+    url: https://docs.databricks.com/aws/en/delta/
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Tables that are commonly joined should be distributed on the join column so Netezza can run a collocated join without moving data between SPUs.
+    url: https://www.ibm.com/docs/en/netezza?topic=keys-distribution-collocated-joins
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Databricks SQL warehouse is a compute resource for running SQL queries.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: In Netezza, privileges granted to a group are inherited by all its members and are additive.
+    url: https://www.ibm.com/docs/en/netezza?topic=control-security-model
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Unity Catalog provides centralized access control, auditing and lineage across Databricks workspaces.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Netezza tables are distributed with DISTRIBUTE ON (columns) for hash distribution or DISTRIBUTE ON RANDOM for random distribution.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks serverless compute is managed by Databricks and starts without customer-managed clusters.
+    url: https://docs.databricks.com/aws/en/compute/serverless/
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Netezza resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into Databricks, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for Databricks instead of copying Netezza structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: TABLE (DISTRIBUTE ON)
+  target_object: Delta table (Unity Catalog)
+  notes: ''
+  claim:
+    text: Delta Lake is the default table format on Databricks and adds ACID transactions to Parquet files.
+    url: https://docs.databricks.com/aws/en/delta/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Stored procedure (NZPLSQL)
+  target_object: SQL stored procedure
+  notes: ''
+  claim:
+    text: Databricks supports CREATE PROCEDURE for SQL stored procedures in Unity Catalog.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Row-secure table
+  target_object: Row filter / column mask
+  notes: ''
+  claim:
+    text: Databricks Unity Catalog supports row filters and column masks on tables.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: External table
+  target_object: Foreign catalog (Lakehouse Federation)
+  notes: ''
+  claim:
+    text: Databricks Lakehouse Federation queries external databases in place without moving the data.
+    url: https://docs.databricks.com/aws/en/query-federation/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: JSON / JSONB column
+  target_object: STRUCT / ARRAY / MAP column
+  notes: ''
+  claim:
+    text: Databricks SQL supports complex types ARRAY, MAP and STRUCT.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-datatypes
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Constraint clause (not enforced)
+  target_object: Informational PRIMARY / FOREIGN KEY
+  notes: ''
+  claim:
+    text: Databricks primary and foreign key constraints are informational and not enforced.
+    url: https://docs.databricks.com/aws/en/tables/constraints
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Netezza DECODE compares an expression to search values and returns the matching result or a default.
+  url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza DATE_PART('field', value) extracts a datetime field like EXTRACT.
+  url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza INTERVAL (alias TIMESPAN) is a nonstandard implementation expressed in a single unit.
+  url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks SQL supports the QUALIFY clause to filter window function results.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-qualify
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks SQL supports SQL scripting with compound statements and control flow.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks SQL supports complex types ARRAY, MAP and STRUCT.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-datatypes
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Netezza unloads data by inserting from a user table into an external table.
+  url: https://www.ibm.com/docs/en/netezza?topic=loading-external-tables
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks COPY INTO loads files from cloud object storage into a Delta table and skips files already loaded.
+  url: https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks Lakehouse Federation queries external databases in place without moving the data.
+  url: https://docs.databricks.com/aws/en/query-federation/
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: nzload is a CLI loader that creates a temporary external table, runs the insert and then drops the external table.
+  url: https://www.ibm.com/docs/en/netezza?topic=loading-nzload-command
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks offers managed connectors, Auto Loader and COPY INTO for data ingestion.
+  url: https://docs.databricks.com/aws/en/ingestion/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks provides guidance for migrating enterprise data warehouses to the lakehouse.
+  url: https://docs.databricks.com/aws/en/migration/warehouse-to-lakehouse
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: In Netezza, privileges granted to a group are inherited by all its members and are additive.
+  url: https://www.ibm.com/docs/en/netezza?topic=control-security-model
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza GRANT has no column list; column-level access is done by granting on a view with those columns.
+  url: https://www.ibm.com/docs/en/netezza?topic=reference-grant
+  accessed: '2026-10-15'
+  confidence: medium
+- text: Unity Catalog provides centralized access control, auditing and lineage across Databricks workspaces.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks Unity Catalog supports row filters and column masks on tables.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: nz_distribute_on
+  claim:
+    text: Netezza tables are distributed with DISTRIBUTE ON (columns) for hash distribution or DISTRIBUTE ON RANDOM for random distribution.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+    accessed: '2026-10-15'
+    confidence: high
+- id: nz_nzplsql
+  claim:
+    text: Netezza stored procedures are written in the NZPLSQL procedural language.
+    url: https://www.ibm.com/docs/en/netezza?topic=users-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- id: nz_row_secure_tables
+  claim:
+    text: A Netezza row-secure table returns different rows to users depending on their security label.
+    url: https://www.ibm.com/docs/en/netezza?topic=tables-row-secure
+    accessed: '2026-10-15'
+    confidence: high
+- id: nz_groom_table
+  claim:
+    text: GROOM TABLE reclaims space from deleted or outdated rows and reorganizes clustered base tables by their organizing keys.
+    url: https://www.ibm.com/docs/en/netezza?topic=reference-groom-table
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: nz_distribute_on
+  claim:
+    text: Databricks liquid clustering replaces table partitioning and ZORDER for organizing data layout.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: '2026-10-15'
+    confidence: high
+- for: nz_nzplsql
+  claim:
+    text: Databricks supports CREATE PROCEDURE for SQL stored procedures in Unity Catalog.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    accessed: '2026-10-15'
+    confidence: high
+- for: nz_row_secure_tables
+  claim:
+    text: Databricks Unity Catalog supports row filters and column masks on tables.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+    accessed: '2026-10-15'
+    confidence: high
+- for: nz_groom_table
+  claim:
+    text: Databricks predictive optimization runs maintenance such as OPTIMIZE and VACUUM automatically on Unity Catalog managed tables.
+    url: https://docs.databricks.com/aws/en/optimizations/predictive-optimization
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Netezza extensions and procedural code need rewriting for Databricks.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: low
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: medium
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: Databricks liquid clustering replaces table partitioning and ZORDER for organizing data layout.
+  url: https://docs.databricks.com/aws/en/tables/clustering
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks predictive optimization runs maintenance such as OPTIMIZE and VACUUM automatically on Unity Catalog managed tables.
+  url: https://docs.databricks.com/aws/en/optimizations/predictive-optimization
+  accessed: '2026-10-15'
+  confidence: high

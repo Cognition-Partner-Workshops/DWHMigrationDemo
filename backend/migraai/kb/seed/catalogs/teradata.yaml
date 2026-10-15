@@ -1,0 +1,79 @@
+source: teradata
+mandatory:
+- id: ddl_tables
+  name: Table DDL
+  description: CREATE TABLE statements for all in-scope databases, including primary index, partitioning and SET/MULTISET options.
+  object_types:
+  - table
+  extraction_hint: SHOW TABLE <db>.<tbl>; driven by a list from DBC.TablesV where TableKind = 'T'
+- id: ddl_views
+  name: View DDL
+  description: CREATE VIEW statements for all in-scope views.
+  object_types:
+  - view
+  extraction_hint: SHOW VIEW <db>.<view>; list from DBC.TablesV where TableKind = 'V'
+- id: macros
+  name: Macros
+  description: Macro definitions, which need conversion to procedures or application SQL.
+  object_types:
+  - macro
+  extraction_hint: SHOW MACRO <db>.<macro>; list from DBC.TablesV where TableKind = 'M'
+- id: procedures
+  name: Stored procedures
+  description: SQL stored procedure source.
+  object_types:
+  - procedure
+  extraction_hint: SHOW PROCEDURE <db>.<proc>; list from DBC.TablesV where TableKind = 'P'
+- id: functions_udfs
+  name: Functions and UDFs
+  description: SQL and external user-defined functions.
+  object_types:
+  - function
+  extraction_hint: SHOW FUNCTION <db>.<func>; list from DBC.FunctionsV
+- id: security_objects
+  name: Users, roles and grants
+  description: Users, roles, profiles, role membership and object privileges, plus row-level security constraints.
+  object_types:
+  - user
+  - role
+  - grant
+  extraction_hint: DBC.UsersV, DBC.RoleMembersV, DBC.AllRightsV, DBC.AllRoleRightsV
+- id: etl_definitions
+  name: ETL and load scripts
+  description: TPT, FastLoad, MultiLoad, BTEQ and scheduler job definitions that load or transform data.
+  object_types:
+  - etl_job
+  - script
+  extraction_hint: Export TPT job scripts and BTEQ files from the ETL repository or scheduler
+- id: join_hash_indexes
+  name: Join and hash indexes
+  description: Join indexes and hash indexes that act as materialized structures.
+  object_types:
+  - join_index
+  - hash_index
+  extraction_hint: SHOW JOIN INDEX <db>.<idx>; list from DBC.TablesV where TableKind in ('I','N')
+optional:
+- id: statistics
+  name: Collected statistics
+  description: Statistics definitions and recent values used by the optimizer.
+  object_types:
+  - statistics
+  extraction_hint: SHOW STATISTICS ON <db>.<tbl>; or DBC.StatsV
+- id: sample_data
+  name: Sample data
+  description: Representative row samples per table for data validation tests.
+  object_types:
+  - sample
+  extraction_hint: SELECT * FROM <db>.<tbl> SAMPLE 1000;
+- id: query_logs
+  name: Query logs
+  description: DBQL query history for workload and usage analysis.
+  object_types:
+  - query_log
+  extraction_hint: DBC.QryLogV and DBC.QryLogSQLV if DBQL logging is enabled
+- id: space_usage
+  name: Space usage
+  description: Per-table permanent space for sizing the target.
+  object_types:
+  - metric
+  extraction_hint: DBC.TableSizeV aggregated by DatabaseName, TableName

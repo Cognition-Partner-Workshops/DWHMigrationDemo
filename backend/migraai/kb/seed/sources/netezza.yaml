@@ -1,0 +1,28 @@
+platform: netezza
+allowed_hosts:
+- www.ibm.com
+seeds:
+- url: https://www.ibm.com/docs/en/netezza?topic=types-logical-data
+  path_prefix: /docs/en/netezza
+  topic: sql-data-types
+- url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+  path_prefix: /docs/en/netezza
+  topic: sql-functions
+- url: https://www.ibm.com/docs/en/netezza?topic=reference-create-table
+  path_prefix: /docs/en/netezza
+  topic: ddl-create-table
+- url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+  path_prefix: /docs/en/netezza
+  topic: distribution-keys
+- url: https://www.ibm.com/docs/en/netezza?topic=reference-grant
+  path_prefix: /docs/en/netezza
+  topic: security-grant
+- url: https://www.ibm.com/docs/en/netezza?topic=loading-external-tables
+  path_prefix: /docs/en/netezza
+  topic: data-loading-external-tables
+- url: https://www.ibm.com/docs/en/netezza?topic=loading-nzload-command
+  path_prefix: /docs/en/netezza
+  topic: data-loading-nzload
+- url: https://www.ibm.com/docs/en/netezza?topic=users-stored-procedures
+  path_prefix: /docs/en/netezza
+  topic: stored-procedures

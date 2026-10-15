@@ -1,0 +1,256 @@
+source: db2
+target: fabric
+architecture_overview:
+- text: A Db2 Warehouse MPP cluster scales out by adding data nodes with minimal interruption.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+  accessed: '2026-10-15'
+  confidence: high
+- text: A Microsoft Fabric warehouse stores data in Delta Parquet format in OneLake.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse uses autonomous workload management with a distributed query engine and no tuning knobs.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Db2 CREATE TABLE has an ORGANIZE BY clause to choose column- or row-organized storage.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Microsoft Fabric warehouse stores data in Delta Parquet format in OneLake.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Db2 workload management uses DDL objects such as service classes, workloads, thresholds and work action sets.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=identification-workload-management-ddl-statements
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Fabric compute runs on capacity units with smoothing and throttling of usage.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/compute-capacity-smoothing-throttling
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Db2 Warehouse row and column access control (RCAC) filters rows and masks columns per user as fine-grained access control.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Fabric warehouse security combines workspace roles, item permissions and granular T-SQL permissions.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Db2 Warehouse MPP cluster needs at least three nodes (one head, two data) and an SMP deployment cannot be turned into MPP by adding nodes.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Fabric Data Warehouse uses autonomous workload management with a distributed query engine and no tuning knobs.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Db2 Warehouse resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into Fabric, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for Fabric instead of copying Db2 Warehouse structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: Table (DISTRIBUTE BY / ORGANIZE BY)
+  target_object: Warehouse table (Delta Parquet in OneLake)
+  notes: ''
+  claim:
+    text: A Microsoft Fabric warehouse stores data in Delta Parquet format in OneLake.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: SQL procedure (SQL PL)
+  target_object: T-SQL stored procedure
+  notes: ''
+  claim:
+    text: Fabric Data Warehouse supports materialized views, functions and stored procedures.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: RCAC row permission
+  target_object: Row-level security policy
+  notes: ''
+  claim:
+    text: Fabric Data Warehouse supports row-level security with security policies.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: RCAC column mask
+  target_object: Dynamic data masking
+  notes: ''
+  claim:
+    text: Fabric Data Warehouse supports dynamic data masking.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/dynamic-data-masking
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Materialized query table
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: Fabric Data Warehouse supports materialized views, functions and stored procedures.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Informational constraint
+  target_object: NOT ENFORCED constraint
+  notes: ''
+  claim:
+    text: Fabric warehouse primary key, unique and foreign key constraints require NOT ENFORCED.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: External table
+  target_object: COPY INTO from storage
+  notes: ''
+  claim:
+    text: Fabric COPY INTO loads files from external storage accounts.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-copy
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Db2 Warehouse accepts the Oracle (+) outer join operator in WHERE predicates.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-oracle
+  accessed: '2026-10-15'
+  confidence: high
+- text: Db2 Warehouse supports Oracle-style hierarchical (recursive) queries.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-oracle
+  accessed: '2026-10-15'
+  confidence: high
+- text: Db2 DECODE compares an expression with search values and returns the matching result.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-decode
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse documents T-SQL limitations in its surface area page.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports a subset of T-SQL data types.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports time travel queries with the FOR TIMESTAMP AS OF hint.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/time-travel
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: A Db2 Warehouse external table maps a delimited or fixed-length file outside the database and can be used to query or unload data.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table-external
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric COPY INTO loads files from external storage accounts.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-copy
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse ingests data with COPY INTO, pipelines, dataflows and cross-warehouse INSERT...SELECT.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: The Db2 Warehouse dbload command loads data files in local mode or in remote mode over the network.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=command-loading-data-files-dbload
+  accessed: '2026-10-15'
+  confidence: high
+- text: The Fabric Migration Assistant helps migrate warehouses into Fabric Data Warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/migration-assistant
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse ingests data with COPY INTO, pipelines, dataflows and cross-warehouse INSERT...SELECT.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Db2 GRANT ROLE grants roles to users, groups or other roles, optionally WITH ADMIN OPTION.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-grant-role
+  accessed: '2026-10-15'
+  confidence: high
+- text: Only users with SECADM authority can manage Db2 row and column access controls.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric warehouse security combines workspace roles, item permissions and granular T-SQL permissions.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports dynamic data masking.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/dynamic-data-masking
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: db2_distribute_by
+  claim:
+    text: Db2 CREATE TABLE distributes rows across database partitions with DISTRIBUTE BY HASH, RANDOM or REPLICATION.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- id: db2_sql_pl
+  claim:
+    text: Db2 SQL procedures are routines implemented entirely in SQL (SQL PL).
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=routines-sql-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- id: db2_rcac
+  claim:
+    text: Db2 Warehouse row and column access control (RCAC) filters rows and masks columns per user as fine-grained access control.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+- id: db2_temporal
+  claim:
+    text: Db2 temporal tables support system periods maintained by the database and application periods supplied by users.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=tables-time-travel-query-using-temporal
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: db2_distribute_by
+  claim:
+    text: Fabric Data Warehouse uses autonomous workload management with a distributed query engine and no tuning knobs.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+- for: db2_sql_pl
+  claim:
+    text: Fabric Data Warehouse supports materialized views, functions and stored procedures.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+- for: db2_rcac
+  claim:
+    text: Fabric Data Warehouse supports row-level security with security policies.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+    accessed: '2026-10-15'
+    confidence: high
+- for: db2_temporal
+  claim:
+    text: Fabric Data Warehouse supports time travel queries with the FOR TIMESTAMP AS OF hint.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/time-travel
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Db2 Warehouse extensions and procedural code need rewriting for Fabric.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: low
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: medium
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: Fabric Data Warehouse creates and maintains statistics automatically.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/statistics
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric warehouse performance guidance recommends choosing the smallest suitable data types.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/guidelines-warehouse-performance
+  accessed: '2026-10-15'
+  confidence: high

@@ -1,0 +1,148 @@
+id: netezza
+name: IBM Netezza Performance Server
+roles:
+- source
+versions_covered: Netezza Performance Server 11.x / Netezza SaaS
+summary: IBM Netezza Performance Server is a shared-nothing MPP warehouse that spreads rows across data slices by distribution key and prunes scans with zone maps. It uses NZPLSQL procedures, external tables and nzload for loading, and GROOM TABLE for space reclamation.
+facets:
+  architecture:
+  - text: Netezza spreads processing across SPUs that each own memory and data slices in a shared-nothing design.
+    url: https://www.ibm.com/docs/en/netezza?topic=keys-distribution-collocated-joins
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza SaaS BYOC on AWS and Azure splits an IBM-managed control plane from a customer-owned data plane.
+    url: https://www.ibm.com/docs/en/netezza?topic=byoc-architecture-overview
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: A Netezza clustered base table organizes rows by one to four organizing keys and gets zone maps on those columns.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-clustered-base-tables
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza zone maps let the storage manager skip table extents that cannot contain rows matching a restricted scan.
+    url: https://www.ibm.com/docs/en/netezza?topic=statistics-zone-maps
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Netezza UPDATE or DELETE leaves the old row version in place until it is reclaimed.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-groom-tables
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Tables that are commonly joined should be distributed on the join column so Netezza can run a collocated join without moving data between SPUs.
+    url: https://www.ibm.com/docs/en/netezza?topic=keys-distribution-collocated-joins
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The Netezza optimizer uses a materialized view automatically when it is faster than the base table.
+    url: https://www.ibm.com/docs/en/netezza?topic=objects-materialized-views
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza creates and refreshes zone maps automatically on insert, update, load and statistics generation.
+    url: https://www.ibm.com/docs/en/netezza?topic=statistics-zone-maps
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: In Netezza, privileges granted to a group are inherited by all its members and are additive.
+    url: https://www.ibm.com/docs/en/netezza?topic=control-security-model
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza object owners have full access to their objects and the database owner has full access to all objects in the database.
+    url: https://www.ibm.com/docs/en/netezza?topic=control-security-model
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza object privileges include Netezza-specific ones such as GENSTATS, GROOM and UNFENCE.
+    url: https://www.ibm.com/docs/en/netezza?topic=reference-grant
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Netezza row-secure table returns different rows to users depending on their security label.
+    url: https://www.ibm.com/docs/en/netezza?topic=tables-row-secure
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Netezza tables are distributed with DISTRIBUTE ON (columns) for hash distribution or DISTRIBUTE ON RANDOM for random distribution.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+    accessed: '2026-10-15'
+    confidence: high
+  - text: If no distribution key is given, Netezza picks one itself and the choice can vary by software release.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza warns never to distribute on a BOOLEAN column because rows would land on only two data slices.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-logical-data
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: Netezza DECODE compares an expression to search values and returns the matching result or a default.
+    url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza DATE_PART('field', value) extracts a datetime field like EXTRACT.
+    url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza COALESCE returns its first non-null argument, and ISNULL is a synonym.
+    url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza INTERVAL (alias TIMESPAN) is a nonstandard implementation expressed in a single unit.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza accepts constraint clauses but does not enforce constraint checks.
+    url: https://www.ibm.com/docs/en/netezza?topic=reference-create-table
+    accessed: '2026-10-15'
+    confidence: medium
+  - text: Netezza CREATE TABLE AS evaluates the query once and the new table does not follow later source changes.
+    url: https://www.ibm.com/docs/en/netezza?topic=reference-create-table-as
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: nzload is a CLI loader that creates a temporary external table, runs the insert and then drops the external table.
+    url: https://www.ibm.com/docs/en/netezza?topic=loading-nzload-command
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Several nzload jobs can run in parallel against the same or different tables.
+    url: https://www.ibm.com/docs/en/netezza?topic=loading-nzload-command
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza stored procedures are written in the NZPLSQL procedural language.
+    url: https://www.ibm.com/docs/en/netezza?topic=users-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza supports user-defined functions, table functions, aggregates and shared libraries (UDXs).
+    url: https://www.ibm.com/docs/en/netezza?topic=developers-user-defined-functions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The optional Netezza SQL Extensions toolkit adds XML, compression, hashing and text-analytics functions.
+    url: https://www.ibm.com/docs/en/netezza?topic=analytics-sql-extensions-toolkit
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: A Netezza external table maps a flat file to a table definition for loading, unloading or querying.
+    url: https://www.ibm.com/docs/en/netezza?topic=loading-external-tables
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza can read a file on a client machine as a remote external table using REMOTESOURCE.
+    url: https://www.ibm.com/docs/en/netezza?topic=loading-external-tables
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Netezza unloads data by inserting from a user table into an external table.
+    url: https://www.ibm.com/docs/en/netezza?topic=loading-external-tables
+    accessed: '2026-10-15'
+    confidence: high
+unsupported_features:
+- text: GROOM TABLE reclaims space from deleted or outdated rows and reorganizes clustered base tables by their organizing keys.
+  url: https://www.ibm.com/docs/en/netezza?topic=reference-groom-table
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza row-secure tables carry a hidden _sec_label varchar column readable only with LABEL ACCESS.
+  url: https://www.ibm.com/docs/en/netezza?topic=tables-row-secure
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza zone maps let the storage manager skip table extents that cannot contain rows matching a restricted scan.
+  url: https://www.ibm.com/docs/en/netezza?topic=statistics-zone-maps
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza GRANT has no column list; column-level access is done by granting on a view with those columns.
+  url: https://www.ibm.com/docs/en/netezza?topic=reference-grant
+  accessed: '2026-10-15'
+  confidence: medium

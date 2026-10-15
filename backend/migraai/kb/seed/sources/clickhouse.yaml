@@ -1,0 +1,28 @@
+platform: clickhouse
+allowed_hosts:
+- clickhouse.com
+seeds:
+- url: https://clickhouse.com/docs/reference/data-types
+  path_prefix: /docs/reference
+  topic: sql-data-types
+- url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+  path_prefix: /docs/reference/functions
+  topic: sql-functions
+- url: https://clickhouse.com/docs/reference/statements/create/table
+  path_prefix: /docs/reference/statements
+  topic: ddl-create-table
+- url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  path_prefix: /docs/reference/engines
+  topic: table-engines
+- url: https://clickhouse.com/docs/concepts/features/security/access-rights
+  path_prefix: /docs/concepts/features
+  topic: security-access-control
+- url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/s3
+  path_prefix: /docs/reference/engines
+  topic: data-loading-s3
+- url: https://clickhouse.com/docs/get-started/migrate/overview
+  path_prefix: /docs/get-started/migrate
+  topic: migration
+- url: https://clickhouse.com/docs/reference/syntax
+  path_prefix: /docs/reference
+  topic: sql-syntax

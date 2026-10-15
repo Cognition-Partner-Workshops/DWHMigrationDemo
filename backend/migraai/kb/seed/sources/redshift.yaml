@@ -1,0 +1,29 @@
+platform: redshift
+allowed_hosts:
+- docs.aws.amazon.com
+- aws.amazon.com
+seeds:
+- url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  path_prefix: /redshift/latest/dg/
+  topic: architecture
+- url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
+  path_prefix: /redshift/latest/dg/
+  topic: sql-data-types
+- url: https://docs.aws.amazon.com/redshift/latest/dg/r_NVL_function.html
+  path_prefix: /redshift/latest/dg/
+  topic: sql-functions
+- url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+  path_prefix: /redshift/latest/dg/
+  topic: ddl-distribution
+- url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+  path_prefix: /redshift/latest/dg/
+  topic: security-rbac
+- url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+  path_prefix: /redshift/latest/dg/
+  topic: data-loading
+- url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+  path_prefix: /redshift/latest/dg/
+  topic: unsupported-features
+- url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html
+  path_prefix: /SchemaConversionTool/latest/userguide/
+  topic: migration-sct
