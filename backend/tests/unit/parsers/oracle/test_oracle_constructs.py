@@ -41,7 +41,11 @@ def test_oracle_package_spec_and_body_defined_in_edge() -> None:
     )
     assert [item.type for item in objects] == ["package", "package_body"]
     assert any(
-        edge.kind == "defined_in" and edge.source == "p" and edge.target == "p" for edge in edges
+        edge.kind == "defined_in"
+        and edge.source == "p"
+        and edge.target == "p"
+        and not edge.external
+        for edge in edges
     )
 
 

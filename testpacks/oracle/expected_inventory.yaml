@@ -11,6 +11,9 @@ objects:
 - type: table
   qualified_name: oe.audit_events
   status: parsed
+- type: external
+  qualified_name: oe.audit_pkg.write_event
+  status: external
 - type: table
   qualified_name: oe.audit_users
   status: parsed
@@ -101,6 +104,9 @@ objects:
 - type: table
   qualified_name: oe.orders
   status: parsed
+- type: external
+  qualified_name: oe.orders@reporting_link
+  status: external
 - type: trigger
   qualified_name: oe.orders_audit
   status: parsed
@@ -240,7 +246,7 @@ edges:
 - from: oe.order_api
   to: oe.order_api
   kind: defined_in
-  external: true
+  external: false
 - from: oe.order_api
   to: oe.orders
   kind: writes

@@ -1,4 +1,7 @@
 objects:
+- type: external
+  qualified_name: ExternalDb.dbo.RemoteSales
+  status: external
 - type: external_file_format
   qualified_name: csv_format
   status: parsed

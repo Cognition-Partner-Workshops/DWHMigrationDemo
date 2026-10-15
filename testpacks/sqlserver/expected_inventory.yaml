@@ -1,4 +1,7 @@
 objects:
+- type: external
+  qualified_name: LinkedServer.SalesDb.dbo.RemoteOrders
+  status: external
 - type: grant
   qualified_name: SELECT on dbo.Orders
   status: parsed
