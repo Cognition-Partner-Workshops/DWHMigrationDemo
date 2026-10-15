@@ -1,0 +1,103 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 2,
+    "start_col": 1,
+    "end_line": 3,
+    "end_col": 1
+  },
+  "name": "python.function",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "f",
+      "quoted": false
+    },
+    "params": [
+      {
+        "kind": "routine_param",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "value": "cur",
+          "quoted": false
+        }
+      }
+    ],
+    "calls": [
+      {
+        "kind": "function_call",
+        "span": {
+          "start_line": 3,
+          "start_col": 5,
+          "end_line": 3,
+          "end_col": 18
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "cur",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "execute",
+              "quoted": false
+            }
+          ]
+        },
+        "args": [
+          {
+            "kind": "variable",
+            "span": {
+              "start_line": 3,
+              "start_col": 17,
+              "end_line": 3,
+              "end_col": 17
+            },
+            "name": "Q"
+          }
+        ],
+        "distinct": false,
+        "star": false
+      }
+    ]
+  }
+}

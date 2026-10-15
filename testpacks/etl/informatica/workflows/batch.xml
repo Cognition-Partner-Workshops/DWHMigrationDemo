@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<POWERMART>
+  <REPOSITORY NAME="ODS_REPO">
+    <FOLDER NAME="RETAIL_ORDERS" OWNER="etlteam" SHARED="NOTSHARED">
+      <WORKFLOW NAME="wf_nightly_batch" ISVALID="YES" SCHEDULERNAME="sch_nightly">
+        <SCHEDULER NAME="sch_nightly"/>
+        <TASK NAME="Start" TASKTYPE="Start"/>
+        <TASKINSTANCE NAME="s_order_extract" TASKTYPE="Session"/>
+        <TASKINSTANCE NAME="s_payment_agg" TASKTYPE="Session"/>
+        <TASKINSTANCE NAME="s_order_enrich" TASKTYPE="Session"/>
+        <TASKINSTANCE NAME="wk_orders" TASKTYPE="Worklet"/>
+        <TASK NAME="cmd_archive" TASKTYPE="Command">
+          <VALUEPAIR NAME="Command" VALUE="sh scripts/archive_orders.sh --date %%DATE%%"/>
+        </TASK>
+        <WORKFLOWLINK CONDITION="" FROMTASK="Start" TOTASK="s_order_extract"/>
+        <WORKFLOWLINK CONDITION="" FROMTASK="Start" TOTASK="s_payment_agg"/>
+        <WORKFLOWLINK CONDITION="STATUS=SUCCEEDED" FROMTASK="s_order_extract" TOTASK="s_order_enrich"/>
+        <WORKFLOWLINK CONDITION="" FROMTASK="s_order_enrich" TOTASK="wk_orders"/>
+        <WORKFLOWLINK CONDITION="" FROMTASK="wk_orders" TOTASK="cmd_archive"/>
+      </WORKFLOW>
+      <WORKLET NAME="wk_orders">
+        <TASKINSTANCE NAME="s_order_extract" TASKTYPE="Session"/>
+        <TASKINSTANCE NAME="s_order_enrich" TASKTYPE="Session"/>
+        <WORKFLOWLINK CONDITION="" FROMTASK="s_order_extract" TOTASK="s_order_enrich"/>
+      </WORKLET>
+      <SCHEDULER NAME="sch_nightly" REUSABLE="YES"/>
+    </FOLDER>
+  </REPOSITORY>
+</POWERMART>

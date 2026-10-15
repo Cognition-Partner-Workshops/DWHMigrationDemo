@@ -1,0 +1,85 @@
+{
+  "kind": "alter",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 46
+  },
+  "object_kind": "table",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 13,
+      "end_line": 1,
+      "end_col": 25
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 25
+        },
+        "value": "target_table",
+        "quoted": false
+      }
+    ]
+  },
+  "actions": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 37,
+          "end_line": 1,
+          "end_col": 42
+        },
+        "value": "value",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 43,
+          "end_line": 1,
+          "end_col": 46
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 43,
+            "end_line": 1,
+            "end_col": 46
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 43,
+                "end_line": 1,
+                "end_col": 46
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

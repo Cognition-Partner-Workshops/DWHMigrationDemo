@@ -1,0 +1,238 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 62
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 10
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 10
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 10
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 10
+                },
+                "value": "id",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 12,
+          "end_line": 1,
+          "end_col": 18
+        },
+        "expr": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "+",
+          "left": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 12,
+              "end_line": 1,
+              "end_col": 18
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 12,
+                "end_line": 1,
+                "end_col": 18
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 12,
+                    "end_line": 1,
+                    "end_col": 18
+                  },
+                  "value": "amount",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "right": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 21,
+              "end_line": 1,
+              "end_col": 24
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 21,
+                "end_line": 1,
+                "end_col": 24
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 21,
+                    "end_line": 1,
+                    "end_col": 24
+                  },
+                  "value": "tax",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        },
+        "alias": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 28,
+            "end_line": 1,
+            "end_col": 33
+          },
+          "value": "total",
+          "quoted": false
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 39,
+          "end_line": 1,
+          "end_col": 44
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 39,
+            "end_line": 1,
+            "end_col": 44
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 39,
+                "end_line": 1,
+                "end_col": 44
+              },
+              "value": "sales",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "qualify": {
+      "kind": "binary",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "op": ">",
+      "left": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 53,
+          "end_line": 1,
+          "end_col": 58
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 53,
+            "end_line": 1,
+            "end_col": 58
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 53,
+                "end_line": 1,
+                "end_col": 58
+              },
+              "value": "total",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "right": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 61,
+          "end_line": 1,
+          "end_col": 62
+        },
+        "type": "number",
+        "value": "0"
+      }
+    }
+  }
+}

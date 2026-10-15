@@ -1,0 +1,126 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 64
+  },
+  "name": "create_alias",
+  "args": {
+    "object_type": "alias",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 21,
+        "end_line": 1,
+        "end_col": 40
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 21,
+            "end_line": 1,
+            "end_col": 25
+          },
+          "value": "BANK",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 26,
+            "end_line": 1,
+            "end_col": 40
+          },
+          "value": "ACCOUNTS_ALIAS",
+          "quoted": false
+        }
+      ]
+    },
+    "target": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 51,
+        "end_line": 1,
+        "end_col": 64
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 51,
+            "end_line": 1,
+            "end_col": 55
+          },
+          "value": "BANK",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 56,
+            "end_line": 1,
+            "end_col": 64
+          },
+          "value": "ACCOUNTS",
+          "quoted": false
+        }
+      ]
+    },
+    "public": false,
+    "target_kind": "table"
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 51,
+          "end_line": 1,
+          "end_col": 64
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 51,
+              "end_line": 1,
+              "end_col": 55
+            },
+            "value": "BANK",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 56,
+              "end_line": 1,
+              "end_col": 64
+            },
+            "value": "ACCOUNTS",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "synonym_for"
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 54
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 17
+        },
+        "expr": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 25
+          },
+          "name": "sequence_value",
+          "args": {
+            "sequence": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 8,
+                    "end_line": 1,
+                    "end_col": 17
+                  },
+                  "value": "order_seq",
+                  "quoted": false
+                }
+              ]
+            },
+            "op": "nextval"
+          }
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 27,
+          "end_line": 1,
+          "end_col": 36
+        },
+        "expr": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 27,
+            "end_line": 1,
+            "end_col": 44
+          },
+          "name": "sequence_value",
+          "args": {
+            "sequence": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 27,
+                    "end_line": 1,
+                    "end_col": 36
+                  },
+                  "value": "order_seq",
+                  "quoted": false
+                }
+              ]
+            },
+            "op": "currval"
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 50,
+          "end_line": 1,
+          "end_col": 54
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 50,
+            "end_line": 1,
+            "end_col": 54
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 50,
+                "end_line": 1,
+                "end_col": 54
+              },
+              "value": "dual",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "bulk_collect": false
+  }
+}

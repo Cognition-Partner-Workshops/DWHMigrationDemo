@@ -1,0 +1,148 @@
+{
+  "kind": "block",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 57
+  },
+  "declarations": [
+    {
+      "kind": "declare",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 9,
+          "end_line": 1,
+          "end_col": 12
+        },
+        "value": "@id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 16
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 13,
+            "end_line": 1,
+            "end_col": 16
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 13,
+                "end_line": 1,
+                "end_col": 16
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "default": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 19,
+          "end_line": 1,
+          "end_col": 20
+        },
+        "type": "number",
+        "value": "1"
+      }
+    },
+    {
+      "kind": "declare",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 22,
+          "end_line": 1,
+          "end_col": 27
+        },
+        "value": "@name",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 28,
+          "end_line": 1,
+          "end_col": 40
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 28,
+            "end_line": 1,
+            "end_col": 36
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 28,
+                "end_line": 1,
+                "end_col": 36
+              },
+              "value": "NVARCHAR",
+              "quoted": false
+            }
+          ]
+        },
+        "params": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 37,
+              "end_line": 1,
+              "end_col": 39
+            },
+            "type": "number",
+            "value": "20"
+          }
+        ]
+      },
+      "default": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 50,
+          "end_line": 1,
+          "end_col": 57
+        },
+        "type": "national_string",
+        "value": "item"
+      }
+    }
+  ]
+}

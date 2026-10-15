@@ -1,0 +1,156 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 105
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 23,
+      "end_line": 1,
+      "end_col": 30
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 23,
+          "end_line": 1,
+          "end_col": 26
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 27,
+          "end_line": 1,
+          "end_col": 30
+        },
+        "value": "ext",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 32,
+          "end_line": 1,
+          "end_col": 34
+        },
+        "value": "id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 35,
+          "end_line": 1,
+          "end_col": 38
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 35,
+            "end_line": 1,
+            "end_col": 38
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 35,
+                "end_line": 1,
+                "end_col": 38
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "temporary": false,
+  "external": true,
+  "replace": false,
+  "if_not_exists": false,
+  "options": {
+    "location": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 65,
+        "end_line": 1,
+        "end_col": 73
+      },
+      "type": "string",
+      "value": "/data/"
+    },
+    "data_source": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 81,
+        "end_line": 1,
+        "end_col": 85
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 81,
+            "end_line": 1,
+            "end_col": 85
+          },
+          "value": "lake",
+          "quoted": false
+        }
+      ]
+    },
+    "file_format": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 101,
+        "end_line": 1,
+        "end_col": 104
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 101,
+            "end_line": 1,
+            "end_col": 104
+          },
+          "value": "csv",
+          "quoted": false
+        }
+      ]
+    }
+  }
+}

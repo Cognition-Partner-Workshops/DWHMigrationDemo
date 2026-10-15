@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ExecutableType="SSIS.Package.3" DTS:refId="Package">
+  <DTS:Property DTS:Name="ObjectName">load_payments</DTS:Property>
+  <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[td]">
+    <DTS:Property DTS:Name="ObjectName">DW_TD</DTS:Property>
+    <DTS:Property DTS:Name="ConnectionString">Provider=TDOLEDB;Data Source=tdhost;User ID=etl_td;</DTS:Property>
+  </DTS:ConnectionManager>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\stage_payments">
+    <DTS:Property DTS:Name="ObjectName">stage_payments</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_TD">
+        <SQLTask:SqlStatementSource>DELETE FROM STG_PAYMENTS WHERE BATCH_DT = CURRENT_DATE</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+    <DTS:PrecedenceConstraint DTS:From="Package\stage_payments" DTS:To="Package\df_payments">
+    <DTS:Property DTS:Name="From">Package\stage_payments</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\df_payments</DTS:Property>
+  </DTS:PrecedenceConstraint>
+  <DTS:PrecedenceConstraint DTS:From="Package\df_payments" DTS:To="Package\call_recon">
+    <DTS:Property DTS:Name="From">Package\df_payments</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\call_recon</DTS:Property>
+  </DTS:PrecedenceConstraint>
+</DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="SSIS.Pipeline.3" DTS:refId="Package\df_payments">
+    <DTS:Property DTS:Name="ObjectName">df_payments</DTS:Property>
+    <ObjectData>
+      <pipeline>
+        <components>
+          <component componentClassID="Microsoft.FlatFileSource" name="csv_payments"
+            connectionManagerID="Package.ConnectionManagers[files]">
+            <properties>
+              <property name="FileName">/data/payments/daily.csv</property>
+            </properties>
+          </component>
+          <component componentClassID="Microsoft.OLEDBDestination" name="dst_pay"
+            connectionManagerID="Package.ConnectionManagers[td]">
+            <properties>
+              <property name="OpenRowset">[dbo].[STG_PAYMENTS]</property>
+            </properties>
+          </component>
+        </components>
+      </pipeline>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="STOCK:EXECUTEPACKAGETASK" DTS:refId="Package\call_recon">
+    <DTS:Property DTS:Name="ObjectName">call_recon</DTS:Property>
+    <ObjectData>
+      <ExecutePackageTask>
+        <PackageName>recon_payments.dtsx</PackageName>
+      </ExecutePackageTask>
+    </ObjectData>
+  </DTS:Executable>
+</DTS:Executable>

@@ -1,0 +1,183 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 66
+  },
+  "routine_kind": "function",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 17,
+      "end_line": 1,
+      "end_col": 18
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 18
+        },
+        "value": "f",
+        "quoted": false
+      }
+    ]
+  },
+  "params": [
+    {
+      "kind": "routine_param",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 19,
+          "end_line": 1,
+          "end_col": 20
+        },
+        "value": "x",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 21,
+          "end_line": 1,
+          "end_col": 24
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 21,
+            "end_line": 1,
+            "end_col": 24
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 21,
+                "end_line": 1,
+                "end_col": 24
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "returns": {
+    "kind": "data_type",
+    "span": {
+      "start_line": 1,
+      "start_col": 34,
+      "end_line": 1,
+      "end_col": 37
+    },
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 34,
+        "end_line": 1,
+        "end_col": 37
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 34,
+            "end_line": 1,
+            "end_col": 37
+          },
+          "value": "INT",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "language": "sql",
+  "body": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 56,
+      "end_line": 1,
+      "end_col": 64
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 56,
+        "end_line": 1,
+        "end_col": 62
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 63,
+            "end_line": 1,
+            "end_col": 64
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 63,
+              "end_line": 1,
+              "end_col": 64
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 63,
+                "end_line": 1,
+                "end_col": 64
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 63,
+                    "end_line": 1,
+                    "end_col": 64
+                  },
+                  "value": "x",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "options": {
+    "replace": false,
+    "secure": false,
+    "temporary": false
+  }
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<POWERMART>
+  <REPOSITORY NAME="ODS_REPO">
+    <FOLDER NAME="SHARED" OWNER="etlteam" SHARED="SHARED">
+      <TRANSFORMATION NAME="lkp_dates" REUSABLE="YES" TRANSFORMATION_TYPE="Lookup Procedure">
+        <TABLEATTRIBUTE NAME="Lookup table name" VALUE="ref.DATE_DIM"/>
+      </TRANSFORMATION>
+      <MAPPLET NAME="mp_audit_fields">
+        <TRANSFORMATION NAME="in_audit" TRANSFORMATION_TYPE="Input Transformation"/>
+        <TRANSFORMATION NAME="exp_audit" TRANSFORMATION_TYPE="Expression">
+          <TRANSFORMFIELD NAME="load_dt" EXPRESSION="SYSDATE"/>
+          <TRANSFORMFIELD NAME="batch" EXPRESSION="$$BatchId"/>
+        </TRANSFORMATION>
+        <TRANSFORMATION NAME="out_audit" TRANSFORMATION_TYPE="Output Transformation"/>
+      </MAPPLET>
+      <MAPPING NAME="m_shared_dates">
+        <INSTANCE NAME="src_d" TYPE="SOURCE" TRANSFORMATION_NAME="src_dates"/>
+        <INSTANCE NAME="tgt_d" TYPE="TARGET" TRANSFORMATION_NAME="MART_DATE"/>
+      </MAPPING>
+      <SESSION NAME="s_shared_dates" MAPPINGNAME="m_shared_dates"/>
+      <SCHEDULER NAME="sch_weekly" REUSABLE="YES"/>
+      <WORKFLOW NAME="wf_shared_housekeeping">
+        <TASKINSTANCE NAME="s_shared_dates" TASKTYPE="Session"/>
+      </WORKFLOW>
+    </FOLDER>
+  </REPOSITORY>
+</POWERMART>

@@ -1,0 +1,55 @@
+BEGIN DSJOB
+   Identifier "nightly_seq"
+   OLEType "CJobDefn"
+   JobType "2"
+   Name "nightly_seq"
+   BEGIN DSRECORD
+      Identifier "V0S1"
+      OLEType "CJSJobActivity"
+      Name "run_orders_load"
+      Jobname "dw_orders_load"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S2"
+      OLEType "CJSJobActivity"
+      Name "run_customers"
+      Jobname "px_customers"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S3"
+      OLEType "CJSJobActivity"
+      Name "run_payments"
+      Jobname "server_payments"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S4"
+      OLEType "CJSExecCmdActivity"
+      Name "compress_exports"
+      CommandName "sh"
+      Parameters "scripts/compress_export.sh --batch nightly"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "T1"
+      OLEType "CJSActivityOutput"
+      Name "trig_orders_ok"
+      Stage "run_orders_load"
+      Partner "run_payments"
+      TriggerExpression "OK"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "T2"
+      OLEType "CJSActivityOutput"
+      Name "trig_cust_ok"
+      Stage "run_customers"
+      Partner "run_payments"
+      TriggerExpression "OK"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "T3"
+      OLEType "CJSActivityOutput"
+      Name "trig_pay_done"
+      Stage "run_payments"
+      Partner "compress_exports"
+      TriggerExpression "OK And NOT SKIPPED"
+   END DSRECORD
+END DSJOB

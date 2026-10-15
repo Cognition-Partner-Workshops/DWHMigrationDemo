@@ -30,6 +30,8 @@ class PlanJob(threading.Thread):
         acu_cap: int = 10,
         timeout_minutes: int = 30,
         client_factory=None,
+        inventory_aggregates: dict | None = None,
+        inventory_fingerprint: str = "",
     ) -> None:
         super().__init__(daemon=True)
         self.source = source
@@ -44,6 +46,8 @@ class PlanJob(threading.Thread):
         self.acu_cap = acu_cap
         self.timeout_minutes = timeout_minutes
         self.client_factory = client_factory
+        self.inventory_aggregates = inventory_aggregates
+        self.inventory_fingerprint = inventory_fingerprint
         self.cancel_event = threading.Event()
         self.lock = threading.Lock()
         self._termination_lock = threading.Lock()
@@ -74,6 +78,7 @@ class PlanJob(threading.Thread):
                 "reason": self.reason,
                 "cached": self.cached,
                 "kb_version": self.kb_store.current_version,
+                "inventory_stale": False,
                 "created_at": self.record["created_at"] if self.record else None,
                 "devin_session_id": (
                     self.record["devin_session_id"] if self.record else self.session_id
@@ -124,7 +129,12 @@ class PlanJob(threading.Thread):
             self._terminate_session()
             self._phase("cancelled")
             return
-        plan = build_local_draft(self.source, self.target, self.db_path)
+        plan = build_local_draft(
+            self.source,
+            self.target,
+            self.db_path,
+            inventory_aggregates=self.inventory_aggregates,
+        )
         record = self.plan_store.save(
             plan,
             source=self.source,
@@ -134,6 +144,7 @@ class PlanJob(threading.Thread):
             devin_session_id=self.session_id,
             devin_url=self.devin_url,
             reason=reason,
+            inventory_fingerprint=self.inventory_fingerprint,
         )
         with self.lock:
             self.state = "failed_fallback"
@@ -186,6 +197,7 @@ class PlanJob(threading.Thread):
             origin="devin",
             devin_session_id=self.session_id,
             devin_url=self.devin_url,
+            inventory_fingerprint=self.inventory_fingerprint,
         )
         with self.lock:
             self.state = "done"
@@ -227,7 +239,12 @@ class PlanJob(threading.Thread):
             attachment_url = self.client.upload_attachment(
                 "migration-context.md", context.markdown.encode("utf-8")
             )
-            prompt = build_prompt(self.source, self.target, attachment_url)
+            prompt = build_prompt(
+                self.source,
+                self.target,
+                attachment_url,
+                inventory_aggregates=self.inventory_aggregates,
+            )
             self._phase("creating_session")
             self.session_id, self.devin_url = self.client.create_session(
                 prompt,

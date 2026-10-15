@@ -1,0 +1,166 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 95
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 37
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "LOGISTICS",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 37
+        },
+        "value": "SHIPMENT_COPY",
+        "quoted": false
+      }
+    ]
+  },
+  "as_query": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 41,
+      "end_line": 1,
+      "end_col": 47
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 41,
+        "end_line": 1,
+        "end_col": 47
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 48,
+            "end_line": 1,
+            "end_col": 50
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 48,
+              "end_line": 1,
+              "end_col": 50
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 48,
+                "end_line": 1,
+                "end_col": 50
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 48,
+                    "end_line": 1,
+                    "end_col": 50
+                  },
+                  "value": "ID",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 56,
+            "end_line": 1,
+            "end_col": 65
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 56,
+              "end_line": 1,
+              "end_col": 74
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 56,
+                  "end_line": 1,
+                  "end_col": 65
+                },
+                "value": "LOGISTICS",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 66,
+                  "end_line": 1,
+                  "end_col": 74
+                },
+                "value": "SHIPMENT",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "temporary": false,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false,
+  "options": {
+    "distribution": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "distribute_on",
+      "args": {
+        "random": true
+      }
+    }
+  }
+}

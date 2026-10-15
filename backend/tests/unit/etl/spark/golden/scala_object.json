@@ -1,0 +1,34 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 2,
+    "start_col": 1,
+    "end_line": 4,
+    "end_col": 1
+  },
+  "name": "spark.scala_object",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "J",
+      "quoted": false
+    },
+    "package": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "a.b",
+      "quoted": false
+    }
+  }
+}

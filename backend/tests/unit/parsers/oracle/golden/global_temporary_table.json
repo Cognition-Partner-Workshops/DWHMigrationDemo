@@ -1,0 +1,180 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 102
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 31,
+      "end_line": 1,
+      "end_col": 39
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 31,
+          "end_line": 1,
+          "end_col": 33
+        },
+        "value": "oe",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 39
+        },
+        "value": "stage",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 41,
+          "end_line": 1,
+          "end_col": 43
+        },
+        "value": "id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 44,
+          "end_line": 1,
+          "end_col": 54
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 44,
+            "end_line": 1,
+            "end_col": 50
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 44,
+                "end_line": 1,
+                "end_col": 50
+              },
+              "value": "NUMBER",
+              "quoted": false
+            }
+          ]
+        },
+        "params": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 51,
+              "end_line": 1,
+              "end_col": 53
+            },
+            "type": "number",
+            "value": "12"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 56,
+          "end_line": 1,
+          "end_col": 61
+        },
+        "value": "label",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 62,
+          "end_line": 1,
+          "end_col": 79
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 62,
+            "end_line": 1,
+            "end_col": 70
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 62,
+                "end_line": 1,
+                "end_col": 70
+              },
+              "value": "VARCHAR2",
+              "quoted": false
+            }
+          ]
+        },
+        "params": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 71,
+              "end_line": 1,
+              "end_col": 73
+            },
+            "type": "number",
+            "value": "30"
+          },
+          "char"
+        ]
+      }
+    }
+  ],
+  "temporary": true,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false,
+  "options": {
+    "on_commit": "delete"
+  }
+}

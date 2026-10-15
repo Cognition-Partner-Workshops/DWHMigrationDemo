@@ -1,0 +1,136 @@
+{
+  "kind": "for_loop",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 36
+  },
+  "var": {
+    "kind": "identifier",
+    "span": {
+      "start_line": 1,
+      "start_col": 5,
+      "end_line": 1,
+      "end_col": 6
+    },
+    "value": "i",
+    "quoted": false
+  },
+  "iterable": {
+    "kind": "range",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 1
+    },
+    "start": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 10,
+        "end_line": 1,
+        "end_col": 11
+      },
+      "type": "number",
+      "value": "1"
+    },
+    "end": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 13,
+        "end_line": 1,
+        "end_col": 14
+      },
+      "type": "number",
+      "value": "3"
+    },
+    "reverse": false
+  },
+  "statements": [
+    {
+      "kind": "set_statement",
+      "span": {
+        "start_line": 1,
+        "start_col": 18,
+        "end_line": 1,
+        "end_col": 27
+      },
+      "items": [
+        {
+          "kind": "set_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 22,
+              "end_line": 1,
+              "end_col": 23
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 22,
+                "end_line": 1,
+                "end_col": 23
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 22,
+                    "end_line": 1,
+                    "end_col": 23
+                  },
+                  "value": "x",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "value": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 26,
+              "end_line": 1,
+              "end_col": 27
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 26,
+                "end_line": 1,
+                "end_col": 27
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 26,
+                    "end_line": 1,
+                    "end_col": 27
+                  },
+                  "value": "i",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

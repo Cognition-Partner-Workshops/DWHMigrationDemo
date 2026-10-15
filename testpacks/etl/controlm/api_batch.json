@@ -1,0 +1,147 @@
+{
+ "Defaults": {
+  "Job": {
+   "Host": "etl-node-01",
+   "Application": "RETAIL"
+  }
+ },
+ "NightlyLoad": {
+  "Type": "Folder",
+  "RuleBasedCalendars": [
+   "WEEKDAYS_CAL"
+  ]
+ },
+ "extract_products_api": {
+  "Type": "Job:Command",
+  "ParentFolder": "NightlyLoad",
+  "Command": "sh jobs/extract_products.sh --date %%ODATE",
+  "eventsToWaitFor": [
+   "upstream_ready"
+  ],
+  "eventsToAdd": [
+   "extract_products_done"
+  ],
+  "When": {
+   "RuleBasedCalendars": [
+    "WEEKDAYS_CAL"
+   ]
+  }
+ },
+ "load_products_api": {
+  "Type": "Job:Script",
+  "ParentFolder": "NightlyLoad",
+  "FilePath": "jobs",
+  "FileName": "load_products.sh",
+  "eventsToWaitFor": [
+   "extract_products_done",
+   "transform_done"
+  ],
+  "eventsToAdd": [
+   "load_products_done"
+  ],
+  "eventsToDelete": [
+   "obsolete_flag"
+  ],
+  "When": {
+   "RuleBasedCalendars": [
+    "NIGHTLY_CAL"
+   ]
+  }
+ },
+ "audit_counts": {
+  "Type": "Job:Database:EmbeddedQuery",
+  "ParentFolder": "NightlyLoad",
+  "Query": "SELECT COUNT(*) FROM MART_ORDER_FACT WHERE LOAD_DT = CURRENT_DATE",
+  "eventsToWaitFor": [
+   "load_products_done"
+  ]
+ },
+ "run_sql_recon": {
+  "Type": "Job:Database:SQLScript",
+  "ParentFolder": "NightlyLoad",
+  "SQLScript": "sql/recon_products.sql",
+  "eventsToWaitFor": [
+   "audit_counts"
+  ]
+ },
+ "weekly_flow": {
+  "Type": "Flow",
+  "Sequence": [
+   "extract_products_api",
+   "load_products_api",
+   "audit_counts"
+  ]
+ },
+ "WEEKDAYS_CAL": {
+  "Type": "Calendar:Weekly",
+  "DaysOfWeek": [
+   "MON",
+   "TUE",
+   "WED",
+   "THU",
+   "FRI"
+  ]
+ },
+ "NIGHTLY_CAL": {
+  "Type": "Calendar:RuleBased",
+  "Months": [
+   "JAN",
+   "FEB",
+   "MAR",
+   "APR",
+   "MAY",
+   "JUN",
+   "JUL",
+   "AUG",
+   "SEP",
+   "OCT",
+   "NOV",
+   "DEC"
+  ]
+ },
+ "MONTH_END": {
+  "Type": "Calendar:Monthly",
+  "Days": [
+   "LAST"
+  ]
+ },
+ "mystery_task": {
+  "Type": "Job:VendorExtension",
+  "ParentFolder": "NightlyLoad"
+ },
+ "validate_gl": {
+  "Type": "Job:Command",
+  "ParentFolder": "NightlyLoad",
+  "Command": "sh jobs/validate_gl.sh",
+  "eventsToWaitFor": [
+   "gl_closed"
+  ]
+ },
+ "post_reports": {
+  "Type": "Job:Command",
+  "ParentFolder": "NightlyLoad",
+  "Command": "sh jobs/post_reports.sh",
+  "eventsToWaitFor": [
+   "reports_done"
+  ]
+ },
+ "sync_crm": {
+  "Type": "Job:Command",
+  "ParentFolder": "NightlyLoad",
+  "Command": "sh jobs/sync_crm.sh",
+  "eventsToWaitFor": [
+   "transform_done"
+  ]
+ },
+ "backup_db": {
+  "Type": "Job:Command",
+  "ParentFolder": "NightlyLoad",
+  "Command": "sh jobs/backup_db.sh",
+  "eventsToWaitFor": [
+   "reports_done"
+  ]
+ },
+ "definitions": {
+  "note": "control-m automation api export"
+ }
+}

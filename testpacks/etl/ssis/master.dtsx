@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ExecutableType="SSIS.Package.3"
+  DTS:refId="Package">
+  <DTS:Property DTS:Name="ObjectName">nightly_master</DTS:Property>
+  <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[dw]">
+    <DTS:Property DTS:Name="ObjectName">DW_OLEDB</DTS:Property>
+    <DTS:Property DTS:Name="ConnectionString">Provider=SQLNCLI11;Data Source=dwhost;Initial Catalog=DW;Persist Security Info=True;User ID=etl;Password=S3rv3r!</DTS:Property>
+    <DTS:Property DTS:Name="ProtectionLevel">1</DTS:Property>
+  </DTS:ConnectionManager>
+  <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[ods]">
+    <DTS:Property DTS:Name="ObjectName">ODS_ORACLE</DTS:Property>
+    <DTS:Property DTS:Name="ConnectionString">Provider=OraOLEDB.Oracle;Data Source=odssvc;User ID=ods_read;Password=Or4cle_Pw</DTS:Property>
+  </DTS:ConnectionManager>
+  <DTS:Variable DTS:Name="BatchDate">
+    <DTS:Property DTS:Name="Expression">@[System::StartTime]</DTS:Property>
+  </DTS:Variable>
+  <DTS:PropertyExpression DTS:Name="Package\stage_orders.ConnectionString">
+    @[User::StageConn]
+  </DTS:PropertyExpression>
+  <DTS:Executable DTS:ExecutableType="STOCK:SEQUENCE" DTS:refId="Package\seq_load">
+    <DTS:Property DTS:Name="ObjectName">seq_load</DTS:Property>
+    <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\seq_load\stage_orders">
+      <DTS:Property DTS:Name="ObjectName">stage_orders</DTS:Property>
+      <DTS:Property DTS:Name="Connection">ODS_ORACLE</DTS:Property>
+      <ObjectData>
+        <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+          SQLTask:Connection="ODS_ORACLE">
+          <SQLTask:SqlStatementSource>TRUNCATE TABLE STG_ORDERS</SQLTask:SqlStatementSource>
+        </SQLTask:SqlTaskData>
+      </ObjectData>
+    </DTS:Executable>
+    <DTS:Executable DTS:ExecutableType="STOCK:EXECUTEPACKAGETASK" DTS:refId="Package\seq_load\call_customers">
+      <DTS:Property DTS:Name="ObjectName">call_customers</DTS:Property>
+      <ObjectData>
+        <ExecutePackageTask>
+          <PackageName>load_customers.dtsx</PackageName>
+          <UseProjectReference>False</UseProjectReference>
+        </ExecutePackageTask>
+      </ObjectData>
+    </DTS:Executable>
+    <DTS:Executable DTS:ExecutableType="STOCK:EXECUTEPACKAGETASK" DTS:refId="Package\seq_load\call_orders">
+      <DTS:Property DTS:Name="ObjectName">call_orders</DTS:Property>
+      <ObjectData>
+        <ExecutePackageTask>
+          <PackageName>load_orders.dtsx</PackageName>
+        </ExecutePackageTask>
+      </ObjectData>
+    </DTS:Executable>
+    <DTS:Executable DTS:ExecutableType="STOCK:EXECUTEPACKAGETASK" DTS:refId="Package\seq_load\call_payments">
+      <DTS:Property DTS:Name="ObjectName">call_payments</DTS:Property>
+      <ObjectData>
+        <ExecutePackageTask>
+          <PackageName>load_payments.dtsx</PackageName>
+        </ExecutePackageTask>
+      </ObjectData>
+    </DTS:Executable>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\rebuild_marts">
+    <DTS:Property DTS:Name="ObjectName">rebuild_marts</DTS:Property>
+    <DTS:Property DTS:Name="Connection">DW_OLEDB</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_OLEDB">
+        <SQLTask:SqlStatementSource>EXEC etl.refresh_mart 'ORDERS'</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\archive_batch">
+    <DTS:Property DTS:Name="ObjectName">archive_batch</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_OLEDB">
+        <SQLTask:SqlStatementSource>EXEC etl.archive_batch @[User::BatchDate]</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:PrecedenceConstraint DTS:From="Package\seq_load" DTS:To="Package\rebuild_marts"
+    DTS:Value="Success" DTS:EvalOp="Constraint">
+    <DTS:Property DTS:Name="From">Package\seq_load</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\rebuild_marts</DTS:Property>
+  </DTS:PrecedenceConstraint>
+  <DTS:PrecedenceConstraint DTS:From="Package\rebuild_marts" DTS:To="Package\archive_batch"
+    DTS:Value="Completion" DTS:Expression="@[System::ErrorCount] == 0">
+    <DTS:Property DTS:Name="From">Package\rebuild_marts</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\archive_batch</DTS:Property>
+    <DTS:Property DTS:Name="Expression">@[System::ErrorCount] == 0</DTS:Property>
+  </DTS:PrecedenceConstraint>
+</DTS:Executable>

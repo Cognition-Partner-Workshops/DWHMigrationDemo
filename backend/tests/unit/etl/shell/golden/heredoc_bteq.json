@@ -1,0 +1,85 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 1
+  },
+  "name": "shell.script",
+  "args": {
+    "path": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "j/x.sh",
+      "quoted": false
+    },
+    "statements": [
+      {
+        "kind": "dialect_statement",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": "shell.command",
+        "args": {
+          "program": {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "bteq",
+            "quoted": false
+          },
+          "redirects": [
+            {
+              "kind": "dialect_expr",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "name": "shell.redirect",
+              "args": {
+                "op": "<<",
+                "target": {
+                  "kind": "literal",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 1,
+                    "end_line": 1,
+                    "end_col": 1
+                  },
+                  "type": "string",
+                  "value": "EOS"
+                },
+                "heredoc": {
+                  "kind": "literal",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 1,
+                    "end_line": 1,
+                    "end_col": 1
+                  },
+                  "type": "string",
+                  "value": ".LOGON td/u,****\nSELECT 1 FROM t;"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

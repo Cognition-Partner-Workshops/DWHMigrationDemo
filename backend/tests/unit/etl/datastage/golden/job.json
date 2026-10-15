@@ -1,0 +1,58 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 6,
+    "start_col": 1,
+    "end_line": 11,
+    "end_col": 1
+  },
+  "name": "datastage.stage",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "ora_src",
+      "quoted": false
+    },
+    "stage_type": "OracleConnectorPX"
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 6,
+        "start_col": 1,
+        "end_line": 6,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "orders",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_reads"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 7,
+    "start_col": 1,
+    "end_line": 9,
+    "end_col": 1
+  },
+  "name": "ssis.dataflow_component",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "dst",
+      "quoted": false
+    },
+    "component_class": "Microsoft.OLEDBDestination"
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 8,
+        "start_col": 1,
+        "end_line": 8,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "dbo",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "W",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_writes"
+    }
+  ]
+}

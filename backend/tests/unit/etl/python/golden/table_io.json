@@ -1,0 +1,331 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 2,
+    "start_col": 1,
+    "end_line": 4,
+    "end_col": 1
+  },
+  "name": "python.function",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "f",
+      "quoted": false
+    },
+    "params": [
+      {
+        "kind": "routine_param",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "value": "c",
+          "quoted": false
+        }
+      }
+    ],
+    "calls": [
+      {
+        "kind": "function_call",
+        "span": {
+          "start_line": 3,
+          "start_col": 10,
+          "end_line": 3,
+          "end_col": 46
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "pd",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "read_sql_table",
+              "quoted": false
+            }
+          ]
+        },
+        "args": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 3,
+              "start_col": 28,
+              "end_line": 3,
+              "end_col": 30
+            },
+            "type": "string",
+            "value": "t"
+          },
+          {
+            "kind": "variable",
+            "span": {
+              "start_line": 3,
+              "start_col": 33,
+              "end_line": 3,
+              "end_col": 33
+            },
+            "name": "c"
+          },
+          {
+            "kind": "named_arg",
+            "span": {
+              "start_line": 3,
+              "start_col": 43,
+              "end_line": 3,
+              "end_col": 45
+            },
+            "name": {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "schema",
+              "quoted": false
+            },
+            "value": {
+              "kind": "literal",
+              "span": {
+                "start_line": 3,
+                "start_col": 43,
+                "end_line": 3,
+                "end_col": 45
+              },
+              "type": "string",
+              "value": "s"
+            }
+          }
+        ],
+        "distinct": false,
+        "star": false
+      },
+      {
+        "kind": "function_call",
+        "span": {
+          "start_line": 4,
+          "start_col": 5,
+          "end_line": 4,
+          "end_col": 33
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "df",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "to_sql",
+              "quoted": false
+            }
+          ]
+        },
+        "args": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 4,
+              "start_col": 15,
+              "end_line": 4,
+              "end_col": 17
+            },
+            "type": "string",
+            "value": "w"
+          },
+          {
+            "kind": "variable",
+            "span": {
+              "start_line": 4,
+              "start_col": 20,
+              "end_line": 4,
+              "end_col": 20
+            },
+            "name": "c"
+          },
+          {
+            "kind": "named_arg",
+            "span": {
+              "start_line": 4,
+              "start_col": 30,
+              "end_line": 4,
+              "end_col": 32
+            },
+            "name": {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "schema",
+              "quoted": false
+            },
+            "value": {
+              "kind": "literal",
+              "span": {
+                "start_line": 4,
+                "start_col": 30,
+                "end_line": 4,
+                "end_col": 32
+              },
+              "type": "string",
+              "value": "m"
+            }
+          }
+        ],
+        "distinct": false,
+        "star": false
+      }
+    ]
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 3,
+        "start_col": 1,
+        "end_line": 3,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "s",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "t",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_reads"
+    },
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 4,
+        "start_col": 1,
+        "end_line": 4,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "m",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "w",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_writes"
+    }
+  ]
+}

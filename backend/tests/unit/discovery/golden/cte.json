@@ -1,0 +1,220 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 67
+  },
+  "with_": {
+    "kind": "with",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 5
+    },
+    "recursive": false,
+    "ctes": [
+      {
+        "kind": "cte",
+        "span": {
+          "start_line": 1,
+          "start_col": 6,
+          "end_line": 1,
+          "end_col": 12
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 6,
+            "end_line": 1,
+            "end_col": 12
+          },
+          "value": "active",
+          "quoted": false
+        },
+        "query": {
+          "kind": "query",
+          "span": {
+            "start_line": 1,
+            "start_col": 17,
+            "end_line": 1,
+            "end_col": 23
+          },
+          "body": {
+            "kind": "select",
+            "span": {
+              "start_line": 1,
+              "start_col": 17,
+              "end_line": 1,
+              "end_col": 23
+            },
+            "distinct": false,
+            "projections": [
+              {
+                "kind": "select_item",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 24,
+                  "end_line": 1,
+                  "end_col": 26
+                },
+                "expr": {
+                  "kind": "column_ref",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 24,
+                    "end_line": 1,
+                    "end_col": 26
+                  },
+                  "name": {
+                    "kind": "qualified_name",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 24,
+                      "end_line": 1,
+                      "end_col": 26
+                    },
+                    "parts": [
+                      {
+                        "kind": "identifier",
+                        "span": {
+                          "start_line": 1,
+                          "start_col": 24,
+                          "end_line": 1,
+                          "end_col": 26
+                        },
+                        "value": "id",
+                        "quoted": false
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "from_": [
+              {
+                "kind": "table_ref",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 32,
+                  "end_line": 1,
+                  "end_col": 44
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 32,
+                    "end_line": 1,
+                    "end_col": 44
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 32,
+                        "end_line": 1,
+                        "end_col": 44
+                      },
+                      "value": "source_table",
+                      "quoted": false
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 46,
+      "end_line": 1,
+      "end_col": 52
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 53,
+          "end_line": 1,
+          "end_col": 55
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 53,
+            "end_line": 1,
+            "end_col": 55
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 53,
+              "end_line": 1,
+              "end_col": 55
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 53,
+                  "end_line": 1,
+                  "end_col": 55
+                },
+                "value": "id",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 61,
+          "end_line": 1,
+          "end_col": 67
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 61,
+            "end_line": 1,
+            "end_col": 67
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 61,
+                "end_line": 1,
+                "end_col": 67
+              },
+              "value": "active",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

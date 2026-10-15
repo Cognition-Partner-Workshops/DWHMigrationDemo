@@ -74,6 +74,7 @@ export type PlanStatus = {
   cached: boolean;
   kb_version: number | null;
   stale: boolean;
+  inventory_stale: boolean;
   label?: string | null;
   created_at?: string | null;
   devin_session_id?: string | null;
@@ -107,7 +108,101 @@ export type ResourceItem = {
   tier: "mandatory" | "optional";
   available: boolean;
   count: number | null;
+  auto_available: boolean;
   status: string;
+};
+
+export type UploadRecord = {
+  id: string;
+  rel_path: string;
+  size: number;
+  detected_type: string;
+  status: string;
+  message: string | null;
+  selected: boolean;
+  object_count: number;
+  issue_count?: number;
+};
+
+export type DiscoveryStatus = {
+  state: string;
+  files_total: number;
+  files_completed: number;
+  current_file: string | null;
+};
+
+export type DiscoverySnapshot = {
+  status: DiscoveryStatus;
+  uploads: UploadRecord[];
+};
+
+export type InventoryObject = {
+  id: string;
+  upload_id: string | null;
+  file: string;
+  type: string;
+  schema_name: string | null;
+  name: string;
+  qualified_name: string;
+  status: string;
+  start_line: number;
+  end_line: number;
+  source_preview: string;
+  external: boolean | number;
+  upstream_count?: number;
+  downstream_count?: number;
+};
+
+export type InventoryIssue = {
+  severity: string;
+  code: string;
+  message: string;
+};
+
+export type InventoryNeighbor = {
+  id: string;
+  type: string;
+  qualified_name: string;
+  kind: string;
+  external: boolean | number;
+};
+
+export type InventoryDetail = InventoryObject & {
+  issues: InventoryIssue[];
+  upstream: InventoryNeighbor[];
+  downstream: InventoryNeighbor[];
+};
+
+export type InventoryPage = {
+  items: InventoryObject[];
+  page: number;
+  page_size: number;
+  total: number;
+  external_total: number;
+};
+
+export type GraphEdge = {
+  source_id: string;
+  target_id: string;
+  kind: string;
+  external: boolean | number;
+  source_name?: string;
+  target_name?: string;
+};
+
+export type GraphResult = {
+  nodes: InventoryObject[];
+  edges: GraphEdge[];
+  truncated: boolean;
+};
+
+export type InventoryQuery = {
+  q?: string;
+  type?: string;
+  status?: string;
+  file?: string;
+  page?: number;
+  page_size?: number;
 };
 
 export type KBRefreshProgress = {
@@ -219,6 +314,143 @@ export function updateResourceAvailability(
     `/api/resources/${encodeURIComponent(resourceId)}`,
     { method: "PATCH", body: { available } },
   );
+}
+
+function uploadError(xhr: XMLHttpRequest): Error {
+  try {
+    const payload = JSON.parse(xhr.responseText) as { detail?: string };
+    if (payload.detail) {
+      return new Error(payload.detail);
+    }
+  } catch {
+    // The server may return a non-JSON error body.
+  }
+  return new Error(`Upload failed (${xhr.status}).`);
+}
+
+export function uploadFiles(
+  files: File[],
+  onProgress: (loaded: number, total: number) => void,
+): Promise<{ uploads: UploadRecord[]; replaced: string[] }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/uploads");
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Accept", "application/json");
+    const csrf = csrfCookie();
+    if (csrf) {
+      xhr.setRequestHeader("X-MigraAI-CSRF", csrf);
+    }
+    xhr.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) {
+        onProgress(event.loaded, event.total);
+      }
+    });
+    xhr.addEventListener("error", () => reject(new Error("Upload network error.")));
+    xhr.addEventListener("abort", () => reject(new Error("Upload was cancelled.")));
+    xhr.addEventListener("load", () => {
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(uploadError(xhr));
+        return;
+      }
+      try {
+        const payload = JSON.parse(xhr.responseText) as {
+          uploads: UploadRecord[];
+          replaced: string[];
+        };
+        resolve(payload);
+      } catch {
+        reject(new Error("The upload response could not be read."));
+      }
+    });
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append("files", file, file.name);
+    }
+    xhr.send(formData);
+  });
+}
+
+export function getUploads(): Promise<UploadRecord[]> {
+  return apiRequest<UploadRecord[]>("/api/uploads");
+}
+
+export function setUploadSelected(uploadId: string, selected: boolean): Promise<UploadRecord> {
+  return apiRequest<UploadRecord>(`/api/uploads/${encodeURIComponent(uploadId)}`, {
+    method: "PATCH",
+    body: { selected },
+  });
+}
+
+export function deleteUpload(uploadId: string): Promise<{ deleted: boolean }> {
+  return apiRequest<{ deleted: boolean }>(`/api/uploads/${encodeURIComponent(uploadId)}`, {
+    method: "DELETE",
+  });
+}
+
+export function getDiscoveryStatus(): Promise<DiscoveryStatus> {
+  return apiRequest<DiscoveryStatus>("/api/discovery/status");
+}
+
+export function getInventory(query: InventoryQuery = {}): Promise<InventoryPage> {
+  const params = new URLSearchParams();
+  if (query.q) params.set("q", query.q);
+  if (query.type) params.set("type", query.type);
+  if (query.status) params.set("status", query.status);
+  if (query.file) params.set("file", query.file);
+  params.set("page", String(query.page ?? 1));
+  params.set("page_size", String(query.page_size ?? 50));
+  return apiRequest<InventoryPage>(`/api/inventory?${params.toString()}`);
+}
+
+export function getInventoryDetail(objectId: string): Promise<InventoryDetail> {
+  return apiRequest<InventoryDetail>(`/api/inventory/${encodeURIComponent(objectId)}`);
+}
+
+export function getGraph(objectId: string, depth: number): Promise<GraphResult> {
+  const params = new URLSearchParams({
+    object_id: objectId,
+    depth: String(depth),
+  });
+  return apiRequest<GraphResult>(`/api/graph?${params.toString()}`);
+}
+
+export function watchDiscoveryStatus(
+  onUpdate: (snapshot: DiscoverySnapshot) => void,
+  onError: (error: unknown) => void,
+): () => void {
+  let stopped = false;
+  let timer: number | undefined;
+  const stop = () => {
+    stopped = true;
+    if (timer !== undefined) {
+      window.clearTimeout(timer);
+    }
+  };
+  const poll = async () => {
+    try {
+      const [status, uploads] = await Promise.all([getDiscoveryStatus(), getUploads()]);
+      if (stopped) {
+        return;
+      }
+      onUpdate({ status, uploads });
+      if (["idle", "done", "failed"].includes(status.state)) {
+        stop();
+        return;
+      }
+    } catch (error) {
+      if (!stopped) {
+        onError(error);
+        stop();
+      }
+      return;
+    }
+    if (!stopped) {
+      timer = window.setTimeout(() => void poll(), 1000);
+    }
+  };
+  void poll();
+  return stop;
 }
 
 export function getKBStatus(): Promise<KBStatusResponse> {

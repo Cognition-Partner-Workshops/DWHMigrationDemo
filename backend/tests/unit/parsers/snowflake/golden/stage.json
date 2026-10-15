@@ -1,0 +1,51 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 47
+  },
+  "name": "create_stage",
+  "args": {
+    "object_type": "stage",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 14,
+        "end_line": 1,
+        "end_col": 16
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 14,
+            "end_line": 1,
+            "end_col": 16
+          },
+          "value": "st",
+          "quoted": false
+        }
+      ]
+    },
+    "replace": false,
+    "if_not_exists": false,
+    "temporary": false,
+    "properties": {
+      "url": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "type": "string",
+        "value": "s3://bucket"
+      }
+    }
+  }
+}

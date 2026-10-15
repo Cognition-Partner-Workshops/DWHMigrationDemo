@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<POWERMART>
+  <REPOSITORY NAME="ODS_REPO">
+    <FOLDER NAME="RETAIL_ORDERS" OWNER="etlteam" SHARED="NOTSHARED">
+      <WORKFLOW NAME="wf_rejects" ISVALID="YES">
+        <TASK NAME="Start" TASKTYPE="Start"/>
+        <TASKINSTANCE NAME="s_order_extract" TASKTYPE="Session"/>
+        <WORKFLOWLINK CONDITION="IIF((" FROMTASK="Start" TOTASK="s_order_extract"/>
+      </WORKFLOW>
+      <WORKFLOW NAME="wf_cleanup" ISVALID="YES">
+        <TASK NAME="Start" TASKTYPE="Start"/>
+        <TASKINSTANCE NAME="s_payment_agg" TASKTYPE="Session"/>
+        <WORKFLOWLINK CONDITION="STATUS=SUCCEEDED" FROMTASK="Start" TOTASK="s_payment_agg"/>
+      </WORKFLOW>
+      <SESSION NAME="s_unused_audit" MAPPINGNAME="m_order_extract">
+        <ATTRIBUTE NAME="Pre-session command" VALUE="sh scripts/audit_init.sh"/>
+      </SESSION>
+    </FOLDER>
+  </REPOSITORY>
+</POWERMART>

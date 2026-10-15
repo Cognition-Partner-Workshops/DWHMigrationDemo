@@ -1,0 +1,190 @@
+{
+  "kind": "create_view",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 124
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 27,
+      "end_line": 1,
+      "end_col": 31
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 27,
+          "end_line": 1,
+          "end_col": 29
+        },
+        "value": "db",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 30,
+          "end_line": 1,
+          "end_col": 31
+        },
+        "value": "v",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 33,
+        "end_line": 1,
+        "end_col": 35
+      },
+      "value": "id",
+      "quoted": false
+    }
+  ],
+  "query": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 105,
+      "end_line": 1,
+      "end_col": 111
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 105,
+        "end_line": 1,
+        "end_col": 111
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 112,
+            "end_line": 1,
+            "end_col": 114
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 112,
+              "end_line": 1,
+              "end_col": 114
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 112,
+                "end_line": 1,
+                "end_col": 114
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 112,
+                    "end_line": 1,
+                    "end_col": 114
+                  },
+                  "value": "id",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 120,
+            "end_line": 1,
+            "end_col": 122
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 120,
+              "end_line": 1,
+              "end_col": 124
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 120,
+                  "end_line": 1,
+                  "end_col": 122
+                },
+                "value": "db",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 123,
+                  "end_line": 1,
+                  "end_col": 124
+                },
+                "value": "t",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "materialized": false,
+  "replace": false,
+  "secure": false,
+  "options": {
+    "comment": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 65,
+        "end_line": 1,
+        "end_col": 71
+      },
+      "type": "string",
+      "value": "view"
+    },
+    "tblproperties": {
+      "owner": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 100,
+          "end_line": 1,
+          "end_col": 111
+        },
+        "type": "string",
+        "value": "analytics"
+      }
+    },
+    "if_not_exists": true
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "kind": "create_sequence",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 73
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 17,
+      "end_line": 1,
+      "end_col": 29
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "oe",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 20,
+          "end_line": 1,
+          "end_col": 29
+        },
+        "value": "order_seq",
+        "quoted": false
+      }
+    ]
+  },
+  "options": {
+    "start_with": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 41,
+        "end_line": 1,
+        "end_col": 42
+      },
+      "type": "number",
+      "value": "1"
+    },
+    "increment_by": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 56,
+        "end_line": 1,
+        "end_col": 57
+      },
+      "type": "number",
+      "value": "1"
+    },
+    "nocache": true,
+    "nocycle": true
+  }
+}

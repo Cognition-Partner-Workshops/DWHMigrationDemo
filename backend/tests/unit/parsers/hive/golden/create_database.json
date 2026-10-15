@@ -1,0 +1,56 @@
+{
+  "kind": "create_database",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 94
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 31,
+      "end_line": 1,
+      "end_col": 40
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 31,
+          "end_line": 1,
+          "end_col": 40
+        },
+        "value": "analytics",
+        "quoted": false
+      }
+    ]
+  },
+  "options": {
+    "comment": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 60,
+        "end_line": 1,
+        "end_col": 71
+      },
+      "type": "string",
+      "value": "warehouse"
+    },
+    "location": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 82,
+        "end_line": 1,
+        "end_col": 94
+      },
+      "type": "string",
+      "value": "hdfs:///db"
+    },
+    "if_not_exists": true
+  }
+}

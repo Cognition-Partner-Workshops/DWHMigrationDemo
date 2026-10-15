@@ -1,0 +1,104 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 2,
+    "start_col": 1,
+    "end_line": 3,
+    "end_col": 1
+  },
+  "name": "spark.function",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "f",
+      "quoted": false
+    },
+    "params": [
+      {
+        "kind": "routine_param",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "value": "spark",
+          "quoted": false
+        }
+      }
+    ],
+    "calls": [
+      {
+        "kind": "function_call",
+        "span": {
+          "start_line": 3,
+          "start_col": 5,
+          "end_line": 3,
+          "end_col": 32
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "spark",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "sql",
+              "quoted": false
+            }
+          ]
+        },
+        "args": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 3,
+              "start_col": 15,
+              "end_line": 3,
+              "end_col": 31
+            },
+            "type": "string",
+            "value": "SELECT 1 FROM t"
+          }
+        ],
+        "distinct": false,
+        "star": false
+      }
+    ]
+  }
+}

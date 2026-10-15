@@ -4,11 +4,15 @@ import inspect
 import json
 import threading
 import time
+import zipfile
+from collections import Counter
 from io import BytesIO
 from pathlib import Path
 
 import httpx
 import pytest
+import yaml
+from fastapi.testclient import TestClient
 from pypdf import PdfReader
 
 from migraai.core.audit import AuditLog
@@ -19,7 +23,7 @@ from migraai.planning.devin_client import DevinClient, DevinV1Client, normalize_
 from migraai.planning.job import PlanJob
 from migraai.planning.local_draft import build_local_draft
 from migraai.planning.pdf import render_markdown, render_plan_pdf
-from migraai.planning.prompt import build_prompt
+from migraai.planning.prompt import build_prompt, inventory_summary_block
 from migraai.planning.schema import SCHEMA
 from migraai.planning.sections import SECTIONS
 from migraai.planning.store import PlanStore
@@ -432,6 +436,188 @@ def test_shared_prompt_requires_structured_output() -> None:
     ) in prompt
 
 
+def test_inventory_prompt_block_contains_aggregate_counts_only() -> None:
+    aggregates = {
+        "objects_by_type": {"table": 2, "view": 1},
+        "parse_status_counts": {"parsed": 2, "unparsed": 1},
+        "files_by_detected_type": {"sql:ansi": 2},
+        "total_dependencies": 3,
+        "dependencies_by_kind": {"reads": 2, "writes": 1},
+        "external_reference_count": 1,
+        "issues_by_severity": {"warning": 1},
+        "total_source_lines": 42,
+    }
+
+    block = inventory_summary_block(aggregates)
+    assert block == "\n".join(
+        [
+            "Inventory summary (aggregate counts only)",
+            "Object counts by type: table=2, view=1",
+            "Parse-status counts: parsed=2, unparsed=1",
+            "File counts by detected type: sql:ansi=2",
+            "Total dependencies: 3",
+            "Dependency counts by kind: reads=2, writes=1",
+            "External-reference count: 1",
+            "Issue counts by severity: warning=1",
+            "Total source lines: 42",
+        ]
+    )
+    prompt = build_prompt("teradata", "snowflake", "https://files.test/context", aggregates)
+    assert block in prompt
+    assert "Ground effort, confidence, and expert-review counts in the inventory summary." in prompt
+    assert "only aggregate inventory counts are available" in prompt
+
+
+def test_local_draft_uses_inventory_aggregates_for_q_s_t(tmp_path: Path) -> None:
+    store, _, _ = _stores(tmp_path)
+    aggregates = {
+        "objects_by_type": {"procedure": 1, "table": 2, "view": 1},
+        "parse_status_counts": {"parsed": 2, "partial": 1, "unparsed": 1},
+        "files_by_detected_type": {"sql:ansi": 2},
+        "total_dependencies": 1,
+        "dependencies_by_kind": {"calls": 1},
+        "external_reference_count": 2,
+        "issues_by_severity": {"error": 1, "warning": 2},
+        "total_source_lines": 40,
+    }
+
+    plan = build_local_draft(
+        "teradata", "snowflake", store.current_path, inventory_aggregates=aggregates
+    )
+    sections = {section.id: section.content for section in plan.sections}
+    assert "approximately 3.6 person-days across 4 objects" in sections["Q"]
+    assert "procedure=1, table=2, view=1" in sections["Q"]
+    assert "Aggregate inventory confidence: 50%" in sections["S"]
+    assert "unparsed share 25%, partial share 25%" in sections["S"]
+    assert "1 unparsed objects, 1 partial objects, 2 external references" in sections["T"]
+    assert "error=1, warning=2" in sections["T"]
+
+
+def _upload_ansi_sql_pack(client: TestClient) -> tuple[dict, Path, list[str]]:
+    host = {"Host": "127.0.0.1:80"}
+    launched = client.get(
+        "/api/auth/launch",
+        params={"token": "test-launch-token"},
+        headers=host,
+        follow_redirects=False,
+    )
+    assert launched.status_code == 303
+    headers = {**host, "X-MigraAI-CSRF": str(client.cookies["migraai_csrf"])}
+    confirmed = client.post(
+        "/api/session/confirm",
+        json={"source": "teradata", "target": "snowflake"},
+        headers=headers,
+    )
+    assert confirmed.status_code == 200
+    session = client.app.state.current_session
+    session["source"] = "ansi"
+    empty_fingerprint = session["inventory"].fingerprint()
+
+    pack_dir = Path(__file__).resolve().parents[3] / "testpacks" / "ansi"
+    files = sorted(pack_dir.glob("*.sql"))
+    archive = BytesIO()
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as zipped:
+        for path in files:
+            zipped.write(path, arcname=path.name)
+    response = client.post(
+        "/api/uploads",
+        files=[("files", ("ansi-pack.zip", archive.getvalue(), "application/zip"))],
+        headers=headers,
+    )
+    assert response.status_code == 200
+    session["discovery"]._queue.join()
+    assert session["discovery"].status()["state"] == "done"
+    assert session["inventory"].fingerprint() != empty_fingerprint
+    return session, pack_dir, [path.name for path in files]
+
+
+@pytest.mark.parametrize(("pat", "org_id"), [("apk_test", ""), ("cog_test", "org-test")])
+def test_uploaded_ansi_inventory_is_only_sent_as_aggregates(
+    client: TestClient, pat: str, org_id: str
+) -> None:
+    session, pack_dir, file_names = _upload_ansi_sql_pack(client)
+    aggregates = session["inventory"].aggregates()
+    fingerprint = session["inventory"].fingerprint()
+    expected = yaml.safe_load((pack_dir / "expected_inventory.yaml").read_text())
+    expected_objects = expected["objects"]
+    expected_edges = expected["edges"]
+
+    assert aggregates["objects_by_type"] == dict(Counter(item["type"] for item in expected_objects))
+    assert aggregates["parse_status_counts"] == dict(
+        Counter(item["status"] for item in expected_objects)
+    )
+    assert aggregates["files_by_detected_type"] == {"sql:ansi": len(file_names)}
+    assert aggregates["total_dependencies"] == len(expected_edges)
+    assert aggregates["dependencies_by_kind"] == dict(
+        Counter(item["kind"] for item in expected_edges)
+    )
+    assert aggregates["external_reference_count"] == sum(
+        bool(item["external"]) for item in expected_edges
+    )
+    assert aggregates["total_source_lines"] == sum(
+        len((pack_dir / file_name).read_text(encoding="utf-8").splitlines())
+        for file_name in file_names
+    )
+    assert set(aggregates) == {
+        "objects_by_type",
+        "parse_status_counts",
+        "files_by_detected_type",
+        "total_dependencies",
+        "dependencies_by_kind",
+        "external_reference_count",
+        "issues_by_severity",
+        "total_source_lines",
+    }
+    assert fingerprint
+
+    kb_store = client.app.state.kb_store
+    fake = FakeClient(
+        [
+            {
+                "state": "done",
+                "detail": "finished",
+                "structured_output": build_local_draft(
+                    "teradata", "snowflake", kb_store.current_path
+                ).model_dump(),
+            }
+        ]
+    )
+    job = PlanJob(
+        source="teradata",
+        target="snowflake",
+        db_path=kb_store.current_path,
+        kb_store=kb_store,
+        plan_store=client.app.state.plan_store,
+        audit=client.app.state.audit_log,
+        base_url="https://api.example.test",
+        org_id=org_id,
+        pat=pat,
+        client_factory=lambda *_: fake,
+        inventory_aggregates=aggregates,
+        inventory_fingerprint=fingerprint,
+    )
+    job.cancel_event = ImmediateEvent()
+    job.run()
+
+    assert job.snapshot()["state"] == "done"
+    assert len(fake.prompts) == 1
+    assert "Inventory summary (aggregate counts only)" in fake.prompts[0]
+    assert "Object counts by type:" in fake.prompts[0]
+    assert "Total source lines:" in fake.prompts[0]
+    outbound_body = (
+        json.dumps(fake.requests, ensure_ascii=False, default=str)
+        + "\n"
+        + "\n".join(data.decode("utf-8") for _, data in fake.attachments)
+    ).casefold()
+    expected_names = [str(item["qualified_name"]) for item in expected["objects"]]
+    snippets = []
+    for file_name in file_names:
+        lines = (pack_dir / file_name).read_text().splitlines()
+        snippets.append(next(line.strip() for line in lines if line.strip()))
+    for canary in [*expected_names, *file_names, *snippets]:
+        assert canary.casefold() not in outbound_body, canary
+
+
 @pytest.mark.parametrize(
     ("status_enum", "expected"),
     [
@@ -527,11 +713,17 @@ class FakeClient:
         self.terminate_error = terminate_error
         self.terminated: list[str] = []
         self.closed = False
+        self.attachments: list[tuple[str, bytes]] = []
+        self.prompts: list[str] = []
+        self.requests: list[dict] = []
 
     def upload_attachment(self, name: str, data: bytes) -> str:
+        self.attachments.append((name, data))
         return "https://files.test/context"
 
     def create_session(self, prompt: str, **kwargs) -> tuple[str, str]:
+        self.prompts.append(prompt)
+        self.requests.append({"prompt": prompt, **kwargs})
         if self.created:
             self.created.set()
         if self.create_release:

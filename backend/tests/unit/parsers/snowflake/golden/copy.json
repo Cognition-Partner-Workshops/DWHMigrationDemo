@@ -1,0 +1,137 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 21
+  },
+  "name": "copy_into",
+  "args": {
+    "direction": "load",
+    "target": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 11,
+        "end_line": 1,
+        "end_col": 12
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 11,
+            "end_line": 1,
+            "end_col": 12
+          },
+          "value": "t",
+          "quoted": false
+        }
+      ]
+    },
+    "source": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "stage_ref",
+      "args": {
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "value": "st",
+              "quoted": false
+            }
+          ]
+        },
+        "path": "",
+        "stage_kind": "named"
+      }
+    }
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "st",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "reads"
+    },
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 11,
+          "end_line": 1,
+          "end_col": 12
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 11,
+              "end_line": 1,
+              "end_col": 12
+            },
+            "value": "t",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "writes"
+    }
+  ]
+}

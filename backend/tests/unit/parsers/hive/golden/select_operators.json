@@ -1,0 +1,480 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 60
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 9
+        },
+        "expr": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "=",
+          "left": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 9
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 8,
+                "end_line": 1,
+                "end_col": 9
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 8,
+                    "end_line": 1,
+                    "end_col": 9
+                  },
+                  "value": "a",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "right": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 13,
+              "end_line": 1,
+              "end_col": 14
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 13,
+                "end_line": 1,
+                "end_col": 14
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 13,
+                    "end_line": 1,
+                    "end_col": 14
+                  },
+                  "value": "b",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 17
+        },
+        "expr": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "<=>",
+          "left": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 16,
+              "end_line": 1,
+              "end_col": 17
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 16,
+                "end_line": 1,
+                "end_col": 17
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 16,
+                    "end_line": 1,
+                    "end_col": 17
+                  },
+                  "value": "x",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "right": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 22,
+              "end_line": 1,
+              "end_col": 23
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 22,
+                "end_line": 1,
+                "end_col": 23
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 22,
+                    "end_line": 1,
+                    "end_col": 23
+                  },
+                  "value": "y",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 25,
+          "end_line": 1,
+          "end_col": 26
+        },
+        "expr": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "div",
+          "left": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 25,
+              "end_line": 1,
+              "end_col": 26
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 25,
+                "end_line": 1,
+                "end_col": 26
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 25,
+                    "end_line": 1,
+                    "end_col": 26
+                  },
+                  "value": "a",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "right": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 31,
+              "end_line": 1,
+              "end_col": 32
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 31,
+                "end_line": 1,
+                "end_col": 32
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 31,
+                    "end_line": 1,
+                    "end_col": 32
+                  },
+                  "value": "b",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 35
+        },
+        "expr": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "&",
+          "left": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 34,
+              "end_line": 1,
+              "end_col": 35
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 34,
+                "end_line": 1,
+                "end_col": 35
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 34,
+                    "end_line": 1,
+                    "end_col": 35
+                  },
+                  "value": "x",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "right": {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 38,
+              "end_line": 1,
+              "end_col": 39
+            },
+            "type": "number",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 41,
+          "end_line": 1,
+          "end_col": 42
+        },
+        "expr": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "^",
+          "left": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 41,
+              "end_line": 1,
+              "end_col": 42
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 41,
+                "end_line": 1,
+                "end_col": 42
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 41,
+                    "end_line": 1,
+                    "end_col": 42
+                  },
+                  "value": "x",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "right": {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 45,
+              "end_line": 1,
+              "end_col": 46
+            },
+            "type": "number",
+            "value": "2"
+          }
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 48,
+          "end_line": 1,
+          "end_col": 49
+        },
+        "expr": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "|",
+          "left": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 48,
+              "end_line": 1,
+              "end_col": 49
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 48,
+                "end_line": 1,
+                "end_col": 49
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 48,
+                    "end_line": 1,
+                    "end_col": 49
+                  },
+                  "value": "x",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "right": {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 52,
+              "end_line": 1,
+              "end_col": 53
+            },
+            "type": "number",
+            "value": "4"
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 59,
+          "end_line": 1,
+          "end_col": 60
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 59,
+            "end_line": 1,
+            "end_col": 60
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 59,
+                "end_line": 1,
+                "end_col": 60
+              },
+              "value": "t",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

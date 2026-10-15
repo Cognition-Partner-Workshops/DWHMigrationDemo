@@ -1,0 +1,4 @@
+# not a dag-factory file — parser should warn and emit no objects
+cluster: prod
+options:
+  retries: 3

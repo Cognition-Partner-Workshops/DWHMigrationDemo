@@ -42,11 +42,13 @@ export function PlanningPanel({
   sourceName,
   targetName,
   confidenceThreshold,
+  devinConfigured = false,
 }: {
   session: SessionView | null;
   sourceName: string;
   targetName: string;
   confidenceThreshold: number;
+  devinConfigured?: boolean;
 }) {
   const [plan, setPlan] = useState<PlanStatus | null>(session?.plan ?? null);
   const [selectedSection, setSelectedSection] = useState("A");
@@ -117,6 +119,18 @@ export function PlanningPanel({
       setError(cancelError instanceof Error ? cancelError.message : "Could not cancel planning.");
     } finally {
       setBusy(false);
+    }
+  }
+
+  function confirmRegeneration() {
+    if (
+      window.confirm(
+        devinConfigured
+          ? "Regenerate this plan? This starts a new Devin session and uses ACUs."
+          : "Devin isn't configured, so this creates a new local draft using the inventory counts. No ACUs are used.",
+      )
+    ) {
+      void requestPlan(true);
     }
   }
 
@@ -196,18 +210,20 @@ export function PlanningPanel({
                 <button
                   className="button secondary compact-button"
                   disabled={busy}
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Regenerate this plan? This starts a new Devin session and uses ACUs.",
-                      )
-                    ) {
-                      void requestPlan(true);
-                    }
-                  }}
+                  onClick={confirmRegeneration}
                   type="button"
                 >
                   Regenerate
+                </button>
+              )}
+              {plan?.plan && plan.inventory_stale && (
+                <button
+                  className="button secondary compact-button"
+                  disabled={busy}
+                  onClick={confirmRegeneration}
+                  type="button"
+                >
+                  Regenerate with inventory
                 </button>
               )}
             </div>

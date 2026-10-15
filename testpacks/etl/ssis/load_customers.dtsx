@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ExecutableType="SSIS.Package.3" DTS:refId="Package">
+  <DTS:Property DTS:Name="ObjectName">load_customers</DTS:Property>
+  <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[dw]">
+    <DTS:Property DTS:Name="ObjectName">DW_OLEDB</DTS:Property>
+    <DTS:Property DTS:Name="ConnectionString">Provider=SQLNCLI11;Data Source=dwhost;Initial Catalog=DW;User ID=etl;Password=S3rv3r!</DTS:Property>
+  </DTS:ConnectionManager>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\truncate_stg">
+    <DTS:Property DTS:Name="ObjectName">truncate_stg</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_OLEDB">
+        <SQLTask:SqlStatementSource>TRUNCATE TABLE STG_CUSTOMERS</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="SSIS.Pipeline.3" DTS:refId="Package\df_customers">
+    <DTS:Property DTS:Name="ObjectName">df_customers</DTS:Property>
+    <ObjectData>
+      <pipeline>
+        <components>
+          <component componentClassID="Microsoft.OLEDBSource" name="src_customers"
+            connectionManagerID="Package.ConnectionManagers[dw]">
+            <properties>
+              <property name="OpenRowset">[dbo].[ODS_CUSTOMERS]</property>
+            </properties>
+          </component>
+          <component componentClassID="Microsoft.Lookup" name="lkp_segment"
+            connectionManagerID="Package.ConnectionManagers[dw]">
+            <properties>
+              <property name="SqlCommand">SELECT SEGMENT_CODE, SEGMENT_DESC FROM ref.SEGMENTS</property>
+            </properties>
+          </component>
+          <component componentClassID="Microsoft.DerivedColumn" name="der_names">
+            <properties>
+              <property name="Expression">(DT_WSTR, 50) UPPER(FULL_NAME)</property>
+            </properties>
+          </component>
+          <component componentClassID="Microsoft.OLEDBDestination" name="dst_stg"
+            connectionManagerID="Package.ConnectionManagers[dw]">
+            <properties>
+              <property name="OpenRowset">[dbo].[STG_CUSTOMERS]</property>
+            </properties>
+          </component>
+          <component componentClassID="VendorX.FuzzyMerge" name="fuzzy_dupes"/>
+        </components>
+      </pipeline>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\merge_mart">
+    <DTS:Property DTS:Name="ObjectName">merge_mart</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_OLEDB">
+        <SQLTask:SqlStatementSource>MERGE MART_CUSTOMER USING STG_CUSTOMERS ON CUST_ID</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:PrecedenceConstraint DTS:From="Package\truncate_stg" DTS:To="Package\df_customers">
+    <DTS:Property DTS:Name="From">Package\truncate_stg</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\df_customers</DTS:Property>
+  </DTS:PrecedenceConstraint>
+  <DTS:PrecedenceConstraint DTS:From="Package\df_customers" DTS:To="Package\merge_mart">
+    <DTS:Property DTS:Name="From">Package\df_customers</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\merge_mart</DTS:Property>
+  </DTS:PrecedenceConstraint>
+</DTS:Executable>

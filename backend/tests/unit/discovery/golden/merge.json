@@ -1,0 +1,199 @@
+{
+  "kind": "merge",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 105
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 12,
+      "end_line": 1,
+      "end_col": 24
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 12,
+          "end_line": 1,
+          "end_col": 24
+        },
+        "value": "target_table",
+        "quoted": false
+      }
+    ]
+  },
+  "source": {
+    "kind": "table_ref",
+    "span": {
+      "start_line": 1,
+      "start_col": 31,
+      "end_line": 1,
+      "end_col": 43
+    },
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 31,
+        "end_line": 1,
+        "end_col": 43
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 31,
+            "end_line": 1,
+            "end_col": 43
+          },
+          "value": "source_table",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "on": {
+    "kind": "binary",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 1
+    },
+    "op": "=",
+    "left": {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 47,
+        "end_line": 1,
+        "end_col": 62
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 47,
+          "end_line": 1,
+          "end_col": 62
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 47,
+              "end_line": 1,
+              "end_col": 59
+            },
+            "value": "target_table",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 60,
+              "end_line": 1,
+              "end_col": 62
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 65,
+        "end_line": 1,
+        "end_col": 80
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 65,
+          "end_line": 1,
+          "end_col": 80
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 65,
+              "end_line": 1,
+              "end_col": 77
+            },
+            "value": "source_table",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 78,
+              "end_line": 1,
+              "end_col": 80
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  },
+  "clauses": [
+    {
+      "kind": "merge_clause",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "matched": true,
+      "action": {
+        "kind": "delete",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 12,
+            "end_line": 1,
+            "end_col": 24
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 12,
+                "end_line": 1,
+                "end_col": 24
+              },
+              "value": "target_table",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

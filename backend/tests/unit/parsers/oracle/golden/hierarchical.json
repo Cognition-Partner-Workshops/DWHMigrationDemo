@@ -1,0 +1,258 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 111
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 13
+        },
+        "expr": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 13
+          },
+          "name": "pseudo_column",
+          "args": {
+            "name": "LEVEL"
+          }
+        }
+      },
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 15,
+          "end_line": 1,
+          "end_col": 21
+        },
+        "expr": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 15,
+            "end_line": 1,
+            "end_col": 21
+          },
+          "name": "pseudo_column",
+          "args": {
+            "name": "ROWNUM"
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 27,
+          "end_line": 1,
+          "end_col": 29
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 27,
+            "end_line": 1,
+            "end_col": 39
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 27,
+                "end_line": 1,
+                "end_col": 29
+              },
+              "value": "oe",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 30,
+                "end_line": 1,
+                "end_col": 39
+              },
+              "value": "employees",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "hierarchical": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "connect_by",
+      "args": {
+        "start_with": {
+          "kind": "is_null",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 51,
+              "end_line": 1,
+              "end_col": 61
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 51,
+                "end_line": 1,
+                "end_col": 61
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 51,
+                    "end_line": 1,
+                    "end_col": 61
+                  },
+                  "value": "manager_id",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "negated": false
+        },
+        "condition": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "=",
+          "left": {
+            "kind": "dialect_expr",
+            "span": {
+              "start_line": 1,
+              "start_col": 81,
+              "end_line": 1,
+              "end_col": 86
+            },
+            "name": "prior",
+            "args": {
+              "expr": {
+                "kind": "column_ref",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 87,
+                  "end_line": 1,
+                  "end_col": 98
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 87,
+                    "end_line": 1,
+                    "end_col": 98
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 87,
+                        "end_line": 1,
+                        "end_col": 98
+                      },
+                      "value": "employee_id",
+                      "quoted": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "right": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 101,
+              "end_line": 1,
+              "end_col": 111
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 101,
+                "end_line": 1,
+                "end_col": 111
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 101,
+                    "end_line": 1,
+                    "end_col": 111
+                  },
+                  "value": "manager_id",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        },
+        "nocycle": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "type": "boolean",
+          "value": "false"
+        }
+      }
+    },
+    "bulk_collect": false
+  }
+}

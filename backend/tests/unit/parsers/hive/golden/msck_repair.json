@@ -1,0 +1,68 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 25
+  },
+  "name": "msck_repair",
+  "args": {
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 19,
+        "end_line": 1,
+        "end_col": 25
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 19,
+            "end_line": 1,
+            "end_col": 25
+          },
+          "value": "events",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 5
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 19,
+          "end_line": 1,
+          "end_col": 25
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 19,
+              "end_line": 1,
+              "end_col": 25
+            },
+            "value": "events",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "writes"
+    }
+  ]
+}

@@ -1,0 +1,198 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 77
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 19
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "child",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 21,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 27
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 24,
+            "end_line": 1,
+            "end_col": 27
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 24,
+                "end_line": 1,
+                "end_col": 27
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "constraints": [
+        {
+          "kind": "column_constraint",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "constraint_kind": "primary_key"
+        }
+      ]
+    },
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 41,
+          "end_line": 1,
+          "end_col": 50
+        },
+        "value": "parent_id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 51,
+          "end_line": 1,
+          "end_col": 54
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 51,
+            "end_line": 1,
+            "end_col": 54
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 51,
+                "end_line": 1,
+                "end_col": 54
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "constraints": [
+        {
+          "kind": "column_constraint",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "constraint_kind": "foreign_key",
+          "ref_table": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 66,
+              "end_line": 1,
+              "end_col": 72
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 66,
+                  "end_line": 1,
+                  "end_col": 72
+                },
+                "value": "parent",
+                "quoted": false
+              }
+            ]
+          },
+          "ref_columns": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 73,
+                "end_line": 1,
+                "end_col": 75
+              },
+              "value": "id",
+              "quoted": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "temporary": false,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false
+}

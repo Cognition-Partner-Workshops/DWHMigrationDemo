@@ -1,0 +1,78 @@
+{
+  "kind": "insert",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 41
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 13,
+      "end_line": 1,
+      "end_col": 25
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 25
+        },
+        "value": "target_table",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 27,
+        "end_line": 1,
+        "end_col": 29
+      },
+      "value": "id",
+      "quoted": false
+    }
+  ],
+  "source": {
+    "kind": "values",
+    "span": {
+      "start_line": 1,
+      "start_col": 31,
+      "end_line": 1,
+      "end_col": 37
+    },
+    "rows": [
+      {
+        "kind": "values_row",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "values": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 39,
+              "end_line": 1,
+              "end_col": 40
+            },
+            "type": "number",
+            "value": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": false
+}
