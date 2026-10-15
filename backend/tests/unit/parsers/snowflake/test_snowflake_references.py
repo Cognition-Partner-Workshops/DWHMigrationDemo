@@ -1,20 +1,24 @@
 from migraai.discovery import ast
 from migraai.discovery.objects import extract as extract_objects
-from migraai.discovery.references import extract as extract_references
 from migraai.discovery.parsers.snowflake import Parser
+from migraai.discovery.references import extract as extract_references
 
 
 def test_snowflake_reference_hints_and_nested_query_references() -> None:
     parser = Parser()
     stage = parser.parse("CREATE STAGE st FILE_FORMAT=(FORMAT_NAME=ff)", "stage.sql").statements[0]
-    assert [(ref.name.parts[-1].value, ref.ref_kind) for ref in extract_references(stage, Parser)] == [
-        ("ff", "reads")
-    ]
-    task = Parser().parse(
-        "CREATE TASK t AFTER prior_task WHEN SYSTEM$STREAM_HAS_DATA('db.sch.stream') "
-        "AS INSERT INTO target SELECT id FROM source",
-        "task.sql",
-    ).statements[0]
+    assert [
+        (ref.name.parts[-1].value, ref.ref_kind) for ref in extract_references(stage, Parser)
+    ] == [("ff", "reads")]
+    task = (
+        Parser()
+        .parse(
+            "CREATE TASK t AFTER prior_task WHEN SYSTEM$STREAM_HAS_DATA('db.sch.stream') "
+            "AS INSERT INTO target SELECT id FROM source",
+            "task.sql",
+        )
+        .statements[0]
+    )
     refs = extract_references(task, Parser)
     assert {ref.ref_kind for ref in refs} >= {"schedules", "reads", "writes"}
     assert any(ref.name.parts[-1].value == "source" for ref in refs)
@@ -23,8 +27,7 @@ def test_snowflake_reference_hints_and_nested_query_references() -> None:
 def test_snowflake_object_types_status_and_dynamic_identifier_issue() -> None:
     parser = Parser()
     result = parser.parse(
-        "CREATE TABLE db.t (id INT); CREATE STAGE db.st; "
-        "SELECT * FROM IDENTIFIER($name)",
+        "CREATE TABLE db.t (id INT); CREATE STAGE db.st; SELECT * FROM IDENTIFIER($name)",
         "inventory.sql",
     )
     objects = extract_objects(result, "inventory.sql", Parser)

@@ -44,5 +44,7 @@ def test_snowflake_ast_golden(name: str, sql: str) -> None:
     golden_path = GOLDEN_DIR / f"{name}.json"
     if os.environ.get("MIGRAAI_REGEN_GOLDEN") == "1":
         GOLDEN_DIR.mkdir(parents=True, exist_ok=True)
-        golden_path.write_text(json.dumps(actual, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        golden_path.write_text(
+            json.dumps(actual, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
     assert json.loads(golden_path.read_text(encoding="utf-8")) == actual

@@ -5,7 +5,7 @@ from dataclasses import dataclass, field, replace
 from typing import Any
 
 from migraai.discovery import ast
-from migraai.discovery.lexer import Lexer, Token, TokenKind
+from migraai.discovery.lexer import Token, TokenKind
 from migraai.discovery.parser_base import ParseError, ParserBase
 from migraai.discovery.parsers.snowflake.lexer import SnowflakeLexer
 
@@ -360,9 +360,7 @@ class Parser(ParserBase):
             return block
         if self.at_keyword("UNSET"):
             self.advance()
-            items = [
-                ast.SetItem(ast.ColumnRef(self.parse_qualified_name()), None)
-            ]
+            items = [ast.SetItem(ast.ColumnRef(self.parse_qualified_name()), None)]
             while self.accept(TokenKind.PUNCT, ","):
                 items.append(ast.SetItem(ast.ColumnRef(self.parse_qualified_name()), None))
             return ast.SetStatement(None, items)
@@ -387,7 +385,11 @@ class Parser(ParserBase):
         if self.at_keyword("LET"):
             self.advance()
             name = self.parse_identifier()
-            datatype = self.parse_data_type() if self._is_name() and not self.at_keyword("DEFAULT") else None
+            datatype = (
+                self.parse_data_type()
+                if self._is_name() and not self.at_keyword("DEFAULT")
+                else None
+            )
             if not (
                 self.accept(TokenKind.OPERATOR, ":=")
                 or self.accept_keyword("DEFAULT")
@@ -492,12 +494,10 @@ class Parser(ParserBase):
                 start, replace_flag, secure, materialized=True, recursive=recursive_view
             )
         if self.accept_keyword("VIEW"):
-            return self._parse_snowflake_view(
-                start, replace_flag, secure, recursive=recursive_view
-            )
+            return self._parse_snowflake_view(start, replace_flag, secure, recursive=recursive_view)
         if self.at_keyword("DATABASE", "SCHEMA"):
             kind = self.advance().text.casefold()
-            if_not_exists = self._parse_if_not_exists()
+            self._parse_if_not_exists()
             name = self.parse_qualified_name()
             properties: dict[str, Any] = {}
             if self.accept_keyword("CLONE"):
@@ -520,7 +520,7 @@ class Parser(ParserBase):
             return self._parse_snowflake_routine(start, kind, replace_flag, secure, temporary)
         if self.at_keyword("USER", "ROLE"):
             kind = self.advance().text.casefold()
-            if_not_exists = self._parse_if_not_exists()
+            self._parse_if_not_exists()
             name = self.parse_qualified_name()
             options = self._parse_properties() if self.at(TokenKind.PUNCT, "(") else {}
             return ast.CreatePrincipal(kind, name, options, span=self._token_span(start))
@@ -691,8 +691,10 @@ class Parser(ParserBase):
         )
 
     def _parse_snowflake_column_options(self, column: ast.ColumnDef) -> None:
-        while not self._statement_end() and not self.at(TokenKind.PUNCT, ",") and not self.at(
-            TokenKind.PUNCT, ")"
+        while (
+            not self._statement_end()
+            and not self.at(TokenKind.PUNCT, ",")
+            and not self.at(TokenKind.PUNCT, ")")
         ):
             if self.accept_keyword("AUTOINCREMENT", "IDENTITY"):
                 start_value = increment = None
@@ -734,9 +736,7 @@ class Parser(ParserBase):
                     self.expect(TokenKind.PUNCT, "(")
                     column.options["masking_using"] = self.parse_comma_list(self.parse_identifier)
                     self.expect(TokenKind.PUNCT, ")")
-            elif (self.accept_keyword("WITH") and self.at_keyword("TAG")) or self.at_keyword(
-                "TAG"
-            ):
+            elif (self.accept_keyword("WITH") and self.at_keyword("TAG")) or self.at_keyword("TAG"):
                 self.accept_keyword("TAG")
                 self.expect(TokenKind.PUNCT, "(")
                 tags = {}
@@ -841,7 +841,9 @@ class Parser(ParserBase):
                     )
                 elif self.accept_keyword("TAG"):
                     actions.append(
-                        ast.DialectStatement("set_tag", {"column": column, "tags": self._parse_property_value()})
+                        ast.DialectStatement(
+                            "set_tag", {"column": column, "tags": self._parse_property_value()}
+                        )
                     )
             else:
                 raise ParseError("Expected SET after ALTER TABLE MODIFY COLUMN.", self.peek())
@@ -955,9 +957,7 @@ class Parser(ParserBase):
             if not self.accept(TokenKind.PUNCT, ",") and not self._is_name():
                 break
 
-    def _parse_task_clauses(
-        self, args: dict[str, Any], references: list[ast.RefHint]
-    ) -> None:
+    def _parse_task_clauses(self, args: dict[str, Any], references: list[ast.RefHint]) -> None:
         properties = args["properties"]
         if self.accept_keyword("WAREHOUSE"):
             properties["warehouse"] = self.parse_qualified_name()
@@ -973,7 +973,11 @@ class Parser(ParserBase):
                 if args["when"].name.parts[-1].value.casefold() == "system$stream_has_data":
                     arg = args["when"].args[0] if args["when"].args else None
                     if isinstance(arg, ast.Literal):
-                        references.append(ast.RefHint(ast.QualifiedName(self._split_identifier(arg.value)), "reads"))
+                        references.append(
+                            ast.RefHint(
+                                ast.QualifiedName(self._split_identifier(arg.value)), "reads"
+                            )
+                        )
         if self.accept_keyword("AS"):
             if self.at(TokenKind.DOLLAR_BODY):
                 args["body"] = self._parse_embedded_body(self.advance(), procedure=True)
@@ -1037,7 +1041,11 @@ class Parser(ParserBase):
                 if not self.accept(TokenKind.PUNCT, ","):
                     break
             self.expect(TokenKind.PUNCT, ")")
-        options: dict[str, Any] = {"replace": replace_flag, "secure": secure, "temporary": temporary}
+        options: dict[str, Any] = {
+            "replace": replace_flag,
+            "secure": secure,
+            "temporary": temporary,
+        }
         returns = None
         language = None
         body_token = None
@@ -1047,7 +1055,9 @@ class Parser(ParserBase):
                     self.expect(TokenKind.PUNCT, "(")
                     fields = []
                     while not self.at(TokenKind.PUNCT, ")"):
-                        fields.append(ast.StructField(self.parse_identifier(), self.parse_data_type()))
+                        fields.append(
+                            ast.StructField(self.parse_identifier(), self.parse_data_type())
+                        )
                         if not self.accept(TokenKind.PUNCT, ","):
                             break
                     self.expect(TokenKind.PUNCT, ")")
@@ -1064,7 +1074,11 @@ class Parser(ParserBase):
             elif self.accept_keyword("PACKAGES", "IMPORTS"):
                 key = self.tokens[self.index - 1].text.casefold()
                 self.accept(TokenKind.OPERATOR, "=")
-                options[key] = self._parse_properties() if self.at(TokenKind.PUNCT, "(") else self._parse_property_value()
+                options[key] = (
+                    self._parse_properties()
+                    if self.at(TokenKind.PUNCT, "(")
+                    else self._parse_property_value()
+                )
             elif self.accept_keyword("HANDLER", "COMMENT"):
                 key = self.tokens[self.index - 1].text.casefold()
                 self.accept(TokenKind.OPERATOR, "=")
@@ -1091,9 +1105,15 @@ class Parser(ParserBase):
             if language in {"javascript", "python", "java", "scala"}:
                 body = body_token.value
             else:
-                nested = self._parse_embedded_body(body_token, procedure=routine_kind == "procedure")
+                nested = self._parse_embedded_body(
+                    body_token, procedure=routine_kind == "procedure"
+                )
                 if routine_kind == "procedure":
-                    body = nested if isinstance(nested, ast.Block) else ast.Block(statements=[nested] if nested else [])
+                    body = (
+                        nested
+                        if isinstance(nested, ast.Block)
+                        else ast.Block(statements=[nested] if nested else [])
+                    )
                 elif isinstance(nested, ast.Query):
                     body = nested
                 elif nested is not None:

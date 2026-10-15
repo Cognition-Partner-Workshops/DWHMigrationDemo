@@ -44,10 +44,14 @@ def test_snowflake_identifier_function_resolves_literal_and_marks_dynamic() -> N
 
 
 def test_snowflake_lateral_flatten_and_table_function() -> None:
-    node = Parser().parse(
-        "SELECT f.value FROM src, LATERAL FLATTEN(input => src.payload, path => 'a') f",
-        "flatten.sql",
-    ).statements[0]
+    node = (
+        Parser()
+        .parse(
+            "SELECT f.value FROM src, LATERAL FLATTEN(input => src.payload, path => 'a') f",
+            "flatten.sql",
+        )
+        .statements[0]
+    )
     assert isinstance(node, ast.Query)
     assert isinstance(node.body.from_[1], ast.TableFunctionRef)
     assert node.body.from_[1].lateral

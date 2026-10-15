@@ -13,7 +13,9 @@ def test_snowflake_parameters_stages_and_system_identifiers() -> None:
 
 def test_snowflake_dollar_quoting_colon_and_backslash_strings() -> None:
     tokens = SnowflakeLexer("SELECT $$SELECT 1$$, '\\n', :v, x::STRING").tokenize()
-    assert any(token.kind is TokenKind.DOLLAR_BODY and token.value == "SELECT 1" for token in tokens)
+    assert any(
+        token.kind is TokenKind.DOLLAR_BODY and token.value == "SELECT 1" for token in tokens
+    )
     assert any(token.kind is TokenKind.OPERATOR and token.text == ":" for token in tokens)
     assert any(token.kind is TokenKind.OPERATOR and token.text == "::" for token in tokens)
     assert any(token.kind is TokenKind.STRING and token.value == "n" for token in tokens)
