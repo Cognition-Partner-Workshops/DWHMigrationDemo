@@ -410,7 +410,7 @@ class TSqlParserBase(ParserBase):
         start = self.expect_keyword("INSERT")
         top = self._parse_top() if self.at_keyword("TOP") else None
         self.accept_keyword("INTO") or self.accept_keyword("TABLE")
-        target = self.parse_qualified_name()
+        target, target_variable = self._parse_tsql_dml_target()
         columns = self._parse_identifier_list() if self.accept(TokenKind.PUNCT, "(") else []
         output, output_into = self._parse_output_clause()
         source: ast.Node
@@ -429,19 +429,21 @@ class TSqlParserBase(ParserBase):
             top=top,
             output=output,
             output_into=output_into,
+            target_variable=target_variable,
             span=self._token_span(start),
         )
 
     def parse_update(self) -> ast.Node:
         start = self.expect_keyword("UPDATE")
         top = self._parse_top() if self.at_keyword("TOP") else None
-        target = self.parse_qualified_name()
+        target, target_variable = self._parse_tsql_dml_target()
         alias = self._parse_optional_alias()
         self.expect_keyword("SET")
         assignments = self.parse_comma_list(self._parse_tsql_assignment)
         output, output_into = self._parse_output_clause()
         from_items = self._parse_from_list() if self.accept_keyword("FROM") else []
-        target, alias = self._resolve_dml_alias(target, alias, from_items)
+        if target is not None:
+            target, alias = self._resolve_dml_alias(target, alias, from_items)
         where = self.parse_expr() if self.accept_keyword("WHERE") else None
         return TSqlUpdate(
             target=target,
@@ -452,6 +454,7 @@ class TSqlParserBase(ParserBase):
             top=top,
             output=output,
             output_into=output_into,
+            target_variable=target_variable,
             span=self._token_span(start),
         )
 
@@ -459,15 +462,16 @@ class TSqlParserBase(ParserBase):
         start = self.expect_keyword("DELETE")
         top = self._parse_top() if self.at_keyword("TOP") else None
         if self.accept_keyword("FROM"):
-            target = self.parse_qualified_name()
+            target, target_variable = self._parse_tsql_dml_target()
             alias = self._parse_optional_alias()
             from_items: list[ast.Node] = []
         else:
-            target = self.parse_qualified_name()
+            target, target_variable = self._parse_tsql_dml_target()
             alias = self._parse_optional_alias()
             output, output_into = self._parse_output_clause()
             from_items = self._parse_from_list() if self.accept_keyword("FROM") else []
-            target, alias = self._resolve_dml_alias(target, alias, from_items)
+            if target is not None:
+                target, alias = self._resolve_dml_alias(target, alias, from_items)
             where = self.parse_expr() if self.accept_keyword("WHERE") else None
             return TSqlDelete(
                 target=target,
@@ -477,6 +481,7 @@ class TSqlParserBase(ParserBase):
                 top=top,
                 output=output,
                 output_into=output_into,
+                target_variable=target_variable,
                 span=self._token_span(start),
             )
         output, output_into = self._parse_output_clause()
@@ -489,8 +494,17 @@ class TSqlParserBase(ParserBase):
             top=top,
             output=output,
             output_into=output_into,
+            target_variable=target_variable,
             span=self._token_span(start),
         )
+
+    def _parse_tsql_dml_target(
+        self,
+    ) -> tuple[ast.QualifiedName | None, ast.Variable | None]:
+        if self.at(TokenKind.PARAM):
+            token = self.advance()
+            return None, ast.Variable(token.text, span=self._token_span(token))
+        return self.parse_qualified_name(), None
 
     def parse_merge(self) -> ast.Node:
         start = self.peek()
@@ -883,7 +897,11 @@ class TSqlParserBase(ParserBase):
             return routine
         if self.accept_keyword("LOGIN"):
             return self._parse_login(start)
-        if self.at_keyword("USER", "ROLE", "SCHEMA", "SEQUENCE", "SYNONYM", "DATABASE", "TYPE"):
+        if self.accept_keyword("USER"):
+            return self._parse_create_user(start)
+        if self.accept_keyword("ROLE"):
+            return self._parse_create_role(start)
+        if self.at_keyword("SCHEMA", "SEQUENCE", "SYNONYM", "DATABASE", "TYPE"):
             keyword = self.advance().text.casefold()
             if keyword == "type":
                 return self._parse_create_type(start)
@@ -1348,6 +1366,42 @@ class TSqlParserBase(ParserBase):
             options["from"] = self.advance().text.casefold()
         return ast.CreatePrincipal(
             principal_kind="login", name=name, options=options, span=self._token_span(start)
+        )
+
+    def _parse_create_user(self, start: Token) -> ast.CreatePrincipal:
+        name = self.parse_qualified_name()
+        options: dict[str, Any] = {}
+        if self.accept_keyword("FOR") or self.accept_keyword("FROM"):
+            self.expect_keyword("LOGIN")
+            options["login"] = self.parse_qualified_name()
+        elif self.accept_keyword("WITHOUT"):
+            self.expect_keyword("LOGIN")
+            options["without_login"] = True
+        if self.accept_keyword("WITH"):
+            while not self._statement_end():
+                key = self.advance().text.casefold()
+                self.accept(TokenKind.OPERATOR, "=")
+                if key in {"default_schema", "default_database"}:
+                    options[key] = self.parse_qualified_name()
+                elif key == "password":
+                    if self.at(TokenKind.STRING):
+                        self.advance()
+                    options[key] = "***"
+                else:
+                    options[key] = self._parse_option_value()
+                if not self.accept(TokenKind.PUNCT, ","):
+                    break
+        return ast.CreatePrincipal(
+            principal_kind="user", name=name, options=options, span=self._token_span(start)
+        )
+
+    def _parse_create_role(self, start: Token) -> ast.CreatePrincipal:
+        name = self.parse_qualified_name()
+        options = {}
+        if self.accept_keyword("AUTHORIZATION"):
+            options["authorization"] = self.parse_qualified_name()
+        return ast.CreatePrincipal(
+            principal_kind="role", name=name, options=options, span=self._token_span(start)
         )
 
     def _parse_alter_role(self) -> ast.Alter:
