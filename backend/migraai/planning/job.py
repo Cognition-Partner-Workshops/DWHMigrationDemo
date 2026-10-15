@@ -72,6 +72,10 @@ class PlanJob(threading.Thread):
                 "reason": self.reason,
                 "cached": self.cached,
                 "kb_version": self.kb_store.current_version,
+                "created_at": self.record["created_at"] if self.record else None,
+                "devin_session_id": (
+                    self.record["devin_session_id"] if self.record else self.session_id
+                ),
                 "label": (
                     "Local draft (Devin unavailable)" if self.origin == "local_draft" else None
                 ),

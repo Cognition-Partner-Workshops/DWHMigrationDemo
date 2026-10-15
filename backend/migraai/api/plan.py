@@ -34,6 +34,8 @@ def _record_view(record: dict, current_version: int | None, cached: bool = False
         "cached": cached,
         "kb_version": record["kb_version"],
         "stale": record["kb_version"] != current_version,
+        "created_at": record["created_at"],
+        "devin_session_id": record["devin_session_id"],
         "label": ("Local draft (Devin unavailable)" if record["origin"] == "local_draft" else None),
     }
 

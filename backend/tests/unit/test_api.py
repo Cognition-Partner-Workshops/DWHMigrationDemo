@@ -286,7 +286,7 @@ def test_plan_cache_regenerate_and_stale_flag(client: TestClient) -> None:
     version = client.app.state.kb_store.current_version
     store = client.app.state.plan_store
     draft = build_local_draft("teradata", "snowflake", client.app.state.kb_store.current_path)
-    store.save(
+    cached_record = store.save(
         Plan.model_validate(draft),
         source="teradata",
         target="snowflake",
@@ -298,6 +298,7 @@ def test_plan_cache_regenerate_and_stale_flag(client: TestClient) -> None:
     response = client.post("/api/plan", json={}, headers=headers)
     assert response.json()["state"] == "done"
     assert response.json()["cached"] is True
+    assert response.json()["created_at"] == cached_record["created_at"]
 
     regenerated = client.post("/api/plan", json={"regenerate": True}, headers=headers)
     assert regenerated.json()["cached"] is False

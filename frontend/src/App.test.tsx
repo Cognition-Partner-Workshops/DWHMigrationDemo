@@ -7,10 +7,23 @@ import App from "./App";
 const settingsResponse = {
   devin_pat: { configured: true, masked: "••••abcd" },
   devin_org_id: "org-demo",
+  token_kind: "v3",
   devin_api_base_url: "https://api.devin.ai",
   confidence_threshold: 0.85,
   max_concurrent_sessions: 4,
   acu_cap_per_run: null,
+};
+
+const fallbackPlan = {
+  state: "failed_fallback",
+  progress: { phase: "failed_fallback", elapsed_s: 0, devin_url: null },
+  plan: null,
+  origin: "local_draft",
+  reason: "Devin token not configured",
+  cached: false,
+  kb_version: 1,
+  stale: false,
+  created_at: "2026-10-15T00:00:00Z",
 };
 
 function mockApi(devinConfigured = true) {
@@ -39,11 +52,27 @@ function mockApi(devinConfigured = true) {
     if (path.endsWith("/api/settings")) {
       return Response.json(settingsResponse);
     }
+    if (path.endsWith("/api/resources")) {
+      return Response.json([]);
+    }
+    if (path.endsWith("/api/kb/status")) {
+      return Response.json({
+        current_version: 1,
+        created_at: "2026-10-15T00:00:00Z",
+        documents: 0,
+        chunks: 0,
+        last_refresh_summary: null,
+        running: null,
+        rollback_versions: [],
+        seed_error: null,
+      });
+    }
     if (path.endsWith("/api/session/confirm")) {
       return Response.json({
         session_id: "session-1",
         source: "teradata",
         target: "databricks",
+        plan: fallbackPlan,
       });
     }
     return Response.json(settingsResponse);
