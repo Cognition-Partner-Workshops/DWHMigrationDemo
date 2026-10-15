@@ -162,6 +162,8 @@ def test_sqlserver_create_user_login_and_default_schema() -> None:
 def test_sqlserver_create_user_from_login_and_without_login() -> None:
     from_login = _parse_one("CREATE USER u FROM LOGIN l")
     without_login = _parse_one("CREATE USER u2 WITHOUT LOGIN")
+    assert isinstance(from_login, ast.CreatePrincipal)
+    assert isinstance(without_login, ast.CreatePrincipal)
     assert from_login.options["login"].parts[-1].value == "l"
     assert without_login.options["without_login"] is True
 
