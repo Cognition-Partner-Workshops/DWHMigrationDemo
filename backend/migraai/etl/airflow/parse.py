@@ -21,8 +21,8 @@ import yaml
 from migraai.discovery import ast
 from migraai.etl.python.common import (
     EtlBuilder,
-    attach_recovered,
     EtlParseResult,
+    attach_recovered,
     decode,
     file_unparsed,
     normalize_path,
