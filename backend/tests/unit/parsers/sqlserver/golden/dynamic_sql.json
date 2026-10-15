@@ -1,0 +1,127 @@
+{
+  "kind": "dynamic_sql",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 35
+  },
+  "sql_expr": {
+    "kind": "literal",
+    "span": {
+      "start_line": 1,
+      "start_col": 34,
+      "end_line": 1,
+      "end_col": 61
+    },
+    "type": "string",
+    "value": "SELECT id FROM dbo.Orders"
+  },
+  "parsed": [
+    {
+      "kind": "query",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 26
+      },
+      "body": {
+        "kind": "select",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 7
+        },
+        "distinct": false,
+        "projections": [
+          {
+            "kind": "select_item",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 10
+            },
+            "expr": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 8,
+                "end_line": 1,
+                "end_col": 10
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 10
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 8,
+                      "end_line": 1,
+                      "end_col": 10
+                    },
+                    "value": "id",
+                    "quoted": false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "from_": [
+          {
+            "kind": "table_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 16,
+              "end_line": 1,
+              "end_col": 19
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 16,
+                "end_line": 1,
+                "end_col": 26
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 16,
+                    "end_line": 1,
+                    "end_col": 19
+                  },
+                  "value": "dbo",
+                  "quoted": false
+                },
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 20,
+                    "end_line": 1,
+                    "end_col": 26
+                  },
+                  "value": "Orders",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

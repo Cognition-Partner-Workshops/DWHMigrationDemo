@@ -1,0 +1,92 @@
+{
+  "kind": "create_index",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 63
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 21,
+      "end_line": 1,
+      "end_col": 41
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 21,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "oe",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 41
+        },
+        "value": "orders_status_bix",
+        "quoted": false
+      }
+    ]
+  },
+  "table": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 45,
+      "end_line": 1,
+      "end_col": 54
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 45,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "value": "oe",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 48,
+          "end_line": 1,
+          "end_col": 54
+        },
+        "value": "orders",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 56,
+        "end_line": 1,
+        "end_col": 62
+      },
+      "value": "status",
+      "quoted": false
+    }
+  ],
+  "unique": false,
+  "options": {
+    "bitmap": true
+  }
+}

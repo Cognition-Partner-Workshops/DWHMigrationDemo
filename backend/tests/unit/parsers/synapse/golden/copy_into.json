@@ -1,0 +1,103 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 89
+  },
+  "name": "copy_into",
+  "args": {
+    "target": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 11,
+        "end_line": 1,
+        "end_col": 21
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 11,
+            "end_line": 1,
+            "end_col": 14
+          },
+          "value": "dbo",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 15,
+            "end_line": 1,
+            "end_col": 21
+          },
+          "value": "target",
+          "quoted": false
+        }
+      ]
+    },
+    "sources": [
+      {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 58,
+          "end_line": 1,
+          "end_col": 89
+        },
+        "type": "string",
+        "value": "https://example.test/file.csv"
+      }
+    ]
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 11,
+          "end_line": 1,
+          "end_col": 21
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 11,
+              "end_line": 1,
+              "end_col": 14
+            },
+            "value": "dbo",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 15,
+              "end_line": 1,
+              "end_col": 21
+            },
+            "value": "target",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "writes"
+    }
+  ]
+}

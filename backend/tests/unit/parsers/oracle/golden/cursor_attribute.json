@@ -1,0 +1,108 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 30
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 11
+        },
+        "expr": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 11
+          },
+          "name": "cursor_attribute",
+          "args": {
+            "cursor": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 8,
+                "end_line": 1,
+                "end_col": 11
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 11
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 8,
+                      "end_line": 1,
+                      "end_col": 11
+                    },
+                    "value": "SQL",
+                    "quoted": false
+                  }
+                ]
+              }
+            },
+            "attribute": "ROWCOUNT"
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 26,
+          "end_line": 1,
+          "end_col": 30
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 26,
+            "end_line": 1,
+            "end_col": 30
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 26,
+                "end_line": 1,
+                "end_col": 30
+              },
+              "value": "dual",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "bulk_collect": false
+  }
+}

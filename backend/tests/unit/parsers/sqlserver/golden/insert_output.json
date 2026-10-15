@@ -1,0 +1,142 @@
+{
+  "kind": "insert",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 58
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 13,
+      "end_line": 1,
+      "end_col": 23
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 13,
+          "end_line": 1,
+          "end_col": 16
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "Target",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 25,
+        "end_line": 1,
+        "end_col": 27
+      },
+      "value": "id",
+      "quoted": false
+    }
+  ],
+  "source": {
+    "kind": "values",
+    "span": {
+      "start_line": 1,
+      "start_col": 48,
+      "end_line": 1,
+      "end_col": 54
+    },
+    "rows": [
+      {
+        "kind": "values_row",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "values": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 56,
+              "end_line": 1,
+              "end_col": 57
+            },
+            "type": "number",
+            "value": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": false,
+  "output": [
+    {
+      "kind": "select_item",
+      "span": {
+        "start_line": 1,
+        "start_col": 36,
+        "end_line": 1,
+        "end_col": 44
+      },
+      "expr": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 36,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 36,
+            "end_line": 1,
+            "end_col": 47
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 36,
+                "end_line": 1,
+                "end_col": 44
+              },
+              "value": "inserted",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 45,
+                "end_line": 1,
+                "end_col": 47
+              },
+              "value": "id",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

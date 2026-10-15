@@ -1,0 +1,65 @@
+{
+  "kind": "create_synonym",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 48
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 23,
+      "end_line": 1,
+      "end_col": 34
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 23,
+          "end_line": 1,
+          "end_col": 34
+        },
+        "value": "order_alias",
+        "quoted": false
+      }
+    ]
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 39,
+      "end_line": 1,
+      "end_col": 48
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 39,
+          "end_line": 1,
+          "end_col": 41
+        },
+        "value": "oe",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 42,
+          "end_line": 1,
+          "end_col": 48
+        },
+        "value": "orders",
+        "quoted": false
+      }
+    ]
+  },
+  "public": true
+}

@@ -1,0 +1,10 @@
+CREATE TABLE dbo.Sales (id INT PRIMARY KEY, customer_id INT REFERENCES dbo.Customer(id));
+CREATE TABLE dbo.SalesLine (id INT PRIMARY KEY, sales_id INT REFERENCES dbo.Sales(id), product_id INT REFERENCES dbo.Product(id));
+CREATE TABLE dbo.Invoice (id INT PRIMARY KEY, sales_id INT REFERENCES dbo.Sales(id));
+CREATE TABLE dbo.InvoiceLine (id INT PRIMARY KEY, invoice_id INT REFERENCES dbo.Invoice(id), product_id INT REFERENCES dbo.Product(id));
+CREATE TABLE dbo.Payment (id INT PRIMARY KEY, invoice_id INT REFERENCES dbo.Invoice(id));
+CREATE TABLE dbo.Address (id INT PRIMARY KEY, city NVARCHAR(80));
+CREATE TABLE dbo.CustomerAddress (customer_id INT REFERENCES dbo.Customer(id), address_id INT REFERENCES dbo.Address(id));
+CREATE TABLE dbo.Inventory (id INT PRIMARY KEY, product_id INT REFERENCES dbo.Product(id), warehouse_id INT REFERENCES dbo.Warehouse(id));
+CREATE TABLE dbo.PriceHistory (id INT PRIMARY KEY, product_id INT REFERENCES dbo.Product(id));
+CREATE TABLE dbo.SalesTarget (id INT PRIMARY KEY, region_id INT REFERENCES dbo.Region(id));

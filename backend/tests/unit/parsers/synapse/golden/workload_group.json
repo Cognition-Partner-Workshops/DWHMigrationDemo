@@ -1,0 +1,48 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 68
+  },
+  "name": "create_workload_group",
+  "args": {
+    "object_type": "workload_group",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 23,
+        "end_line": 1,
+        "end_col": 32
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 23,
+            "end_line": 1,
+            "end_col": 32
+          },
+          "value": "reporting",
+          "quoted": false
+        }
+      ]
+    },
+    "options": {
+      "min_percentage_resource": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 65,
+          "end_line": 1,
+          "end_col": 67
+        },
+        "type": "number",
+        "value": "10"
+      }
+    }
+  }
+}

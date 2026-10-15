@@ -1,0 +1,10 @@
+CREATE TABLE dbo.Customer (id INT PRIMARY KEY, name NVARCHAR(100));
+CREATE TABLE dbo.Product (id INT PRIMARY KEY, name NVARCHAR(100));
+CREATE TABLE dbo.Region (id INT PRIMARY KEY, name NVARCHAR(100));
+CREATE TABLE dbo.Employee (id INT PRIMARY KEY, manager_id INT);
+CREATE TABLE dbo.Supplier (id INT PRIMARY KEY, name NVARCHAR(100));
+CREATE TABLE dbo.Warehouse (id INT PRIMARY KEY, region_id INT REFERENCES dbo.Region(id));
+CREATE TABLE dbo.Category (id INT PRIMARY KEY, name NVARCHAR(100));
+CREATE TABLE dbo.Brand (id INT PRIMARY KEY, name NVARCHAR(100));
+CREATE TABLE dbo.Promotion (id INT PRIMARY KEY, name NVARCHAR(100));
+CREATE TABLE dbo.TaxRate (id INT PRIMARY KEY, rate DECIMAL(8,4));
