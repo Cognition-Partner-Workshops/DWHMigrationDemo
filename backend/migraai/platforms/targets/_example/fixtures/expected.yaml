@@ -1,0 +1,4 @@
+violations.sql:
+  - _example.lint.no_select_star
+  - _example.rule.require_from
+  - _example.security.no_unsafe_udf
