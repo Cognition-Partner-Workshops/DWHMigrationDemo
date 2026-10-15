@@ -275,6 +275,10 @@ export default function App() {
   const [settings, setSettings] = useState<SettingsResponse>(EMPTY_SETTINGS);
   const [source, setSource] = useState("");
   const [target, setTarget] = useState("");
+  const [confirmedPair, setConfirmedPair] = useState<{
+    source: string;
+    target: string;
+  } | null>(null);
   const [sessionConfirmed, setSessionConfirmed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [session, setSession] = useState<SessionView | null>(null);
@@ -335,6 +339,7 @@ export default function App() {
       if (currentSession?.confirmed && currentSession.source && currentSession.target) {
         setSource(currentSession.source);
         setTarget(currentSession.target);
+        setConfirmedPair({ source: currentSession.source, target: currentSession.target });
         setSessionConfirmed(true);
         setSession({
           source: currentSession.source,
@@ -350,7 +355,11 @@ export default function App() {
   }, []);
 
   const canConfirm = Boolean(
-    source && target && source !== target && !confirming && !sessionConfirmed,
+    source &&
+      target &&
+      source !== target &&
+      !confirming &&
+      (source !== confirmedPair?.source || target !== confirmedPair?.target),
   );
   const canUpload =
     sessionConfirmed &&
@@ -371,6 +380,7 @@ export default function App() {
     try {
       const response = await confirmSession(source, target);
       setSession({ source: response.source, target: response.target, plan: response.plan });
+      setConfirmedPair({ source: response.source, target: response.target });
       setSessionConfirmed(true);
       requestAnimationFrame(() => {
         const main = mainRef.current;
@@ -559,7 +569,6 @@ export default function App() {
               <span className="platform-label">Source Database</span>
               <select
                 aria-label="Source platform"
-                disabled={sessionConfirmed}
                 onChange={(event) => setSource(event.target.value)}
                 value={source}
               >
@@ -580,7 +589,6 @@ export default function App() {
               <span className="platform-label">Target Database</span>
               <select
                 aria-label="Target platform"
-                disabled={sessionConfirmed}
                 onChange={(event) => setTarget(event.target.value)}
                 value={target}
               >
