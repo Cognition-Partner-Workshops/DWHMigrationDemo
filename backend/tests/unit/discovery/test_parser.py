@@ -201,8 +201,8 @@ def test_recovery_and_limits_emit_unparsed_nodes_and_issues() -> None:
     assert any(issue.code == "parser.expression_depth_limit" for issue in result.issues)
     assert any(isinstance(item, ast.Unparsed) for item in result.statements)
 
-    timed = ParserBase()
-    timed.file_time_limit_seconds = 0
+    clock_values = iter((100.0, 130.1))
+    timed = ParserBase(clock=lambda: next(clock_values))
     timed.time_check_interval = 1
     result = timed.parse("SELECT " + " + ".join(["1"] * 20))
     assert any(issue.code == "parser.time_limit" for issue in result.issues)
