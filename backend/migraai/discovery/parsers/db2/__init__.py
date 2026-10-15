@@ -173,14 +173,18 @@ class Parser(PsmMixin, ParserBase):
             return super().parse_statement_ext()
         if self.at_keyword("EXECUTE") and self._is_name():
             token = self.advance()
-            name = self.parse_qualified_name()
+            name = self.parse_identifier()
+            into = []
             using = []
+            if self.accept_keyword("INTO"):
+                into = self.parse_comma_list(self.parse_identifier)
             if self.accept_keyword("USING"):
                 using = self.parse_comma_list(self.parse_expr)
             return ast.DynamicSql(
-                sql_expr=ast.Call(name, []),
+                sql_expr=name,
+                into=into,
                 using=using,
-                parsed=[ast.Call(name, [])],
+                parsed=[],
                 span=self._token_span(token),
             )
         return super().parse_statement_ext()

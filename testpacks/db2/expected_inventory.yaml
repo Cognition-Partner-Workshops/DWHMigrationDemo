@@ -42,7 +42,6 @@ objects:
   - {type: procedure, qualified_name: "BANK.UPDATE_BALANCE", status: parsed}
   - {type: grant, qualified_name: "EXECUTE on BANK.RECORD_PAYMENT", status: parsed}
   - {type: external, qualified_name: "EXTDB.REMOTE.CUSTOMER", status: external}
-  - {type: external, qualified_name: "S1", status: external}
   - {type: grant, qualified_name: "SELECT, UPDATE on BANK.ACCOUNT", status: parsed}
   - {type: script, qualified_name: "load_script.sql", status: parsed}
   - {type: script, qualified_name: "maintenance.sql", status: parsed}
@@ -67,7 +66,6 @@ edges:
   - {from: "BANK.PAYMENT", to: "BANK.ACCOUNT", kind: foreign_key, external: false}
   - {from: "BANK.PAYMENT_VIEW", to: "BANK.PAYMENT", kind: reads, external: false}
   - {from: "BANK.PREPARED", to: "BANK.ACCOUNT", kind: reads, external: false}
-  - {from: "BANK.PREPARED", to: "S1", kind: calls, external: true}
   - {from: "BANK.PRODUCT_VIEW", to: "BANK.PRODUCT", kind: reads, external: false}
   - {from: "BANK.RECENT_ACCOUNTS", to: "BANK.ACCOUNT", kind: reads, external: false}
   - {from: "BANK.RECONCILIATION", to: "BANK.ACCOUNT", kind: foreign_key, external: false}

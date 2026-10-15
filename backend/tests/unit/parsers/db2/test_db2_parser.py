@@ -75,6 +75,37 @@ def _one(sql: str) -> ast.Node:
     return result.statements[0]
 
 
+def test_db2_execute_prepared_statement_is_dynamic_sql_not_call() -> None:
+    procedure = _one(
+        "CREATE PROCEDURE BANK.PREPARED(IN P_ID INT, OUT P_VALUE INT) "
+        "LANGUAGE SQL BEGIN "
+        "PREPARE S1 FROM 'SELECT ID FROM BANK.ACCOUNT WHERE ID = ?'; "
+        "EXECUTE S1 INTO P_VALUE, P_OTHER USING P_ID, :VALUE; END"
+    )
+    assert isinstance(procedure, ast.CreateRoutine)
+    dynamic_statements = [node for node in procedure.walk() if isinstance(node, ast.DynamicSql)]
+    prepared = next(node for node in dynamic_statements if isinstance(node.sql_expr, ast.Literal))
+    executed = next(
+        node for node in dynamic_statements if isinstance(node.sql_expr, ast.Identifier)
+    )
+    assert any(isinstance(statement, ast.Query) for statement in prepared.parsed)
+    assert isinstance(executed.sql_expr, ast.Identifier)
+    assert executed.sql_expr.value == "S1"
+    assert [item.value for item in executed.into] == ["P_VALUE", "P_OTHER"]
+    assert all(isinstance(item, ast.Identifier) for item in executed.into)
+    assert isinstance(executed.using[0], ast.ColumnRef)
+    assert isinstance(executed.using[1], ast.Param)
+    references = extract_references(procedure, Parser)
+    assert not any(
+        ref.ref_kind == "calls" and ref.name.parts[-1].value.casefold() == "s1"
+        for ref in references
+    )
+    assert any(
+        ref.ref_kind == "reads" and ref.name.parts[-1].value.casefold() == "account"
+        for ref in references
+    )
+
+
 def test_db2_dynamic_terminators_and_recovery() -> None:
     source = """--#SET TERMINATOR @
 CREATE PROCEDURE BANK.P(IN A INT)
