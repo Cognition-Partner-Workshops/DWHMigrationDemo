@@ -12,6 +12,7 @@ from typing import Any
 from migraai.agents.batching import plan_batches
 from migraai.agents.naming import build_name_map
 from migraai.agents.workflow import build_workflow, run_batch_workflow
+from migraai.core.secret_mask import SecretAttachmentError
 from migraai.devin.client import build_devin_client
 from migraai.platforms.pack import TargetPack, load_pack
 from migraai.voting.confidence import overall_score
@@ -55,6 +56,7 @@ class ConversionJob(threading.Thread):
         self.state = "queued"
         self.reason: str | None = None
         self.results: dict[str, Any] = {}
+        self.errors: dict[str, str] = {}
         self.counts = {
             "converted": 0,
             "escalated": 0,
@@ -129,6 +131,10 @@ class ConversionJob(threading.Thread):
                     state TEXT NOT NULL, self_confidence REAL, code_path TEXT,
                     session_id TEXT, acus REAL,
                     PRIMARY KEY(run_id, object_id, voter)
+                );
+                CREATE TABLE IF NOT EXISTS conversion_session (
+                    run_id TEXT NOT NULL, object_id TEXT NOT NULL, role TEXT NOT NULL,
+                    session_id TEXT, url TEXT, state TEXT NOT NULL, acus REAL, error TEXT
                 );
                 """
             )
@@ -241,6 +247,21 @@ class ConversionJob(threading.Thread):
                             outcome.acus,
                         ),
                     )
+                    inventory.connection.execute(
+                        """INSERT INTO conversion_session
+                        (run_id,object_id,role,session_id,url,state,acus,error)
+                        VALUES(?,?,?,?,?,?,?,?)""",
+                        (
+                            self.run_id,
+                            object_id,
+                            voter,
+                            outcome.session_id,
+                            outcome.url,
+                            outcome.state,
+                            outcome.acus,
+                            outcome.error,
+                        ),
+                    )
             for object_id, item in workflow_results.items():
                 candidate = item.get("candidate")
                 path = None
@@ -303,6 +324,25 @@ class ConversionJob(threading.Thread):
         )
         escalation = result.get("escalation_outcome")
         if escalation is not None:
+            for object_id, item in workflow_results.items():
+                if not item.get("escalated"):
+                    continue
+                with inventory.lock, inventory.connection:
+                    inventory.connection.execute(
+                        """INSERT INTO conversion_session
+                        (run_id,object_id,role,session_id,url,state,acus,error)
+                        VALUES(?,?,?,?,?,?,?,?)""",
+                        (
+                            self.run_id,
+                            object_id,
+                            "escalation",
+                            escalation.session_id,
+                            escalation.url,
+                            escalation.state,
+                            escalation.acus,
+                            escalation.error,
+                        ),
+                    )
             escalation_ids = [
                 object_id for object_id, item in workflow_results.items() if item.get("escalated")
             ]
@@ -322,7 +362,7 @@ class ConversionJob(threading.Thread):
                 },
             )
 
-    def _save_failed_batch(self, batch: Any) -> None:
+    def _save_failed_batch(self, batch: Any, error: str | None = None) -> None:
         inventory = self.session["inventory"]
         with inventory.lock, inventory.connection:
             for item in batch.objects:
@@ -334,7 +374,11 @@ class ConversionJob(threading.Thread):
                     (self.run_id, object_id, "failed"),
                 )
                 self.counts["failed"] += 1
+                if error:
+                    self.errors[object_id] = error
             self.batch_status[batch.index]["status"] = "failed"
+            if error:
+                self.batch_status[batch.index]["error"] = error
 
     def run(self) -> None:
         self.state = "running"
@@ -380,8 +424,20 @@ class ConversionJob(threading.Thread):
                     try:
                         self._save_batch(batch, future.result())
                     except Exception as error:
-                        self.reason = type(error).__name__
-                        self._save_failed_batch(batch)
+                        if isinstance(error, SecretAttachmentError):
+                            message = str(error)
+                            self.reason = message
+                            object_ids = [
+                                str(self._value(item, "id", "")) for item in batch.objects
+                            ]
+                            self._audit(
+                                "convert.blocked_secret",
+                                {"batch_index": batch.index, "object_ids": object_ids},
+                            )
+                            self._save_failed_batch(batch, message)
+                        else:
+                            self.reason = type(error).__name__
+                            self._save_failed_batch(batch)
             if self.cancel_event.is_set():
                 self.state = "cancelled"
                 for batch in self.batches:

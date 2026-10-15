@@ -1,5 +1,22 @@
 import re
 
+NAMEABLE_OBJECT_TYPES = frozenset(
+    {
+        "table",
+        "view",
+        "materialized_view",
+        "external_table",
+        "synonym",
+        "procedure",
+        "function",
+        "macro",
+        "routine",
+        "package",
+        "package_body",
+        "trigger",
+    }
+)
+
 
 def identifier_parts(name: str) -> tuple[str, ...]:
     parts: list[str] = []
@@ -50,3 +67,7 @@ def find_name(name: str, text: str) -> re.Match[str] | None:
     if not identifier_parts(name):
         return None
     return re.search(name_pattern(name), text, re.IGNORECASE)
+
+
+def is_nameable_object_type(value: str) -> bool:
+    return value.casefold() in NAMEABLE_OBJECT_TYPES

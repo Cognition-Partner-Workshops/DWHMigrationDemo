@@ -16,11 +16,14 @@ def make_context():
             "converted": set(),
             "external": set(),
             "order": [],
+            "nameable_dependencies": set(),
             "table_columns": {},
             "type_map": {},
             "source_grants": {},
         }
         values.update(overrides)
+        if "nameable_dependencies" not in overrides:
+            values["nameable_dependencies"] = set(values["name_map"])
         return ValidationContext(**values)
 
     return factory

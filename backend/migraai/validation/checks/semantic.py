@@ -1,5 +1,3 @@
-import re
-
 import sqlglot
 from sqlglot import ErrorLevel, exp
 from sqlglot.errors import ParseError
@@ -40,8 +38,34 @@ def _resolve_name(name: str, known: set[str]) -> str | None:
     return matches[0] if len(matches) == 1 else None
 
 
-def _base_type(value: str) -> str:
-    return re.sub(r"\s*\([^)]*\)", "", value).strip().upper()
+def _normalized_type(value: str, target: str) -> exp.DataType | None:
+    try:
+        return exp.DataType.build(value, dialect=sqlglot_dialect(target))
+    except (ParseError, ValueError, TypeError):
+        return None
+
+
+def _zero_scale_decimal(value: exp.DataType) -> bool:
+    if value.this != exp.DataType.Type.DECIMAL:
+        return False
+    if len(value.expressions) < 2:
+        return True
+    scale = value.expressions[1]
+    return scale.is_number and scale.name == "0"
+
+
+def _compatible_type(left: str, right: str, target: str) -> bool:
+    left_type = _normalized_type(left, target)
+    right_type = _normalized_type(right, target)
+    if left_type is None or right_type is None:
+        return left.strip().casefold() == right.strip().casefold()
+    if left_type.this == right_type.this:
+        return True
+    left_integer = left_type.this in exp.DataType.INTEGER_TYPES
+    right_integer = right_type.this in exp.DataType.INTEGER_TYPES
+    return (left_integer and _zero_scale_decimal(right_type)) or (
+        right_integer and _zero_scale_decimal(left_type)
+    )
 
 
 def _source_columns_findings(
@@ -67,8 +91,6 @@ def _source_columns_findings(
     }
     table_key = _resolve_name(target_name, set(columns_by_table))
     target_columns = columns_by_table.get(table_key, {}) if table_key is not None else {}
-    type_map = {_base_type(source): targets for source, targets in ctx.type_map.items()}
-
     for column, source_type in obj.source_column_types:
         target_type = target_columns.get(normalize_name(column))
         if target_type is None:
@@ -81,8 +103,18 @@ def _source_columns_findings(
                 )
             )
             continue
-        allowed_types = type_map.get(_base_type(source_type), [])
-        if _base_type(target_type) not in {_base_type(value) for value in allowed_types}:
+        if _compatible_type(target_type, source_type, ctx.target):
+            continue
+        allowed_types = next(
+            (
+                targets
+                for source, targets in ctx.type_map.items()
+                if _compatible_type(source_type, source, ctx.target)
+                or source.strip().casefold() == source_type.strip().casefold()
+            ),
+            [],
+        )
+        if not any(_compatible_type(target_type, allowed, ctx.target) for allowed in allowed_types):
             findings.append(
                 Finding(
                     check="semantic",

@@ -17,10 +17,12 @@ os.environ["LANGCHAIN_TRACING_V2"] = "false"
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 
+from migraai.core import secret_mask
 from migraai.devin.attachment import render_batch
 from migraai.devin.prompts import ESCALATION, STANCES, VOTER_BASE
 from migraai.devin.runner import SessionOutcome, run_session
 from migraai.validation.context import ObjectUnderTest, OutputFile, ValidationContext
+from migraai.validation.names import is_nameable_object_type
 from migraai.validation.validate import pass_rate, validate_object
 from migraai.voting.confidence import score
 from migraai.voting.consensus import Candidate, choose
@@ -146,6 +148,12 @@ def _validation_context(state: WorkflowState) -> ValidationContext:
     source_objects = state["conversion_objects"]
     all_objects = runtime["all_objects"]
     converted, external = _all_names(all_objects)
+    nameable_dependencies = {
+        str(item.get("qualified_name", ""))
+        for item in all_objects
+        if not item.get("external")
+        and is_nameable_object_type(str(item.get("type", "")).casefold())
+    }
     type_map = _type_map(runtime["session"], state["source"], state["target"])
     table_columns: dict[str, list[tuple[str, str]]] = {}
     for item in source_objects:
@@ -163,6 +171,7 @@ def _validation_context(state: WorkflowState) -> ValidationContext:
         converted=converted,
         external=external,
         order=runtime["order"],
+        nameable_dependencies=nameable_dependencies,
         table_columns=table_columns,
         type_map=type_map,
         source_grants=runtime["source_grants"],
@@ -241,6 +250,10 @@ def _build_context(state: WorkflowState) -> dict[str, Any]:
         runtime["pack"],
         state["name_map"],
     )
+    if secret_mask.contains_secret(attachment):
+        raise secret_mask.SecretAttachmentError(
+            "A possible secret was found in the code to send; nothing was sent for this batch."
+        )
     runtime["source_grants"] = _source_grants(objects)
     for item in objects:
         item.pop("node", None)
@@ -556,6 +569,7 @@ def _finalise(state: WorkflowState) -> dict[str, Any]:
             "status": status,
             "confidence": confidence,
             "picked_voter": selected["picked_voter"],
+            "pairwise": selected["pairwise"],
             "candidate": candidate,
             "checks": state["picked_validations"].get(object_id, []),
             "escalated": object_id in state["to_escalate"],

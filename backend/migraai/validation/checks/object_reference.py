@@ -6,13 +6,17 @@ from migraai.validation.names import find_name, identifier_parts, normalize_name
 
 def validate(obj: ObjectUnderTest, ctx: ValidationContext) -> list[Finding]:
     mapped_names = {normalize_name(source): target for source, target in ctx.name_map.items()}
+    nameable_dependencies = {normalize_name(name) for name in ctx.nameable_dependencies}
     output_files = [
         (file, _strip_comments(file.content, file.language.casefold())) for file in obj.files
     ]
     findings: list[Finding] = []
 
     for dependency_name in obj.dependencies:
-        target_name = mapped_names.get(normalize_name(dependency_name))
+        normalized_dependency = normalize_name(dependency_name)
+        if normalized_dependency not in nameable_dependencies:
+            continue
+        target_name = mapped_names.get(normalized_dependency)
         if target_name is None:
             continue
         target_parts = identifier_parts(target_name)

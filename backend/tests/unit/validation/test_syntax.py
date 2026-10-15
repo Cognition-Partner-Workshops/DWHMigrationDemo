@@ -3,6 +3,7 @@ from types import ModuleType
 
 import pytest
 
+from migraai.etl.outputs import formats_for
 from migraai.validation.checks import syntax
 from migraai.validation.dialects import TARGET_DIALECTS, sqlglot_dialect
 from migraai.validation.findings import Finding
@@ -84,3 +85,21 @@ def test_etl_output_validator_is_imported_lazily(monkeypatch, make_context, make
 
     assert [finding.rule_id for finding in findings] == ["etl.stub.invalid"]
     assert findings[0].severity == "error"
+
+
+def test_real_etl_output_validator_runs_for_tagged_file(make_context, make_object) -> None:
+    output_format = next(
+        fmt for fmt in formats_for("databricks") if fmt.id == "databricks.notebook"
+    )
+    content = output_format.skeleton.removeprefix("# Databricks notebook source\n")
+
+    findings = syntax.validate(
+        make_object(
+            language="python",
+            content=content,
+            etl_format_id=output_format.id,
+        ),
+        make_context(target="databricks"),
+    )
+
+    assert "etl.databricks.notebook.missing_header" in {finding.rule_id for finding in findings}

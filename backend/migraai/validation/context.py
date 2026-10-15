@@ -23,6 +23,7 @@ class ValidationContext:
     converted: set[str]
     external: set[str]
     order: list[str]
+    nameable_dependencies: set[str]
     table_columns: dict[str, list[tuple[str, str]]]
     type_map: dict[str, list[str]]
     source_grants: dict[str, set[tuple[str, str]]]

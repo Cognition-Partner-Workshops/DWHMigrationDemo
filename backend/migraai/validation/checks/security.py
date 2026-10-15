@@ -4,19 +4,12 @@ import sqlglot
 from sqlglot import ErrorLevel, exp
 from sqlglot.errors import ParseError
 
+from migraai.core.secret_mask import _SECRET_PATTERNS
 from migraai.platforms.pack import _strip_comments, evaluate_rules
 from migraai.validation.context import ObjectUnderTest, OutputFile, ValidationContext
 from migraai.validation.dialects import sqlglot_dialect
 from migraai.validation.findings import Finding
 from migraai.validation.names import identifier_parts, normalize_name
-
-_SECRET_PATTERNS = (
-    re.compile(r"\bpassword\s*=\s*'[^'*]", re.IGNORECASE),
-    re.compile(r"""\bidentified\s+by\s+(['"])(?!\*+\1)[^'"]+\1""", re.IGNORECASE),
-    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
-    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
-    re.compile(r"""(?:api[_-]?key|secret|token)\s*[:=]\s*['"][^'"*]{8,}""", re.IGNORECASE),
-)
 
 
 def _line(text: str, offset: int) -> int:

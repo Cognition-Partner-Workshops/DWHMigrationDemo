@@ -268,7 +268,7 @@ describe("MigraAI foundation UI", () => {
     expect(convert).toHaveAttribute("title", "Upload files first");
     expect(download).toHaveAttribute(
       "title",
-      "Available once conversion is implemented in a later phase",
+      "Download arrives with packaging in the next phase.",
     );
     expect(upload).toBeDisabled();
     expect(convert).toBeDisabled();

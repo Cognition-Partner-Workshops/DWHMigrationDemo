@@ -26,3 +26,19 @@ def test_mapped_quoted_name_is_referenced(make_context, make_object) -> None:
     )
 
     assert object_reference.validate(obj, context) == []
+
+
+def test_grant_dependencies_are_not_name_references(make_context, make_object) -> None:
+    context = make_context(
+        name_map={
+            "ROLE ON READER": "role_on_reader",
+            "SALES.ACCOUNT": "sales.account",
+        },
+        nameable_dependencies={"SALES.ACCOUNT"},
+    )
+    obj = make_object(
+        content="SELECT 1",
+        dependencies=["ROLE ON READER"],
+    )
+
+    assert object_reference.validate(obj, context) == []

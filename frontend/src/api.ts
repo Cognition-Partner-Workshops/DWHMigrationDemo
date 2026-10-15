@@ -205,6 +205,106 @@ export type InventoryQuery = {
   page_size?: number;
 };
 
+export type ConvertEstimate = {
+  objects: number;
+  batches: number;
+  oversized_batches: number;
+  voter_sessions: number;
+  max_escalation_sessions: number;
+  max_sessions: number;
+  batch_size: number;
+  session_timeout_minutes: number;
+  max_concurrent_sessions: number;
+  devin_configured: boolean;
+  devin_host: string;
+  acu_cap: null;
+};
+
+export type ConversionBatch = {
+  index: number;
+  status: string;
+  objects: string[];
+  voters: Record<string, string>;
+  escalated: boolean;
+  object_count: number;
+  counts: Record<string, number>;
+};
+
+export type ConversionJobStatus = {
+  run_id: string;
+  state: string;
+  progress: { elapsed_s: number; batches: Record<string, Omit<ConversionBatch, "index" | "counts" | "object_count">> };
+  batches: ConversionBatch[];
+  counts: Record<string, number>;
+  object_count: number;
+  batch_count: number;
+  reason: string | null;
+};
+
+export type ConversionRow = {
+  object_id: string;
+  qualified_name: string;
+  type: string;
+  status: "converted" | "expert_review" | "failed" | "cancelled" | "pending";
+  confidence: number | null;
+  agreement: number | null;
+  pass_rate: number | null;
+  escalated: boolean;
+  checks: Record<string, "passed" | "failed" | "not_applicable">;
+};
+
+export type ConversionFile = {
+  rel_path: string;
+  language: string;
+  content: string;
+};
+
+export type ConversionCheck = {
+  check: string;
+  status: "passed" | "failed" | "not_applicable";
+  findings: Array<{
+    check: string;
+    rule_id: string;
+    severity: "error" | "warning";
+    message: string;
+    line: number | null;
+  }>;
+};
+
+export type ConversionCandidate = {
+  files: ConversionFile[];
+  self_confidence: number | null;
+  state: string;
+  error: string | null;
+};
+
+export type ConversionDetailResponse = {
+  final: {
+    files: ConversionFile[];
+    explanations: string[];
+    assumptions: string[];
+    unsupported: string[];
+  };
+  picked_voter: string | null;
+  candidates: Record<"A" | "B" | "C", ConversionCandidate | null>;
+  pairwise: Record<string, number>;
+  checks: ConversionCheck[];
+  escalation: {
+    role: string;
+    session_id: string | null;
+    url: string | null;
+    state: string;
+    acus: number | null;
+    error: string | null;
+  } | null;
+  devin_sessions: Array<{
+    role: string;
+    url: string | null;
+    state: string;
+    acus: number | null;
+  }>;
+};
+
 export type KBRefreshProgress = {
   phase: string;
   pages_fetched: number;
@@ -258,9 +358,11 @@ export async function apiRequest<T>(
   });
   if (!response.ok) {
     let message = `Request failed (${response.status}).`;
-    const payload = (await response.json().catch(() => null)) as { detail?: string } | null;
-    if (payload?.detail) {
-      message = payload.detail;
+    const payload = (await response.json().catch(() => null)) as
+      | { detail?: string; message?: string }
+      | null;
+    if (payload?.detail || payload?.message) {
+      message = payload.detail ?? payload.message ?? message;
     }
     throw new Error(message);
   }
@@ -300,6 +402,54 @@ export function startPlan(regenerate = false): Promise<PlanStatus> {
 
 export function cancelPlanJob(): Promise<PlanStatus> {
   return apiRequest<PlanStatus>("/api/plan/job", { method: "DELETE" });
+}
+
+export function postConvertEstimate(): Promise<ConvertEstimate> {
+  return apiRequest<ConvertEstimate>("/api/convert/estimate", {
+    method: "POST",
+    body: {},
+  });
+}
+
+export function startConversion(): Promise<{ job_id: string }> {
+  return apiRequest<{ job_id: string }>("/api/convert", {
+    method: "POST",
+    body: { consent: true },
+  });
+}
+
+export function getConversionJob(jobId: string): Promise<ConversionJobStatus> {
+  return apiRequest<ConversionJobStatus>(`/api/convert/jobs/${encodeURIComponent(jobId)}`);
+}
+
+export function cancelConversionJob(jobId: string): Promise<ConversionJobStatus> {
+  return apiRequest<ConversionJobStatus>(
+    `/api/convert/jobs/${encodeURIComponent(jobId)}/cancel`,
+    { method: "POST", body: {} },
+  );
+}
+
+export function getConversions(filters: {
+  status?: string;
+  type?: string;
+  failed_check?: string;
+  search?: string;
+  page?: number;
+  page_size?: number;
+} = {}): Promise<{ items: ConversionRow[]; page: number; page_size: number; total: number }> {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value !== undefined && value !== "") {
+      params.set(key, String(value));
+    }
+  }
+  return apiRequest<{ items: ConversionRow[]; page: number; page_size: number; total: number }>(
+    `/api/conversions?${params.toString()}`,
+  );
+}
+
+export function getConversionDetail(objectId: string): Promise<ConversionDetailResponse> {
+  return apiRequest<ConversionDetailResponse>(`/api/conversions/${encodeURIComponent(objectId)}`);
 }
 
 export function getResources(): Promise<ResourceItem[]> {

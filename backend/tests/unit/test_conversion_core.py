@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import importlib
+import json
 import os
+import re
 import time
 import uuid
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 import pytest
 
@@ -13,6 +15,8 @@ from migraai.agents.batching import Batch, plan_batches
 from migraai.agents.context import build_batch
 from migraai.agents.job import ConversionJob
 from migraai.agents.naming import build_name_map
+from migraai.api.convert import _estimate
+from migraai.core import secret_mask
 from migraai.core.audit import AuditLog
 from migraai.core.crypto import EncryptedFileStore, SessionCipher
 from migraai.devin.attachment import parse_batch, render_batch
@@ -23,7 +27,9 @@ from migraai.discovery.inventory import Inventory
 from migraai.discovery.objects import ParsedObject
 from migraai.discovery.pipeline import discover_files
 from migraai.discovery.uploads import UploadRow
+from migraai.etl.outputs import formats_for
 from migraai.platforms.pack import TargetPack, load_pack
+from migraai.validation.checks.security import _SECRET_PATTERNS
 from migraai.validation.findings import CheckResult
 from migraai.voting.confidence import overall_score, score
 from migraai.voting.consensus import Candidate, agreement, choose
@@ -154,6 +160,20 @@ def test_name_map_preserves_schema_case_and_quotes_reserved_identifiers() -> Non
     }
 
 
+def test_name_map_excludes_grants_roles_and_users() -> None:
+    name_map = build_name_map(
+        [
+            {"qualified_name": "SELECT ON sales.account", "type": "grant"},
+            {"qualified_name": "sales.reader", "type": "role"},
+            {"qualified_name": "sales.loader", "type": "user"},
+            {"qualified_name": "sales.account", "type": "table"},
+        ],
+        load_pack("_example"),
+    )
+
+    assert name_map == {"sales.account": "sales.account"}
+
+
 def test_context_masks_secrets_and_contains_only_the_requested_batch(tmp_path: Path) -> None:
     source_text = (
         "CREATE TABLE sales.account (id INTEGER); -- PASSWORD 'hidden' IDENTIFIED BY hidden_token\n"
@@ -212,13 +232,129 @@ def test_context_masks_secrets_and_contains_only_the_requested_batch(tmp_path: P
     )
     rendered = parse_batch(attachment)
     assert len(rendered) == len(converted) == 1
-    assert "PASSWORD '***'" in rendered[0]["source_text"]
-    assert "IDENTIFIED BY ***" in rendered[0]["source_text"]
+    assert "PASSWORD '***MASKED***'" in rendered[0]["source_text"]
+    assert "IDENTIFIED BY ***MASKED***" in rendered[0]["source_text"]
     assert "hidden" not in attachment and "hidden_token" not in attachment
     assert "DO NOT ATTACH" not in attachment
     assert str(tmp_path) not in attachment
     assert "do-not-attach" not in attachment
     assert rendered[0]["rel_path"] == "relative/account.sql"
+
+
+def test_conversion_context_masks_every_testpack_object(tmp_path: Path) -> None:
+    testpacks = ROOT / "testpacks"
+    quoted_passwords: set[str] = set()
+    attachments: list[str] = []
+    target_pack = load_pack("snowflake")
+    pack_dirs = sorted(path.parent for path in testpacks.rglob("pack.yaml"))
+    assert pack_dirs
+    for index, pack_dir in enumerate(pack_dirs):
+        metadata = (pack_dir / "pack.yaml").read_text(encoding="utf-8")
+        kind = re.search(r"(?m)^kind:\s*(\S+)", metadata)
+        dialect = re.search(r"(?m)^source_dialect:\s*(\S+)", metadata)
+        assert kind and dialect
+        source = pack_dir.name if kind.group(1) == "etl" else dialect.group(1)
+        files = {
+            path.relative_to(pack_dir).as_posix(): path.read_bytes()
+            for path in pack_dir.rglob("*")
+            if path.is_file() and path.name not in {"pack.yaml", "expected_inventory.yaml"}
+        }
+        for data in files.values():
+            text = decode_source(data)[0]
+            quoted_passwords.update(
+                match.group(2)
+                for match in re.finditer(
+                    r"""(?i)(?:\b(?:password|passwd|pwd|secret|token|api[_-]?key|access[_-]?key|secret[_-]?key|client[_-]?secret)\b\s*[=:]\s*|\bPASSWORD\b\s+|\bIDENTIFIED\s+BY(?:\s+VALUES)?\s*)(['"])(.*?)\1""",
+                    text,
+                )
+            )
+        inventory = Inventory()
+        store = EncryptedFileStore(tmp_path / str(index) / "store", SessionCipher())
+        uploads = {}
+        previews = {}
+        for rel_path, data in files.items():
+            row = UploadRow(
+                id=uuid.uuid4().hex,
+                rel_path=rel_path,
+                size=len(data),
+                detected_type=Path(rel_path).suffix.lstrip("."),
+                status="done",
+                store_path=f"uploads/{rel_path}",
+            )
+            store.write(row.store_path, data)
+            inventory.add_upload(row)
+            uploads[row.id] = row
+            previews[rel_path] = decode_source(data)[0]
+        parsed, edges = discover_files(files, source)
+        inventory.replace_discovery(parsed, edges, uploads, previews)
+        session = {"inventory": inventory, "store": store, "uploads": uploads}
+        objects = [
+            item for item in inventory.page(page_size=300)["items"] if not item.get("external")
+        ]
+        attachment, _ = build_batch(
+            session,
+            Batch(index=0, objects=objects),
+            source,
+            "snowflake",
+            target_pack,
+            build_name_map(objects, target_pack),
+        )
+        attachments.append(attachment)
+        assert secret_mask.mask_secrets(attachment) == attachment, pack_dir
+        assert not any(pattern.search(attachment) for pattern in _SECRET_PATTERNS), pack_dir
+        assert "demo-secret" not in attachment
+    assert all(value not in attachment for value in quoted_passwords for attachment in attachments)
+
+
+def test_secret_guard_blocks_batch_before_upload_or_session(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_dir = tmp_path / "source-pack"
+    source_dir.mkdir()
+    (source_dir / "user.sql").write_text(
+        "CREATE USER private_user PASSWORD = 'guard-secret';",
+        encoding="utf-8",
+    )
+    session = _inventory_session(tmp_path / "blocked", source_dir, "teradata")
+    session["target"] = "snowflake"
+    clients = []
+
+    def client_factory(voter: str) -> MockDevinClient:
+        client = MockDevinClient()
+        clients.append(client)
+        return client
+
+    monkeypatch.setattr(secret_mask, "mask_secrets", lambda text: text)
+    audit_path = tmp_path / "blocked" / "audit.jsonl"
+    job = ConversionJob(
+        session=session,
+        audit=AuditLog(audit_path),
+        batch_size=20,
+        timeout_minutes=2,
+        client_factory=client_factory,
+        pack=load_pack("snowflake"),
+    )
+    object_id = str(job.objects[0]["id"])
+    job.start()
+    job.join(timeout=30)
+
+    assert not job.is_alive()
+    assert job.snapshot()["state"] == "failed"
+    assert job.snapshot()["counts"]["failed"] == 1
+    assert job.errors[object_id] == (
+        "A possible secret was found in the code to send; nothing was sent for this batch."
+    )
+    assert job.batch_status[0]["status"] == "failed"
+    assert clients == []
+    assert sum(len(client.attachments) for client in clients) == 0
+    assert sum(len(client.sessions) for client in clients) == 0
+    audit_entries = [
+        json.loads(line) for line in audit_path.read_text(encoding="utf-8").splitlines()
+    ]
+    blocked = next(entry for entry in audit_entries if entry["action"] == "convert.blocked_secret")
+    assert blocked["details"] == {"batch_index": 0, "object_ids": [object_id]}
+    assert "guard-secret" not in audit_path.read_text(encoding="utf-8")
 
 
 def test_attachment_sections_do_not_change_object_round_trip() -> None:
@@ -235,6 +371,32 @@ def test_attachment_sections_do_not_change_object_round_trip() -> None:
             "source_text": "SELECT 1;",
         }
     ]
+
+
+@pytest.mark.parametrize("target", TARGETS)
+def test_real_target_pack_loads(target: str) -> None:
+    assert load_pack(target).target == target
+
+
+def test_real_etl_formats_are_included_in_batch_context(tmp_path: Path) -> None:
+    session = _inventory_session(tmp_path, INFORMATICA_PACK, "informatica")
+    session["target"] = "snowflake"
+    pack = load_pack("snowflake")
+    rows = session["inventory"].page(page_size=300)["items"]
+    workflow = next(row for row in rows if row["type"] == "workflow")
+    attachment, _ = build_batch(
+        session,
+        Batch(index=0, objects=[workflow]),
+        "informatica",
+        "snowflake",
+        pack,
+        build_name_map(rows, pack),
+    )
+
+    item = parse_batch(attachment)[0]
+    formats = item["output_formats"]
+    expected = next(fmt for fmt in formats_for("snowflake") if fmt.language == "python")
+    assert any(fmt["id"] == expected.id and fmt["skeleton"] == expected.skeleton for fmt in formats)
 
 
 def test_normalisation_and_consensus_ties_missing_voters() -> None:
@@ -373,6 +535,80 @@ def test_teradata_conversion_end_to_end_each_target(
         )
     )
     assert "Converted:" not in audit_text
+
+
+def test_teradata_to_snowflake_uses_real_target_pack(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    session = _inventory_session(tmp_path / "real-pack", TERADATA_PACK, "teradata")
+    session["target"] = "snowflake"
+    clients: list[MockDevinClient] = []
+
+    def client_factory(voter: str) -> MockDevinClient:
+        client = MockDevinClient()
+        clients.append(client)
+        return client
+
+    job = ConversionJob(
+        session=session,
+        audit=AuditLog(tmp_path / "real-pack" / "audit.jsonl"),
+        batch_size=20,
+        timeout_minutes=2,
+        max_concurrent_sessions=4,
+        client_factory=client_factory,
+        pack=load_pack("snowflake"),
+    )
+    inventory_page = session["inventory"].page(page_size=300)
+    assert inventory_page["total"] == 57
+    assert inventory_page["external_total"] == 1
+    assert len(job.objects) == 56
+    settings = SimpleNamespace(
+        read=lambda: SimpleNamespace(
+            conversion_batch_size=20,
+            conversion_session_timeout_minutes=45,
+            max_concurrent_sessions=4,
+            token_kind="none",
+            devin_org_id="",
+            devin_api_base_url="https://api.devin.ai",
+        )
+    )
+    request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(settings_store=settings)))
+    estimate = _estimate(request, session)
+    assert estimate["objects"] == len(job.objects) == 56
+    job.start()
+    job.join(timeout=180)
+    assert not job.is_alive()
+    snapshot = job.snapshot()
+    assert snapshot["state"] == "done"
+    assert snapshot["object_count"] == 56
+    assert len(job.results) == snapshot["object_count"]
+    assert sum(len(client.sessions) for client in clients) >= 9
+    assert "CREATE MACRO sales.refresh_daily" not in caplog.text
+    finding_ids = {
+        finding.rule_id
+        for result in job.results.values()
+        for check in result["checks"]
+        for finding in check.findings
+    }
+    assert (
+        not {
+            "dependency.order",
+            "object_reference.unreferenced",
+            "semantic.type_mismatch",
+        }
+        & finding_ids
+    )
+
+    if snapshot["counts"]["escalated"] == snapshot["object_count"]:
+        rule_ids = {
+            finding.rule_id
+            for result in job.results.values()
+            for check in result["checks"]
+            for finding in check.findings
+            if finding.rule_id.startswith("snowflake.")
+        }
+        assert rule_ids
 
 
 def test_conversion_job_continues_after_voter_failure_and_cancels_running_sessions(

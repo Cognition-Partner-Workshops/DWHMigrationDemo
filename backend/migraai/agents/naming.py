@@ -33,6 +33,8 @@ def build_name_map(objects: Iterable[Any], pack: TargetPack) -> dict[str, str]:
     for item in objects:
         if _get(item, "external", False) in (True, 1, "true"):
             continue
+        if str(_get(item, "type", "")).casefold() in {"grant", "role", "user"}:
+            continue
         qualified_name = str(_get(item, "qualified_name", "") or "")
         if not qualified_name:
             continue

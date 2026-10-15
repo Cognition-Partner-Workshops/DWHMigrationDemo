@@ -10,6 +10,7 @@ from typing import Any
 
 import sqlglot
 
+from migraai.core import secret_mask
 from migraai.devin.attachment import render_batch
 from migraai.discovery import ast
 from migraai.discovery.detect import decode_source
@@ -17,7 +18,6 @@ from migraai.discovery.objects import ParsedObject
 from migraai.discovery.objects import extract as extract_objects
 from migraai.discovery.pipeline import discover_files
 from migraai.discovery.registry import get_sql_parser
-from migraai.etl.python.common import redact
 from migraai.kb.search import get_mappings, get_pair
 from migraai.platforms.pack import TargetPack
 from migraai.validation.dialects import sqlglot_dialect
@@ -42,10 +42,6 @@ _SOURCE_DIALECTS = {
     "hive": "hive",
     "spark": "spark",
 }
-_SQL_SECRET_PATTERNS = (
-    re.compile(r"""(?i)(\bPASSWORD\s+)(['"])(?:\2\2|(?!\2).)*\2"""),
-    re.compile(r"""(?i)(\bIDENTIFIED\s+BY\s+)(['"])(?:\2\2|(?!\2).)*\2"""),
-)
 
 
 def _row_value(row: Any, key: str, default: Any = None) -> Any:
@@ -60,18 +56,6 @@ def _row_id(row: Any) -> str:
 
 def _qualified_name(row: Any) -> str:
     return str(_row_value(row, "qualified_name", _row_value(row, "name", "")))
-
-
-def _mask_source(text: str) -> str:
-    text = redact(text)
-
-    def mask(match: re.Match[str]) -> str:
-        quote = match.group(2)
-        return f"{match.group(1)}{quote}***{quote}"
-
-    for pattern in _SQL_SECRET_PATTERNS:
-        text = pattern.sub(mask, text)
-    return re.sub(r"(?i)(\bIDENTIFIED\s+BY\s+)\S+", r"\1***", text)
 
 
 def _source_for(session: dict[str, Any], row: Any, upload_by_path: dict[str, Any]) -> str:
@@ -202,7 +186,7 @@ def _dependencies(session: dict[str, Any], object_id: str) -> list[dict[str, Any
     if detail is None:
         return []
     dependencies = []
-    for edge in detail.get("upstream", []):
+    for edge in detail.get("downstream", []):
         name = edge.get("qualified_name") or edge.get("id")
         if name:
             dependencies.append(
@@ -358,7 +342,7 @@ def build_batch(
     hints: list[str] = []
 
     for row in batch_rows:
-        source_text = _mask_source(_source_for(session, row, selected_uploads))
+        source_text = secret_mask.mask_secrets(_source_for(session, row, selected_uploads))
         source_texts.append(source_text)
         object_id = str(row["id"])
         qualified_name = str(row.get("qualified_name", ""))
@@ -429,7 +413,7 @@ def build_batch(
         if language == "sql":
             hint = _transpile_hint(source_text, source, target)
             if hint:
-                hints.append(f"### {qualified_name}\n```sql\n{hint}\n```")
+                hints.append(f"### {qualified_name}\n```sql\n{secret_mask.mask_secrets(hint)}\n```")
 
     db_path = session.get("kb_path")
     mappings = _mapping_lines(source, target, source_texts, db_path)
@@ -465,7 +449,7 @@ def build_batch(
         sections.append(("ETL target formats", "\n".join(sorted(formats))))
     if hints:
         sections.append(("Optional SQLGlot pre-transpile hints", "\n\n".join(hints)))
-    attachment = render_batch(object_context, sections=sections)
+    attachment = secret_mask.mask_secrets(render_batch(object_context, sections=sections))
     return attachment, conversion_objects
 
 

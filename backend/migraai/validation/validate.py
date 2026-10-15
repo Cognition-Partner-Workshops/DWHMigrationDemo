@@ -24,7 +24,11 @@ CHECK_ORDER: tuple[CheckName, ...] = (
 
 def _has_mapped_dependency(obj: ObjectUnderTest, ctx: ValidationContext) -> bool:
     mapped_sources = {normalize_name(name) for name in ctx.name_map}
-    return any(normalize_name(dependency) in mapped_sources for dependency in obj.dependencies)
+    nameable = {normalize_name(name) for name in ctx.nameable_dependencies}
+    return any(
+        normalize_name(dependency) in mapped_sources and normalize_name(dependency) in nameable
+        for dependency in obj.dependencies
+    )
 
 
 def _applicable(obj: ObjectUnderTest, ctx: ValidationContext, check: CheckName) -> bool:
