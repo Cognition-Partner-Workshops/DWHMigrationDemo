@@ -210,7 +210,13 @@ def test_yaml_malformed() -> None:
 
 @pytest.mark.parametrize(
     "data",
-    [b"", b"\xff\xfe\x00 garbage", b"def f(:\n", b"{{{{", b"x" * 50000],
+    [
+        b"",
+        b"\xff\xfe\x00 garbage",
+        b"def f(:\n",
+        b"{{{{",
+        pytest.param(b"x" * 50000, id="large-blob"),
+    ],
 )
 def test_never_raises(data: bytes) -> None:
     assert parse(data, "g/x.py") is not None

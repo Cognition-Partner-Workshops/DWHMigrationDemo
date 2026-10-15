@@ -178,7 +178,7 @@ def test_parse_command_line_api() -> None:
         b"((((((((",
         b"echo 'unterminated",
         b"if if if if fi fi",
-        b"a" * 100000,
+        pytest.param(b"a" * 100000, id="large-blob"),
     ],
 )
 def test_never_raises_on_garbage(data: bytes) -> None:
