@@ -307,7 +307,7 @@ class KBStore:
     def create_empty(self, version: int = 1) -> Path:
         self.initialize()
         path = self.version_path(version)
-        with connect(path) as connection:
+        with closing(connect(path)) as connection:
             create_schema(connection)
             seed_hash = compute_seed_hash(connection)
             connection.execute(
@@ -315,6 +315,7 @@ class KBStore:
                 (version,created_at,documents,chunks,seed_sha256) VALUES(?,?,?,?,?)""",
                 (version, datetime.now(UTC).isoformat(), 0, 0, seed_hash),
             )
+            connection.commit()
         self.activate(version)
         return path
 
