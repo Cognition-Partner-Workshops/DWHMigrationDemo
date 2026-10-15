@@ -8,16 +8,23 @@ version = "0.1.0"
 description = "Local enterprise data-warehouse migration platform"
 requires-python = ">=3.12"
 dependencies = [
+  "beautifulsoup4>=4.12",
   "cryptography>=44",
+  "fastembed>=0.7",
   "fastapi>=0.115",
+  "httpx>=0.28",
+  "markdown-it-py>=3.0",
   "pydantic>=2.10",
+  "pyyaml>=6.0",
+  "sqlite-vec>=0.1.6",
   "uvicorn>=0.34",
+  "xhtml2pdf>=0.2.16",
 ]
 
 [dependency-groups]
 dev = [
-  "httpx>=0.28",
   "pytest>=8.3",
+  "pypdf>=5.1",
   "ruff>=0.11",
 ]
 
@@ -27,6 +34,7 @@ packages = ["migraai"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+markers = ["model: tests that download and run the FastEmbed model"]
 
 [tool.ruff]
 line-length = 100

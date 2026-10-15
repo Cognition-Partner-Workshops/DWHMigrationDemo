@@ -1,0 +1,28 @@
+platform: db2
+allowed_hosts:
+- www.ibm.com
+seeds:
+- url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+  path_prefix: /docs/en/db2-warehouse
+  topic: ddl-create-table
+- url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-netezza-platform-software-nps
+  path_prefix: /docs/en/db2-warehouse
+  topic: netezza-compatibility
+- url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-coalesce
+  path_prefix: /docs/en/db2-warehouse
+  topic: sql-functions
+- url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+  path_prefix: /docs/en/db2-warehouse
+  topic: security-rcac
+- url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-grant-role
+  path_prefix: /docs/en/db2-warehouse
+  topic: security-grant
+- url: https://www.ibm.com/docs/en/db2-warehouse?topic=command-loading-data-files-dbload
+  path_prefix: /docs/en/db2-warehouse
+  topic: data-loading
+- url: https://www.ibm.com/docs/en/db2-warehouse?topic=command-migrating-data-db-migrate-iias-examples
+  path_prefix: /docs/en/db2-warehouse
+  topic: migration
+- url: https://www.ibm.com/docs/en/db2-warehouse?topic=routines-sql-procedures
+  path_prefix: /docs/en/db2-warehouse
+  topic: sql-procedures

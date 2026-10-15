@@ -1,0 +1,150 @@
+id: db2
+name: IBM Db2 Warehouse
+roles:
+- source
+versions_covered: Db2 Warehouse 11.5.x (on-premises and on cloud docs)
+summary: IBM Db2 Warehouse is an MPP analytics database with column- or row-organized tables distributed across database partitions. It offers RCAC, temporal tables, materialized query tables and Netezza and Oracle compatibility features.
+facets:
+  architecture:
+  - text: A Db2 Warehouse MPP cluster scales out by adding data nodes with minimal interruption.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 CREATE TABLE has an ORGANIZE BY clause to choose column- or row-organized storage.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 Warehouse Datalake tables build on Big SQL and keep their metadata in a Hive metastore.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=tables-architecture
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: Db2 CREATE TABLE has an ORGANIZE BY clause to choose column- or row-organized storage.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+  - text: DB2_COL_INSERT_GROUPS lets Db2 group multiple columns on a page to speed trickle inserts into column-organized tables.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=variables-column-organized-tables
+    accessed: '2026-10-15'
+    applies_to: Db2 Warehouse 11.5.6+
+    confidence: high
+  - text: A Db2 column-organized table can have at most 1012 columns.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Db2 workload management uses DDL objects such as service classes, workloads, thresholds and work action sets.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=identification-workload-management-ddl-statements
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 materialized query tables store precomputed query results and can be system- or user-maintained.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=tables-materialized-query
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Db2 Warehouse row and column access control (RCAC) filters rows and masks columns per user as fine-grained access control.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+  - text: No Db2 user, including holders of DATAACCESS, is exempt from RCAC rules.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Only users with SECADM authority can manage Db2 row and column access controls.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 GRANT ROLE grants roles to users, groups or other roles, optionally WITH ADMIN OPTION.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-grant-role
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Db2 Warehouse MPP cluster scales out by adding data nodes with minimal interruption.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Db2 Warehouse MPP cluster needs at least three nodes (one head, two data) and an SMP deployment cannot be turned into MPP by adding nodes.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 CREATE TABLE distributes rows across database partitions with DISTRIBUTE BY HASH, RANDOM or REPLICATION.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: Some Db2 Netezza-compatibility features are active only when the SQL_COMPAT global variable is set to 'NPS'.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-netezza-platform-software-nps
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 accepts the Netezza type names INT2, INT4, INT8, FLOAT4, FLOAT8, BPCHAR and DATETIME.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-netezza-platform-software-nps
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 Warehouse accepts the Oracle (+) outer join operator in WHERE predicates.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-oracle
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 Warehouse supports Oracle-style hierarchical (recursive) queries.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-oracle
+    accessed: '2026-10-15'
+    confidence: high
+  - text: With SQL_COMPAT='NPS', Db2 CREATE TABLE ... AS accepts Netezza CTAS syntax without parentheses.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=nps-create-table-statement-can-use-ctas-syntax
+    accessed: '2026-10-15'
+    confidence: high
+  - text: In Db2, an unqualified DATASLICEID reference is converted to NODENUMBER and returns the row's database partition.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-netezza-platform-software-nps
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: The Db2 Warehouse dbload command loads data files in local mode or in remote mode over the network.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=command-loading-data-files-dbload
+    accessed: '2026-10-15'
+    confidence: high
+  - text: IBM Database Harmony Profiler can assess and convert Netezza data definitions and SQL for Db2.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-data-types
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 SQL procedures are routines implemented entirely in SQL (SQL PL).
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=routines-sql-procedures
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 can run routines written in NZPLSQL in addition to SQL PL.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-netezza-platform-software-nps
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: The Db2 Warehouse web console loads delimited files such as CSV from a local or host file, one table per file.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=data-loading-from-local-host-file
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Db2 Warehouse can load delimited data files previously uploaded to Amazon S3.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=s3-loading-data-from-file-amazon
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Db2 Warehouse external table maps a delimited or fixed-length file outside the database and can be used to query or unload data.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table-external
+    accessed: '2026-10-15'
+    confidence: high
+  - text: db_migrate_iias copies tables between IAS/Db2 Warehouse systems and always appends to the target table.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=command-migrating-data-db-migrate-iias-examples
+    accessed: '2026-10-15'
+    applies_to: IAS 1.0.14.0+
+    confidence: high
+unsupported_features:
+- text: Db2 temporal tables support system periods maintained by the database and application periods supplied by users.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=tables-time-travel-query-using-temporal
+  accessed: '2026-10-15'
+  confidence: high
+- text: Db2 can run routines written in NZPLSQL in addition to SQL PL.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-netezza-platform-software-nps
+  accessed: '2026-10-15'
+  confidence: high
+- text: In Db2, the columns of a unique constraint must include all DISTRIBUTE BY HASH key columns.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+  accessed: '2026-10-15'
+  confidence: high
+- text: No Db2 user, including holders of DATAACCESS, is exempt from RCAC rules.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+  accessed: '2026-10-15'
+  confidence: high

@@ -1,0 +1,108 @@
+id: fabric
+name: Microsoft Fabric Data Warehouse
+roles:
+- target
+versions_covered: Microsoft Fabric Warehouse and Lakehouse SQL analytics endpoint, current SaaS service documentation
+summary: Fabric Data Warehouse is a SaaS, lake-centric warehouse in Microsoft Fabric. Tables are stored in OneLake as Delta Lake (Parquet) files, compute is serverless and drawn from a shared Fabric capacity, and users query it with a T-SQL dialect. The Lakehouse SQL analytics endpoint exposes Delta tables in a lakehouse read-only through the same engine.
+facets:
+  architecture:
+  - text: Fabric Data Warehouse uses a distributed query processing engine with autonomous workload management.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: &id001 2026-10-15
+    confidence: high
+  - text: A lakehouse SQL analytics endpoint queries Delta tables with T-SQL in read-only mode.
+    url: https://learn.microsoft.com/en-us/fabric/data-engineering/lakehouse-overview
+    accessed: *id001
+    confidence: high
+  storage:
+  - text: 'Warehouse data is stored in Delta tables: Parquet data files plus a file-based transaction log.'
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: *id001
+    confidence: high
+  - text: V-Order is a write-time optimisation of the Parquet file format for faster reads.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/v-order
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Fabric tracks warehouse usage in Capacity Unit seconds (CU seconds).
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/usage-reporting
+    accessed: *id001
+    confidence: high
+  - text: Smoothing addresses capacities that alternate between idle and peak periods of utilisation.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/compute-capacity-smoothing-throttling
+    accessed: *id001
+    confidence: medium
+  security:
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+    accessed: *id001
+    confidence: high
+  - text: Column-level security restricts column access to protect sensitive data.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/column-level-security
+    accessed: *id001
+    confidence: high
+  - text: Dynamic data masking limits sensitive data exposure by masking it for nonprivileged users.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/dynamic-data-masking
+    accessed: *id001
+    confidence: high
+  - text: Microsoft Entra authentication is an alternative to SQL authentication for the SQL analytics endpoint and warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/entra-id-authentication
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: A scale factor above 1 means burstable capacity is being used to meet workload demand.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/burstable-capacity
+    accessed: *id001
+    confidence: high
+  - text: Result set caching keeps result sets of eligible SELECT queries so later cache hits only process the final result set.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/result-set-caching
+    accessed: *id001
+    confidence: high
+  sql_dialect:
+  - text: Fabric Data Warehouse enforces snapshot isolation on all transactions.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/transactions
+    accessed: *id001
+    confidence: high
+  - text: CREATE TABLE AS SELECT (CTAS) is supported for creating a new warehouse table from a query.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-tsql
+    accessed: *id001
+    confidence: high
+  - text: PRIMARY KEY is only supported when declared NONCLUSTERED and NOT ENFORCED.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+    accessed: *id001
+    confidence: high
+  - text: Fabric warehouse tables support a subset of T-SQL data types for persisted storage.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+    accessed: *id001
+    confidence: high
+  etl_tooling:
+  - text: Dataflow Gen2 in Fabric Data Factory applies transformations at scale before loading a warehouse or lakehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+    accessed: *id001
+    confidence: high
+  - text: Pipelines can be used to ingest data into a Fabric warehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-pipelines
+    accessed: *id001
+    confidence: high
+  data_movement:
+  - text: Fabric Warehouse supports a set of T-SQL statements for ingesting data into warehouse tables.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-tsql
+    accessed: *id001
+    confidence: high
+  - text: COPY INTO loads data into warehouse tables from an external Azure storage account.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-copy
+    accessed: *id001
+    confidence: high
+unsupported_features:
+- text: Triggers are not supported in Fabric Warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: *id001
+  confidence: high
+- text: Materialized views are not supported in Fabric Warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: *id001
+  confidence: high
+- text: Recursive queries are not supported in Fabric Warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: *id001
+  confidence: high

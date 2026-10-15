@@ -1,0 +1,237 @@
+source: teradata
+target: databricks
+architecture_overview:
+- text: Teradata PE and AMP vprocs share neither memory nor disk, giving a shared-nothing design.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+  accessed: '2026-10-15'
+  confidence: high
+- text: Delta Lake is the default table format on Databricks and adds ACID transactions to Parquet files.
+  url: https://docs.databricks.com/aws/en/delta/
+  accessed: '2026-10-15'
+  confidence: high
+- text: A Databricks SQL warehouse is a compute resource for running SQL queries.
+  url: https://docs.databricks.com/aws/en/compute/sql-warehouse/
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Teradata row partitioning (PPI) enables row partition elimination for large query gains.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/Advantages-and-Disadvantages-of-Partitioned-Primary-Indexes
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Delta Lake is the default table format on Databricks and adds ACID transactions to Parquet files.
+    url: https://docs.databricks.com/aws/en/delta/
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Choosing primary indexes so joined rows hash to the same AMP avoids redistributing rows across the BYNET.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Databricks SQL warehouse is a compute resource for running SQL queries.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Unity Catalog provides centralized access control, auditing and lineage across Databricks workspaces.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Teradata balances work by spreading rows evenly across AMPs, each solely responsible for its own data.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks serverless compute is managed by Databricks and starts without customer-managed clusters.
+    url: https://docs.databricks.com/aws/en/compute/serverless/
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Teradata resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into Databricks, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for Databricks instead of copying Teradata structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: TABLE (primary index)
+  target_object: Delta table (Unity Catalog)
+  notes: ''
+  claim:
+    text: Delta Lake is the default table format on Databricks and adds ACID transactions to Parquet files.
+    url: https://docs.databricks.com/aws/en/delta/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MACRO
+  target_object: SQL stored procedure
+  notes: ''
+  claim:
+    text: Databricks supports CREATE PROCEDURE for SQL stored procedures in Unity Catalog.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: SQL stored procedure
+  target_object: SQL stored procedure
+  notes: ''
+  claim:
+    text: Databricks supports CREATE PROCEDURE for SQL stored procedures in Unity Catalog.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Row-level security constraint
+  target_object: Row filter / column mask
+  notes: ''
+  claim:
+    text: Databricks Unity Catalog supports row filters and column masks on tables.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Foreign table (NOS)
+  target_object: Foreign catalog (Lakehouse Federation)
+  notes: ''
+  claim:
+    text: Databricks Lakehouse Federation queries external databases in place without moving the data.
+    url: https://docs.databricks.com/aws/en/query-federation/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: JSON column
+  target_object: STRUCT / ARRAY / MAP column
+  notes: ''
+  claim:
+    text: Databricks SQL supports complex types ARRAY, MAP and STRUCT.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-datatypes
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: A Teradata macro is one or more SQL statements run as a single request.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata ZEROIFNULL converts null to 0.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/ZEROIFNULL
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata OREPLACE replaces every occurrence of a search string.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/OREPLACE
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks SQL supports the QUALIFY clause to filter window function results.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-qualify
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks SQL supports SQL scripting with compound statements and control flow.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks SQL supports complex types ARRAY, MAP and STRUCT.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-datatypes
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Teradata NOS can authenticate to Amazon S3 buckets with IAM credentials for READ_NOS and WRITE_NOS.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/Authentication-for-External-Object-Stores/Using-IAM-Credentials-with-Amazon-S3-Buckets
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks COPY INTO loads files from cloud object storage into a Delta table and skips files already loaded.
+  url: https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks Lakehouse Federation queries external databases in place without moving the data.
+  url: https://docs.databricks.com/aws/en/query-federation/
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Teradata Parallel Transporter (TPT) is a client for parallel extraction, loading and updating that builds on FastLoad, MultiLoad, FastExport and TPump.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20/Introduction-to-Teradata-PT/High-Level-Description
+  accessed: '2026-10-15'
+  applies_to: TPT 17.20
+  confidence: high
+- text: Databricks offers managed connectors, Auto Loader and COPY INTO for data ingestion.
+  url: https://docs.databricks.com/aws/en/ingestion/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks provides guidance for migrating enterprise data warehouses to the lakehouse.
+  url: https://docs.databricks.com/aws/en/migration/warehouse-to-lakehouse
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Teradata privileges are acquired implicitly through ownership, automatically on creation, by inheritance or by explicit grant.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata directory users inherit privileges of mapped database users and of external roles mapped to their groups.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+  accessed: '2026-10-15'
+  confidence: high
+- text: Unity Catalog provides centralized access control, auditing and lineage across Databricks workspaces.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks Unity Catalog supports row filters and column masks on tables.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: td_pi_distribution
+  claim:
+    text: Teradata hashes each row to an AMP using the row hash of its primary index or primary AMP index.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+- id: td_macros
+  claim:
+    text: A Teradata macro is one or more SQL statements run as a single request.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+    accessed: '2026-10-15'
+    confidence: high
+- id: td_rls_labels
+  claim:
+    text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: td_pi_distribution
+  claim:
+    text: Databricks liquid clustering replaces table partitioning and ZORDER for organizing data layout.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: '2026-10-15'
+    confidence: high
+- for: td_macros
+  claim:
+    text: Databricks supports CREATE PROCEDURE for SQL stored procedures in Unity Catalog.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    accessed: '2026-10-15'
+    confidence: high
+- for: td_rls_labels
+  claim:
+    text: Databricks Unity Catalog supports row filters and column masks on tables.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: Teradata extensions and procedural code need rewriting for Databricks.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: low
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: medium
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: Databricks liquid clustering replaces table partitioning and ZORDER for organizing data layout.
+  url: https://docs.databricks.com/aws/en/tables/clustering
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks predictive optimization runs maintenance such as OPTIMIZE and VACUUM automatically on Unity Catalog managed tables.
+  url: https://docs.databricks.com/aws/en/optimizations/predictive-optimization
+  accessed: '2026-10-15'
+  confidence: high

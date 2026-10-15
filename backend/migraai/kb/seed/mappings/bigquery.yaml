@@ -1,0 +1,395 @@
+platform: bigquery
+types:
+- native: INT64
+  canonical: int64
+  notes: INT, SMALLINT, INTEGER, BIGINT, TINYINT, BYTEINT are aliases; int8/int16/int32 also map here.
+  claim:
+    text: INT, SMALLINT, INTEGER, BIGINT, TINYINT and BYTEINT are aliases of INT64.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: NUMERIC(p,s) / DECIMAL
+  canonical: decimal
+  notes: 38 digits precision; use BIGNUMERIC for more.
+  claim:
+    text: BigQuery NUMERIC (alias DECIMAL) is a decimal with 38 digits of precision.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: BIGNUMERIC / BIGDECIMAL
+  canonical: decimal
+  notes: For precision > 38.
+  claim:
+    text: BIGNUMERIC (alias BIGDECIMAL) has approximately 76.8 digits of precision.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: FLOAT64
+  canonical: float64
+  notes: float32 widens to FLOAT64.
+  claim:
+    text: FLOAT64 is BigQuery's approximate double-precision numeric type.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: BOOL
+  canonical: boolean
+  notes: ''
+  claim:
+    text: BOOLEAN is an alias of BOOL in BigQuery.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRING
+  canonical: string
+  notes: ''
+  claim:
+    text: BigQuery STRING holds variable-length UTF-8 character data.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRING(L)
+  canonical: varchar
+  notes: Parameterized STRING enforces maximum length.
+  claim:
+    text: STRING, BYTES, NUMERIC and BIGNUMERIC accept parameters as parameterized data types.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRING(L) (char)
+  canonical: char
+  notes: No fixed-length CHAR; trailing-space padding is not preserved.
+  claim:
+    text: BigQuery STRING is variable-length character data.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: medium
+- native: BYTES
+  canonical: varbinary
+  notes: binary also maps here.
+  claim:
+    text: BigQuery BYTES holds variable-length binary data.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE
+  canonical: date
+  notes: ''
+  claim:
+    text: BigQuery DATE ranges from 0001-01-01 to 9999-12-31 and is independent of time zone.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATETIME
+  canonical: timestamp
+  notes: Wallclock date and time, microsecond precision.
+  claim:
+    text: BigQuery DATETIME is a date and time independent of time zone.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP
+  canonical: timestamp_tz
+  notes: Absolute instant with microsecond precision; original offsets are not stored.
+  claim:
+    text: BigQuery TIMESTAMP is an absolute point in time with microsecond precision.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIME
+  canonical: time
+  notes: ''
+  claim:
+    text: BigQuery TIME ranges from 00:00:00 to 23:59:59.999999.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTERVAL
+  canonical: interval
+  notes: ''
+  claim:
+    text: BigQuery INTERVAL represents a duration not tied to a point in time.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: JSON
+  canonical: json
+  notes: ''
+  claim:
+    text: BigQuery has a native JSON type.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: ARRAY<T>
+  canonical: array
+  notes: Arrays of arrays are not allowed.
+  claim:
+    text: BigQuery ARRAY is an ordered list of non-array elements.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRUCT<...>
+  canonical: struct
+  notes: ''
+  claim:
+    text: BigQuery STRUCT is a container of ordered, typed fields with optional names.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: ARRAY<STRUCT<key, value>> (map)
+  canonical: map
+  notes: No MAP type; model maps as arrays of key/value structs or JSON.
+  claim:
+    text: BigQuery STRUCT is a container of ordered fields.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: medium
+- native: GEOGRAPHY
+  canonical: geography
+  notes: ''
+  claim:
+    text: BigQuery GEOGRAPHY is a collection of points, linestrings and polygons on the Earth surface.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: RANGE<T>
+  canonical: period
+  notes: ''
+  claim:
+    text: BigQuery RANGE is a contiguous range of dates, datetimes or timestamps with an inclusive lower and exclusive upper bound.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRING (uuid)
+  canonical: uuid
+  notes: GENERATE_UUID() returns STRING.
+  claim:
+    text: GENERATE_UUID returns a random UUID as a STRING.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/utility-functions
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: COALESCE(a, b, ...)
+  canonical: COALESCE(a, b, ...)
+  notes: ''
+  claim:
+    text: BigQuery COALESCE returns the first non-NULL expression.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/conditional_expressions
+    accessed: '2026-10-15'
+    confidence: high
+- native: IFNULL(a, b)
+  canonical: COALESCE(a, b)
+  notes: ''
+  claim:
+    text: BigQuery IFNULL returns null_result when expr is NULL.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/conditional_expressions
+    accessed: '2026-10-15'
+    confidence: high
+- native: IF(c, a, b)
+  canonical: CASE WHEN c THEN a ELSE b END
+  notes: ''
+  claim:
+    text: BigQuery IF returns true_result when expr is TRUE, else else_result.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/conditional_expressions
+    accessed: '2026-10-15'
+    confidence: high
+- native: NULLIF(a, b)
+  canonical: NULLIF(a, b)
+  notes: ''
+  claim:
+    text: BigQuery NULLIF returns NULL when expr equals expr_to_match.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/conditional_expressions
+    accessed: '2026-10-15'
+    confidence: high
+- native: SAFE_CAST(x AS t)
+  canonical: CAST(x AS t)
+  notes: Returns NULL instead of error.
+  claim:
+    text: SAFE_CAST returns NULL instead of raising an error when a cast fails.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/conversion_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: SAFE_DIVIDE(a, b)
+  canonical: CASE WHEN b = 0 THEN NULL ELSE a / b END
+  notes: ''
+  claim:
+    text: SAFE_DIVIDE returns NULL on errors such as division by zero.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/mathematical_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE_ADD(d, INTERVAL n DAY)
+  canonical: d + n * INTERVAL '1' DAY
+  notes: ''
+  claim:
+    text: BigQuery DATE_ADD adds an interval to a date.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/date_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE_DIFF(e, s, part)
+  canonical: EXTRACT(<part> FROM e - s)
+  notes: Counts unit boundaries crossed.
+  claim:
+    text: BigQuery DATE_DIFF counts unit boundaries between two dates.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/date_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE_TRUNC(d, part)
+  canonical: DATE_TRUNC(part, d)
+  notes: Argument order differs from most engines.
+  claim:
+    text: BigQuery DATE_TRUNC truncates a date to a granularity.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/date_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: LAST_DAY(d)
+  canonical: DATE_TRUNC('MONTH', d) + INTERVAL '1' MONTH - INTERVAL '1' DAY
+  notes: ''
+  claim:
+    text: BigQuery LAST_DAY returns the last day of a date part, commonly the month.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/date_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: PARSE_DATE(fmt, s)
+  canonical: CAST(s AS DATE)
+  notes: Format string comes first.
+  claim:
+    text: BigQuery PARSE_DATE converts a STRING to a DATE using format elements.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/date_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: FORMAT_DATE(fmt, d)
+  canonical: CAST(d AS VARCHAR)
+  notes: ''
+  claim:
+    text: BigQuery FORMAT_DATE formats a DATE with a format string.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/date_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: CURRENT_DATE()
+  canonical: CURRENT_DATE
+  notes: ''
+  claim:
+    text: BigQuery CURRENT_DATE returns the current date; parentheses are optional.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/date_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: CURRENT_TIMESTAMP()
+  canonical: CURRENT_TIMESTAMP
+  notes: ''
+  claim:
+    text: BigQuery CURRENT_TIMESTAMP returns the current date and time as a timestamp.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/timestamp_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: UNIX_SECONDS(ts)
+  canonical: EXTRACT(EPOCH FROM ts)
+  notes: ''
+  claim:
+    text: BigQuery UNIX_SECONDS returns seconds since 1970-01-01 00:00:00 UTC.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/timestamp_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP_SECONDS(n)
+  canonical: TIMESTAMP '1970-01-01 00:00:00' + n * INTERVAL '1' SECOND
+  notes: ''
+  claim:
+    text: BigQuery TIMESTAMP_SECONDS interprets an INT64 as seconds since the Unix epoch.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/timestamp_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRPOS(s, sub)
+  canonical: POSITION(sub IN s)
+  notes: ''
+  claim:
+    text: BigQuery STRPOS returns the 1-based position of a substring, or 0 if not found.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/string_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: SPLIT(s, d)[SAFE_OFFSET(n-1)]
+  canonical: SPLIT_PART(s, d, n)
+  notes: ''
+  claim:
+    text: BigQuery SPLIT splits a STRING or BYTES value on a delimiter.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/string_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: STARTS_WITH(s, p)
+  canonical: s LIKE p || '%'
+  notes: ''
+  claim:
+    text: BigQuery STARTS_WITH returns TRUE if prefix is a prefix of value.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/string_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: REGEXP_REPLACE(s, p, r)
+  canonical: REGEXP_REPLACE(s, p, r)
+  notes: RE2 regex syntax.
+  claim:
+    text: BigQuery REGEXP_REPLACE replaces all regex matches.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/string_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: REGEXP_EXTRACT_ALL(s, p)
+  canonical: SUBSTRING(s SIMILAR p ESCAPE '#')
+  notes: RE2 regex; returns array.
+  claim:
+    text: BigQuery REGEXP_EXTRACT_ALL returns an array of all substrings matching an RE2 expression.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/string_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: ARRAY_LENGTH(a)
+  canonical: CARDINALITY(a)
+  notes: ''
+  claim:
+    text: BigQuery ARRAY_LENGTH returns 0 for an empty array and NULL for a NULL array.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/array_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRING_AGG(x, d ORDER BY o)
+  canonical: LISTAGG(x, d) WITHIN GROUP (ORDER BY o)
+  notes: ''
+  claim:
+    text: BigQuery STRING_AGG concatenates non-NULL values with a delimiter.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/aggregate_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: ARRAY_AGG(x)
+  canonical: ARRAY_AGG(x)
+  notes: ''
+  claim:
+    text: BigQuery ARRAY_AGG returns an array of values.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/aggregate_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: APPROX_COUNT_DISTINCT(x)
+  canonical: COUNT(DISTINCT x)
+  notes: Approximate.
+  claim:
+    text: BigQuery provides APPROX_COUNT_DISTINCT as an approximate aggregate.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/approximate_aggregate_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: JSON_VALUE(j, path)
+  canonical: JSON_VALUE(j, path)
+  notes: ''
+  claim:
+    text: BigQuery JSON_VALUE extracts a JSON scalar and converts it to STRING.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/json_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: SHA256(x)
+  canonical: SHA256(x)
+  notes: Not ANSI.
+  claim:
+    text: BigQuery SHA256 hashes STRING or BYTES input with SHA-256.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/hash_functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: GENERATE_UUID()
+  canonical: GENERATE_UUID()
+  notes: No ANSI generator.
+  claim:
+    text: BigQuery GENERATE_UUID returns 32 hex digits in five hyphen-separated groups.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/utility-functions
+    accessed: '2026-10-15'
+    confidence: high

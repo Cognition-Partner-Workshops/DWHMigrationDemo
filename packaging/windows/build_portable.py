@@ -4,12 +4,14 @@ import os
 import shutil
 import subprocess
 import sys
+import warnings
 import urllib.request
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "backend"))
 VERSION = "0.1.0"
 PYTHON_VERSION = "3.12.10"
 PYTHON_EMBED_URL = (
@@ -100,6 +102,9 @@ def install_windows_dependencies(wheel: Path, site_packages: Path) -> None:
 
 def write_launch_files() -> None:
     (APP_DIR / "start.cmd").write_text(
+        '@echo off\r\n'
+        'set "MIGRAAI_MODEL_DIR=%~dp0app\\models"\r\n'
+        'set "MIGRAAI_SEED_KB=%~dp0app\\kb\\kb-v1.db"\r\n'
         '"%~dp0python\\python.exe" -m migraai --web-dir "%~dp0web"\r\n',
         encoding="utf-8",
     )
@@ -110,6 +115,27 @@ def write_launch_files() -> None:
         "Application data is stored under %LOCALAPPDATA%\\MigraAI.\n",
         encoding="utf-8",
     )
+
+
+def prune_model_cache(model_dir: Path, site_packages: Path) -> None:
+    for link in [path for path in model_dir.rglob("*") if path.is_symlink()]:
+        resolved = link.resolve(strict=True)
+        replacement = link.with_name(f"{link.name}.materialized")
+        shutil.copy2(resolved, replacement)
+        link.unlink()
+        replacement.replace(link)
+    for blob_dir in model_dir.rglob("blobs"):
+        if blob_dir.is_dir():
+            shutil.rmtree(blob_dir)
+    for lock_dir in model_dir.rglob(".locks"):
+        if lock_dir.is_dir():
+            shutil.rmtree(lock_dir)
+    for path in list(site_packages.rglob("__pycache__")):
+        if path.is_dir():
+            shutil.rmtree(path)
+    for path in list(site_packages.rglob("tests")):
+        if path.is_dir():
+            shutil.rmtree(path)
 
 
 def create_archive() -> Path:
@@ -136,6 +162,10 @@ def main() -> None:
     site_packages = APP_DIR / "app" / "site-packages"
     site_packages.mkdir(parents=True)
     (APP_DIR / "web").mkdir()
+    model_dir = APP_DIR / "app" / "models"
+    kb_dir = APP_DIR / "app" / "kb"
+    model_dir.mkdir(parents=True)
+    kb_dir.mkdir(parents=True)
 
     download_python(APP_DIR / "python")
     configure_embedded_python(APP_DIR / "python")
@@ -144,6 +174,28 @@ def main() -> None:
     with TemporaryDirectory(prefix="migraai-build-", dir=OUT_DIR) as scratch:
         wheel = build_backend_wheel(Path(scratch))
         install_windows_dependencies(wheel, site_packages)
+    from migraai.kb.build import build_database
+    from migraai.kb.embed import FastEmbedEmbedder
+
+    os.environ["MIGRAAI_MODEL_DIR"] = str(model_dir)
+    embedder = FastEmbedEmbedder(model_dir)
+    build_database(
+        ROOT / "backend" / "migraai" / "kb" / "seed",
+        kb_dir / "kb-v1.db",
+        allow_incomplete=True,
+        embedder=embedder,
+    )
+    prune_model_cache(model_dir, site_packages)
+    if os.name == "nt":
+        system = Path(os.environ.get("WINDIR", r"C:\Windows")) / "System32"
+        for name in ("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll"):
+            source = system / name
+            if source.is_file():
+                shutil.copy2(source, APP_DIR / "python" / name)
+            else:
+                warnings.warn(f"Runtime DLL not found and was not bundled: {source}")
+    else:
+        warnings.warn("Skipping Windows runtime DLL bundling on a non-Windows build host.")
     write_launch_files()
     archive = create_archive()
     print(f"Created {archive} ({archive.stat().st_size / 1024**2:.2f} MiB)")

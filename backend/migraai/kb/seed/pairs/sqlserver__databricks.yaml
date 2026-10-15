@@ -1,0 +1,274 @@
+source: sqlserver
+target: databricks
+architecture_overview:
+- text: A page is a fundamental unit of data storage in the SQL Server Database Engine.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide?view=sql-server-ver17
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: A columnstore index stores, retrieves and manages data in a columnar format.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-overview?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Delta Lake is the default format for all tables on Databricks.
+  url: https://docs.databricks.com/aws/en/delta
+  accessed: *id001
+  confidence: high
+- text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: A clustered index sorts and stores table rows by its key values, and a table can have only one clustered index.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Delta Lake is the default format for all tables on Databricks.
+    url: https://docs.databricks.com/aws/en/delta
+    accessed: *id001
+    confidence: high
+  - text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Resource governor manages Database Engine resource consumption and enforces policies for user workloads.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/resource-governor/resource-governor?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Row-level security uses group membership or execution context to control access to table rows.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+    accessed: *id001
+    confidence: high
+  - text: Unity Catalog supports row filters and column masks for fine-grained table access control.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Partitioned table and index data is divided into units that can be spread across multiple filegroups or kept in one.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/partitions/partitioned-tables-and-indexes?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+  - text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+    accessed: *id001
+    confidence: high
+recommended_strategy: Convert schema and T-SQL code to Databricks SQL, land data in cloud object storage and ingest into Delta tables (or use Lakeflow Connect managed CDC for ongoing sync), then rebuild SSIS workloads as Lakeflow pipelines or jobs. Map SQL Server security to Unity Catalog grants, row filters and column masks.
+object_mapping:
+- source_object: Stored procedure (T-SQL)
+  target_object: Stored procedure (SQL/PSM scripting)
+  notes: SQL scripting supports BEGIN...END compounds, loops and handlers.
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- source_object: User-defined function
+  target_object: SQL/Python UDF
+  notes: Map scalar and table UDFs to Databricks SQL functions.
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- source_object: Indexed view
+  target_object: Materialized view
+  notes: Incremental refresh via Lakeflow declarative pipelines.
+  claim:
+    text: A standalone materialized view is a Unity Catalog managed table that physically stores the results of a query.
+    url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+    accessed: *id001
+    confidence: high
+- source_object: Trigger
+  target_object: Pipeline / streaming table logic
+  notes: No DML triggers; reimplement in pipelines.
+  claim:
+    text: A standalone materialized view is a Unity Catalog managed table that physically stores the results of a query.
+    url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+    accessed: *id001
+    confidence: high
+- source_object: Table
+  target_object: Delta Lake table (Unity Catalog managed)
+  notes: All Databricks tables default to Delta format.
+  claim:
+    text: Delta Lake is the default format for all tables on Databricks.
+    url: https://docs.databricks.com/aws/en/delta
+    accessed: *id001
+    confidence: high
+- source_object: CDC capture tables
+  target_object: Lakeflow Connect ingestion pipeline
+  notes: Managed CDC connector replaces homegrown extraction.
+  claim:
+    text: Lakeflow Connect provides managed CDC ingestion pipelines from SQL Server into Databricks, in gateway-based or integrated CDC mode.
+    url: https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-overview
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: TOP limits the rows returned by a query to a number or percentage of rows.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Databricks uses the LIMIT clause to constrain the number of rows returned by a query.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-limit
+  accessed: *id001
+  confidence: high
+- text: MERGE runs insert, update or delete operations on a target table from a join with a source table.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: MERGE merges updates, insertions and deletions from a source into a target Delta table; it is supported only for Delta Lake tables.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/delta-merge-into
+  accessed: *id001
+  confidence: high
+- text: A common table expression (CTE) is a temporary named result set defined with WITH.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: TRY...CATCH implements error handling in T-SQL.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Databricks enforces NOT NULL and CHECK constraints; primary and foreign key constraints are informational and not enforced.
+  url: https://docs.databricks.com/aws/en/tables/constraints
+  accessed: *id001
+  confidence: high
+- text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The bcp utility bulk copies data between a SQL Server instance and a data file.
+  url: https://learn.microsoft.com/en-us/sql/tools/bcp/bcp-utility?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Lakehouse Federation supports querying SQL Server, Azure SQL Database and Azure SQL Managed Instance through a foreign catalog in Unity Catalog.
+  url: https://docs.databricks.com/aws/en/query-federation/sql-server
+  accessed: *id001
+  confidence: high
+- text: Lakeflow Connect provides managed CDC ingestion pipelines from SQL Server into Databricks, in gateway-based or integrated CDC mode.
+  url: https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-overview
+  accessed: *id001
+  confidence: high
+- text: Change data capture uses SQL Server Agent to log inserts, updates and deletes on a table.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: SQL Server Integration Services (SSIS) is a platform for building enterprise data integration and transformation solutions.
+  url: https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Databricks provides guidance for migrating SQL or Hive ETL workloads to Databricks SQL with minimal refactoring.
+  url: https://docs.databricks.com/aws/en/migration
+  accessed: *id001
+  confidence: high
+- text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Row-level security uses group membership or execution context to control access to table rows.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Unity Catalog supports row filters and column masks for fine-grained table access control.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks
+  accessed: *id001
+  confidence: high
+- text: Transparent data encryption (TDE) encrypts database data and log files at rest.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+- text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+  accessed: *id001
+  confidence: high
+- text: Always Encrypted is designed to safeguard sensitive information such as credit card and national identification numbers.
+  url: https://learn.microsoft.com/en-us/sql/relational-databases/security/encryption/always-encrypted-database-engine?view=sql-server-ver17
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_clr_assemblies
+  claim:
+    text: CLR integration lets database objects such as procedures and functions be written in .NET languages.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-integration-overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_linked_servers
+  claim:
+    text: Linked servers let the Database Engine read data from remote data sources and run commands against remote servers.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/linked-servers/linked-servers-database-engine?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_temporal_tables
+  claim:
+    text: System-versioned temporal tables keep a history of every row so data can be queried as of any point in time.
+    url: https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal/overview?view=sql-server-ver17
+    accessed: *id001
+    confidence: high
+- id: ufeat_sqlserver_agent
+  claim:
+    text: SQL Server Agent is a Windows service that runs scheduled administrative tasks called jobs.
+    url: https://learn.microsoft.com/en-us/ssms/agent/sql-server-agent
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_clr_assemblies
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- for: ufeat_linked_servers
+  claim:
+    text: Lakehouse Federation supports querying SQL Server, Azure SQL Database and Azure SQL Managed Instance through a foreign catalog in Unity Catalog.
+    url: https://docs.databricks.com/aws/en/query-federation/sql-server
+    accessed: *id001
+    confidence: high
+- for: ufeat_temporal_tables
+  claim:
+    text: Delta Lake table history lets you query and restore earlier versions of a table.
+    url: https://docs.databricks.com/aws/en/tables/history
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: T-SQL procedures and functions convert to SQL/PSM scripting or Python — sizeable rewrite surface.
+  data:
+    level: low
+    notes: Type mapping is straightforward; watch datetime2→timestamp precision and collation.
+  security:
+    level: medium
+    notes: Instance-level security model moves to Unity Catalog securables, row filters and column masks.
+  governance:
+    level: low
+    notes: Unity Catalog provides lineage; register all migrated objects under it.
+  platform:
+    level: high
+    notes: Architecture shift from SMP engine to Spark/Delta lakehouse requires re-training and workload redesign.
+  operational:
+    level: low
+    notes: Serverless warehouses reduce infra ops; monitor with system tables.
+optimization_hints:
+- text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+  url: https://docs.databricks.com/aws/en/tables/clustering
+  accessed: *id001
+  confidence: high
+- text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+  url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+  accessed: *id001
+  confidence: high
+- text: A standalone materialized view is a Unity Catalog managed table that physically stores the results of a query.
+  url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+  accessed: *id001
+  confidence: high

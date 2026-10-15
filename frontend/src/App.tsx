@@ -3,42 +3,26 @@ import type { DragEvent, FormEvent } from "react";
 
 import {
   apiRequest,
+  confirmSession,
   exchangeLaunchToken,
+  getCurrentSession,
+  getPlan,
   type HealthResponse,
   type Platform,
   type PlatformResponse,
+  type SessionView,
   type SettingsResponse,
   type SettingsUpdate,
 } from "./api";
+import { KnowledgeBaseSettings } from "./KnowledgeBaseSettings";
+import { PlanningPanel } from "./PlanningPanel";
+import { ResourcesPanel } from "./ResourcesPanel";
 import logo from "./assets/logo.png";
-
-const PLAN_SECTIONS = [
-  "Architecture Overview",
-  "Platform Differences",
-  "Migration Strategy",
-  "Migration Phases",
-  "Dependencies",
-  "Deliverables",
-  "Object Mapping",
-  "SQL Dialect Differences",
-  "Compatibility Matrix",
-  "Data Movement Strategy",
-  "ETL Migration Strategy",
-  "Security Migration",
-  "Validation Strategy",
-  "Testing Strategy",
-  "Unsupported Features",
-  "Workarounds",
-  "Estimated Effort",
-  "Risks",
-  "Confidence Score",
-  "Expert Review Items",
-  "Optimization Hints",
-] as const;
 
 const EMPTY_SETTINGS: SettingsResponse = {
   devin_pat: { configured: false, masked: "" },
   devin_org_id: "",
+  token_kind: "none",
   devin_api_base_url: "https://api.devin.ai",
   confidence_threshold: 0.85,
   max_concurrent_sessions: 4,
@@ -70,12 +54,6 @@ type FileRow = {
   file: File;
   status: "Pending" | "Accepted" | "Error" | "Preview complete";
   message: string;
-};
-
-type SessionResponse = {
-  session_id: string;
-  source: string;
-  target: string;
 };
 
 function formatSize(bytes: number): string {
@@ -113,7 +91,7 @@ function SectionTitle({
   );
 }
 
-function SettingsDialog({
+export function SettingsDialog({
   open,
   settings,
   onClose,
@@ -225,52 +203,57 @@ function SettingsDialog({
               </span>
             )}
           </label>
-          <label className="form-field">
-            <span>Organization ID</span>
-            <input onChange={(event) => setOrgId(event.target.value)} value={orgId} />
-          </label>
-          <label className="form-field">
-            <span>API base URL</span>
-            <input
-              onChange={(event) => setApiBaseUrl(event.target.value)}
-              type="url"
-              value={apiBaseUrl}
-            />
-          </label>
-          <div className="settings-grid">
+          <section aria-labelledby="devin-settings-heading" className="settings-section">
+            <h3 id="devin-settings-heading">Devin</h3>
             <label className="form-field">
-              <span>Confidence threshold</span>
-              <input
-                max="1"
-                min="0.5"
-                onChange={(event) => setThreshold(event.target.value)}
-                step="0.01"
-                type="number"
-                value={threshold}
-              />
+              <span>Organization ID</span>
+              <small className="muted">Not needed for legacy <code>apk_</code> keys</small>
+              <input onChange={(event) => setOrgId(event.target.value)} value={orgId} />
             </label>
             <label className="form-field">
-              <span>Max concurrent sessions</span>
+              <span>API base URL</span>
               <input
-                max="50"
-                min="1"
-                onChange={(event) => setConcurrency(event.target.value)}
-                type="number"
-                value={concurrency}
+                onChange={(event) => setApiBaseUrl(event.target.value)}
+                type="url"
+                value={apiBaseUrl}
               />
             </label>
-          </div>
-          <label className="form-field">
-            <span>ACU cap per run</span>
-            <input
-              min="0.01"
-              onChange={(event) => setAcuCap(event.target.value)}
-              placeholder="No cap"
-              step="any"
-              type="number"
-              value={acuCap}
-            />
-          </label>
+            <div className="settings-grid">
+              <label className="form-field">
+                <span>Confidence threshold</span>
+                <input
+                  max="1"
+                  min="0.5"
+                  onChange={(event) => setThreshold(event.target.value)}
+                  step="0.01"
+                  type="number"
+                  value={threshold}
+                />
+              </label>
+              <label className="form-field">
+                <span>Max concurrent sessions</span>
+                <input
+                  max="50"
+                  min="1"
+                  onChange={(event) => setConcurrency(event.target.value)}
+                  type="number"
+                  value={concurrency}
+                />
+              </label>
+            </div>
+            <label className="form-field">
+              <span>ACU cap per run</span>
+              <input
+                min="0.01"
+                onChange={(event) => setAcuCap(event.target.value)}
+                placeholder="No cap"
+                step="any"
+                type="number"
+                value={acuCap}
+              />
+            </label>
+          </section>
+          <KnowledgeBaseSettings active={open} />
           {error && <p className="inline-error" role="alert">{error}</p>}
           <div className="dialog-actions">
             <button className="button secondary" onClick={onClose} type="button">
@@ -292,9 +275,13 @@ export default function App() {
   const [settings, setSettings] = useState<SettingsResponse>(EMPTY_SETTINGS);
   const [source, setSource] = useState("");
   const [target, setTarget] = useState("");
+  const [confirmedPair, setConfirmedPair] = useState<{
+    source: string;
+    target: string;
+  } | null>(null);
   const [sessionConfirmed, setSessionConfirmed] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [session, setSession] = useState<SessionResponse | null>(null);
+  const [session, setSession] = useState<SessionView | null>(null);
   const [files, setFiles] = useState<FileRow[]>([]);
   const [hasUploaded, setHasUploaded] = useState(false);
   const [converted, setConverted] = useState(false);
@@ -302,6 +289,8 @@ export default function App() {
   const [error, setError] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
+  const planningSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -320,9 +309,19 @@ export default function App() {
         }
       }
 
-      const nextHealth = await apiRequest<HealthResponse>("/api/health").catch(() => null);
-      const nextPlatforms = await apiRequest<PlatformResponse>("/api/platforms").catch(() => null);
-      const nextSettings = await apiRequest<SettingsResponse>("/api/settings").catch(() => null);
+      const [nextHealth, nextPlatforms, nextSettings, currentSession] = await Promise.all([
+        apiRequest<HealthResponse>("/api/health").catch(() => null),
+        apiRequest<PlatformResponse>("/api/platforms").catch(() => null),
+        apiRequest<SettingsResponse>("/api/settings").catch(() => null),
+        getCurrentSession().catch(() => null),
+      ]);
+      if (!active) {
+        return;
+      }
+      let restoredPlan = null;
+      if (currentSession?.confirmed && currentSession.source && currentSession.target) {
+        restoredPlan = await getPlan().catch(() => null);
+      }
       if (!active) {
         return;
       }
@@ -337,6 +336,17 @@ export default function App() {
       if (nextSettings) {
         setSettings(nextSettings);
       }
+      if (currentSession?.confirmed && currentSession.source && currentSession.target) {
+        setSource(currentSession.source);
+        setTarget(currentSession.target);
+        setConfirmedPair({ source: currentSession.source, target: currentSession.target });
+        setSessionConfirmed(true);
+        setSession({
+          source: currentSession.source,
+          target: currentSession.target,
+          plan: restoredPlan,
+        });
+      }
     }
     void bootstrap();
     return () => {
@@ -344,7 +354,13 @@ export default function App() {
     };
   }, []);
 
-  const canConfirm = Boolean(source && target && source !== target && !confirming);
+  const canConfirm = Boolean(
+    source &&
+      target &&
+      source !== target &&
+      !confirming &&
+      (source !== confirmedPair?.source || target !== confirmedPair?.target),
+  );
   const canUpload =
     sessionConfirmed &&
     !hasUploaded &&
@@ -362,12 +378,22 @@ export default function App() {
     setConfirming(true);
     setError("");
     try {
-      const response = await apiRequest<SessionResponse>("/api/session/confirm", {
-        method: "POST",
-        body: { source, target },
-      });
-      setSession(response);
+      const response = await confirmSession(source, target);
+      setSession({ source: response.source, target: response.target, plan: response.plan });
+      setConfirmedPair({ source: response.source, target: response.target });
       setSessionConfirmed(true);
+      requestAnimationFrame(() => {
+        const main = mainRef.current;
+        const planningSection = planningSectionRef.current;
+        if (main && planningSection && typeof main.scrollTo === "function") {
+          const prefersReducedMotion =
+            window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+          main.scrollTo({
+            top: planningSection.offsetTop - main.offsetTop,
+            behavior: prefersReducedMotion ? "auto" : "smooth",
+          });
+        }
+      });
       setFiles((current) =>
         current.map((row) =>
           row.status === "Pending"
@@ -375,7 +401,7 @@ export default function App() {
             : row,
         ),
       );
-      setNotice("Source and target confirmed. Plan generation is planned for Phase 2.");
+      setNotice("Source and target confirmed. Migration planning has started.");
     } catch (confirmError) {
       setError(confirmError instanceof Error ? confirmError.message : "Could not confirm systems.");
     } finally {
@@ -527,7 +553,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="dashboard">
+      <main className="dashboard" ref={mainRef}>
         <section aria-labelledby="system-heading" className="panel system-panel">
           <div className="panel-heading">
             <SectionTitle
@@ -576,7 +602,11 @@ export default function App() {
           {error && <p className="banner error-banner" role="alert">{error}</p>}
         </section>
 
-        <section aria-labelledby="planning-heading" className="panel planning-panel">
+        <section
+          aria-labelledby="planning-heading"
+          className="panel planning-panel"
+          ref={planningSectionRef}
+        >
           <div className="panel-heading">
             <SectionTitle
               description="Comprehensive analysis and step-by-step migration plan"
@@ -586,39 +616,12 @@ export default function App() {
             />
             <span className="phase-chip">Phase 2</span>
           </div>
-          <div className="planning-content">
-            {sessionConfirmed ? (
-              <>
-                <div className="planning-summary">
-                  <span>
-                    <strong>{platforms.sources.find((item) => item.id === session?.source)?.name}</strong>
-                    <small>Source</small>
-                  </span>
-                  <b aria-hidden="true">→</b>
-                  <span>
-                    <strong>{platforms.targets.find((item) => item.id === session?.target)?.name}</strong>
-                    <small>Target</small>
-                  </span>
-                  <span className="generated-note">Plan sections are generated in Phase 2.</span>
-                </div>
-                <div className="plan-section-list">
-                  {PLAN_SECTIONS.map((section, index) => (
-                    <div className="plan-section-placeholder" key={section}>
-                      <span>{String.fromCharCode(65 + index)}</span>
-                      {section}
-                      <small>Generated in Phase 2</small>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="empty-state">
-                <span aria-hidden="true" className="empty-icon">▤</span>
-                <strong>Migration plan will appear here</strong>
-                <p>Choose a source and target, then confirm to begin planning.</p>
-              </div>
-            )}
-          </div>
+          <PlanningPanel
+            confidenceThreshold={settings.confidence_threshold}
+            session={sessionConfirmed ? session : null}
+            sourceName={platforms.sources.find((item) => item.id === session?.source)?.name ?? ""}
+            targetName={platforms.targets.find((item) => item.id === session?.target)?.name ?? ""}
+          />
         </section>
 
         <section aria-labelledby="resources-heading" className="panel resources-panel">
@@ -630,37 +633,7 @@ export default function App() {
               title="Resources Confirmation"
             />
           </div>
-          <div className="resource-panes">
-            {(["Mandatory", "Optional"] as const).map((kind) => (
-              <div className={`resource-pane ${kind.toLowerCase()}`} key={kind}>
-                <div className="resource-pane-title">
-                  <strong>{kind} Items</strong>
-                  <span>{kind === "Mandatory" ? "(Required for Migration)" : "(Recommended)"}</span>
-                </div>
-                <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th aria-label="Checkbox" className="check-column">☑</th>
-                        <th>Object Type</th>
-                        <th>Description</th>
-                        <th>Available</th>
-                        <th>Count</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="empty-table" colSpan={6}>
-                          Object inventory will be available in Phase 2/3.
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ResourcesPanel confirmed={sessionConfirmed} />
         </section>
 
         <section aria-labelledby="convert-heading" className="panel convert-panel">

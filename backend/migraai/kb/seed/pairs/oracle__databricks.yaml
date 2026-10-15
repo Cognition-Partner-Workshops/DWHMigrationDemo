@@ -1,0 +1,331 @@
+source: oracle
+target: databricks
+architecture_overview:
+- text: An Oracle database server consists of a database plus at least one database instance.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/introduction-to-oracle-database.html
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+  accessed: *id001
+  confidence: high
+- text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+  accessed: *id001
+  confidence: high
+- text: Delta Lake is the default format for all tables on Databricks.
+  url: https://docs.databricks.com/aws/en/delta
+  accessed: *id001
+  confidence: high
+- text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+    accessed: *id001
+    confidence: high
+  - text: Partitioning splits tables, indexes and index-organized tables into smaller pieces that can be managed and accessed individually.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/partition-concepts.html
+    accessed: *id001
+    confidence: high
+  - text: Delta Lake is the default format for all tables on Databricks.
+    url: https://docs.databricks.com/aws/en/delta
+    accessed: *id001
+    confidence: high
+  - text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Database Resource Manager controls how resources are allocated within a database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/managing-resources-with-oracle-database-resource-manager.html
+    accessed: *id001
+    confidence: high
+  - text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+    accessed: *id001
+    confidence: high
+  - text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+    accessed: *id001
+    confidence: high
+  - text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+    accessed: *id001
+    confidence: high
+  - text: Unity Catalog supports row filters and column masks for fine-grained table access control.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+    accessed: *id001
+    confidence: high
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'Treat this as database-to-lakehouse: extract Oracle tables (Data Pump, GoldenGate or JDBC federation for reads), land them as Delta tables in Unity Catalog with liquid clustering, convert PL/SQL to Databricks SQL/Python, and rebuild jobs/schedules in Lakeflow. Map VPD/roles to UC privileges, row filters and column masks.'
+object_mapping:
+- source_object: Heap-organized table
+  target_object: Delta table
+  notes: Rows land as Delta files; clustering via liquid clustering.
+  claim:
+    text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: *id001
+    confidence: high
+- source_object: Partitioned table
+  target_object: Delta table (liquid clustering)
+  notes: Partitioning maps to clustering/Z-order style decisions.
+  claim:
+    text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view
+  notes: Databricks supports MVs.
+  claim:
+    text: A standalone materialized view is a Unity Catalog managed table that physically stores the results of a query.
+    url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+    accessed: *id001
+    confidence: high
+- source_object: Package (PL/SQL)
+  target_object: Python/SQL modules + procedures
+  notes: No package concept; split into procedures/functions.
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- source_object: Sequence
+  target_object: GENERATED identity column
+  notes: Sequences map to identity columns.
+  claim:
+    text: Delta Lake identity columns are generated columns that assign unique values for each inserted record.
+    url: https://docs.databricks.com/aws/en/tables/features/generated-columns
+    accessed: *id001
+    confidence: high
+- source_object: Database link
+  target_object: Lakehouse Federation foreign catalog
+  notes: Remote Oracle queryable via federation.
+  claim:
+    text: Lakehouse Federation supports running federated queries on Oracle via a Databricks connection and a foreign catalog.
+    url: https://docs.databricks.com/aws/en/query-federation/oracle
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE INTO
+  notes: Databricks MERGE is canonical upsert.
+  claim:
+    text: MERGE merges updates, insertions and deletions from a source into a target Delta table; it is supported only for Delta Lake tables.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/delta-merge-into
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+  accessed: *id001
+  confidence: high
+- text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+  accessed: *id001
+  confidence: high
+- text: The Oracle DATE data type holds both date and time information.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+  accessed: *id001
+  confidence: high
+- text: The ROWID pseudocolumn returns the physical address of each row.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROWID-Pseudocolumn.html
+  accessed: *id001
+  confidence: high
+- text: NVL returns the second argument when the first is null — Oracle's equivalent of COALESCE with two args.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL.html
+  accessed: *id001
+  confidence: high
+- text: DECODE compares an expression to search values one by one — a non-ANSI conditional.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DECODE.html
+  accessed: *id001
+  confidence: high
+- text: LISTAGG orders data within each group and concatenates the measure values.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LISTAGG.html
+  accessed: *id001
+  confidence: high
+- text: MERGE merges updates, insertions and deletions from a source into a target Delta table; it is supported only for Delta Lake tables.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/delta-merge-into
+  accessed: *id001
+  confidence: high
+- text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: Oracle Data Pump moves data and metadata between databases at high speed, using the expdp and impdp clients.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-data-pump-overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle GoldenGate provides real-time data integration, replication and transactional change data capture.
+  url: https://docs.oracle.com/en/middleware/goldengate/core/21.3/coredoc/overview-oracle-goldengate.html
+  accessed: *id001
+  applies_to: Oracle GoldenGate 21.3
+  confidence: high
+- text: SQL*Loader loads data from external files into Oracle tables.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-sql-loader-concepts.html
+  accessed: *id001
+  confidence: high
+- text: Lakeflow Connect provides managed CDC ingestion pipelines from SQL Server into Databricks, in gateway-based or integrated CDC mode.
+  url: https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-overview
+  accessed: *id001
+  confidence: high
+- text: Lakehouse Federation supports running federated queries on Oracle via a Databricks connection and a foreign catalog.
+  url: https://docs.databricks.com/aws/en/query-federation/oracle
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: PL/SQL is Oracle's procedural extension of SQL.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle Scheduler, implemented by the DBMS_SCHEDULER package, controls when and where jobs run.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/oracle-scheduler-concepts.html
+  accessed: *id001
+  confidence: high
+- text: Lakeflow Connect provides managed CDC ingestion pipelines from SQL Server into Databricks, in gateway-based or integrated CDC mode.
+  url: https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-overview
+  accessed: *id001
+  confidence: high
+- text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: *id001
+  confidence: high
+- text: Databricks provides guidance for migrating SQL or Hive ETL workloads to Databricks SQL with minimal refactoring.
+  url: https://docs.databricks.com/aws/en/migration
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+  accessed: *id001
+  confidence: high
+- text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+  accessed: *id001
+  confidence: high
+- text: A user role is a named set of privileges that can be granted to users.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html
+  accessed: *id001
+  confidence: high
+- text: Every governed asset in Unity Catalog is modeled as a securable object on which permissions can be granted.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog
+  accessed: *id001
+  confidence: high
+- text: Unity Catalog supports row filters and column masks for fine-grained table access control.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_packages
+  claim:
+    text: A stored package is an encapsulated collection of related procedures, functions and other program objects stored together in the database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-PACKAGE.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_autonomous_transactions
+  claim:
+    text: An autonomous transaction is an independent transaction started from within another (main) transaction.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/autonomous-transactions.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_connect_by
+  claim:
+    text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_rowid
+  claim:
+    text: The ROWID pseudocolumn returns the physical address of each row.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROWID-Pseudocolumn.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_empty_string_null
+  claim:
+    text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_packages
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- for: ufeat_autonomous_transactions
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- for: ufeat_connect_by
+  claim:
+    text: Databricks supports procedural logic using SQL/PSM standard-based scripting syntax (Databricks Runtime 16.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: *id001
+    confidence: high
+- for: ufeat_rowid
+  claim:
+    text: Delta Lake identity columns are generated columns that assign unique values for each inserted record.
+    url: https://docs.databricks.com/aws/en/tables/features/generated-columns
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: PL/SQL packages, autonomous transactions, CONNECT BY and '' = NULL semantics all require rework.
+  data:
+    level: medium
+    notes: DATE-carries-time and character-set differences need type review.
+  security:
+    level: medium
+    notes: VPD and fine-grained grants map to UC row filters/column masks.
+  governance:
+    level: medium
+    notes: Unity Catalog model differs from schema-owner model.
+  platform:
+    level: high
+    notes: RAC/instance model replaced by serverless lakehouse compute.
+  operational:
+    level: medium
+    notes: Scheduler/jobs move to Lakeflow orchestration.
+optimization_hints:
+- text: Liquid clustering lets you redefine clustering keys without rewriting existing data, and is recommended for all new tables.
+  url: https://docs.databricks.com/aws/en/tables/clustering
+  accessed: *id001
+  confidence: high
+- text: Serverless SQL warehouses use Intelligent Workload Management (IWM) to automatically manage query workloads.
+  url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior
+  accessed: *id001
+  confidence: high
+- text: A standalone materialized view is a Unity Catalog managed table that physically stores the results of a query.
+  url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+  accessed: *id001
+  confidence: high

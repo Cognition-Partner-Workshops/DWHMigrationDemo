@@ -26,6 +26,8 @@ jobs:
         working-directory: backend
       - run: uv run --project . --group dev pytest -q
         working-directory: backend
+      - run: uv run --project . --group dev python -m migraai.kb.validate --allow-incomplete
+        working-directory: backend
 
   frontend:
     runs-on: ubuntu-latest
@@ -68,13 +70,17 @@ jobs:
         working-directory: frontend
       - run: npm run build
         working-directory: frontend
-      - run: python packaging/windows/build_portable.py
+      - run: uv run --project backend python packaging/windows/build_portable.py
       - name: Smoke test portable app
         shell: pwsh
         run: |
           $app = Resolve-Path "packaging/windows/out/MigraAI"
           $python = Join-Path $app "python/python.exe"
           $web = Join-Path $app "web"
+          $env:HF_HUB_OFFLINE = "1"
+          $env:MIGRAAI_MODEL_DIR = Join-Path $app "app/models"
+          $env:MIGRAAI_SEED_KB = Join-Path $app "app/kb/kb-v1.db"
+          $env:MIGRAAI_DEV_TOKEN = "portable-smoke-token"
           $process = Start-Process -FilePath $python -ArgumentList @("-m","migraai","--no-browser","--port","8765","--web-dir",$web) -PassThru
           try {
             $ready = $false
@@ -85,6 +91,10 @@ jobs:
               } catch { Start-Sleep -Seconds 1 }
             }
             if (-not $ready) { throw "Portable app health check did not become ready." }
+            $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+            Invoke-WebRequest "http://127.0.0.1:8765/api/auth/launch?token=portable-smoke-token" -WebSession $session | Out-Null
+            $search = Invoke-WebRequest "http://127.0.0.1:8765/api/kb/search?q=data%20types&source=teradata&target=snowflake" -WebSession $session
+            if ($search.StatusCode -ne 200) { throw "KB search smoke test failed: $($search.StatusCode)" }
           } finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
           }

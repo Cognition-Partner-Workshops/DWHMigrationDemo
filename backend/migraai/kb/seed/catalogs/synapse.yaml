@@ -1,0 +1,79 @@
+source: synapse
+mandatory:
+- id: ddl_tables
+  name: Table DDL with distribution and index
+  description: CREATE TABLE statements including DISTRIBUTION (HASH, ROUND_ROBIN, REPLICATE), index type and partitioning.
+  object_types:
+  - table
+  - index
+  - partition
+  extraction_hint: sys.tables JOIN sys.pdw_table_distribution_properties and sys.pdw_column_distribution_properties; sys.indexes; SSMS Generate Scripts or sqlpackage /Action:Extract
+- id: ddl_views
+  name: Views and materialized views
+  description: View and materialized view definitions.
+  object_types:
+  - view
+  - materialized_view
+  extraction_hint: sys.views JOIN sys.sql_modules; materialized views via sys.indexes / sys.pdw_materialized_view_column_distribution_properties
+- id: procedures_functions
+  name: Stored procedures and functions
+  description: T-SQL stored procedures and functions.
+  object_types:
+  - procedure
+  - function
+  extraction_hint: sys.sql_modules JOIN sys.objects WHERE type IN ('P','FN','IF','TF')
+- id: external_objects
+  name: External tables, data sources and file formats
+  description: PolyBase/COPY external objects that define how data is read from storage.
+  object_types:
+  - external_table
+  - external_data_source
+  - external_file_format
+  extraction_hint: sys.external_tables, sys.external_data_sources, sys.external_file_formats, sys.database_scoped_credentials (names only)
+- id: security_objects
+  name: Users, roles and permissions
+  description: Database users (SQL and Microsoft Entra), role memberships, permissions, RLS and column-level grants.
+  object_types:
+  - user
+  - role
+  - grant
+  - security_policy
+  extraction_hint: sys.database_principals, sys.database_role_members, sys.database_permissions, sys.security_policies
+- id: etl_pipelines
+  name: Synapse/ADF pipelines
+  description: Synapse workspace or Azure Data Factory pipelines, datasets, linked services and triggers that load the pool.
+  object_types:
+  - etl_package
+  - job
+  extraction_hint: Export from the workspace Git integration or ARM template; or az synapse pipeline list / az synapse pipeline show
+- id: workload_management
+  name: Workload groups and classifiers
+  description: Workload groups, classifiers and resource class memberships that govern concurrency.
+  object_types:
+  - workload_group
+  extraction_hint: sys.workload_management_workload_groups, sys.workload_management_workload_classifiers; resource-class role members
+optional:
+- id: statistics_sizes
+  name: Statistics and table sizes
+  description: Row counts per distribution, data skew and statistics metadata.
+  object_types:
+  - statistics
+  extraction_hint: DBCC PDW_SHOWSPACEUSED('<schema>.<table>'); sys.dm_pdw_nodes_db_partition_stats; sys.stats
+- id: sample_data
+  name: Sample data
+  description: A small, masked sample of rows per table for type and conversion testing.
+  object_types:
+  - sample_data
+  extraction_hint: SELECT TOP (n) * FROM <schema>.<table>, masked before export; or CETAS to storage
+- id: workload_history
+  name: Query workload history
+  description: Recent requests and their steps for prioritising conversion and performance testing.
+  object_types:
+  - query_log
+  extraction_hint: sys.dm_pdw_exec_requests and sys.dm_pdw_request_steps (retains recent requests only); Azure Monitor diagnostic logs for longer history
+- id: result_cache_settings
+  name: Database configuration
+  description: Database-scoped settings such as result set caching, READ_COMMITTED_SNAPSHOT and service objective.
+  object_types:
+  - configuration
+  extraction_hint: sys.databases (is_result_set_caching_on, is_read_committed_snapshot_on); DATABASEPROPERTYEX(DB_NAME(), 'ServiceObjective')

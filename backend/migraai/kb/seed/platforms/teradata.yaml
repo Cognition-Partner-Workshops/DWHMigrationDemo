@@ -1,0 +1,139 @@
+id: teradata
+name: Teradata Vantage
+roles:
+- source
+versions_covered: Vantage 17.x (Enterprise/IntelliFlex/VMware docs); TPT 17.20
+summary: Teradata Vantage is a shared-nothing MPP database that hashes rows to AMPs by primary index. It adds Teradata-specific objects such as macros, PERIOD types and temporal tables, and loads data with Teradata Parallel Transporter or reads object storage through NOS.
+facets:
+  architecture:
+  - text: Teradata PE and AMP vprocs share neither memory nor disk, giving a shared-nothing design.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata hashes each row to an AMP using the row hash of its primary index or primary AMP index.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: A Teradata NoPI table has no primary index and is always MULTISET.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/NoPI-Tables-Column-Partitioned-NoPI-Tables-and-Column-Partitioned-NoPI-Join-Indexes
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata supports column-partitioned tables and join indexes, with autocompression applied per container.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/Column-Partitioning
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata row partitioning (PPI) enables row partition elimination for large query gains.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/Advantages-and-Disadvantages-of-Partitioned-Primary-Indexes
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Teradata balances work by spreading rows evenly across AMPs, each solely responsible for its own data.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Choosing primary indexes so joined rows hash to the same AMP avoids redistributing rows across the BYNET.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Teradata encrypts the logon string by default and can optionally encrypt messages in transit.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Data-Protection
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata authentication covers the authentication method, logon formats and controls, and password controls.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/User-Authentication
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata privileges are acquired implicitly through ownership, automatically on creation, by inheritance or by explicit grant.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Teradata balances work by spreading rows evenly across AMPs, each solely responsible for its own data.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata guidance says finer partition granularity, such as daily rather than monthly, is generally better.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/Advantages-and-Disadvantages-of-Partitioned-Primary-Indexes
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: A Teradata macro is one or more SQL statements run as a single request.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata SQL stored procedures combine procedural control statements, SQL and declarations and run on the database server.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/SQL-Stored-Procedures
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Teradata PERIOD value represents an anchored duration of time.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Temporal-Table-Support/Getting-Started/Introduction-to-Temporal-Table-Support
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata ZEROIFNULL converts null to 0.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/ZEROIFNULL
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata NULLIFZERO converts 0 to null.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/NULLIFZERO
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: Teradata Parallel Transporter (TPT) is a client for parallel extraction, loading and updating that builds on FastLoad, MultiLoad, FastExport and TPump.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20/Introduction-to-Teradata-PT/High-Level-Description
+    accessed: '2026-10-15'
+    applies_to: TPT 17.20
+    confidence: high
+  - text: TPT jobs combine producer, consumer, filter and standalone operators connected by data streams.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20/Introduction-to-Teradata-PT/Operator-Types
+    accessed: '2026-10-15'
+    applies_to: TPT 17.20
+    confidence: high
+  - text: TPT provides access modules including one for reading from and writing to Kafka.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20/Introduction-to-Teradata-PT/Access-Modules
+    accessed: '2026-10-15'
+    applies_to: TPT 17.20
+    confidence: high
+  - text: Teradata nonpartitioned NoPI tables are mainly used as staging tables that FastLoad can fill efficiently.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/NoPI-Tables-Column-Partitioned-NoPI-Tables-and-Column-Partitioned-NoPI-Join-Indexes
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: Teradata NOS can authenticate to Amazon S3 buckets with IAM credentials for READ_NOS and WRITE_NOS.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/Authentication-for-External-Object-Stores/Using-IAM-Credentials-with-Amazon-S3-Buckets
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata NOS can read Azure Blob Storage using an account key or SAS token in CREATE AUTHORIZATION or READ_NOS.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/Authentication-for-External-Object-Stores/Accessing-Azure-Blob-Storage-Containers
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata NOS can access Google Cloud Storage.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/Authentication-for-External-Object-Stores/Accessing-Google-Cloud-Storage
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Teradata foreign tables over Parquet objects use USING STOREDAS ('PARQUET') in CREATE FOREIGN TABLE.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/External-File-Formats/Parquet-External-Files
+    accessed: '2026-10-15'
+    confidence: high
+unsupported_features:
+- text: A Teradata macro is one or more SQL statements run as a single request.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+  accessed: '2026-10-15'
+  confidence: high
+- text: A Teradata PERIOD value represents an anchored duration of time.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Temporal-Table-Support/Getting-Started/Introduction-to-Temporal-Table-Support
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata temporal support adds valid-time and transaction-time dimensions to tables through temporal column attributes.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Temporal-Table-Support/Getting-Started/Introduction-to-Temporal-Table-Support
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+  accessed: '2026-10-15'
+  confidence: high

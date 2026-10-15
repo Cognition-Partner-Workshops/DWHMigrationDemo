@@ -1,0 +1,319 @@
+source: oracle
+target: clickhouse
+architecture_overview:
+- text: An Oracle database server consists of a database plus at least one database instance.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/introduction-to-oracle-database.html
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+  accessed: *id001
+  confidence: high
+- text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+  accessed: *id001
+  confidence: high
+- text: ClickHouse is a high-performance, column-oriented SQL DBMS for online analytical processing (OLAP).
+  url: https://clickhouse.com/docs/get-started/about/intro
+  accessed: *id001
+  confidence: high
+- text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+    accessed: *id001
+    confidence: high
+  - text: Partitioning splits tables, indexes and index-organized tables into smaller pieces that can be managed and accessed individually.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/partition-concepts.html
+    accessed: *id001
+    confidence: high
+  - text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+  - text: The MergeTree primary key does not reference individual rows but blocks of 8192 rows called granules, keeping the index in memory.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Database Resource Manager controls how resources are allocated within a database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/managing-resources-with-oracle-database-resource-manager.html
+    accessed: *id001
+    confidence: high
+  - text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+    accessed: *id001
+    confidence: high
+  - text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+    accessed: *id001
+    confidence: high
+  - text: ClickHouse supports access control based on RBAC with user accounts, roles, row policies, settings profiles and quotas.
+    url: https://clickhouse.com/docs/concepts/features/security/access-rights
+    accessed: *id001
+    confidence: high
+  - text: A ClickHouse row policy is a filter used to determine which rows a user can read from a table.
+    url: https://clickhouse.com/docs/reference/statements/create/row-policy
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+    accessed: *id001
+    confidence: high
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'ClickHouse is a distributed columnar OLAP engine with no procedural SQL layer: extract Oracle tables (Data Pump/GoldenGate export or JDBC bridge reads), recreate them as MergeTree tables with ORDER BY keys and shard via Distributed tables, and rewrite PL/SQL logic as queries, materialized views and externally scheduled jobs. Plan for insert-optimized workloads — row updates/deletes are heavyweight mutations.'
+object_mapping:
+- source_object: Heap-organized table
+  target_object: MergeTree table
+  notes: ORDER BY key defines physical layout.
+  claim:
+    text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+- source_object: Partitioned table
+  target_object: MergeTree PARTITION BY
+  notes: Partitioning exists in MergeTree.
+  claim:
+    text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view (insert-time)
+  notes: MVs compute on insert.
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- source_object: Package (PL/SQL)
+  target_object: None — external jobs/queries
+  notes: No procedural layer.
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- source_object: Sequence
+  target_object: Insert-time generated key
+  notes: Generate keys in ingest.
+  claim:
+    text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: Mutations / ReplacingMergeTree
+  notes: Upserts via mutations or replacing engine.
+  claim:
+    text: ReplacingMergeTree deduplicates rows with the same sorting key during merges.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+  accessed: *id001
+  confidence: high
+- text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+  accessed: *id001
+  confidence: high
+- text: The Oracle DATE data type holds both date and time information.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+  accessed: *id001
+  confidence: high
+- text: NVL returns the second argument when the first is null — Oracle's equivalent of COALESCE with two args.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL.html
+  accessed: *id001
+  confidence: high
+- text: DECODE compares an expression to search values one by one — a non-ANSI conditional.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DECODE.html
+  accessed: *id001
+  confidence: high
+- text: ClickHouse lightweight DELETE is contrasted with the heavyweight ALTER TABLE DELETE mutation.
+  url: https://clickhouse.com/docs/reference/statements/delete
+  accessed: *id001
+  confidence: high
+- text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+  url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+  accessed: *id001
+  confidence: high
+- text: ClickHouse offers fixed-width integer types from Int8 through Int256.
+  url: https://clickhouse.com/docs/reference/data-types/int-uint
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: Oracle Data Pump moves data and metadata between databases at high speed, using the expdp and impdp clients.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-data-pump-overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle GoldenGate provides real-time data integration, replication and transactional change data capture.
+  url: https://docs.oracle.com/en/middleware/goldengate/core/21.3/coredoc/overview-oracle-goldengate.html
+  accessed: *id001
+  applies_to: Oracle GoldenGate 21.3
+  confidence: high
+- text: SQL*Loader loads data from external files into Oracle tables.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-sql-loader-concepts.html
+  accessed: *id001
+  confidence: high
+- text: The jdbc table function queries a remote table via the JDBC driver through a separate clickhouse-jdbc-bridge program.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/jdbc
+  accessed: *id001
+  confidence: high
+- text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: PL/SQL is Oracle's procedural extension of SQL.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle Scheduler, implemented by the DBMS_SCHEDULER package, controls when and where jobs run.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/oracle-scheduler-concepts.html
+  accessed: *id001
+  confidence: high
+- text: The jdbc table function queries a remote table via the JDBC driver through a separate clickhouse-jdbc-bridge program.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/jdbc
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+  accessed: *id001
+  confidence: high
+- text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+  accessed: *id001
+  confidence: high
+- text: A user role is a named set of privileges that can be granted to users.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html
+  accessed: *id001
+  confidence: high
+- text: ClickHouse supports access control based on RBAC with user accounts, roles, row policies, settings profiles and quotas.
+  url: https://clickhouse.com/docs/concepts/features/security/access-rights
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse row policy is a filter used to determine which rows a user can read from a table.
+  url: https://clickhouse.com/docs/reference/statements/create/row-policy
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_packages
+  claim:
+    text: A stored package is an encapsulated collection of related procedures, functions and other program objects stored together in the database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-PACKAGE.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_autonomous_transactions
+  claim:
+    text: An autonomous transaction is an independent transaction started from within another (main) transaction.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/autonomous-transactions.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_connect_by
+  claim:
+    text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_rowid
+  claim:
+    text: The ROWID pseudocolumn returns the physical address of each row.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROWID-Pseudocolumn.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_transactions
+  claim:
+    text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: *id001
+    confidence: high
+- id: ufeat_frequent_updates
+  claim:
+    text: ClickHouse lightweight DELETE is contrasted with the heavyweight ALTER TABLE DELETE mutation.
+    url: https://clickhouse.com/docs/reference/statements/delete
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_packages
+  claim:
+    text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: *id001
+    confidence: high
+- for: ufeat_autonomous_transactions
+  claim:
+    text: ClickHouse transactions across multiple statements are experimental; inserts have their own durability guarantees.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: *id001
+    confidence: high
+- for: ufeat_frequent_updates
+  claim:
+    text: ReplacingMergeTree deduplicates rows with the same sorting key during merges.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: No PL/SQL layer; major code relocation to app/pipeline.
+  data:
+    level: medium
+    notes: Update-heavy OLTP patterns fit poorly.
+  security:
+    level: medium
+    notes: VPD/grants map to row policies and RBAC.
+  governance:
+    level: medium
+    notes: Self-managed governance replaces Oracle's model.
+  platform:
+    level: high
+    notes: Full paradigm and operations change.
+  operational:
+    level: medium
+    notes: Cluster ops and mutations need new runbooks.
+optimization_hints:
+- text: MergeTree-family table engines are the most commonly used engines in ClickHouse, designed for high ingest rates and huge data volumes.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+- text: The MergeTree primary key does not reference individual rows but blocks of 8192 rows called granules, keeping the index in memory.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: *id001
+  confidence: high
+- text: A Distributed engine table stores no data itself but enables distributed query processing across servers.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/special/distributed
+  accessed: *id001
+  confidence: high
+- text: A ClickHouse materialized view is a trigger that runs a query on blocks of inserted data, shifting cost from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: *id001
+  confidence: high

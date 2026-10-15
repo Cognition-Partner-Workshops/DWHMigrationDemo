@@ -1,0 +1,403 @@
+platform: oracle
+types:
+- native: NUMBER(p,s)
+  canonical: decimal
+  notes: Oracle's universal numeric type; stores fixed and floating point values.
+  claim:
+    text: The NUMBER data type stores zero as well as positive and negative fixed numbers.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: &id001 2026-10-15
+    confidence: high
+- native: FLOAT(b)
+  canonical: float64
+  notes: ANSI-compatible alias; internally a subtype of NUMBER with binary precision.
+  claim:
+    text: Oracle FLOAT is a floating-point number subtype of NUMBER with a binary precision.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: BINARY_FLOAT
+  canonical: float32
+  notes: 32-bit IEEE floating point.
+  claim:
+    text: BINARY_FLOAT is a 32-bit, single-precision floating-point number in Oracle.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: BINARY_DOUBLE
+  canonical: float64
+  notes: 64-bit IEEE floating point.
+  claim:
+    text: BINARY_DOUBLE is a 64-bit, double-precision floating-point number in Oracle.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: CHAR(n)
+  canonical: char
+  notes: Fixed-length, blank-padded character data up to 2000 bytes.
+  claim:
+    text: The CHAR data type specifies a fixed-length character string in the database character set.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: VARCHAR2(n)
+  canonical: varchar
+  notes: Max 4000 bytes (or 32767 with MAX_STRING_SIZE=EXTENDED).
+  claim:
+    text: The VARCHAR2 data type specifies a variable-length character string in the database character set.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: NCHAR(n)
+  canonical: char
+  notes: Fixed-length character data in the national character set; usually maps to varchar since the encoding carries the semantics.
+  claim:
+    text: The NCHAR data type specifies a fixed-length character string in the national character set.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: NVARCHAR2(n)
+  canonical: varchar
+  notes: Variable-length Unicode character data in the national character set.
+  claim:
+    text: The NVARCHAR2 data type specifies a variable-length character string in the national character set.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: DATE
+  canonical: timestamp
+  notes: Oracle DATE always stores century, year, month, day, hour, minute and second — map to timestamp, not date, to preserve the time component.
+  claim:
+    text: The Oracle DATE data type stores date and time information, including hours, minutes and seconds.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: TIMESTAMP(fsp)
+  canonical: timestamp
+  notes: Extension of DATE that also stores fractional seconds.
+  claim:
+    text: The TIMESTAMP data type is an extension of the DATE data type and stores fractional seconds.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: TIMESTAMP WITH TIME ZONE
+  canonical: timestamp_tz
+  notes: Stores the timestamp plus a time zone displacement value.
+  claim:
+    text: TIMESTAMP WITH TIME ZONE stores all values of TIMESTAMP as well as a time zone displacement value.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: TIMESTAMP WITH LOCAL TIME ZONE
+  canonical: timestamp_tz
+  notes: Stored normalized to the database time zone and shown in the session time zone; displacement is not stored.
+  claim:
+    text: TIMESTAMP WITH LOCAL TIME ZONE normalizes data to the database time zone on storage and displays it in the session time zone on retrieval.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: INTERVAL YEAR TO MONTH
+  canonical: interval
+  notes: Stores a period of time in years and months.
+  claim:
+    text: INTERVAL YEAR TO MONTH stores a period of time in years and months.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: INTERVAL DAY TO SECOND
+  canonical: interval
+  notes: Stores a period of time in days, hours, minutes and seconds.
+  claim:
+    text: INTERVAL DAY TO SECOND stores a period of time in days, hours, minutes and seconds.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: RAW(n)
+  canonical: varbinary
+  notes: Variable-length binary data up to 2000 bytes, not character-set converted.
+  claim:
+    text: The RAW data type stores binary data or byte strings that Oracle does not convert between systems.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: LONG
+  canonical: string
+  notes: Deprecated large character type; LONG columns cannot be indexed. Convert to CLOB/varchar targets.
+  claim:
+    text: LONG is a deprecated Oracle character large-object type and LONG columns cannot be indexed.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: BLOB
+  canonical: binary
+  notes: Large unstructured binary object.
+  claim:
+    text: The BLOB data type stores unstructured binary large objects.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: CLOB
+  canonical: string
+  notes: Large single-byte or multibyte character data.
+  claim:
+    text: The CLOB data type stores single-byte and multibyte character data.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: NCLOB
+  canonical: string
+  notes: Large Unicode character data in the national character set.
+  claim:
+    text: The NCLOB data type stores Unicode character data.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: BFILE
+  canonical: other
+  notes: Read-only pointer to a binary file stored outside the database; no canonical equivalent — migrate the files themselves.
+  claim:
+    text: The BFILE data type enables access to binary file LOBs stored in file systems outside Oracle Database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: ROWID
+  canonical: string
+  notes: Base-64 string encoding the physical address of a row; meaningless off Oracle.
+  claim:
+    text: ROWID is a base-64 string representing the unique address of a row in its table.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+- native: XMLTYPE
+  canonical: xml
+  notes: Oracle-supplied type to store and query XML data with XPath member functions.
+  claim:
+    text: XMLType is an Oracle-supplied type used to store and query XML data in the database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+functions:
+- native: NVL(a,b)
+  canonical: COALESCE(a,b)
+  notes: ''
+  claim:
+    text: NVL returns expr2 when expr1 is null and expr1 otherwise.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL.html
+    accessed: *id001
+    confidence: high
+- native: NVL2(a,b,c)
+  canonical: CASE WHEN a IS NOT NULL THEN b ELSE c END
+  notes: No ANSI equivalent; expands to a searched CASE.
+  claim:
+    text: NVL2 returns expr2 when expr1 is not null and expr3 when expr1 is null.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL2.html
+    accessed: *id001
+    confidence: high
+- native: DECODE(e,s,r,...[,d])
+  canonical: CASE e WHEN s THEN r ... ELSE d END
+  notes: No ANSI equivalent; expands to a simple CASE expression.
+  claim:
+    text: DECODE compares an expression to each search value and returns the corresponding result or a default.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DECODE.html
+    accessed: *id001
+    confidence: high
+- native: SYSDATE
+  canonical: CURRENT_TIMESTAMP
+  notes: Returns the database server OS date and time as DATE (which includes time).
+  claim:
+    text: SYSDATE returns the current date and time of the operating system on which the database server resides.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SYSDATE.html
+    accessed: *id001
+    confidence: high
+- native: SYSTIMESTAMP
+  canonical: CURRENT_TIMESTAMP
+  notes: Returns TIMESTAMP WITH TIME ZONE including fractional seconds.
+  claim:
+    text: SYSTIMESTAMP returns the system date including fractional seconds and time zone as TIMESTAMP WITH TIME ZONE.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SYSTIMESTAMP.html
+    accessed: *id001
+    confidence: high
+- native: TO_CHAR(d, fmt)
+  canonical: CAST(d AS VARCHAR)
+  notes: No ANSI equivalent for format models; format semantics are lost — targets need a platform-specific format function.
+  claim:
+    text: TO_CHAR(datetime) converts a datetime or interval value to VARCHAR2 in the specified format model.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/TO_CHAR-datetime.html
+    accessed: *id001
+    confidence: high
+- native: TO_DATE(s, fmt)
+  canonical: CAST(s AS DATE)
+  notes: Format-model parsing has no ANSI equivalent; result is DATE (with time). Use target-specific parsing.
+  claim:
+    text: TO_DATE converts a character string to a value of DATE data type.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/TO_DATE.html
+    accessed: *id001
+    confidence: high
+- native: ADD_MONTHS(d,n)
+  canonical: CAST(d + INTERVAL n MONTH AS DATE)
+  notes: No ANSI function; interval arithmetic is the closest, but Oracle clamps end-of-month results.
+  claim:
+    text: ADD_MONTHS returns the date plus a given number of months.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ADD_MONTHS.html
+    accessed: *id001
+    confidence: high
+- native: MONTHS_BETWEEN(d1,d2)
+  canonical: ((EXTRACT(YEAR FROM d1)-EXTRACT(YEAR FROM d2))*12 + EXTRACT(MONTH FROM d1)-EXTRACT(MONTH FROM d2))
+  notes: No ANSI equivalent; Oracle returns a fractional month count, which this expression only approximates.
+  claim:
+    text: MONTHS_BETWEEN returns the number of months between two dates.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/MONTHS_BETWEEN.html
+    accessed: *id001
+    confidence: high
+- native: LAST_DAY(d)
+  canonical: CAST(CAST(DATE_TRUNC('MONTH', d) + INTERVAL '1' MONTH AS DATE) - INTERVAL '1' DAY AS DATE)
+  notes: No ANSI function; expressible as last day of the month containing d via interval arithmetic.
+  claim:
+    text: LAST_DAY returns the date of the last day of the month that contains the given date.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LAST_DAY.html
+    accessed: *id001
+    confidence: high
+- native: TRUNC(d, fmt)
+  canonical: DATE_TRUNC(fmt, d)
+  notes: DATE_TRUNC is not ANSI but is the widely supported closest equivalent.
+  claim:
+    text: TRUNC(date) returns the date with the time portion truncated to the unit specified by the format model.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/TRUNC-date.html
+    accessed: *id001
+    confidence: high
+- native: INSTR(s, sub[, pos[, n]])
+  canonical: POSITION(sub IN s)
+  notes: ANSI POSITION lacks start-position and occurrence arguments; use target-specific position functions.
+  claim:
+    text: INSTR searches a string for a substring and returns its position.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/INSTR.html
+    accessed: *id001
+    confidence: high
+- native: SUBSTR(s, pos[, len])
+  canonical: SUBSTRING(s FROM pos FOR len)
+  notes: ''
+  claim:
+    text: SUBSTR returns a portion of a string beginning at a character position for a given length.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SUBSTR.html
+    accessed: *id001
+    confidence: high
+- native: LENGTH(s)
+  canonical: CHAR_LENGTH(s)
+  notes: LENGTH counts characters (LENGTHB counts bytes).
+  claim:
+    text: LENGTH returns the length of a character string in characters as defined by the input character set.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LENGTH.html
+    accessed: *id001
+    confidence: high
+- native: LISTAGG(m, d) WITHIN GROUP (ORDER BY ...)
+  canonical: STRING_AGG(m, d)
+  notes: STRING_AGG is not ANSI but is the common equivalent; ordering syntax differs per target.
+  claim:
+    text: LISTAGG orders data within each group and concatenates the values of the measure column.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LISTAGG.html
+    accessed: *id001
+    confidence: high
+- native: REGEXP_SUBSTR(s, pat)
+  canonical: REGEXP_SUBSTR equivalent — no ANSI form
+  notes: No ANSI equivalent; map to the target's regex substring function (e.g. REGEXP_SUBSTR/REGEXP_EXTRACT).
+  claim:
+    text: REGEXP_SUBSTR searches a string for a regular expression pattern and returns the matching substring.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/REGEXP_SUBSTR.html
+    accessed: *id001
+    confidence: high
+- native: MOD(n2,n1)
+  canonical: MOD(n2,n1)
+  notes: MOD is ANSI; note Oracle's argument order is dividend, divisor and returns n2 when n1 is 0.
+  claim:
+    text: MOD returns the remainder of the first argument divided by the second, returning the first argument when the divisor is 0.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/MOD.html
+    accessed: *id001
+    confidence: high
+- native: GREATEST(e1,e2,...)
+  canonical: GREATEST(e1,e2,...)
+  notes: Widely supported but not ANSI; NULL handling differs across targets (Oracle returns NULL if any arg is NULL).
+  claim:
+    text: GREATEST returns the greatest of a list of one or more expressions.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/GREATEST.html
+    accessed: *id001
+    confidence: high
+- native: SYS_GUID()
+  canonical: no ANSI equivalent — use target UUID generator
+  notes: Generates a 16-byte RAW globally unique identifier; map to uuid type plus a target GUID function.
+  claim:
+    text: SYS_GUID generates and returns a globally unique identifier made up of 16 bytes as a RAW value.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SYS_GUID.html
+    accessed: *id001
+    confidence: high
+- native: LPAD(s, n[, p])
+  canonical: LPAD(s, n, p)
+  notes: Widely supported but not ANSI.
+  claim:
+    text: LPAD returns a string left-padded to a given length with a padding sequence of characters.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LPAD.html
+    accessed: *id001
+    confidence: high
+- native: TRIM([LEADING|TRAILING|BOTH] c FROM s)
+  canonical: TRIM([LEADING|TRAILING|BOTH] c FROM s)
+  notes: ANSI form supported directly.
+  claim:
+    text: TRIM removes leading or trailing characters (or both) from a character string.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/TRIM.html
+    accessed: *id001
+    confidence: high
+- native: ROUND(n[, i])
+  canonical: ROUND(n, i)
+  notes: ''
+  claim:
+    text: ROUND returns a number rounded to a given number of places to the right of the decimal point.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROUND-number.html
+    accessed: *id001
+    confidence: high
+- native: EXTRACT(field FROM e)
+  canonical: EXTRACT(field FROM e)
+  notes: ANSI form supported directly for datetime and interval expressions.
+  claim:
+    text: EXTRACT extracts and returns the value of a specified datetime field from a datetime or interval expression.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/EXTRACT-datetime.html
+    accessed: *id001
+    confidence: high
+- native: USER
+  canonical: CURRENT_USER
+  notes: ''
+  claim:
+    text: USER returns the name of the session user who logged on.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/USER.html
+    accessed: *id001
+    confidence: high
+- native: TO_NUMBER(s[, fmt])
+  canonical: CAST(s AS DECIMAL)
+  notes: Format-model and NLS-aware parsing have no ANSI equivalent.
+  claim:
+    text: TO_NUMBER converts an expression to a value of NUMBER data type.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/TO_NUMBER.html
+    accessed: *id001
+    confidence: high
+- native: CONCAT(a,b)
+  canonical: a || b
+  notes: Takes exactly two arguments; the ANSI || operator chains naturally.
+  claim:
+    text: CONCAT returns the first argument concatenated with the second and accepts exactly two arguments.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CONCAT.html
+    accessed: *id001
+    confidence: high
+- native: UPPER(s)
+  canonical: UPPER(s)
+  notes: ''
+  claim:
+    text: UPPER returns a string with all letters uppercase.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/UPPER.html
+    accessed: *id001
+    confidence: high
+- native: NEXT_DAY(d, weekday)
+  canonical: no ANSI equivalent
+  notes: Returns the date of the next named weekday after d; requires a target-specific expression.
+  claim:
+    text: NEXT_DAY returns the date of the first weekday named that is later than the given date.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NEXT_DAY.html
+    accessed: *id001
+    confidence: high

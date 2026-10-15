@@ -1,0 +1,310 @@
+source: hive
+target: synapse
+architecture_overview:
+- text: HiveServer2 runs a Thrift-based Hive service (TCP or HTTP) with a Jetty web UI in one process.
+  url: https://hive.apache.org/docs/latest/user/hiveserver2-overview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool sends T-SQL to a Control node that distributes work to Compute nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool tables are stored across 60 distributions.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Hive owns managed-table data (dropped with the table) but not external-table data.
+    url: https://hive.apache.org/docs/latest/language/managed-vs--external-tables/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Dedicated SQL pool Compute nodes store user data in Azure Storage.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Hive executes queries using Apache Tez or MapReduce.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Dedicated SQL pools can be paused to save cost or scaled for performance.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Hive storage based authorization relies on HDFS permissions and works at database, table and partition level.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse connection security uses firewall rules and connection encryption.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Hive global ORDER BY needs a single reducer for the final sort.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Dedicated SQL pool allows at most 128 concurrent queries.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/memory-concurrency-limits
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Extract Hive DDL, partitions and HPL/SQL scripts from the metastore and edge nodes, compact ACID tables, then copy ORC/Parquet files from HDFS to cloud object storage and load or register them in Azure Synapse dedicated SQL pool. Rewrite HiveQL-specific clauses (SORT BY, DISTRIBUTE BY, LATERAL VIEW, multi-insert), replace Oozie/scheduled queries with Azure Synapse dedicated SQL pool orchestration, map Ranger/SQL-standard grants to Azure Synapse dedicated SQL pool security, and validate partition-by-partition.
+object_mapping:
+- source_object: Managed (ACID/ORC) table
+  target_object: Hash/round-robin distributed table with clustered columnstore index
+  notes: ''
+  claim:
+    text: Dedicated SQL pool offers clustered columnstore, clustered, nonclustered and heap options.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW
+  target_object: View
+  notes: ''
+  claim:
+    text: Dedicated SQL pool supports standard and materialized views.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-materialized-views
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: MATERIALIZED VIEW
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: Dedicated SQL pool supports materialized views.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-materialized-views
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: HPL/SQL procedure
+  target_object: T-SQL stored procedure
+  notes: ''
+  claim:
+    text: Dedicated SQL pool stored procedures encapsulate SQL logic.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Scheduled query (Hive 4) / Oozie workflow
+  target_object: Synapse / Data Factory pipeline
+  notes: ''
+  claim:
+    text: Azure Data Factory is a cloud ETL and data integration service.
+    url: https://learn.microsoft.com/en-us/azure/data-factory/introduction
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ACID table delta files
+  target_object: Pipeline incremental load
+  notes: ''
+  claim:
+    text: Data Factory supports hybrid ETL/ELT.
+    url: https://learn.microsoft.com/en-us/azure/data-factory/introduction
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: LOAD DATA / INSERT OVERWRITE
+  target_object: COPY statement
+  notes: ''
+  claim:
+    text: Synapse loading guidance uses the COPY statement.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/data-loading-best-practices
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE on HDFS
+  target_object: External table (Hadoop/ADLS)
+  notes: ''
+  claim:
+    text: Synapse external tables reference Hadoop, Blob or ADLS data.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-tables-external-tables
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ARRAY/MAP/STRUCT column
+  target_object: nvarchar(max) JSON text
+  notes: ''
+  claim:
+    text: Dedicated SQL pool lists workarounds for unsupported types.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-data-types
+    accessed: '2026-10-15'
+    confidence: medium
+sql_dialect_differences:
+- text: Hive SORT BY orders rows only within each reducer, so output may be only partially ordered.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive LATERAL VIEW applies a UDTF such as explode() to each input row.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-lateralview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: HiveQL SELECT has non-standard CLUSTER BY, DISTRIBUTE BY and SORT BY clauses.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool PRIMARY KEY requires NONCLUSTERED and NOT ENFORCED.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool does not support geography, geometry, xml and several other SQL Server types.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool guidance replaces cursors with WHILE loops.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool stored procedures are not pre-compiled.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool tables allow at most 1,024 columns.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-service-capacity-limits
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Hive LOAD DATA moves files into a table or partition without transformation.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive EXPORT writes table or partition data plus metadata to an output location.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-importexport/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse recommends ELT so loading uses built-in distributed query processing.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse external tables point to data in Hadoop, Azure Blob Storage or ADLS.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-tables-external-tables
+  accessed: '2026-10-15'
+  confidence: high
+- text: Data Factory or Synapse pipelines copy data from Hive using the Copy activity.
+  url: https://learn.microsoft.com/en-us/azure/data-factory/connector-hive
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: HPL/SQL provides procedural SQL for Hive from Hive 2.0.0.
+  url: https://hive.apache.org/docs/latest/language/hplsql/
+  accessed: '2026-10-15'
+  applies_to: Hive 2.0+
+  confidence: high
+- text: Hive 4.0 added scheduled queries executed by HiveServer2.
+  url: https://hive.apache.org/docs/latest/language/scheduled-queries/
+  accessed: '2026-10-15'
+  applies_to: Hive 4.0+
+  confidence: high
+- text: Azure Data Factory is a managed cloud service for hybrid ETL/ELT and data integration.
+  url: https://learn.microsoft.com/en-us/azure/data-factory/introduction
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool stored procedures encapsulate SQL close to the data.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Hive SQL standard based authorization grants privileges to users and roles for HiveServer2 clients.
+  url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive storage based authorization does not provide column- or row-level control.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool supports column-level security.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse firewall rules reject connections from unauthorised IP addresses.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: hive_uniontype
+  claim:
+    text: Hive UNIONTYPE is effectively pass-through only and fails in JOIN, WHERE or GROUP BY.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_sort_distribute_by
+  claim:
+    text: Hive SORT BY / DISTRIBUTE BY control per-reducer ordering and row distribution.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_no_explicit_txn
+  claim:
+    text: Hive has no BEGIN/COMMIT/ROLLBACK; every statement auto-commits.
+    url: https://hive.apache.org/docs/latest/user/hive-transactions/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_hplsql
+  claim:
+    text: Hive stored procedures are written in HPL/SQL.
+    url: https://hive.apache.org/docs/latest/language/hplsql/
+    accessed: '2026-10-15'
+    confidence: high
+- id: syn_unsupported_types
+  claim:
+    text: Dedicated SQL pool lacks geography, geometry, xml and sql_variant types.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-data-types
+    accessed: '2026-10-15'
+    confidence: high
+- id: syn_unenforced_keys
+  claim:
+    text: Dedicated SQL pool UNIQUE constraints are supported only as NOT ENFORCED.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: hive_uniontype
+  claim:
+    text: Dedicated SQL pool documents workarounds for unsupported data types.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-data-types
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_sort_distribute_by
+  claim:
+    text: Rows are spread across distributions with hash or round-robin algorithms.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_no_explicit_txn
+  claim:
+    text: Dedicated SQL pool supports explicit transactions with ROLLBACK.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-transactions
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_hplsql
+  claim:
+    text: Dedicated SQL pool supports parameterised stored procedures.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: Dialect rewrites (Hive specifics to Azure Synapse dedicated SQL pool)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the Azure Synapse dedicated SQL pool model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: high
+    notes: Feature gaps between Hive and Azure Synapse dedicated SQL pool need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: Hash distribution improves performance on large fact tables.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool can automatically create column statistics.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/best-practices-dedicated-sql-pool
+  accessed: '2026-10-15'
+  confidence: high
+- text: Dedicated SQL pool supports materialized views for performance tuning.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-materialized-views
+  accessed: '2026-10-15'
+  confidence: high

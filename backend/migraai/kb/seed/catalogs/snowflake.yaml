@@ -1,0 +1,90 @@
+source: snowflake
+mandatory:
+- id: ddl_tables
+  name: Table DDL
+  description: DDL for permanent, transient, temporary, external, hybrid, dynamic and Iceberg tables, including clustering keys and constraints.
+  object_types:
+  - table
+  extraction_hint: SELECT GET_DDL('DATABASE', '<db>', TRUE); or GET_DDL('TABLE', '<db>.<schema>.<tbl>')
+- id: views
+  name: Views and materialized views
+  description: Standard, secure and materialized view definitions.
+  object_types:
+  - view
+  - materialized_view
+  extraction_hint: SELECT GET_DDL('VIEW', '<name>'); SHOW VIEWS IN ACCOUNT; SHOW MATERIALIZED VIEWS
+- id: procedures
+  name: Stored procedures
+  description: Snowflake Scripting, JavaScript, Python, Java and Scala procedures with signatures and EXECUTE AS mode.
+  object_types:
+  - procedure
+  extraction_hint: SHOW PROCEDURES IN ACCOUNT; SELECT GET_DDL('PROCEDURE', '<name>(<arg types>)')
+- id: functions_udfs
+  name: User-defined functions
+  description: SQL, JavaScript, Python, Java and Scala UDFs, UDTFs and external functions.
+  object_types:
+  - function
+  extraction_hint: SHOW USER FUNCTIONS IN ACCOUNT; SELECT GET_DDL('FUNCTION', '<name>(<arg types>)')
+- id: security_objects
+  name: Roles, grants and policies
+  description: Roles and role hierarchy, privilege grants, masking and row access policies, network policies and tags.
+  object_types:
+  - role
+  - grant
+  - policy
+  - tag
+  extraction_hint: SHOW ROLES; SHOW GRANTS TO ROLE <r>; SHOW GRANTS OF ROLE <r>; SHOW MASKING POLICIES; SHOW ROW ACCESS POLICIES
+- id: etl_definitions
+  name: Tasks, streams, pipes and stages
+  description: Task graphs, streams, Snowpipe pipes, stages and file formats that implement ingestion and ELT.
+  object_types:
+  - task
+  - stream
+  - pipe
+  - stage
+  - file_format
+  extraction_hint: SHOW TASKS; SHOW STREAMS; SHOW PIPES; SHOW STAGES; SHOW FILE FORMATS; GET_DDL('TASK', '<name>')
+- id: sequences
+  name: Sequences
+  description: Sequence definitions and current values used by IDENTITY/AUTOINCREMENT columns and defaults.
+  object_types:
+  - sequence
+  extraction_hint: SHOW SEQUENCES IN ACCOUNT
+- id: shares
+  name: Data shares and listings
+  description: Outbound and inbound shares whose consumers or providers must be re-established on the target.
+  object_types:
+  - share
+  extraction_hint: SHOW SHARES; DESC SHARE <name>
+optional:
+- id: statistics
+  name: Table storage and row counts
+  description: Row counts, bytes and clustering information per table.
+  object_types:
+  - statistics
+  extraction_hint: SELECT * FROM <db>.INFORMATION_SCHEMA.TABLES; SYSTEM$CLUSTERING_INFORMATION('<tbl>')
+- id: sample_data
+  name: Sample data
+  description: Representative row samples for validation.
+  object_types:
+  - data_sample
+  extraction_hint: SELECT * FROM <tbl> SAMPLE (1)
+- id: operational_logs
+  name: Query and access history
+  description: Query history and access history for workload profiling and lineage.
+  object_types:
+  - log
+  extraction_hint: SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY; SNOWFLAKE.ACCOUNT_USAGE.ACCESS_HISTORY
+- id: warehouses
+  name: Warehouses and resource monitors
+  description: Warehouse sizes, multi-cluster and auto-suspend settings and resource monitor quotas used to size target compute.
+  object_types:
+  - warehouse
+  - resource_monitor
+  extraction_hint: SHOW WAREHOUSES; SHOW RESOURCE MONITORS; SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY
+- id: tags
+  name: Object tags
+  description: Governance tags and their assignments.
+  object_types:
+  - tag
+  extraction_hint: SNOWFLAKE.ACCOUNT_USAGE.TAG_REFERENCES

@@ -1,0 +1,121 @@
+id: oracle
+name: Oracle Database
+roles:
+- source
+versions_covered: Oracle Database 19c (claims cite the 19c documentation set)
+summary: Oracle Database is a general-purpose relational database often used for enterprise data warehouses. It stores row-format data in tablespaces of blocks, extents and segments, scales out through Real Application Clusters and parallel execution, and adds an optional In-Memory column store for analytics. Business logic usually lives in PL/SQL packages, procedures and triggers, which is the main source of conversion effort.
+facets:
+  architecture:
+  - text: An Oracle database server is made up of a database plus at least one database instance.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/introduction-to-oracle-database.html
+    accessed: &id001 2026-10-15
+    confidence: high
+  - text: Oracle RAC lets several instances access one database, so a single server is not a point of failure.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+    accessed: *id001
+    confidence: high
+  storage:
+  - text: Logical storage is organised as data blocks grouped into extents, extents grouped into segments, and segments held in tablespaces.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/logical-storage-structures.html
+    accessed: *id001
+    confidence: high
+  - text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+    accessed: *id001
+    confidence: high
+  - text: The In-Memory column store keeps an extra transaction-consistent columnar copy of table data, independent of the on-disk row format.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/inmem/intro-to-in-memory-column-store.html
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Database Resource Manager controls how resources are allocated within a database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/managing-resources-with-oracle-database-resource-manager.html
+    accessed: *id001
+    confidence: high
+  security:
+  - text: A user role is a named set of privileges that can be granted to users.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html
+    accessed: *id001
+    confidence: high
+  - text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+    accessed: *id001
+    confidence: high
+  - text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+    accessed: *id001
+    confidence: high
+  - text: Partitioning splits tables, indexes and index-organized tables into smaller pieces that can be managed and accessed individually.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/partition-concepts.html
+    accessed: *id001
+    confidence: high
+  sql_dialect:
+  - text: PL/SQL is Oracle's procedural extension of SQL.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/overview.html
+    accessed: *id001
+    confidence: high
+  - text: Oracle treats a zero-length character value as NULL.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+    accessed: *id001
+    confidence: high
+  - text: Hierarchical queries use START WITH for the root rows and CONNECT BY for the parent-child relationship.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+    accessed: *id001
+    confidence: high
+  - text: The Oracle DATE data type holds both date and time information.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+    accessed: *id001
+    confidence: high
+  etl_tooling:
+  - text: SQL*Loader loads data from external files into Oracle tables.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-sql-loader-concepts.html
+    accessed: *id001
+    confidence: high
+  - text: Oracle Scheduler, implemented by the DBMS_SCHEDULER package, controls when and where jobs run.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/oracle-scheduler-concepts.html
+    accessed: *id001
+    confidence: high
+  - text: External tables let SQL query data in external sources as if it were in a database table.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-external-tables-concepts.html
+    accessed: *id001
+    confidence: high
+  data_movement:
+  - text: Oracle Data Pump moves data and metadata between databases at high speed, using the expdp and impdp clients.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-data-pump-overview.html
+    accessed: *id001
+    confidence: high
+  - text: A database link is a schema object that gives access to objects in another database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-DATABASE-LINK.html
+    accessed: *id001
+    confidence: high
+  - text: Oracle GoldenGate provides real-time data integration, replication and transactional change data capture.
+    url: https://docs.oracle.com/en/middleware/goldengate/core/21.3/coredoc/overview-oracle-goldengate.html
+    accessed: *id001
+    applies_to: Oracle GoldenGate 21.3
+    confidence: high
+unsupported_features:
+- text: A stored package is an encapsulated collection of related procedures, functions and other program objects stored together in the database.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-PACKAGE.html
+  accessed: *id001
+  confidence: high
+- text: An autonomous transaction is an independent transaction started from within another (main) transaction.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/autonomous-transactions.html
+  accessed: *id001
+  confidence: high
+- text: The ROWID pseudocolumn returns the physical address of each row.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROWID-Pseudocolumn.html
+  accessed: *id001
+  confidence: high
+- text: Flashback Query retrieves data as of an earlier time given in the AS OF clause of SELECT.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/adfns/flashback.html
+  accessed: *id001
+  confidence: high

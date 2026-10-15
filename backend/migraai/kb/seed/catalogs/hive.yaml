@@ -1,0 +1,86 @@
+source: hive
+mandatory:
+- id: ddl_tables
+  name: Table DDL
+  description: CREATE TABLE statements for all in-scope managed, external, ACID and Iceberg tables, including partitioning, bucketing, SerDe/storage format and TBLPROPERTIES.
+  object_types:
+  - table
+  extraction_hint: SHOW TABLES IN <db>; SHOW CREATE TABLE <db>.<tbl>; DESCRIBE FORMATTED <db>.<tbl>
+- id: databases
+  name: Databases and locations
+  description: Database definitions with LOCATION / MANAGEDLOCATION and properties.
+  object_types:
+  - database
+  extraction_hint: SHOW DATABASES; DESCRIBE DATABASE EXTENDED <db>
+- id: views
+  name: Views and materialized views
+  description: View and materialized view definitions, including rewrite enablement for materialized views.
+  object_types:
+  - view
+  - materialized_view
+  extraction_hint: SHOW VIEWS IN <db>; SHOW MATERIALIZED VIEWS IN <db>; SHOW CREATE TABLE <db>.<view>
+- id: partitions
+  name: Partition inventory
+  description: Partition lists and locations for partitioned tables, used to size and schedule data movement.
+  object_types:
+  - partition
+  extraction_hint: SHOW PARTITIONS <db>.<tbl>; DESCRIBE FORMATTED <db>.<tbl> PARTITION (...)
+- id: functions_udfs
+  name: Functions and UDF/UDAF/UDTF jars
+  description: Permanent functions with their implementing classes and JAR resources.
+  object_types:
+  - function
+  extraction_hint: SHOW FUNCTIONS; DESCRIBE FUNCTION EXTENDED <fn>; collect referenced JARs
+- id: procedures_hplsql
+  name: HPL/SQL procedures and scripts
+  description: HPL/SQL stored procedures, functions and packages plus HQL script files.
+  object_types:
+  - procedure
+  - script
+  extraction_hint: Collect .sql/.hql/.hplsql files from source control and edge nodes
+- id: security_objects
+  name: Roles, grants and policies
+  description: SQL-standard roles and grants, plus external policies (for example Apache Ranger) and HDFS ACLs that govern table data.
+  object_types:
+  - role
+  - grant
+  - policy
+  extraction_hint: SHOW ROLES; SHOW GRANT ON TABLE <tbl>; export Ranger policies; hdfs dfs -getfacl <path>
+- id: etl_definitions
+  name: ETL and orchestration definitions
+  description: Workflow definitions that run HQL (for example Oozie, Airflow, NiFi), Hive 4 scheduled queries and streaming ingest jobs.
+  object_types:
+  - job
+  - workflow
+  extraction_hint: Export workflow XML/DAGs; list scheduled queries from the metastore (Hive 4)
+optional:
+- id: statistics
+  name: Table and column statistics
+  description: Row counts, sizes and column statistics.
+  object_types:
+  - statistics
+  extraction_hint: ANALYZE TABLE <tbl> COMPUTE STATISTICS FOR COLUMNS; DESCRIBE FORMATTED <tbl> <col>
+- id: sample_data
+  name: Sample data
+  description: Representative row samples for validation.
+  object_types:
+  - data_sample
+  extraction_hint: SELECT * FROM <tbl> TABLESAMPLE (BUCKET 1 OUT OF 100 ON rand())
+- id: operational_logs
+  name: Operational logs
+  description: HiveServer2 query logs and YARN/Tez application history for workload profiling.
+  object_types:
+  - log
+  extraction_hint: HiveServer2 operation logs; yarn application -list; Tez UI history
+- id: hdfs_usage
+  name: Storage footprint
+  description: Per-table and per-partition HDFS/object-store sizes and file counts.
+  object_types:
+  - storage_metric
+  extraction_hint: hdfs dfs -du -s -h <table location>
+- id: compactions
+  name: ACID compaction history
+  description: Compaction status for transactional tables, which must be compacted before export or upgrade.
+  object_types:
+  - compaction
+  extraction_hint: SHOW COMPACTIONS; SHOW TRANSACTIONS

@@ -1,0 +1,142 @@
+id: snowflake
+name: Snowflake
+roles:
+- source
+- target
+versions_covered: Snowflake (SaaS, current release; Standard/Enterprise/Business Critical editions)
+summary: Snowflake is a fully managed SaaS data platform that separates cloud object storage from independently sized virtual warehouses for compute. Tables are stored as automatically maintained, compressed columnar micro-partitions. It supports semi-structured data through VARIANT, Snowflake Scripting for procedures, and features such as Time Travel, zero-copy cloning and Secure Data Sharing.
+facets:
+  architecture:
+  - text: Snowflake architecture is a hybrid of shared-disk and shared-nothing database designs.
+    url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake architecture is organised into key layers including database storage, query processing and cloud services.
+    url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Hybrid tables use index-based random reads and writes, support row locking and enforce unique and referential integrity constraints.
+    url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: All table data is automatically divided into micro-partitions holding 50 to 500 MB of uncompressed data each.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Micro-partitions are derived automatically and do not need to be defined or maintained by users, unlike static partitioning.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake stores loaded data in an optimized, compressed, columnar format in cloud storage.
+    url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Warehouses can be started, stopped and resized at any time, even while running.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Warehouse usage is billed per second with a 60-second minimum each time the warehouse starts.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Multi-cluster warehouses (Enterprise Edition) automatically add clusters up to a configured maximum to absorb concurrency.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Snowflake combines discretionary access control (object owners grant access) with role-based access control (privileges go to roles, roles to users).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Dynamic Data Masking uses masking policies to mask column data at query time.
+    url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Network policies allow or deny requests to the Snowflake service or internal stages based on their origin.
+    url: https://docs.snowflake.com/en/user-guide/network-policies
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Slow queries can be addressed by resizing the warehouse to provision more compute.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Persisted query results are cached for 24 hours, renewable on reuse up to 31 days.
+    url: https://docs.snowflake.com/en/user-guide/querying-persisted-results
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The search optimization service requires Enterprise Edition or higher.
+    url: https://docs.snowflake.com/en/user-guide/search-optimization-service
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: Unquoted identifiers are stored and resolved in uppercase.
+    url: https://docs.snowflake.com/en/sql-reference/identifiers-syntax
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake Scripting extends Snowflake SQL with procedural logic.
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+    accessed: '2026-10-15'
+    confidence: high
+  - text: CONNECT BY joins a table to itself to process hierarchical data.
+    url: https://docs.snowflake.com/en/sql-reference/constructs/connect-by
+    accessed: '2026-10-15'
+    confidence: high
+  - text: MATCH_RECOGNIZE returns matches of a row pattern within a set of rows.
+    url: https://docs.snowflake.com/en/sql-reference/constructs/match_recognize
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: Tasks run on a schedule or on events such as new data in a stream, and can be chained into task graphs.
+    url: https://docs.snowflake.com/en/user-guide/tasks-intro
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Streams record change data capture (CDC) information about DML changes to tables.
+    url: https://docs.snowflake.com/en/user-guide/streams-intro
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Dynamic tables materialize a SELECT query and refresh automatically to meet a declared target lag.
+    url: https://docs.snowflake.com/en/user-guide/dynamic-tables/overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowpark provides libraries for Java, Python and Scala.
+    url: https://docs.snowflake.com/en/developer-guide/snowpark/index
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: COPY INTO <table> supports bulk and continuous (Snowpipe) loads from internal and external stages.
+    url: https://docs.snowflake.com/en/user-guide/data-load-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowpipe continuously loads files on Snowflake-managed serverless compute as they arrive in a stage.
+    url: https://docs.snowflake.com/en/user-guide/data-load-snowpipe-intro
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake supports bulk unloading of table or query data to files, similar to loading.
+    url: https://docs.snowflake.com/en/user-guide/data-unload-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Secure Data Sharing shares selected database objects with other Snowflake accounts.
+    url: https://docs.snowflake.com/en/user-guide/data-sharing-intro
+    accessed: '2026-10-15'
+    confidence: high
+unsupported_features:
+- text: Time Travel retention defaults to 1 day and can be extended up to 90 days on Enterprise Edition or higher.
+  url: https://docs.snowflake.com/en/user-guide/data-time-travel
+  accessed: '2026-10-15'
+  applies_to: Enterprise Edition+ for >1 day
+  confidence: high
+- text: Fail-safe adds a non-configurable 7-day period in which Snowflake may recover historical data on a best-effort basis.
+  url: https://docs.snowflake.com/en/user-guide/data-failsafe
+  accessed: '2026-10-15'
+  confidence: high
+- text: A VARIANT value can hold any other type, including OBJECT and ARRAY, up to 128 MB uncompressed.
+  url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+  accessed: '2026-10-15'
+  confidence: high
+- text: On standard tables, PRIMARY KEY, UNIQUE and FOREIGN KEY constraints are optional and not enforced; NOT NULL is enforced.
+  url: https://docs.snowflake.com/en/sql-reference/constraints-overview
+  accessed: '2026-10-15'
+  confidence: high

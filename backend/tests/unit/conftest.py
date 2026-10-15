@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from migraai.kb.store import KBStore
 from migraai.main import create_app
 
 HOST_HEADER = {"Host": "127.0.0.1:80"}
@@ -26,6 +27,17 @@ def app(data_dir: Path, monkeypatch: pytest.MonkeyPatch):
 def client(app) -> Iterator[TestClient]:
     with TestClient(app, base_url="http://127.0.0.1:80") as test_client:
         yield test_client
+
+
+@pytest.fixture(autouse=True)
+def hash_embedder(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("MIGRAAI_EMBEDDER", "hash")
+    seed_dir = tmp_path / "fixture-seed"
+    seed_dir.mkdir()
+    fixture_kb = KBStore(tmp_path / "fixture-kb")
+    fixture_kb.create_empty()
+    monkeypatch.setenv("MIGRAAI_SEED_DIR", str(seed_dir))
+    monkeypatch.setenv("MIGRAAI_SEED_KB", str(fixture_kb.current_path))
 
 
 def launch(client: TestClient) -> str:

@@ -1,0 +1,325 @@
+source: hive
+target: databricks
+architecture_overview:
+- text: HiveServer2 runs a Thrift-based Hive service (TCP or HTTP) with a Jetty web UI in one process.
+  url: https://hive.apache.org/docs/latest/user/hiveserver2-overview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: 'Databricks tables are Delta Lake: Parquet files plus a transaction log providing ACID transactions.'
+  url: https://docs.databricks.com/aws/en/delta/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Unity Catalog uses a three-level catalog.schema.object namespace.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive metastore federation lets Unity Catalog govern tables registered in a Hive metastore.
+  url: https://docs.databricks.com/aws/en/query-federation/hms-federation-concepts
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Hive owns managed-table data (dropped with the table) but not external-table data.
+    url: https://hive.apache.org/docs/latest/language/managed-vs--external-tables/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks liquid clustering replaces partitioning and ZORDER and can change keys without rewriting data.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Hive executes queries using Apache Tez or MapReduce.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks SQL warehouses are serverless, pro or classic.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Hive storage based authorization relies on HDFS permissions and works at database, table and partition level.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Unity Catalog row filters and column masks restrict visible rows and values at query time.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Hive global ORDER BY needs a single reducer for the final sort.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Predictive optimization runs OPTIMIZE, VACUUM and ANALYZE automatically on Unity Catalog managed tables.
+    url: https://docs.databricks.com/aws/en/optimizations/predictive-optimization
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Extract Hive DDL, partitions and HPL/SQL scripts from the metastore and edge nodes, compact ACID tables, then copy ORC/Parquet files from HDFS to cloud object storage and load or register them in Databricks. Rewrite HiveQL-specific clauses (SORT BY, DISTRIBUTE BY, LATERAL VIEW, multi-insert), replace Oozie/scheduled queries with Databricks orchestration, map Ranger/SQL-standard grants to Databricks security, and validate partition-by-partition.
+object_mapping:
+- source_object: Managed (ACID/ORC) table
+  target_object: Unity Catalog managed Delta table
+  notes: ''
+  claim:
+    text: Unity Catalog managed tables are the default, recommended table type.
+    url: https://docs.databricks.com/aws/en/tables/managed
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW
+  target_object: View
+  notes: ''
+  claim:
+    text: A Databricks view stores only its query text in the metastore.
+    url: https://docs.databricks.com/aws/en/views/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: Databricks materialized views cache results and refresh on a schedule or automatically.
+    url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: HPL/SQL procedure
+  target_object: SQL procedure / SQL script
+  notes: ''
+  claim:
+    text: CREATE PROCEDURE is available on Databricks Runtime 17.0+ with Unity Catalog.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 17.0+
+    confidence: high
+- source_object: Scheduled query (Hive 4) / Oozie workflow
+  target_object: Lakeflow Job
+  notes: ''
+  claim:
+    text: Lakeflow Jobs schedule and orchestrate tasks.
+    url: https://docs.databricks.com/aws/en/jobs/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ACID table delta files
+  target_object: Delta change data feed
+  notes: ''
+  claim:
+    text: Change data feed records row-level changes with metadata.
+    url: https://docs.databricks.com/aws/en/tables/features/change-data-feed
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: LOAD DATA / INSERT OVERWRITE
+  target_object: Auto Loader / COPY INTO
+  notes: ''
+  claim:
+    text: Auto Loader processes new files incrementally.
+    url: https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE on HDFS
+  target_object: Unity Catalog external table
+  notes: ''
+  claim:
+    text: A Unity Catalog external table needs a registered external location; dropping it keeps the data.
+    url: https://docs.databricks.com/aws/en/tables/external
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ARRAY/MAP/STRUCT column
+  target_object: VARIANT column
+  notes: ''
+  claim:
+    text: VARIANT stores semi-structured data.
+    url: https://docs.databricks.com/aws/en/tables/features/variant
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Hive SORT BY orders rows only within each reducer, so output may be only partially ordered.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive LATERAL VIEW applies a UDTF such as explode() to each input row.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-lateralview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: HiveQL SELECT has non-standard CLUSTER BY, DISTRIBUTE BY and SORT BY clauses.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks identifiers are case-insensitive; delimited identifiers use backticks.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-identifiers
+  accessed: '2026-10-15'
+  confidence: high
+- text: ANSI mode is enabled by default from Databricks Runtime 17.0.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-ansi-compliance
+  accessed: '2026-10-15'
+  applies_to: Databricks Runtime 17.0+
+  confidence: high
+- text: Databricks SQL scripts are BEGIN ... END compound statements.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks supports LATERAL VIEW with generator functions such as EXPLODE.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-lateral-view
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks keeps get_json_object but recommends VARIANT for new code.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/functions/get_json_object
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Hive LOAD DATA moves files into a table or partition without transformation.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive EXPORT writes table or partition data plus metadata to an output location.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-importexport/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Auto Loader incrementally processes new files as they land in cloud storage.
+  url: https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks COPY INTO is idempotent and skips already-loaded files.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/delta-copy-into
+  accessed: '2026-10-15'
+  confidence: high
+- text: Foreign catalogs for an external Hive metastore or AWS Glue are read-only.
+  url: https://docs.databricks.com/aws/en/query-federation/hms-federation-concepts
+  accessed: '2026-10-15'
+  confidence: high
+- text: HMS federation supports incremental migration without code changes.
+  url: https://docs.databricks.com/aws/en/query-federation/hms-federation-concepts
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: HPL/SQL provides procedural SQL for Hive from Hive 2.0.0.
+  url: https://hive.apache.org/docs/latest/language/hplsql/
+  accessed: '2026-10-15'
+  applies_to: Hive 2.0+
+  confidence: high
+- text: Hive 4.0 added scheduled queries executed by HiveServer2.
+  url: https://hive.apache.org/docs/latest/language/scheduled-queries/
+  accessed: '2026-10-15'
+  applies_to: Hive 4.0+
+  confidence: high
+- text: Lakeflow Spark Declarative Pipelines build batch and streaming pipelines in SQL and Python.
+  url: https://docs.databricks.com/aws/en/ldp/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Lakeflow Jobs orchestrates and schedules multi-task workflows.
+  url: https://docs.databricks.com/aws/en/jobs/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks integrates natively with dbt so existing dbt projects need little refactoring.
+  url: https://docs.databricks.com/aws/en/migration/etl
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Hive SQL standard based authorization grants privileges to users and roles for HiveServer2 clients.
+  url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive storage based authorization does not provide column- or row-level control.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Every Unity Catalog securable has an owner with all privileges, including granting.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Unity Catalog supports attribute-based access control driven by tags.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: hive_uniontype
+  claim:
+    text: Hive UNIONTYPE is effectively pass-through only and fails in JOIN, WHERE or GROUP BY.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_sort_distribute_by
+  claim:
+    text: Hive SORT BY / DISTRIBUTE BY control per-reducer ordering and row distribution.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_no_explicit_txn
+  claim:
+    text: Hive has no BEGIN/COMMIT/ROLLBACK; every statement auto-commits.
+    url: https://hive.apache.org/docs/latest/user/hive-transactions/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_hplsql
+  claim:
+    text: Hive stored procedures are written in HPL/SQL.
+    url: https://hive.apache.org/docs/latest/language/hplsql/
+    accessed: '2026-10-15'
+    confidence: high
+- id: dbx_informational_constraints
+  claim:
+    text: Databricks primary, foreign and unique key constraints are informational only.
+    url: https://docs.databricks.com/aws/en/tables/constraints
+    accessed: '2026-10-15'
+    confidence: high
+- id: dbx_time_travel_window
+  claim:
+    text: Databricks advises relying on only the last 7 days of Delta time travel by default.
+    url: https://docs.databricks.com/aws/en/tables/history
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: hive_uniontype
+  claim:
+    text: Databricks VARIANT stores semi-structured data.
+    url: https://docs.databricks.com/aws/en/tables/features/variant
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_sort_distribute_by
+  claim:
+    text: Liquid clustering organises data layout automatically in place of partitioning.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_no_explicit_txn
+  claim:
+    text: Delta Lake provides ACID transactions through its transaction log.
+    url: https://docs.databricks.com/aws/en/delta/
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_hplsql
+  claim:
+    text: Databricks SQL procedures (CREATE PROCEDURE) require Runtime 17.0+ and Unity Catalog.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 17.0+
+    confidence: high
+risks:
+  sql:
+    level: low
+    notes: Dialect rewrites (Hive specifics to Databricks)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the Databricks model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: low
+    notes: Feature gaps between Hive and Databricks need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: Databricks recommends liquid clustering for all new tables, including streaming tables and materialized views.
+  url: https://docs.databricks.com/aws/en/tables/clustering
+  accessed: '2026-10-15'
+  confidence: high
+- text: Unity Catalog managed tables tune file sizes automatically.
+  url: https://docs.databricks.com/aws/en/tables/tune-file-size
+  accessed: '2026-10-15'
+  confidence: high
+- text: The Databricks disk cache speeds repeated reads of Parquet and Delta data.
+  url: https://docs.databricks.com/aws/en/optimizations/disk-cache
+  accessed: '2026-10-15'
+  confidence: high

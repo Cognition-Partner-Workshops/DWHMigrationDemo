@@ -1,0 +1,321 @@
+source: snowflake
+target: fabric
+architecture_overview:
+- text: Snowflake combines shared-disk and shared-nothing designs in a hybrid architecture.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse stores data as Delta tables (Parquet plus a transaction log).
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse is developed primarily with T-SQL.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric mirroring can continuously replicate Snowflake data into OneLake.
+  url: https://learn.microsoft.com/en-us/fabric/mirroring/snowflake
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Snowflake automatically divides table data into 50-500 MB (uncompressed) micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: OneLake shortcuts reflect source schema changes without manual updates.
+    url: https://learn.microsoft.com/en-us/fabric/onelake/onelake-shortcuts
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Snowflake warehouses bill per second with a 60-second minimum each time they start.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Fabric Data Warehouse applies smoothing and throttling to capacity consumption.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/compute-capacity-smoothing-throttling
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Snowflake assigns privileges to roles, which are granted to users (RBAC), alongside object ownership (DAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Fabric workspace roles grant permissions for all warehouses in a workspace.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Snowflake multi-cluster warehouses start extra clusters automatically, up to a configured maximum, for concurrency.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The Fabric query optimizer relies on persisted column statistics.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/guidelines-warehouse-performance
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Inventory Snowflake objects with GET_DDL and ACCOUNT_USAGE, convert DDL and SQL with an automated translator, then move data by unloading to Parquet in object storage (or using a native connector/federation where available). Rebuild tasks, streams and pipes as Microsoft Fabric Data Warehouse orchestration and incremental-load constructs, re-create roles, masking and row policies, and validate with row counts and checksums before cutover.
+object_mapping:
+- source_object: TABLE (permanent/transient)
+  target_object: Warehouse table (Delta)
+  notes: ''
+  claim:
+    text: Fabric Warehouse tables are stored as Delta tables.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW / SECURE VIEW
+  target_object: T-SQL view
+  notes: ''
+  claim:
+    text: Fabric supports T-SQL views.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Table refreshed by pipeline (no materialized view)
+  notes: ''
+  claim:
+    text: Dataflow Gen2 can transform data before loading tables.
+    url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: STORED PROCEDURE (Snowflake Scripting/JavaScript/Python)
+  target_object: T-SQL stored procedure
+  notes: ''
+  claim:
+    text: Fabric supports T-SQL procedures.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: TASK / task graph
+  target_object: Data Factory pipeline
+  notes: ''
+  claim:
+    text: Fabric Data Factory provides orchestration and data movement.
+    url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: STREAM
+  target_object: Data Factory incremental load
+  notes: ''
+  claim:
+    text: Fabric Data Factory handles data movement into Warehouse and Lakehouse.
+    url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: PIPE (Snowpipe) / COPY INTO
+  target_object: COPY INTO
+  notes: ''
+  claim:
+    text: COPY INTO is the recommended ingestion statement.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-copy
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE / STAGE
+  target_object: OneLake shortcut
+  notes: ''
+  claim:
+    text: OneLake shortcuts can link to tables in other locations.
+    url: https://learn.microsoft.com/en-us/fabric/onelake/onelake-shortcuts
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VARIANT column
+  target_object: varchar(max) JSON text
+  notes: ''
+  claim:
+    text: varchar(max) storage is limited to 16 MB.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Snowflake stores and resolves unquoted identifiers in uppercase.
+  url: https://docs.snowflake.com/en/sql-reference/identifiers-syntax
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake TIMESTAMP_LTZ stores UTC and operates in the session time zone, while TIMESTAMP_NTZ ignores time zones.
+  url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake FLATTEN explodes compound values into multiple rows.
+  url: https://docs.snowflake.com/en/sql-reference/functions/flatten
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric varchar(max) storage is currently limited to 16 MB.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric datetime2 and time support at most 6 fractional-second digits.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric lacks nchar/nvarchar; char and varchar are used instead.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric PRIMARY KEY requires NONCLUSTERED and NOT ENFORCED.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports MERGE as a generally available feature.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Snowflake supports bulk unloading of table or query data to files.
+  url: https://docs.snowflake.com/en/user-guide/data-unload-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: COPY INTO <location> unloads table or query data to files and supports PARTITION BY.
+  url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-location
+  accessed: '2026-10-15'
+  confidence: high
+- text: COPY INTO is the recommended T-SQL ingestion statement for new code in Fabric Warehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/ingest-data-copy
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Warehouse bulk loads via T-SQL/TDS or via Spark writing Delta tables.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+  accessed: '2026-10-15'
+  confidence: high
+- text: Mirrored Snowflake table data is converted to Parquet in OneLake.
+  url: https://learn.microsoft.com/en-us/fabric/mirroring/snowflake
+  accessed: '2026-10-15'
+  confidence: high
+- text: The Azure Data Factory/Synapse Snowflake connector supports Copy activity source and sink.
+  url: https://learn.microsoft.com/en-us/azure/data-factory/connector-snowflake
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Snowflake tasks run on schedules or events and can be chained into task graphs.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake streams provide change data capture (CDC) on tables.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowpipe loads files continuously on Snowflake-managed serverless compute.
+  url: https://docs.snowflake.com/en/user-guide/data-load-snowpipe-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Factory Dataflow Gen2 applies transformations before loading a warehouse or lakehouse.
+  url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric supports T-SQL views, functions and procedures.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Snowflake Dynamic Data Masking applies masking policies to columns at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake network policies allow or block requests based on their origin.
+  url: https://docs.snowflake.com/en/user-guide/network-policies
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric item permissions can give SQL permissions without granting them inside SQL.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/security
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports row-level security.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/row-level-security
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric Data Warehouse supports dynamic data masking.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/dynamic-data-masking
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: sf_variant
+  claim:
+    text: Snowflake VARIANT can hold a value of any type, including OBJECT and ARRAY, up to 128 MB.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_time_travel
+  claim:
+    text: Snowflake Time Travel retention can be set up to 90 days on Enterprise Edition or higher.
+    url: https://docs.snowflake.com/en/user-guide/data-time-travel
+    accessed: '2026-10-15'
+    applies_to: Enterprise Edition+
+    confidence: high
+- id: sf_streams_tasks
+  claim:
+    text: Snowflake streams record change data capture information for tables.
+    url: https://docs.snowflake.com/en/user-guide/streams-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_data_sharing
+  claim:
+    text: Snowflake Secure Data Sharing shares selected database objects with other Snowflake accounts.
+    url: https://docs.snowflake.com/en/user-guide/data-sharing-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: fabric_no_nvarchar
+  claim:
+    text: Fabric Warehouse has no nchar/nvarchar types.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- id: fabric_unenforced_keys
+  claim:
+    text: Fabric FOREIGN KEY constraints must be NOT ENFORCED.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/table-constraints
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: sf_variant
+  claim:
+    text: Fabric varchar(max) can hold up to 16 MB, usable for JSON text.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_time_travel
+  claim:
+    text: Fabric Warehouse supports time travel queries at a timestamp.
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/time-travel
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_streams_tasks
+  claim:
+    text: Fabric Data Factory moves and transforms data with pipelines and Dataflow Gen2.
+    url: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_data_sharing
+  claim:
+    text: Fabric OneLake supports shortcuts that link to tables in other locations.
+    url: https://learn.microsoft.com/en-us/fabric/onelake/onelake-shortcuts
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Dialect rewrites (Snowflake specifics to Microsoft Fabric Data Warehouse)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the Microsoft Fabric Data Warehouse model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: medium
+    notes: Feature gaps between Snowflake and Microsoft Fabric Data Warehouse need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: Fabric performance guidance covers ingestion, table management, statistics and querying.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/guidelines-warehouse-performance
+  accessed: '2026-10-15'
+  confidence: high
+- text: Fabric supports cloning tables.
+  url: https://learn.microsoft.com/en-us/fabric/data-warehouse/clone-table
+  accessed: '2026-10-15'
+  confidence: high

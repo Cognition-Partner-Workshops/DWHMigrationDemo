@@ -1,0 +1,304 @@
+source: hive
+target: snowflake
+architecture_overview:
+- text: HiveServer2 runs a Thrift-based Hive service (TCP or HTTP) with a Jetty web UI in one process.
+  url: https://hive.apache.org/docs/latest/user/hiveserver2-overview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake combines shared-disk and shared-nothing designs in a hybrid architecture.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake stores data in a compressed columnar format in cloud storage.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Hive owns managed-table data (dropped with the table) but not external-table data.
+    url: https://hive.apache.org/docs/latest/language/managed-vs--external-tables/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake automatically divides table data into 50-500 MB (uncompressed) micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Hive executes queries using Apache Tez or MapReduce.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake warehouses bill per second with a 60-second minimum each time they start.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Hive storage based authorization relies on HDFS permissions and works at database, table and partition level.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake assigns privileges to roles, which are granted to users (RBAC), alongside object ownership (DAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Hive global ORDER BY needs a single reducer for the final sort.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake multi-cluster warehouses start extra clusters automatically, up to a configured maximum, for concurrency.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Extract Hive DDL, partitions and HPL/SQL scripts from the metastore and edge nodes, compact ACID tables, then copy ORC/Parquet files from HDFS to cloud object storage and load or register them in Snowflake. Rewrite HiveQL-specific clauses (SORT BY, DISTRIBUTE BY, LATERAL VIEW, multi-insert), replace Oozie/scheduled queries with Snowflake orchestration, map Ranger/SQL-standard grants to Snowflake security, and validate partition-by-partition.
+object_mapping:
+- source_object: Managed (ACID/ORC) table
+  target_object: Permanent table
+  notes: ''
+  claim:
+    text: Snowflake tables are micro-partitioned automatically.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW
+  target_object: View
+  notes: ''
+  claim:
+    text: Snowflake views can be standard or materialized.
+    url: https://docs.snowflake.com/en/user-guide/views-materialized
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: MATERIALIZED VIEW
+  target_object: Materialized view (Enterprise Edition) or dynamic table
+  notes: ''
+  claim:
+    text: Snowflake materialized views require Enterprise Edition.
+    url: https://docs.snowflake.com/en/user-guide/views-materialized
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: HPL/SQL procedure
+  target_object: Snowflake Scripting stored procedure
+  notes: ''
+  claim:
+    text: Snowflake procedures support EXECUTE AS OWNER, CALLER or RESTRICTED CALLER.
+    url: https://docs.snowflake.com/en/sql-reference/sql/create-procedure
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Scheduled query (Hive 4) / Oozie workflow
+  target_object: Task / task graph
+  notes: ''
+  claim:
+    text: Snowflake tasks can be chained into task graphs.
+    url: https://docs.snowflake.com/en/user-guide/tasks-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ACID table delta files
+  target_object: Stream on table
+  notes: ''
+  claim:
+    text: Streams record change data capture information.
+    url: https://docs.snowflake.com/en/user-guide/streams-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: LOAD DATA / INSERT OVERWRITE
+  target_object: COPY INTO / Snowpipe
+  notes: ''
+  claim:
+    text: Snowpipe loads files as they arrive.
+    url: https://docs.snowflake.com/en/user-guide/data-load-snowpipe-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE on HDFS
+  target_object: External table or Iceberg table with catalog integration
+  notes: ''
+  claim:
+    text: Snowflake uses a catalog integration for Iceberg tables managed by AWS Glue.
+    url: https://docs.snowflake.com/en/user-guide/tables-iceberg
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ARRAY/MAP/STRUCT column
+  target_object: VARIANT / ARRAY / OBJECT / MAP
+  notes: ''
+  claim:
+    text: Snowflake structured types are ARRAY, OBJECT and MAP.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-structured
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Hive SORT BY orders rows only within each reducer, so output may be only partially ordered.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive LATERAL VIEW applies a UDTF such as explode() to each input row.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-lateralview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: HiveQL SELECT has non-standard CLUSTER BY, DISTRIBUTE BY and SORT BY clauses.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake stores and resolves unquoted identifiers in uppercase.
+  url: https://docs.snowflake.com/en/sql-reference/identifiers-syntax
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake FLATTEN explodes compound values into multiple rows.
+  url: https://docs.snowflake.com/en/sql-reference/functions/flatten
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake VARCHAR defaults to 16777216 characters when no length is set.
+  url: https://docs.snowflake.com/en/sql-reference/data-types-text
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake standard-table key constraints are optional and not enforced.
+  url: https://docs.snowflake.com/en/sql-reference/constraints-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake Scripting adds procedural logic to Snowflake SQL.
+  url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake FLATTEN replaces Hive explode-style row expansion.
+  url: https://docs.snowflake.com/en/sql-reference/functions/flatten
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Hive LOAD DATA moves files into a table or partition without transformation.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive EXPORT writes table or partition data plus metadata to an output location.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-importexport/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake COPY INTO <table> loads from internal or external stages, in bulk or via Snowpipe.
+  url: https://docs.snowflake.com/en/user-guide/data-load-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake file formats include CSV, JSON, AVRO, ORC, PARQUET and XML.
+  url: https://docs.snowflake.com/en/sql-reference/sql/create-file-format
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake external tables query data in an external stage.
+  url: https://docs.snowflake.com/en/user-guide/tables-external-intro
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: HPL/SQL provides procedural SQL for Hive from Hive 2.0.0.
+  url: https://hive.apache.org/docs/latest/language/hplsql/
+  accessed: '2026-10-15'
+  applies_to: Hive 2.0+
+  confidence: high
+- text: Hive 4.0 added scheduled queries executed by HiveServer2.
+  url: https://hive.apache.org/docs/latest/language/scheduled-queries/
+  accessed: '2026-10-15'
+  applies_to: Hive 4.0+
+  confidence: high
+- text: Snowflake tasks run on schedules or events and can be chained into task graphs.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake streams provide change data capture (CDC) on tables.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Hive SQL standard based authorization grants privileges to users and roles for HiveServer2 clients.
+  url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive storage based authorization does not provide column- or row-level control.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake Dynamic Data Masking applies masking policies to columns at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake network policies allow or block requests based on their origin.
+  url: https://docs.snowflake.com/en/user-guide/network-policies
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: hive_uniontype
+  claim:
+    text: Hive UNIONTYPE is effectively pass-through only and fails in JOIN, WHERE or GROUP BY.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_sort_distribute_by
+  claim:
+    text: Hive SORT BY / DISTRIBUTE BY control per-reducer ordering and row distribution.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_no_explicit_txn
+  claim:
+    text: Hive has no BEGIN/COMMIT/ROLLBACK; every statement auto-commits.
+    url: https://hive.apache.org/docs/latest/user/hive-transactions/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_hplsql
+  claim:
+    text: Hive stored procedures are written in HPL/SQL.
+    url: https://hive.apache.org/docs/latest/language/hplsql/
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_external_read_only
+  claim:
+    text: Snowflake external tables are read-only.
+    url: https://docs.snowflake.com/en/user-guide/tables-external-intro
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: hive_uniontype
+  claim:
+    text: Snowflake VARIANT can hold any value type.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_sort_distribute_by
+  claim:
+    text: Snowflake partitions data automatically into micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_no_explicit_txn
+  claim:
+    text: Snowflake transactions can be ended explicitly with COMMIT or ROLLBACK.
+    url: https://docs.snowflake.com/en/sql-reference/transactions
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_hplsql
+  claim:
+    text: Snowflake Scripting supports procedural logic for procedures.
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Dialect rewrites (Hive specifics to Snowflake)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the Snowflake model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: low
+    notes: Feature gaps between Hive and Snowflake need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: Snowflake micro-partitions are maintained automatically, so no static partitions need to be defined.
+  url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake warehouses can auto-suspend when idle.
+  url: https://docs.snowflake.com/en/user-guide/warehouses-considerations
+  accessed: '2026-10-15'
+  confidence: high

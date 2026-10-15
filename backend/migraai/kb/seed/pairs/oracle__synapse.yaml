@@ -1,0 +1,377 @@
+source: oracle
+target: synapse
+architecture_overview:
+- text: An Oracle database server consists of a database plus at least one database instance.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/introduction-to-oracle-database.html
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+  accessed: *id001
+  confidence: high
+- text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool uses a scale-out architecture that spreads computational processing across multiple nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: The control node receives queries, optimises them for parallel execution and hands the work to compute nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: Each query is divided into 60 smaller queries, one per distribution, that run in parallel.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: CREATE TABLE creates a heap-organized table by default, which keeps rows in no particular order.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/cncpt/tables-and-table-clusters.html
+    accessed: *id001
+    confidence: high
+  - text: Partitioning splits tables, indexes and index-organized tables into smaller pieces that can be managed and accessed individually.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/partition-concepts.html
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: *id001
+    confidence: high
+  - text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: Database Resource Manager controls how resources are allocated within a database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/managing-resources-with-oracle-database-resource-manager.html
+    accessed: *id001
+    confidence: high
+  - text: Compute power in dedicated SQL pool is measured and scaled in data warehouse units (DWUs).
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Workload management in dedicated SQL pool uses workload classification, importance and isolation to manage resources.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+    accessed: *id001
+    confidence: high
+  - text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+    accessed: *id001
+    confidence: high
+  - text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: Oracle RAC combines smaller commodity servers into a cluster to build scalable environments.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/racad/introduction-to-oracle-rac.html
+    accessed: *id001
+    confidence: high
+  - text: Parallel execution applies multiple CPU and I/O resources to a single SQL statement.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/vldbg/parallel-exec-intro.html
+    accessed: *id001
+    confidence: high
+  - text: In dedicated SQL pool compute is separate from storage, so compute can be scaled independently of the data held.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool compute resources can be paused and resumed.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+recommended_strategy: 'Microsoft publishes an Oracle→Synapse migration guide: assess design/performance fit, convert schema to distributed tables (hash for large fact joins, replicate for dimensions, round-robin for staging) with clustered columnstore, extract via ADF''s Oracle connector in parallel, and load via COPY INTO or PolyBase in an ELT pattern. Translate PL/SQL to T-SQL; map VPD and grants to SQL-pool CLS/roles and workload-manage with resource classes.'
+object_mapping:
+- source_object: Heap-organized table
+  target_object: Distributed table
+  notes: Choose HASH/ROUND_ROBIN/REPLICATE distribution.
+  claim:
+    text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: *id001
+    confidence: high
+- source_object: Partitioned table
+  target_object: Distributed + CCI table
+  notes: Partitions optional; CCI is default layout.
+  claim:
+    text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view
+  notes: Dedicated pool supports MVs.
+  claim:
+    text: Dedicated SQL pool supports materialized views for performance tuning.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-materialized-views
+    accessed: *id001
+    confidence: high
+- source_object: Package (PL/SQL)
+  target_object: Stored procedures (T-SQL)
+  notes: No packages; procedures capped at 8 nesting levels.
+  claim:
+    text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: *id001
+    confidence: high
+- source_object: Sequence
+  target_object: IDENTITY column
+  notes: Sequences unsupported; use IDENTITY.
+  claim:
+    text: Dedicated SQL pool supports IDENTITY columns to create surrogate keys.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-identity
+    accessed: *id001
+    confidence: high
+- source_object: Synonym
+  target_object: View
+  notes: Synonyms are unsupported in dedicated SQL pool; create views instead.
+  claim:
+    text: Synonyms are listed among the objects not supported in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+    accessed: *id001
+    confidence: medium
+- source_object: MERGE statement
+  target_object: MERGE
+  notes: MERGE is documented for dedicated SQL pool; overview-features lists it as preview — verify at migration time.
+  claim:
+    text: The T-SQL MERGE reference applies MERGE to dedicated SQL pool with no preview flag; the Synapse overview-features page lists it as 'Yes (preview)' — docs disagree.
+    url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+    accessed: *id001
+    confidence: low
+sql_dialect_differences:
+- text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+  accessed: *id001
+  confidence: high
+- text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+  accessed: *id001
+  confidence: high
+- text: The Oracle DATE data type holds both date and time information.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+  accessed: *id001
+  confidence: high
+- text: NVL returns the second argument when the first is null — Oracle's equivalent of COALESCE with two args.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/NVL.html
+  accessed: *id001
+  confidence: high
+- text: DECODE compares an expression to search values one by one — a non-ANSI conditional.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DECODE.html
+  accessed: *id001
+  confidence: high
+- text: LISTAGG orders data within each group and concatenates the measure values.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/LISTAGG.html
+  accessed: *id001
+  confidence: high
+- text: CREATE TABLE AS SELECT (CTAS) creates and populates a new table from a SELECT in one parallel operation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-ctas
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool implements ACID transactions with READ UNCOMMITTED as the default isolation level.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-transactions
+  accessed: *id001
+  confidence: high
+- text: The T-SQL MERGE reference applies MERGE to dedicated SQL pool with no preview flag; the Synapse overview-features page lists it as 'Yes (preview)' — docs disagree.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: low
+data_movement:
+- text: Oracle Data Pump moves data and metadata between databases at high speed, using the expdp and impdp clients.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-data-pump-overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle GoldenGate provides real-time data integration, replication and transactional change data capture.
+  url: https://docs.oracle.com/en/middleware/goldengate/core/21.3/coredoc/overview-oracle-goldengate.html
+  accessed: *id001
+  applies_to: Oracle GoldenGate 21.3
+  confidence: high
+- text: The COPY statement loads data from external storage accounts into Azure Synapse Analytics.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: high
+- text: PolyBase with T-SQL commands can load data from Azure Blob Storage into dedicated SQL pool tables.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-load-from-azure-blob-storage-with-polybase
+  accessed: *id001
+  confidence: high
+- text: Azure Synapse Analytics is a distributed system designed to perform analytics on large data, per Microsoft's migration guide.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/migrate-to-synapse-analytics-guide
+  accessed: *id001
+  confidence: high
+etl_migration:
+- text: PL/SQL is Oracle's procedural extension of SQL.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/overview.html
+  accessed: *id001
+  confidence: high
+- text: Oracle Scheduler, implemented by the DBMS_SCHEDULER package, controls when and where jobs run.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/admin/oracle-scheduler-concepts.html
+  accessed: *id001
+  confidence: high
+- text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: *id001
+  confidence: high
+- text: Azure Synapse Analytics is a distributed system designed to perform analytics on large data, per Microsoft's migration guide.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/migrate-to-synapse-analytics-guide
+  accessed: *id001
+  confidence: high
+- text: Microsoft's Oracle migration guide recommends ADF's Oracle connector for parallel data unload.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/oracle/2-etl-load-migration-considerations
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Virtual Private Database (VPD) filters which rows users can access through security policies.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-oracle-vpd-to-control-data-access.html
+  accessed: *id001
+  confidence: high
+- text: Transparent Data Encryption (TDE) encrypts sensitive data stored in tables and tablespaces.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html
+  accessed: *id001
+  confidence: high
+- text: A user role is a named set of privileges that can be granted to users.
+  url: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html
+  accessed: *id001
+  confidence: high
+- text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+  accessed: *id001
+  confidence: high
+- text: Connections to a dedicated SQL pool are encrypted by default and can be restricted by IP firewall rules.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+  accessed: *id001
+  confidence: high
+- text: Oracle and Synapse both implement access control via users, roles and permissions; table/view privileges map directly.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/oracle/3-security-access-operations
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_packages
+  claim:
+    text: A stored package is an encapsulated collection of related procedures, functions and other program objects stored together in the database.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-PACKAGE.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_autonomous_transactions
+  claim:
+    text: An autonomous transaction is an independent transaction started from within another (main) transaction.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/autonomous-transactions.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_connect_by
+  claim:
+    text: Oracle hierarchical queries use START WITH for root rows and CONNECT BY for the parent-child relationship.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Hierarchical-Queries.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_rowid
+  claim:
+    text: The ROWID pseudocolumn returns the physical address of each row.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROWID-Pseudocolumn.html
+    accessed: *id001
+    confidence: high
+- id: ufeat_foreign_keys
+  claim:
+    text: Foreign key constraints are not supported in dedicated SQL pool tables.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+    accessed: *id001
+    confidence: high
+- id: ufeat_triggers
+  claim:
+    text: Triggers are not supported in dedicated SQL pool tables.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-overview
+    accessed: *id001
+    confidence: high
+- id: ufeat_empty_string_null
+  claim:
+    text: Oracle treats a zero-length character value as NULL, unlike most target platforms.
+    url: https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Nulls.html
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_packages
+  claim:
+    text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: *id001
+    confidence: high
+- for: ufeat_connect_by
+  claim:
+    text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+    accessed: *id001
+    confidence: high
+- for: ufeat_rowid
+  claim:
+    text: Dedicated SQL pool supports IDENTITY columns to create surrogate keys.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-identity
+    accessed: *id001
+    confidence: high
+- for: ufeat_foreign_keys
+  claim:
+    text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+    accessed: *id001
+    confidence: high
+- for: ufeat_triggers
+  claim:
+    text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: PL/SQL to T-SQL plus Synapse limits (no FK/triggers/sequences, nesting cap).
+  data:
+    level: medium
+    notes: Distribution and CCI decisions drive performance.
+  security:
+    level: medium
+    notes: VPD/grants map to CLS/roles; auth via Entra or SQL.
+  governance:
+    level: medium
+    notes: Workspace governance differs from Oracle schema model.
+  platform:
+    level: high
+    notes: MPP appliance model replaces RAC/instance architecture.
+  operational:
+    level: medium
+    notes: DWU sizing, pause/resume and DMV monitoring are new.
+optimization_hints:
+- text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+  accessed: *id001
+  confidence: high
+- text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+  accessed: *id001
+  confidence: high
+- text: Workload management in dedicated SQL pool uses workload classification, importance and isolation to manage resources.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports materialized views that the optimizer can use transparently to improve query execution plans.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/performance-tuning-materialized-views
+  accessed: *id001
+  confidence: high

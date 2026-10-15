@@ -1,0 +1,379 @@
+platform: netezza
+types:
+- native: BYTEINT
+  canonical: int8
+  notes: Alias INT1; 1 byte.
+  claim:
+    text: Netezza BYTEINT (INT1) is an 8-bit integer from -128 to 127.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-exact-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: SMALLINT
+  canonical: int16
+  notes: Alias INT2.
+  claim:
+    text: Netezza SMALLINT (INT2) is a 16-bit integer.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-exact-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTEGER
+  canonical: int32
+  notes: Aliases INT, INT4.
+  claim:
+    text: Netezza INTEGER (INT, INT4) is a 32-bit integer.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-exact-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: BIGINT
+  canonical: int64
+  notes: Alias INT8.
+  claim:
+    text: Netezza BIGINT (INT8) is a 64-bit integer.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-exact-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: NUMERIC(p,s)
+  canonical: decimal
+  notes: Precision 1-38.
+  claim:
+    text: Netezza NUMERIC(p,s) supports precision 1 to 38 and scale 0 to p.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-exact-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: NUMERIC
+  canonical: decimal
+  notes: Defaults to NUMERIC(18,0).
+  claim:
+    text: Netezza NUMERIC without arguments means NUMERIC(18,0).
+    url: https://www.ibm.com/docs/en/netezza?topic=types-exact-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECIMAL(p,s)
+  canonical: decimal
+  notes: Alias of NUMERIC.
+  claim:
+    text: Netezza treats DECIMAL as an alias for NUMERIC.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-exact-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: REAL
+  canonical: float32
+  notes: Same as FLOAT(6).
+  claim:
+    text: Netezza REAL equals FLOAT(6) and uses 4 bytes.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-approximate-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: DOUBLE PRECISION
+  canonical: float64
+  notes: FLOAT(7-15) maps here.
+  claim:
+    text: Netezza DOUBLE PRECISION is an 8-byte floating-point type.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-approximate-numeric-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: CHAR(n)
+  canonical: char
+  notes: Blank padded, max 64,000.
+  claim:
+    text: Netezza CHAR(n) is fixed length and blank padded, up to 64,000 characters.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-character-string-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR(n)
+  canonical: varchar
+  notes: No padding.
+  claim:
+    text: Netezza VARCHAR(n) stores strings as entered without blank padding.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-character-string-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: NCHAR(n)
+  canonical: char
+  notes: Unicode, max 16,000 characters.
+  claim:
+    text: Netezza NCHAR(n) is fixed-length Unicode up to 16,000 characters.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-character-string-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: NVARCHAR(n)
+  canonical: varchar
+  notes: Unicode, max 16,000 characters.
+  claim:
+    text: Netezza NVARCHAR(n) is variable-length Unicode up to 16,000 characters.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-character-string-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: BOOLEAN
+  canonical: boolean
+  notes: Alias BOOL.
+  claim:
+    text: Netezza BOOLEAN (BOOL) stores true, false or null in 1 byte.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-logical-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE
+  canonical: date
+  notes: Years 0001-9999.
+  claim:
+    text: Netezza DATE covers 0001-01-01 to 9999-12-31.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIME
+  canonical: time
+  notes: Microsecond precision.
+  claim:
+    text: Netezza TIME stores time of day to microseconds.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMETZ
+  canonical: time_tz
+  notes: TIME WITH TIME ZONE.
+  claim:
+    text: Netezza TIME WITH TIME ZONE (TIMETZ) adds a GMT offset to the time.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP
+  canonical: timestamp
+  notes: Microsecond precision, no time zone.
+  claim:
+    text: Netezza TIMESTAMP stores date and time to microseconds.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTERVAL
+  canonical: interval
+  notes: Alias TIMESPAN; nonstandard.
+  claim:
+    text: Netezza INTERVAL (TIMESPAN) is a nonstandard single-unit implementation.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARBINARY(n)
+  canonical: varbinary
+  notes: Up to 64,000 bytes.
+  claim:
+    text: Netezza VARBINARY(n) holds 1 to 64,000 bytes.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-binary-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: ST_GEOMETRY(n)
+  canonical: geometry
+  notes: Binary geometry, up to 64,000 bytes.
+  claim:
+    text: Netezza ST_GEOMETRY(n) stores geometric binary data up to 64,000 bytes.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-binary-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: JSON
+  canonical: json
+  notes: NPS 11.0.3+.
+  claim:
+    text: Netezza JSON is supported from NPS 11.0.3.x.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-document-data
+    accessed: '2026-10-15'
+    confidence: high
+- native: JSONB
+  canonical: json
+  notes: NPS 11.1+; preferred storage.
+  claim:
+    text: Netezza JSONB is supported from NPS 11.1.x.x and is recommended over JSON for most uses.
+    url: https://www.ibm.com/docs/en/netezza?topic=types-document-data
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: COALESCE(a, b, ...)
+  canonical: COALESCE(a, b, ...)
+  notes: ''
+  claim:
+    text: Netezza COALESCE returns the first non-null argument.
+    url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: ISNULL(a, b)
+  canonical: COALESCE(a, b)
+  notes: Synonym of COALESCE.
+  claim:
+    text: Netezza ISNULL is a synonym for COALESCE.
+    url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECODE(x, s1, r1, ..., d)
+  canonical: CASE x WHEN s1 THEN r1 ... ELSE d END
+  notes: ''
+  claim:
+    text: Netezza DECODE returns the result paired with the first matching search value.
+    url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE_PART('f', x)
+  canonical: EXTRACT(f FROM x)
+  notes: ''
+  claim:
+    text: Netezza DATE_PART is equivalent to EXTRACT.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-datetime-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: EXTRACT(f FROM x)
+  canonical: EXTRACT(f FROM x)
+  notes: ''
+  claim:
+    text: Netezza EXTRACT returns a subfield of a datetime, interval or duration.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-datetime-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_NUMBER(s, fmt)
+  canonical: CAST(s AS DECIMAL(p,s))
+  notes: Format template has no ANSI equivalent.
+  claim:
+    text: Netezza TO_NUMBER converts a string to a number using a template.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-conversion-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_DATE(s, fmt)
+  canonical: CAST(s AS DATE)
+  notes: Format template has no ANSI equivalent.
+  claim:
+    text: Netezza TO_DATE converts a string to a date using a template.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-conversion-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_TIMESTAMP(s, fmt)
+  canonical: CAST(s AS TIMESTAMP)
+  notes: Format template has no ANSI equivalent.
+  claim:
+    text: Netezza TO_TIMESTAMP converts a string to a timestamp using a template.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-conversion-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_CHAR(x, fmt)
+  canonical: CAST(x AS VARCHAR(n))
+  notes: Formatting lost; positive numbers get a leading blank.
+  claim:
+    text: Netezza TO_CHAR formats dates, timestamps and numbers as strings using a template.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-conversion-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: BTRIM(s)
+  canonical: TRIM(BOTH ' ' FROM s)
+  notes: ''
+  claim:
+    text: Netezza BTRIM(s) trims spaces from both ends.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: BTRIM(s, t)
+  canonical: TRIM(BOTH t FROM s)
+  notes: ANSI TRIM takes one character; BTRIM takes a set.
+  claim:
+    text: Netezza BTRIM(s,t) trims any characters in t from both ends.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: LTRIM(s)
+  canonical: TRIM(LEADING ' ' FROM s)
+  notes: ''
+  claim:
+    text: Netezza LTRIM(s) trims leading spaces.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: RTRIM(s)
+  canonical: TRIM(TRAILING ' ' FROM s)
+  notes: ''
+  claim:
+    text: Netezza RTRIM(s) trims trailing spaces.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: LENGTH(s)
+  canonical: CHAR_LENGTH(s)
+  notes: ''
+  claim:
+    text: Netezza LENGTH returns the string length.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: LOWER(s)
+  canonical: LOWER(s)
+  notes: ''
+  claim:
+    text: Netezza LOWER converts a string to lowercase.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRPOS(s, b)
+  canonical: POSITION(b IN s)
+  notes: ''
+  claim:
+    text: Netezza STRPOS returns the start position of substring b in s.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: INSTR(s1, s2)
+  canonical: POSITION(s2 IN s1)
+  notes: Only the two-argument form maps directly; start and occurrence arguments do not.
+  claim:
+    text: Netezza INSTR returns the position of s2 in s1 with optional start and occurrence arguments.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: SUBSTR(s, p, l)
+  canonical: SUBSTRING(s FROM p FOR l)
+  notes: ''
+  claim:
+    text: Netezza SUBSTR returns l characters of s starting at position p.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-character-string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: ADD_MONTHS(d, n)
+  canonical: d + n * INTERVAL '1' MONTH
+  notes: Netezza clamps to the last valid day of the month.
+  claim:
+    text: Netezza ADD_MONTHS adds n months and caps the day at the month end.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-datetime-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: MOD(x, y)
+  canonical: MOD(x, y)
+  notes: ''
+  claim:
+    text: Netezza MOD accepts integer, numeric and floating-point arguments.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-math-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: CEIL(x)
+  canonical: CEILING(x)
+  notes: ''
+  claim:
+    text: Netezza CEIL returns the smallest whole number not less than x.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-math-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: FLOOR(x)
+  canonical: FLOOR(x)
+  notes: ''
+  claim:
+    text: Netezza FLOOR returns the largest integer not greater than x.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-math-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: ABS(x)
+  canonical: ABS(x)
+  notes: ''
+  claim:
+    text: Netezza ABS returns the absolute value.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-math-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: LN(x)
+  canonical: LN(x)
+  notes: ''
+  claim:
+    text: Netezza LN returns the natural logarithm.
+    url: https://www.ibm.com/docs/en/netezza?topic=extensions-math-functions
+    accessed: '2026-10-15'
+    confidence: high

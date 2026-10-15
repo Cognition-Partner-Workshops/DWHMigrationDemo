@@ -1,0 +1,29 @@
+platform: bigquery
+allowed_hosts:
+- cloud.google.com
+- docs.cloud.google.com
+seeds:
+- url: https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+  path_prefix: /bigquery/docs/reference/standard-sql/
+  topic: sql-data-types
+- url: https://cloud.google.com/bigquery/docs/reference/standard-sql/string_functions
+  path_prefix: /bigquery/docs/reference/standard-sql/
+  topic: sql-functions
+- url: https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language
+  path_prefix: /bigquery/docs/reference/standard-sql/
+  topic: ddl
+- url: https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
+  path_prefix: /bigquery/docs/reference/standard-sql/
+  topic: sql-reference
+- url: https://cloud.google.com/bigquery/docs/access-control
+  path_prefix: /bigquery/docs/
+  topic: security-access-control
+- url: https://cloud.google.com/bigquery/docs/loading-data
+  path_prefix: /bigquery/docs/
+  topic: data-loading
+- url: https://cloud.google.com/bigquery/docs/migration/migration-overview
+  path_prefix: /bigquery/docs/migration/
+  topic: migration-guides
+- url: https://cloud.google.com/bigquery/docs/introduction
+  path_prefix: /bigquery/docs/
+  topic: architecture

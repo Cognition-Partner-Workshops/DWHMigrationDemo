@@ -1,0 +1,248 @@
+source: netezza
+target: redshift
+architecture_overview:
+- text: Netezza spreads processing across SPUs that each own memory and data slices in a shared-nothing design.
+  url: https://www.ibm.com/docs/en/netezza?topic=keys-distribution-collocated-joins
+  accessed: '2026-10-15'
+  confidence: high
+- text: A provisioned Amazon Redshift cluster has a leader node that parses queries and coordinates compute nodes.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Each Redshift compute node is divided into slices that each process a share of the node's data.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Netezza zone maps let the storage manager skip table extents that cannot contain rows matching a restricted scan.
+    url: https://www.ibm.com/docs/en/netezza?topic=statistics-zone-maps
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift stores table data in columnar format to reduce I/O for analytic queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_columnar_storage_disk_mem_mgmnt.html
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Tables that are commonly joined should be distributed on the join column so Netezza can run a collocated join without moving data between SPUs.
+    url: https://www.ibm.com/docs/en/netezza?topic=keys-distribution-collocated-joins
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift workload management (WLM) routes queries to queues to manage concurrency and memory.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: In Netezza, privileges granted to a group are inherited by all its members and are additive.
+    url: https://www.ibm.com/docs/en/netezza?topic=control-security-model
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift role-based access control (RBAC) grants permissions to roles that are then granted to users.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Netezza tables are distributed with DISTRIBUTE ON (columns) for hash distribution or DISTRIBUTE ON RANDOM for random distribution.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift concurrency scaling adds transient cluster capacity to handle bursts of concurrent queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Netezza resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into Redshift, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for Redshift instead of copying Netezza structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: TABLE (DISTRIBUTE ON)
+  target_object: Table with DISTSTYLE / sort key
+  notes: ''
+  claim:
+    text: 'Redshift tables use one of four distribution styles: AUTO, EVEN, KEY or ALL.'
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Stored procedure (NZPLSQL)
+  target_object: Stored procedure (PL/pgSQL)
+  notes: ''
+  claim:
+    text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Row-secure table
+  target_object: RLS policy
+  notes: ''
+  claim:
+    text: Redshift row-level security (RLS) policies restrict which rows a user or role can see.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: External table
+  target_object: External table (Spectrum)
+  notes: ''
+  claim:
+    text: Redshift CREATE EXTERNAL TABLE defines a table in an external schema over data in Amazon S3.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: JSON / JSONB column
+  target_object: SUPER column
+  notes: ''
+  claim:
+    text: The Redshift SUPER type stores semi-structured data such as JSON documents.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: A Redshift materialized view stores a precomputed result set that can be refreshed.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Constraint clause (not enforced)
+  target_object: Informational constraint
+  notes: ''
+  claim:
+    text: Redshift unique, primary key and foreign key constraints are informational only and not enforced.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Defining_constraints.html
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Netezza DECODE compares an expression to search values and returns the matching result or a default.
+  url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza DATE_PART('field', value) extracts a datetime field like EXTRACT.
+  url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza INTERVAL (alias TIMESPAN) is a nonstandard implementation expressed in a single unit.
+  url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift supports the QUALIFY clause to filter on window function results.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift MERGE conditionally inserts, updates or deletes target rows from a source table.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift does not support PostgreSQL types such as arrays, XML and UUID.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-datatypes.html
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Netezza unloads data by inserting from a user table into an external table.
+  url: https://www.ibm.com/docs/en/netezza?topic=loading-external-tables
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift COPY loads data in parallel from files in Amazon S3 and other sources such as DynamoDB and EMR.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: AWS SCT data extraction agents extract data from a source warehouse and upload it to Amazon S3 for loading into Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/agents.html
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: nzload is a CLI loader that creates a temporary external table, runs the insert and then drops the external table.
+  url: https://www.ibm.com/docs/en/netezza?topic=loading-nzload-command
+  accessed: '2026-10-15'
+  confidence: high
+- text: AWS Schema Conversion Tool (AWS SCT) converts source database schemas and code to a target such as Amazon Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift stored procedures are written in PL/pgSQL.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: AWS SCT supports Netezza as a source for conversion to Amazon Redshift.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Source.Netezza.html
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: In Netezza, privileges granted to a group are inherited by all its members and are additive.
+  url: https://www.ibm.com/docs/en/netezza?topic=control-security-model
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza GRANT has no column list; column-level access is done by granting on a view with those columns.
+  url: https://www.ibm.com/docs/en/netezza?topic=reference-grant
+  accessed: '2026-10-15'
+  confidence: medium
+- text: Redshift role-based access control (RBAC) grants permissions to roles that are then granted to users.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift dynamic data masking applies masking policies to columns at query time.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_ddm.html
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: nz_distribute_on
+  claim:
+    text: Netezza tables are distributed with DISTRIBUTE ON (columns) for hash distribution or DISTRIBUTE ON RANDOM for random distribution.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+    accessed: '2026-10-15'
+    confidence: high
+- id: nz_nzplsql
+  claim:
+    text: Netezza stored procedures are written in the NZPLSQL procedural language.
+    url: https://www.ibm.com/docs/en/netezza?topic=users-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- id: nz_row_secure_tables
+  claim:
+    text: A Netezza row-secure table returns different rows to users depending on their security label.
+    url: https://www.ibm.com/docs/en/netezza?topic=tables-row-secure
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: nz_distribute_on
+  claim:
+    text: 'Redshift tables use one of four distribution styles: AUTO, EVEN, KEY or ALL.'
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_choosing_dist_sort.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: nz_nzplsql
+  claim:
+    text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: nz_row_secure_tables
+  claim:
+    text: Redshift row-level security (RLS) policies restrict which rows a user or role can see.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Netezza extensions and procedural code need rewriting for Redshift.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: low
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: medium
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: Redshift sort keys order rows on disk so the planner can skip blocks outside a range predicate.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift applies column-level compression encodings to reduce storage and I/O.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
+  accessed: '2026-10-15'
+  confidence: high

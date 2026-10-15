@@ -1,0 +1,152 @@
+id: redshift
+name: Amazon Redshift
+roles:
+- target
+versions_covered: Amazon Redshift provisioned (RA3) and Redshift Serverless, current AWS docs
+summary: Amazon Redshift is a columnar MPP data warehouse on AWS with a leader node coordinating compute-node slices, or a serverless option. It loads with COPY from Amazon S3, queries external data with Spectrum and federated queries, and uses PL/pgSQL stored procedures.
+facets:
+  architecture:
+  - text: A provisioned Amazon Redshift cluster has a leader node that parses queries and coordinates compute nodes.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Each Redshift compute node is divided into slices that each process a share of the node's data.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift provisioned clusters use node types such as RA3 that separate compute from managed storage.
+    url: https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-clusters.html
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: Redshift stores table data in columnar format to reduce I/O for analytic queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_columnar_storage_disk_mem_mgmnt.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift sort keys order rows on disk so the planner can skip blocks outside a range predicate.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift applies column-level compression encodings to reduce storage and I/O.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Redshift workload management (WLM) routes queries to queues to manage concurrency and memory.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift Serverless provisions and scales warehouse capacity automatically with no cluster management.
+    url: https://docs.aws.amazon.com/redshift/latest/mgmt/serverless-whatis.html
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Redshift role-based access control (RBAC) grants permissions to roles that are then granted to users.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Roles.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift row-level security (RLS) policies restrict which rows a user or role can see.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift dynamic data masking applies masking policies to columns at query time.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_ddm.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift can encrypt a database at rest with keys managed in AWS KMS.
+    url: https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-db-encryption.html
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Redshift concurrency scaling adds transient cluster capacity to handle bursts of concurrent queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift data sharing lets clusters and workgroups query live data from other Redshift warehouses without copying it.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/datashare-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift Serverless provisions and scales warehouse capacity automatically with no cluster management.
+    url: https://docs.aws.amazon.com/redshift/latest/mgmt/serverless-whatis.html
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: Redshift supports the QUALIFY clause to filter on window function results.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift MERGE conditionally inserts, updates or deletes target rows from a source table.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_MERGE.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The Redshift SUPER type stores semi-structured data such as JSON documents.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift unique, primary key and foreign key constraints are informational only and not enforced.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Defining_constraints.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift does enforce NOT NULL constraints.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Defining_constraints.html
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: AWS Schema Conversion Tool (AWS SCT) converts source database schemas and code to a target such as Amazon Redshift.
+    url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: AWS SCT data extraction agents extract data from a source warehouse and upload it to Amazon S3 for loading into Redshift.
+    url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/agents.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: Redshift COPY loads data in parallel from files in Amazon S3 and other sources such as DynamoDB and EMR.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift UNLOAD writes query results to Amazon S3 as text, JSON or Apache Parquet files.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift Spectrum queries data in Amazon S3 through external tables without loading it.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c-using-spectrum.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift federated queries can read live data in operational databases such as Amazon RDS and Aurora PostgreSQL or MySQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/federated-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift CREATE EXTERNAL TABLE defines a table in an external schema over data in Amazon S3.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    accessed: '2026-10-15'
+    confidence: high
+unsupported_features:
+- text: Redshift does not support triggers.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift does not support sequences; IDENTITY columns are the usual alternative.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+  accessed: '2026-10-15'
+  confidence: medium
+- text: Redshift does not support PostgreSQL types such as arrays, XML and UUID.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-datatypes.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift does not support several PostgreSQL features, including table partitioning, tablespaces, triggers and sequences.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Amazon Redshift ends support for Python UDFs after June 30, 2026.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_SQL_functions.html
+  accessed: '2026-10-15'
+  confidence: high

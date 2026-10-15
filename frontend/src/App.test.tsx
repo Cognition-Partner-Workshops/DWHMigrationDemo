@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,14 +7,35 @@ import App from "./App";
 const settingsResponse = {
   devin_pat: { configured: true, masked: "••••abcd" },
   devin_org_id: "org-demo",
+  token_kind: "v3",
   devin_api_base_url: "https://api.devin.ai",
   confidence_threshold: 0.85,
   max_concurrent_sessions: 4,
   acu_cap_per_run: null,
 };
 
-function mockApi(devinConfigured = true) {
-  const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+const fallbackPlan = {
+  state: "failed_fallback",
+  progress: { phase: "failed_fallback", elapsed_s: 0, devin_url: null },
+  plan: null,
+  origin: "local_draft",
+  reason: "Devin token not configured",
+  cached: false,
+  kb_version: 1,
+  stale: false,
+  created_at: "2026-10-15T00:00:00Z",
+};
+
+function mockApi(
+  devinConfigured = true,
+  currentSession: {
+    source: string | null;
+    target: string | null;
+    confirmed: boolean;
+  } = { source: null, target: null, confirmed: false },
+  planResponse: Record<string, unknown> = fallbackPlan,
+) {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input);
     if (path.endsWith("/api/health")) {
       return Response.json({
@@ -39,11 +60,36 @@ function mockApi(devinConfigured = true) {
     if (path.endsWith("/api/settings")) {
       return Response.json(settingsResponse);
     }
+    if (path.endsWith("/api/session") && !path.endsWith("/api/session/confirm")) {
+      return Response.json(currentSession);
+    }
+    if (path.endsWith("/api/plan")) {
+      return Response.json(planResponse);
+    }
+    if (path.endsWith("/api/resources")) {
+      return Response.json([]);
+    }
+    if (path.endsWith("/api/kb/status")) {
+      return Response.json({
+        current_version: 1,
+        created_at: "2026-10-15T00:00:00Z",
+        documents: 0,
+        chunks: 0,
+        last_refresh_summary: null,
+        running: null,
+        rollback_versions: [],
+        seed_error: null,
+      });
+    }
     if (path.endsWith("/api/session/confirm")) {
+      const pair = JSON.parse(String(init?.body ?? "{}")) as {
+        source: string;
+        target: string;
+      };
       return Response.json({
         session_id: "session-1",
-        source: "teradata",
-        target: "databricks",
+        ...pair,
+        plan: fallbackPlan,
       });
     }
     return Response.json(settingsResponse);
@@ -58,6 +104,18 @@ async function confirmSystems(user: ReturnType<typeof userEvent.setup>) {
   await user.selectOptions(await screen.findByLabelText("Source platform"), "teradata");
   await user.selectOptions(screen.getByLabelText("Target platform"), "databricks");
   await user.click(screen.getByRole("button", { name: /confirm/i }));
+}
+
+function mockPlanningScroll() {
+  const main = screen.getByRole("main");
+  const planningSection = screen.getByRole("region", { name: "Migration Planning" });
+  Object.defineProperty(main, "offsetTop", { configurable: true, value: 58 });
+  Object.defineProperty(planningSection, "offsetTop", { configurable: true, value: 558 });
+  const scrollTo = vi.fn();
+  const scrollIntoView = vi.fn();
+  main.scrollTo = scrollTo;
+  planningSection.scrollIntoView = scrollIntoView;
+  return { scrollIntoView, scrollTo };
 }
 
 describe("MigraAI foundation UI", () => {
@@ -79,6 +137,106 @@ describe("MigraAI foundation UI", () => {
     expect(confirm).toBeDisabled();
     await user.selectOptions(screen.getByLabelText("Target platform"), "databricks");
     expect(confirm).toBeEnabled();
+  });
+
+  it("scrolls only the main container to Planning after Confirm", async () => {
+    const user = userEvent.setup();
+    mockApi(false);
+    render(<App />);
+    const { scrollIntoView, scrollTo } = mockPlanningScroll();
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: false }));
+
+    await confirmSystems(user);
+
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenCalledWith({ top: 500, behavior: "smooth" }),
+    );
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it("uses automatic main scrolling when reduced motion is preferred", async () => {
+    const user = userEvent.setup();
+    mockApi(false);
+    render(<App />);
+    const { scrollTo } = mockPlanningScroll();
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+
+    await confirmSystems(user);
+
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenCalledWith({ top: 500, behavior: "auto" }),
+    );
+  });
+
+  it("restores a confirmed pair and resumes polling a running plan", async () => {
+    const runningPlan = {
+      ...fallbackPlan,
+      state: "running",
+      progress: { phase: "running", elapsed_s: 12, devin_url: null },
+      origin: "devin",
+      reason: null,
+    };
+    const fetchMock = mockApi(
+      true,
+      { source: "teradata", target: "snowflake", confirmed: true },
+      runningPlan,
+    );
+    render(<App />);
+
+    const source = await screen.findByLabelText("Source platform");
+    const target = await screen.findByLabelText("Target platform");
+    const confirm = screen.getByRole("button", { name: /confirm/i });
+    expect(source).toHaveValue("teradata");
+    expect(target).toHaveValue("snowflake");
+    expect(source).toBeEnabled();
+    expect(target).toBeEnabled();
+    expect(confirm).toBeDisabled();
+    expect(await screen.findByText("running")).toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.some(([input]) => String(input).endsWith("/api/session/confirm")),
+    ).toBe(false);
+
+    await waitFor(
+      () =>
+        expect(
+          fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/api/plan")).length,
+        ).toBeGreaterThan(1),
+      { timeout: 5000 },
+    );
+  });
+
+  it("confirms a changed pair after restoring an existing session", async () => {
+    const user = userEvent.setup();
+    const fetchMock = mockApi(true, {
+      source: "teradata",
+      target: "databricks",
+      confirmed: true,
+    });
+    render(<App />);
+
+    const source = await screen.findByLabelText("Source platform");
+    const confirm = screen.getByRole("button", { name: /confirm/i });
+    expect(source).toBeEnabled();
+    expect(confirm).toBeDisabled();
+
+    await user.selectOptions(source, "snowflake");
+    expect(confirm).toBeEnabled();
+    await user.click(confirm);
+
+    await waitFor(() => expect(confirm).toBeDisabled());
+    const planPanel = screen.getByRole("region", { name: "Migration Planning" });
+    expect(within(planPanel).getByText("Snowflake")).toBeInTheDocument();
+    expect(within(planPanel).getByText("Databricks")).toBeInTheDocument();
+
+    const confirmCall = fetchMock.mock.calls.find(
+      ([input, init]) =>
+        String(input).endsWith("/api/session/confirm") && init?.method === "POST",
+    );
+    expect(confirmCall).toBeDefined();
+    expect(JSON.parse(String(confirmCall?.[1]?.body))).toEqual({
+      source: "snowflake",
+      target: "databricks",
+    });
   });
 
   it("keeps Upload disabled until confirmation and Convert disabled until upload", async () => {

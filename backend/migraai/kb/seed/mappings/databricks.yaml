@@ -1,0 +1,467 @@
+platform: databricks
+types:
+- native: TINYINT / BYTE
+  canonical: int8
+  notes: ''
+  claim:
+    text: Databricks TINYINT is a 1-byte signed integer from -128 to 127.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/tinyint-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: SMALLINT / SHORT
+  canonical: int16
+  notes: ''
+  claim:
+    text: Databricks SMALLINT is a 2-byte signed integer.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/smallint-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: INT / INTEGER
+  canonical: int32
+  notes: ''
+  claim:
+    text: Databricks INT is a 4-byte signed integer.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/int-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: BIGINT / LONG
+  canonical: int64
+  notes: ''
+  claim:
+    text: Databricks BIGINT is an 8-byte signed integer.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/bigint-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECIMAL(p,s) / NUMERIC
+  canonical: decimal
+  notes: Max precision 38; default DECIMAL(10,0).
+  claim:
+    text: Databricks DECIMAL precision ranges from 1 to 38 and defaults to 10.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/decimal-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: FLOAT / REAL
+  canonical: float32
+  notes: ''
+  claim:
+    text: Databricks FLOAT is a 4-byte single-precision floating point number.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/float-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: DOUBLE
+  canonical: float64
+  notes: ''
+  claim:
+    text: Databricks DOUBLE is an 8-byte double-precision floating point number.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/double-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRING
+  canonical: string
+  notes: char/varchar canonical types also map to STRING; lengths are not enforced by STRING.
+  claim:
+    text: Databricks STRING supports character sequences of any length.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/string-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: BINARY
+  canonical: binary
+  notes: varbinary also maps here.
+  claim:
+    text: Databricks BINARY holds byte sequences of any length.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/binary-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: BOOLEAN
+  canonical: boolean
+  notes: ''
+  claim:
+    text: Databricks BOOLEAN supports true, false and NULL.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/boolean-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE
+  canonical: date
+  notes: ''
+  claim:
+    text: Databricks DATE holds year, month and day without a time zone.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/date-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP_NTZ
+  canonical: timestamp
+  notes: Use TIMESTAMP_NTZ for wallclock timestamps.
+  claim:
+    text: TIMESTAMP_NTZ (Runtime 13.3 LTS+) ignores time zones in all operations.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/timestamp-ntz-type
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 13.3 LTS+
+    confidence: high
+- native: TIMESTAMP
+  canonical: timestamp_tz
+  notes: Stores an instant; displayed in session time zone; source offsets are not retained.
+  claim:
+    text: Databricks TIMESTAMP represents an absolute point in time using the session local time zone.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/timestamp-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTERVAL
+  canonical: interval
+  notes: ''
+  claim:
+    text: Databricks INTERVAL represents year-month or day-time intervals.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/interval-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARIANT
+  canonical: json
+  notes: Runtime 15.3+; use STRING on older runtimes.
+  claim:
+    text: Databricks VARIANT represents semi-structured data from Runtime 15.3.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/variant-type
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 15.3+
+    confidence: high
+- native: ARRAY<T>
+  canonical: array
+  notes: ''
+  claim:
+    text: Databricks ARRAY<elementType> is a sequence of elements of one type.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/array-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: MAP<K,V>
+  canonical: map
+  notes: Keys cannot be MAP.
+  claim:
+    text: Databricks MAP keys can be any type other than MAP.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/map-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRUCT<...>
+  canonical: struct
+  notes: ''
+  claim:
+    text: Databricks STRUCT holds a sequence of named fields.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/struct-type
+    accessed: '2026-10-15'
+    confidence: high
+- native: GEOGRAPHY
+  canonical: geography
+  notes: Runtime 17.1+, Public Preview.
+  claim:
+    text: Databricks GEOGRAPHY is available from Runtime 17.1 in Public Preview.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/geography-type
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 17.1+
+    confidence: medium
+- native: GEOMETRY
+  canonical: geometry
+  notes: ''
+  claim:
+    text: Databricks GEOMETRY uses a Euclidean coordinate system and requires Runtime 17.1 or above.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/geometry-type
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 17.1+
+    confidence: high
+- native: STRING (uuid)
+  canonical: uuid
+  notes: No native UUID type; uuid() returns a STRING.
+  claim:
+    text: Databricks uuid() returns a UUID as a string.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/uuid
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: coalesce(a, b, ...)
+  canonical: COALESCE(a, b, ...)
+  notes: ''
+  claim:
+    text: Databricks coalesce returns the first non-null argument.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/coalesce
+    accessed: '2026-10-15'
+    confidence: high
+- native: nvl(a, b)
+  canonical: COALESCE(a, b)
+  notes: ''
+  claim:
+    text: Databricks nvl(expr1, expr2) is a synonym for two-argument coalesce.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/nvl
+    accessed: '2026-10-15'
+    confidence: high
+- native: nvl2(a, b, c)
+  canonical: CASE WHEN a IS NOT NULL THEN b ELSE c END
+  notes: ''
+  claim:
+    text: Databricks nvl2 is a synonym for CASE WHEN expr1 IS NOT NULL expr2 ELSE expr3 END.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/nvl2
+    accessed: '2026-10-15'
+    confidence: high
+- native: nullif(a, b)
+  canonical: NULLIF(a, b)
+  notes: ''
+  claim:
+    text: Databricks nullif returns NULL when expr1 equals expr2.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/nullif
+    accessed: '2026-10-15'
+    confidence: high
+- native: iff(c, a, b) / if
+  canonical: CASE WHEN c THEN a ELSE b END
+  notes: ''
+  claim:
+    text: Databricks iff is a synonym for the if function.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/iff
+    accessed: '2026-10-15'
+    confidence: high
+- native: decode(x, k1, v1, ..., d)
+  canonical: CASE WHEN x = k1 THEN v1 ... ELSE d END
+  notes: ''
+  claim:
+    text: Databricks decode compares expr to each key in order and returns the value of the first match.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/decode
+    accessed: '2026-10-15'
+    confidence: high
+- native: zeroifnull(x)
+  canonical: COALESCE(x, 0)
+  notes: Runtime 16.0+.
+  claim:
+    text: Databricks zeroifnull is a synonym for coalesce(expr, 0) from Runtime 16.0.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/zeroifnull
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 16.0+
+    confidence: high
+- native: try_divide(a, b)
+  canonical: CASE WHEN b = 0 THEN NULL ELSE a / b END
+  notes: ''
+  claim:
+    text: Databricks try_divide returns NULL when the divisor is 0.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/try_divide
+    accessed: '2026-10-15'
+    confidence: high
+- native: equal_null(a, b) / a <=> b
+  canonical: a IS NOT DISTINCT FROM b
+  notes: ''
+  claim:
+    text: Databricks equal_null treats NULL as a comparable value.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/equal_null
+    accessed: '2026-10-15'
+    confidence: high
+- native: try_cast(x AS t)
+  canonical: CAST(x AS t)
+  notes: ''
+  claim:
+    text: Databricks try_cast returns NULL instead of failing when the value cannot be cast.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/try_cast
+    accessed: '2026-10-15'
+    confidence: high
+- native: dateadd(unit, n, ts) / timestampadd
+  canonical: ts + n * INTERVAL '1' <unit>
+  notes: ''
+  claim:
+    text: Databricks dateadd(unit, value, expr) is a synonym for timestampadd.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/dateadd
+    accessed: '2026-10-15'
+    confidence: high
+- native: date_add(d, n)
+  canonical: d + n * INTERVAL '1' DAY
+  notes: ''
+  claim:
+    text: Databricks date_add(startDate, numDays) returns the date numDays after startDate.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/date_add
+    accessed: '2026-10-15'
+    confidence: high
+- native: add_months(d, n)
+  canonical: d + n * INTERVAL '1' MONTH
+  notes: ''
+  claim:
+    text: Databricks add_months returns the date numMonths after startDate.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/add_months
+    accessed: '2026-10-15'
+    confidence: high
+- native: datediff(unit, a, b) / timestampdiff
+  canonical: EXTRACT(<unit> FROM b - a)
+  notes: ''
+  claim:
+    text: Databricks datediff(unit, start, end) is a synonym for timestampdiff.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/datediff3
+    accessed: '2026-10-15'
+    confidence: high
+- native: datediff(end, start)
+  canonical: CAST(end AS DATE) - CAST(start AS DATE)
+  notes: Two-argument form returns days.
+  claim:
+    text: Two-argument datediff returns the number of days from startDate to endDate.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/datediff
+    accessed: '2026-10-15'
+    confidence: high
+- native: date_trunc(unit, ts)
+  canonical: DATE_TRUNC(unit, ts)
+  notes: ''
+  claim:
+    text: Databricks date_trunc truncates a timestamp to the given unit.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/date_trunc
+    accessed: '2026-10-15'
+    confidence: high
+- native: last_day(d)
+  canonical: DATE_TRUNC('MONTH', d) + INTERVAL '1' MONTH - INTERVAL '1' DAY
+  notes: ''
+  claim:
+    text: Databricks last_day returns the last day of the month of a date.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/last_day
+    accessed: '2026-10-15'
+    confidence: high
+- native: current_timestamp()
+  canonical: CURRENT_TIMESTAMP
+  notes: ''
+  claim:
+    text: Databricks current_timestamp returns the timestamp at the start of query evaluation.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/current_timestamp
+    accessed: '2026-10-15'
+    confidence: high
+- native: to_date(s, fmt)
+  canonical: CAST(s AS DATE)
+  notes: Datetime patterns differ from other engines.
+  claim:
+    text: Databricks to_date casts a string to a date with an optional format.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/to_date
+    accessed: '2026-10-15'
+    confidence: high
+- native: to_timestamp(s, fmt)
+  canonical: CAST(s AS TIMESTAMP)
+  notes: ''
+  claim:
+    text: Databricks to_timestamp casts a string to a timestamp with an optional format.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/to_timestamp
+    accessed: '2026-10-15'
+    confidence: high
+- native: date_format(ts, fmt)
+  canonical: CAST(ts AS VARCHAR)
+  notes: ''
+  claim:
+    text: Databricks date_format converts a timestamp to a string using a format.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/date_format
+    accessed: '2026-10-15'
+    confidence: high
+- native: convert_timezone(src, tgt, ts)
+  canonical: ts AT TIME ZONE tgt
+  notes: Runtime 13.3 LTS+.
+  claim:
+    text: Databricks convert_timezone converts TIMESTAMP_NTZ values to another time zone (Runtime 13.3 LTS+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/convert_timezone
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 13.3 LTS+
+    confidence: high
+- native: length(s) / char_length
+  canonical: CHAR_LENGTH(s)
+  notes: ''
+  claim:
+    text: Databricks length returns character length for strings and byte count for binary.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/length
+    accessed: '2026-10-15'
+    confidence: high
+- native: instr(s, sub)
+  canonical: POSITION(sub IN s)
+  notes: ''
+  claim:
+    text: Databricks instr returns the 1-based index of the first occurrence of substr.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/instr
+    accessed: '2026-10-15'
+    confidence: high
+- native: split_part(s, d, n)
+  canonical: SPLIT_PART(s, d, n)
+  notes: ''
+  claim:
+    text: Databricks split_part splits a string on a delimiter and returns the requested part.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/split_part
+    accessed: '2026-10-15'
+    confidence: high
+- native: concat_ws(sep, a, ...)
+  canonical: a || sep || b
+  notes: ''
+  claim:
+    text: Databricks concat_ws concatenates strings separated by sep.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/concat_ws
+    accessed: '2026-10-15'
+    confidence: high
+- native: s ilike p
+  canonical: UPPER(s) LIKE UPPER(p)
+  notes: ''
+  claim:
+    text: Databricks ilike matches a pattern case-insensitively.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/ilike
+    accessed: '2026-10-15'
+    confidence: high
+- native: regexp_replace(s, p, r)
+  canonical: REGEXP_REPLACE(s, p, r)
+  notes: Java regex.
+  claim:
+    text: Databricks regexp_replace replaces all substrings matching a regex.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/regexp_replace
+    accessed: '2026-10-15'
+    confidence: high
+- native: regexp_extract(s, p, i)
+  canonical: SUBSTRING(s SIMILAR p ESCAPE '#')
+  notes: ''
+  claim:
+    text: Databricks regexp_extract returns the first match for a given regex group index.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/regexp_extract
+    accessed: '2026-10-15'
+    confidence: high
+- native: listagg(x, d) / string_agg
+  canonical: LISTAGG(x, d) WITHIN GROUP (ORDER BY o)
+  notes: Runtime 16.4+.
+  claim:
+    text: Databricks listagg (alias string_agg) concatenates values within a group from Runtime 16.4.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/listagg
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 16.4+
+    confidence: high
+- native: array_agg(x) / collect_list
+  canonical: ARRAY_AGG(x)
+  notes: ''
+  claim:
+    text: Databricks collect_list is a synonym for array_agg.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/collect_list
+    accessed: '2026-10-15'
+    confidence: high
+- native: median(x)
+  canonical: PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY x)
+  notes: ''
+  claim:
+    text: Databricks median returns the median of a group (Runtime 11.3 LTS+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/median
+    accessed: '2026-10-15'
+    confidence: high
+- native: approx_count_distinct(x)
+  canonical: COUNT(DISTINCT x)
+  notes: Approximate (HLL++).
+  claim:
+    text: Databricks approx_count_distinct uses the HyperLogLog++ algorithm.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/approx_count_distinct
+    accessed: '2026-10-15'
+    confidence: high
+- native: size(a) / array_size
+  canonical: CARDINALITY(a)
+  notes: ''
+  claim:
+    text: Databricks size returns the cardinality of an array or map.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/size
+    accessed: '2026-10-15'
+    confidence: high
+- native: parse_json(s)
+  canonical: JSON_QUERY(s, '$')
+  notes: Returns VARIANT; Runtime 15.3+.
+  claim:
+    text: Databricks parse_json returns a VARIANT from a JSON string (Runtime 15.3+).
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/parse_json
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 15.3+
+    confidence: high
+- native: get_json_object(j, path)
+  canonical: JSON_VALUE(j, path)
+  notes: 'Databricks recommends VARIANT with the : operator for new code.'
+  claim:
+    text: 'For new code Databricks recommends VARIANT and the : operator over get_json_object.'
+    url: https://docs.databricks.com/aws/en/sql/language-manual/functions/get_json_object
+    accessed: '2026-10-15'
+    confidence: high

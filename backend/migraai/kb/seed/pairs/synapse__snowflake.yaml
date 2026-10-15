@@ -1,0 +1,292 @@
+source: synapse
+target: snowflake
+architecture_overview:
+- text: Dedicated SQL pool uses a scale-out architecture that spreads computational processing across multiple nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: &id001 2026-10-15
+  confidence: high
+- text: The control node receives queries, optimises them for parallel execution and hands the work to compute nodes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: *id001
+  confidence: high
+- text: Snowflake's architecture is a hybrid of traditional shared-disk and shared-nothing database architectures.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: *id001
+  confidence: high
+- text: Snowflake is a self-managed cloud service with no hardware or software to install, configure or manage.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: *id001
+  confidence: high
+major_differences:
+  storage:
+  - text: Tables get a clustered columnstore index by default when no index option is specified in dedicated SQL pool.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: *id001
+    confidence: high
+  - text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: *id001
+    confidence: high
+  compute:
+  - text: Compute power in dedicated SQL pool is measured and scaled in data warehouse units (DWUs).
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Workload management in dedicated SQL pool uses workload classification, importance and isolation to manage resources.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+    accessed: *id001
+    confidence: high
+  - text: Virtual warehouses provide the compute required for queries and all DML operations including data loading.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: *id001
+    confidence: high
+  - text: A warehouse can be resized at any time, even while running, to add or remove compute resources.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: *id001
+    confidence: high
+  security:
+  - text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+    accessed: *id001
+    confidence: high
+  - text: Snowflake access control assigns privileges to roles, which are assigned to users (RBAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: *id001
+    confidence: high
+  - text: Snowflake Dynamic Data Masking uses masking policies to obfuscate column data at query time.
+    url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+    accessed: *id001
+    confidence: high
+  scalability:
+  - text: In dedicated SQL pool compute is separate from storage, so compute can be scaled independently of the data held.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+    accessed: *id001
+    confidence: high
+  - text: Dedicated SQL pool compute resources can be paused and resumed.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: *id001
+    confidence: high
+  - text: Virtual warehouses provide the compute required for queries and all DML operations including data loading.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: *id001
+    confidence: high
+  - text: Multi-cluster warehouses let Snowflake scale compute resources for concurrency needs.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: *id001
+    confidence: high
+recommended_strategy: Export dedicated-pool tables to cloud storage (CETAS/PolyBase), recreate them as Snowflake tables (micro-partitioned, optionally clustered), translate T-SQL with SnowConvert, and load via COPY INTO. Replace DWU/resource-class tuning with right-sized virtual warehouses and multi-cluster scaling; map security to RBAC, masking policies and row access policies.
+object_mapping:
+- source_object: Distributed table
+  target_object: Standard table + optional clustering
+  notes: Snowflake stores data in micro-partitions; clustering keys replace hash distribution for big tables.
+  claim:
+    text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: *id001
+    confidence: high
+- source_object: Clustered columnstore index
+  target_object: Micro-partition pruning
+  notes: No explicit index object; Snowflake prunes micro-partitions automatically.
+  claim:
+    text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: *id001
+    confidence: high
+- source_object: Stored procedure (T-SQL)
+  target_object: Snowflake Scripting procedure
+  notes: Rewrite T-SQL procedures in Snowflake Scripting or supported languages.
+  claim:
+    text: Snowflake stored procedures support branching, looping and other programmatic constructs.
+    url: https://docs.snowflake.com/en/developer-guide/stored-procedure/stored-procedures-overview
+    accessed: *id001
+    confidence: high
+- source_object: Materialized view
+  target_object: Materialized view
+  notes: Snowflake materialized views exist.
+  claim:
+    text: A Snowflake materialized view is a pre-computed data set stored for later use, requiring Enterprise Edition.
+    url: https://docs.snowflake.com/en/user-guide/views-materialized
+    accessed: *id001
+    confidence: high
+- source_object: IDENTITY column
+  target_object: Sequence
+  notes: Snowflake supports identity-style columns.
+  claim:
+    text: Snowflake CREATE SEQUENCE creates a sequence generating sequential, unique numbers (gaps not guaranteed).
+    url: https://docs.snowflake.com/en/sql-reference/sql/create-sequence
+    accessed: *id001
+    confidence: high
+- source_object: MERGE statement
+  target_object: MERGE
+  notes: Snowflake supports MERGE.
+  claim:
+    text: Snowflake MERGE inserts, updates and deletes values in a table based on values in a second table or subquery.
+    url: https://docs.snowflake.com/en/sql-reference/sql/merge
+    accessed: *id001
+    confidence: high
+sql_dialect_differences:
+- text: CREATE TABLE AS SELECT (CTAS) creates and populates a new table from a SELECT in one parallel operation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-ctas
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports WHILE loops for repeating a block of statements.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-loops
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: *id001
+  confidence: high
+- text: The T-SQL MERGE reference applies MERGE to dedicated SQL pool with no preview flag; the Synapse overview-features page lists it as 'Yes (preview)' — docs disagree.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: low
+- text: In Snowflake, TOP n and LIMIT count are equivalent clauses.
+  url: https://docs.snowflake.com/en/sql-reference/constructs/top_n
+  accessed: *id001
+  confidence: high
+- text: Snowflake MERGE inserts, updates and deletes values in a table based on values in a second table or subquery.
+  url: https://docs.snowflake.com/en/sql-reference/sql/merge
+  accessed: *id001
+  confidence: high
+- text: SnowConvert provides a translation reference mapping Transact-SQL (SQL Server/Azure Synapse) data types to Snowflake types.
+  url: https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/code-conversion/translation-references/transact/transact-data-types
+  accessed: *id001
+  confidence: medium
+- text: Snowflake transactions guarantee ACID properties and are associated with a single session.
+  url: https://docs.snowflake.com/en/sql-reference/transactions
+  accessed: *id001
+  confidence: high
+data_movement:
+- text: The COPY statement loads data from external storage accounts into Azure Synapse Analytics.
+  url: https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+  accessed: *id001
+  confidence: high
+- text: COPY INTO loads data from staged files in cloud storage into a table.
+  url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-table
+  accessed: *id001
+  confidence: high
+- text: PolyBase with T-SQL commands can load data from Azure Blob Storage into dedicated SQL pool tables.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-load-from-azure-blob-storage-with-polybase
+  accessed: *id001
+  confidence: high
+- text: SnowConvert provides a translation reference mapping Transact-SQL (SQL Server/Azure Synapse) data types to Snowflake types.
+  url: https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/code-conversion/translation-references/transact/transact-data-types
+  accessed: *id001
+  confidence: medium
+etl_migration:
+- text: Microsoft recommends an extract, load and transform (ELT) approach for loading dedicated SQL pool.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: *id001
+  confidence: high
+- text: SnowConvert provides a translation reference mapping Transact-SQL (SQL Server/Azure Synapse) data types to Snowflake types.
+  url: https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/code-conversion/translation-references/transact/transact-data-types
+  accessed: *id001
+  confidence: medium
+- text: A Snowflake task can run on a fixed schedule or be triggered when a stream has new data.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: *id001
+  confidence: high
+- text: A stream object records DML changes (inserts, updates, deletes) made to a table — Snowflake's change data capture.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: *id001
+  confidence: high
+security_migration:
+- text: Column-level security restricts access to table columns based on the user's execution context or group membership.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/column-level-security
+  accessed: *id001
+  confidence: high
+- text: Dedicated SQL pool supports both SQL authentication and Microsoft Entra ID authentication.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-authentication
+  accessed: *id001
+  confidence: high
+- text: Snowflake access control assigns privileges to roles, which are assigned to users (RBAC).
+  url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+  accessed: *id001
+  confidence: high
+- text: Snowflake Dynamic Data Masking uses masking policies to obfuscate column data at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: *id001
+  confidence: high
+- text: A row access policy is a schema-level object that determines whether a given row can be viewed from SELECT, UPDATE, DELETE or MERGE statements.
+  url: https://docs.snowflake.com/en/user-guide/security-row-intro
+  accessed: *id001
+  confidence: high
+unsupported_features:
+- id: ufeat_dwumanaged_distrib
+  claim:
+    text: Dedicated SQL pool tables can be hash-distributed, round-robin distributed or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: *id001
+    confidence: high
+- id: ufeat_tsurface_limits
+  claim:
+    text: Dedicated SQL pool allows at most eight levels of stored procedure nesting.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: *id001
+    confidence: high
+- id: ufeat_polybase_semantics
+  claim:
+    text: PolyBase with T-SQL commands can load data from Azure Blob Storage into dedicated SQL pool tables.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-load-from-azure-blob-storage-with-polybase
+    accessed: *id001
+    confidence: high
+workarounds:
+- for: ufeat_dwumanaged_distrib
+  claim:
+    text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: *id001
+    confidence: high
+- for: ufeat_tsurface_limits
+  claim:
+    text: Snowflake Scripting is an extension to Snowflake SQL that adds procedural logic for stored procedures and UDFs.
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+    accessed: *id001
+    confidence: high
+- for: ufeat_polybase_semantics
+  claim:
+    text: COPY INTO loads data from staged files in cloud storage into a table.
+    url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-table
+    accessed: *id001
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: T-SQL dialect differences require SnowConvert-assisted translation.
+  data:
+    level: medium
+    notes: Distribution/columnstore decisions map to clustering choices that affect pruning.
+  security:
+    level: medium
+    notes: SQL pool security maps to account-level RBAC and policies.
+  governance:
+    level: low
+    notes: Snowflake governance model differs; plan role hierarchy.
+  platform:
+    level: medium
+    notes: DWU model replaced by credit-based warehouses.
+  operational:
+    level: low
+    notes: Pause/resume concepts map to warehouse auto-suspend.
+optimization_hints:
+- text: Snowflake stores table data in micro-partitions rather than user-managed static partitions.
+  url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+  accessed: *id001
+  confidence: high
+- text: Multi-cluster warehouses let Snowflake scale compute resources for concurrency needs.
+  url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+  accessed: *id001
+  confidence: high
+- text: A Snowflake materialized view is a pre-computed data set stored for later use, requiring Enterprise Edition.
+  url: https://docs.snowflake.com/en/user-guide/views-materialized
+  accessed: *id001
+  confidence: high
+- text: A warehouse can be resized at any time, even while running, to add or remove compute resources.
+  url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+  accessed: *id001
+  confidence: high
