@@ -21,7 +21,17 @@ CASES = {
     ),
     "taskflow": (
         b"from airflow.decorators import task, dag\n"
-        b"@dag(dag_id='tf')\ndef pipe():\n    @task\n    def ext():\n        return 1\n    @task\n    def load(x):\n        pass\n    load(ext())\npipe()\n",  # noqa: E501
+        b"""@dag(dag_id='tf')
+def pipe():
+    @task
+    def ext():
+        return 1
+    @task
+    def load(x):
+        pass
+    load(ext())
+pipe()
+""",
         "dags/tf.py",
         "task",
     ),
@@ -35,8 +45,12 @@ CASES = {
         "dag",
     ),
     "trigger_dagrun": (
-        b"from airflow import DAG\nfrom airflow.operators.trigger_dagrun import TriggerDagRunOperator\n"  # noqa: E501
-        b"with DAG('src') as d:\n    t = TriggerDagRunOperator(task_id='t', trigger_dag_id='child')\n",  # noqa: E501
+        b"""from airflow import DAG
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+"""
+        b"""with DAG('src') as d:
+    t = TriggerDagRunOperator(task_id='t', trigger_dag_id='child')
+""",
         "dags/s.py",
         "task",
     ),

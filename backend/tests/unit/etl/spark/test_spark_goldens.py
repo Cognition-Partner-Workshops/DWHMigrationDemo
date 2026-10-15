@@ -19,12 +19,19 @@ CASES = {
         "function",
     ),
     "jdbc_chain": (
-        b"def f(spark):\n    df = spark.read.format('jdbc').option('dbtable', 's.t').load()\n    df.write.format('jdbc').option('dbtable', 's.w').save()\n",  # noqa: E501
+        b"""def f(spark):
+    df = spark.read.format('jdbc').option('dbtable', 's.t').load()
+    df.write.format('jdbc').option('dbtable', 's.w').save()
+""",
         "j/x.py",
         "function",
     ),
     "scala_object": (
-        b"package a.b\nobject J {\n  def main(): Unit = { spark.read.table('s.t').write.saveAsTable('m.w') }\n}\n",  # noqa: E501
+        b"""package a.b
+object J {
+  def main(): Unit = { spark.read.table('s.t').write.saveAsTable('m.w') }
+}
+""",
         "j/J.scala",
         "scala_object",
     ),

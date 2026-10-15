@@ -1,0 +1,24 @@
+BEGIN DSJOB
+   Identifier "dsexport_products"
+   OLEType "CJobDefn"
+   JobType "0"
+   Name "dsexport_products"
+   BEGIN DSRECORD
+      Identifier "V0S1"
+      OLEType "CCustomStage"
+      Name "src_prod"
+      StageType "OracleConnectorPX"
+      TableName "ods.products"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S2"
+      OLEType "CTrxStage"
+      Name "tx_category"
+      StageType "CTransformerStage"
+      BEGIN DSSUBRECORD
+         Identifier "C1"
+         ColumnName "SKU"
+         Derivation "src_prod.SKU"
+      END DSSUBRECORD
+   END DSRECORD
+END DSJOB

@@ -1,24 +1,26 @@
 BEGIN DSJOB
-   Identifier "jb"
+   Identifier "recovered_job"
+   OLEType "CJobDefn"
    JobType "0"
-   Name "jb"
+   Name "recovered_job"
    BEGIN DSRECORD
-      Identifier "good1"
+      Identifier "V0S1"
       OLEType "CCustomStage"
-      Name "good1"
+      Name "good_src"
       StageType "OracleConnectorPX"
-      TableName "a"
+      TableName "ods.returns"
    END DSRECORD
    BEGIN DSRECORD
-      Identifier "bad"
+      Identifier "V0S2"
       OLEType "CCustomStage"
-      Name "bad"
-      @@@unparseable@@@
-   BEGIN DSRECORD
-      Identifier "good2"
-      OLEType "CCustomStage"
-      Name "good2"
+      Name "bad_stage"
       StageType "ODBCConnectorPX"
-      TableName "b"
+      @@@corrupted_property_line@@@
+   BEGIN DSRECORD
+      Identifier "V0S3"
+      OLEType "CCustomStage"
+      Name "good_tgt"
+      StageType "DB2ConnectorPX"
+      TableName "mart.returns_fact"
    END DSRECORD
 END DSJOB

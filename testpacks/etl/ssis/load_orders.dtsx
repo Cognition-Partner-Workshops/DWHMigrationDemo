@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ExecutableType="SSIS.Package.3" DTS:refId="Package">
+  <DTS:Property DTS:Name="ObjectName">load_orders</DTS:Property>
+  <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[dw]">
+    <DTS:Property DTS:Name="ObjectName">DW_OLEDB</DTS:Property>
+    <DTS:Property DTS:Name="ConnectionString">Provider=SQLNCLI11;Data Source=dwhost;Initial Catalog=DW;User ID=etl;Password=S3rv3r!</DTS:Property>
+  </DTS:ConnectionManager>
+  <DTS:Executable DTS:ExecutableType="STOCK:SEQUENCE" DTS:refId="Package\seq_orders">
+    <DTS:Property DTS:Name="ObjectName">seq_orders</DTS:Property>
+    <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\seq_orders\truncate_stg">
+      <DTS:Property DTS:Name="ObjectName">truncate_stg</DTS:Property>
+      <ObjectData>
+        <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+          SQLTask:Connection="DW_OLEDB">
+          <SQLTask:SqlStatementSource>TRUNCATE TABLE STG_ORDERS</SQLTask:SqlStatementSource>
+        </SQLTask:SqlTaskData>
+      </ObjectData>
+      <DTS:PrecedenceConstraint DTS:From="Package\seq_orders" DTS:To="Package\load_fact">
+    <DTS:Property DTS:Name="From">Package\seq_orders</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\load_fact</DTS:Property>
+  </DTS:PrecedenceConstraint>
+  <DTS:PrecedenceConstraint DTS:From="Package\load_fact" DTS:To="Package\compress_output">
+    <DTS:Property DTS:Name="From">Package\load_fact</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\compress_output</DTS:Property>
+  </DTS:PrecedenceConstraint>
+  <DTS:PrecedenceConstraint DTS:From="Package\compress_output" DTS:To="Package\good_finish">
+    <DTS:Property DTS:Name="From">Package\compress_output</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\good_finish</DTS:Property>
+  </DTS:PrecedenceConstraint>
+</DTS:Executable>
+    <DTS:Executable DTS:ExecutableType="SSIS.Pipeline.3" DTS:refId="Package\seq_orders\df_orders">
+      <DTS:Property DTS:Name="ObjectName">df_orders</DTS:Property>
+      <ObjectData>
+        <pipeline>
+          <components>
+            <component componentClassID="Microsoft.OLEDBSource" name="src_orders"
+              connectionManagerID="Package.ConnectionManagers[dw]">
+              <properties>
+                <property name="SqlCommand">SELECT ORDER_ID, CUST_ID, GROSS_AMT FROM ODS_ORDERS</property>
+              </properties>
+            </component>
+            <component componentClassID="Microsoft.ConditionalSplit" name="cs_amount">
+              <properties>
+                <property name="Expression">GROSS_AMT &gt; 1000</property>
+              </properties>
+            </component>
+            <component componentClassID="Microsoft.OLEDBDestination" name="dst_stg"
+              connectionManagerID="Package.ConnectionManagers[dw]">
+              <properties>
+                <property name="OpenRowset">[dbo].[STG_ORDERS]</property>
+              </properties>
+            </component>
+          </components>
+        </pipeline>
+      </ObjectData>
+    </DTS:Executable>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\load_fact">
+    <DTS:Property DTS:Name="ObjectName">load_fact</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_OLEDB">
+        <SQLTask:SqlStatementSource>INSERT INTO MART_ORDER_FACT SELECT * FROM STG_ORDERS</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="STOCK:EXECUTEPROCESS" DTS:refId="Package\compress_output">
+    <DTS:Property DTS:Name="ObjectName">compress_output</DTS:Property>
+    <ObjectData>
+      <ExecuteProcessTask>
+        <Executable>sh scripts/compress_files.sh</Executable>
+      </ExecuteProcessTask>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="VENDOR:AuditTrail" DTS:refId="Package\audit_hook">
+    <DTS:Property DTS:Name="ObjectName">audit_hook</DTS:Property>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\good_finish">
+    <DTS:Property DTS:Name="ObjectName">good_finish</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_OLEDB">
+        <SQLTask:SqlStatementSource>SELECT COUNT(*) FROM MART_ORDER_FACT</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+  </DTS:Executable>
+</DTS:Executable>

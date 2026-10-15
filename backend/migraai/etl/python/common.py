@@ -249,6 +249,8 @@ def parse_xml(data: bytes) -> XmlNode:
 
     from defusedxml.sax import make_parser
 
+    if b"<!DOCTYPE" in data.upper():
+        raise XmlParseError("DTDs are not allowed.", 1)
     root_holder: list[XmlNode] = []
     stack: list[XmlNode] = []
 

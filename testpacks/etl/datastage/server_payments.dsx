@@ -1,0 +1,46 @@
+BEGIN DSJOB
+   Identifier "server_payments"
+   OLEType "CJobDefn"
+   JobType "1"
+   Name "server_payments"
+   BEGIN DSRECORD
+      Identifier "V0S1"
+      OLEType "CCustomStage"
+      Name "src_pay"
+      StageType "DB2ConnectorPX"
+      TableName "fin.payments"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S2"
+      OLEType "CTrxStage"
+      Name "tx_validate"
+      StageType "CTransformerStage"
+      Constraint "AMOUNT <> 0"
+      BEGIN DSSUBRECORD
+         Identifier "C1"
+         ColumnName "PAY_ID"
+         Derivation "src_pay.PAY_ID"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Identifier "C2"
+         ColumnName "STATUS_CD"
+         Derivation "If AMOUNT < 0 Then 'REFUND' Else 'PAYMENT'"
+      END DSSUBRECORD
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S3"
+      OLEType "CCustomStage"
+      Name "tgt_pay"
+      StageType "OracleConnectorPX"
+      TableName "mart.payment_fact"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S4"
+      OLEType "CCustomStage"
+      Name "reject_rows"
+      StageType "ODBCConnectorPX"
+      XMLProperties =+=+=+=
+<XMLProperties><InsertStatement>INSERT INTO etl.rejects (ROW_DATA, REASON) VALUES (?, 'VALIDATION')</InsertStatement></XMLProperties>
+      =+=+=+=
+   END DSRECORD
+END DSJOB

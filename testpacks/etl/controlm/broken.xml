@@ -1,5 +1,0 @@
-<DEFTABLE><FOLDER FOLDER_NAME="APP2">
-<JOB JOBNAME="ok1" TASKTYPE="Command" CMDLINE="sh a.sh"/>
-<JOB JOBNAME="bad" TASKTYPE="Command" CMDLINE='sh "unterminated'/>
-<JOB JOBNAME="ok2" TASKTYPE="Command" CMDLINE="sh b.sh"/>
-</FOLDER></DEFTABLE>

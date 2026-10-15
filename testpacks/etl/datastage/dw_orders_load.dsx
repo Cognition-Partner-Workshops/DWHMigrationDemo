@@ -1,0 +1,83 @@
+BEGIN DSJOB
+   Identifier "dw_orders_load"
+   OLEType "CJobDefn"
+   JobType "0"
+   Name "dw_orders_load"
+   BEGIN DSRECORD
+      Identifier "P_BATCH"
+      OLEType "CJobParameter"
+      Name "P_BATCH_DT"
+      ParamType "0"
+      Prompt "Batch date"
+      Default "#2024-03-01#"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S1"
+      OLEType "CCustomStage"
+      Name "src_orders"
+      StageType "OracleConnectorPX"
+      TableName "ods.orders"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S2"
+      OLEType "CCustomStage"
+      Name "sql_items"
+      StageType "DB2ConnectorPX"
+      XMLProperties =+=+=+=
+<XMLProperties><TableName>inv.order_items</TableName><SelectStatement>SELECT ITEM_ID, ORDER_ID, QTY FROM inv.order_items WHERE LOAD_DT = '#P_BATCH_DT#'</SelectStatement></XMLProperties>
+      =+=+=+=
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S3"
+      OLEType "CTrxStage"
+      Name "tx_enrich"
+      StageType "CTransformerStage"
+      Constraint "ORDER_AMT > 0"
+      BEGIN DSSUBRECORD
+         Identifier "C1"
+         ColumnName "ORDER_ID"
+         Derivation "src_orders.ORDER_ID"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Identifier "C2"
+         ColumnName "NET_AMT"
+         Derivation "GROSS_AMT - DISCOUNT"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Identifier "C3"
+         ColumnName "SEG_FLAG"
+         Derivation "If #P_BATCH_DT# > '2024-01-01' Then 'N' Else 'O'"
+      END DSSUBRECORD
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S4"
+      OLEType "CCustomStage"
+      Name "tgt_fact"
+      StageType "ODBCConnectorPX"
+      TableName "mart.order_fact"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "L1"
+      OLEType "CTrxOutput"
+      Name "ln_orders_tx"
+      Stage "src_orders"
+      Partner "tx_enrich"
+      BEGIN DSSUBRECORD
+         Identifier "LC1"
+         ColumnName "ORDER_ID"
+         Derivation "src_orders.ORDER_ID"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Identifier "LC2"
+         ColumnName "GROSS_AMT"
+         Derivation "src_orders.GROSS_AMT"
+      END DSSUBRECORD
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "L2"
+      OLEType "CTrxInput"
+      Name "ln_tx_fact"
+      Stage "tx_enrich"
+      Partner "tgt_fact"
+   END DSRECORD
+END DSJOB

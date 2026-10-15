@@ -1,468 +1,408 @@
 objects:
 - type: folder
-  qualified_name: APP1
+  qualified_name: FIN_CLOSE
   status: parsed
 - type: job
-  qualified_name: APP1.j1
+  qualified_name: FIN_CLOSE.close_ap
   status: parsed
 - type: job
-  qualified_name: APP1.j10
+  qualified_name: FIN_CLOSE.close_ar
   status: parsed
 - type: job
-  qualified_name: APP1.j11
+  qualified_name: FIN_CLOSE.close_gl
   status: parsed
 - type: job
-  qualified_name: APP1.j12
+  qualified_name: FIN_CLOSE.run_reports
   status: parsed
 - type: job
-  qualified_name: APP1.j2
-  status: parsed
-- type: job
-  qualified_name: APP1.j3
-  status: parsed
-- type: job
-  qualified_name: APP1.j4
-  status: parsed
-- type: job
-  qualified_name: APP1.j5
-  status: parsed
-- type: job
-  qualified_name: APP1.j6
-  status: parsed
-- type: job
-  qualified_name: APP1.j7
-  status: parsed
-- type: job
-  qualified_name: APP1.j8
-  status: parsed
-- type: job
-  qualified_name: APP1.j9
-  status: parsed
-- type: folder
-  qualified_name: APP1.sub
-  status: parsed
-- type: folder
-  qualified_name: APP2
-  status: parsed
-- type: job
-  qualified_name: APP2.bad
-  status: parsed
-- type: job
-  qualified_name: APP2.ok1
-  status: parsed
-- type: job
-  qualified_name: APP2.ok2
-  status: parsed
-- type: folder
-  qualified_name: F1
-  status: parsed
-- type: job
-  qualified_name: F1.job1
-  status: parsed
-- type: job
-  qualified_name: F1.job10
-  status: parsed
-- type: job
-  qualified_name: F1.job2
-  status: parsed
-- type: job
-  qualified_name: F1.job3
-  status: parsed
-- type: job
-  qualified_name: F1.job4
-  status: parsed
-- type: job
-  qualified_name: F1.job5
-  status: parsed
-- type: job
-  qualified_name: F1.job6
-  status: parsed
-- type: job
-  qualified_name: F1.job7
-  status: parsed
-- type: job
-  qualified_name: F1.job8
-  status: parsed
-- type: job
-  qualified_name: F1.job9
-  status: parsed
-- type: job
-  qualified_name: F1.sqljob1
-  status: parsed
-- type: job
-  qualified_name: F1.sqljob2
-  status: parsed
-- type: job
-  qualified_name: F1.sqljob3
-  status: parsed
-- type: job
-  qualified_name: F1.sqljob4
-  status: parsed
-- type: job
-  qualified_name: F1.sqljob5
-  status: parsed
-- type: job
-  qualified_name: F1.sqljob6
-  status: parsed
-- type: job
-  qualified_name: F1.sqljob7
+  qualified_name: FIN_CLOSE.signoff
   status: parsed
 - type: calendar
-  qualified_name: cal
+  qualified_name: MONTH_END
   status: parsed
-- type: condition
-  qualified_name: done_1
+- type: calendar
+  qualified_name: NIGHTLY_CAL
   status: parsed
-- type: condition
-  qualified_name: done_10
-  status: parsed
-- type: condition
-  qualified_name: done_11
-  status: parsed
-- type: condition
-  qualified_name: done_12
-  status: parsed
-- type: condition
-  qualified_name: done_2
-  status: parsed
-- type: condition
-  qualified_name: done_3
-  status: parsed
-- type: condition
-  qualified_name: done_4
-  status: parsed
-- type: condition
-  qualified_name: done_5
-  status: parsed
-- type: condition
-  qualified_name: done_6
-  status: parsed
-- type: condition
-  qualified_name: done_7
-  status: parsed
-- type: condition
-  qualified_name: done_8
-  status: parsed
-- type: condition
-  qualified_name: done_9
+- type: folder
+  qualified_name: NightlyLoad
   status: parsed
 - type: job
-  qualified_name: weird
+  qualified_name: NightlyLoad.audit_counts
+  status: parsed
+- type: job
+  qualified_name: NightlyLoad.backup_db
+  status: parsed
+- type: job
+  qualified_name: NightlyLoad.extract_products_api
+  status: parsed
+- type: job
+  qualified_name: NightlyLoad.load_products_api
+  status: parsed
+- type: job
+  qualified_name: NightlyLoad.mystery_task
+  status: parsed
+- type: job
+  qualified_name: NightlyLoad.post_reports
+  status: parsed
+- type: job
+  qualified_name: NightlyLoad.run_sql_recon
+  status: parsed
+- type: job
+  qualified_name: NightlyLoad.sync_crm
+  status: parsed
+- type: job
+  qualified_name: NightlyLoad.validate_gl
+  status: parsed
+- type: folder
+  qualified_name: RETAIL_DAILY
+  status: parsed
+- type: folder
+  qualified_name: RETAIL_DAILY.cleanup
+  status: parsed
+- type: job
+  qualified_name: RETAIL_DAILY.extract_customers
+  status: parsed
+- type: job
+  qualified_name: RETAIL_DAILY.extract_orders
+  status: parsed
+- type: job
+  qualified_name: RETAIL_DAILY.extract_payments
+  status: parsed
+- type: job
+  qualified_name: RETAIL_DAILY.load_marts
+  status: parsed
+- type: job
+  qualified_name: RETAIL_DAILY.transform_core
+  status: parsed
+- type: folder
+  qualified_name: RETAIL_RECON
+  status: parsed
+- type: job
+  qualified_name: RETAIL_RECON.after_bad
+  status: parsed
+- type: job
+  qualified_name: RETAIL_RECON.bad_quote
+  status: parsed
+- type: job
+  qualified_name: RETAIL_RECON.legacy_widget
+  status: parsed
+- type: job
+  qualified_name: RETAIL_RECON.notify_ops
+  status: parsed
+- type: job
+  qualified_name: RETAIL_RECON.recon_orders
+  status: parsed
+- type: job
+  qualified_name: RETAIL_RECON.recon_payments
+  status: parsed
+- type: calendar
+  qualified_name: WEEKDAYS_CAL
+  status: parsed
+- type: condition
+  qualified_name: ap_closed
+  status: parsed
+- type: condition
+  qualified_name: ar_closed
+  status: parsed
+- type: condition
+  qualified_name: extract_customers_done
+  status: parsed
+- type: condition
+  qualified_name: extract_orders_done
+  status: parsed
+- type: condition
+  qualified_name: extract_payments_done
+  status: parsed
+- type: condition
+  qualified_name: extract_products_done
+  status: parsed
+- type: condition
+  qualified_name: gl_closed
+  status: parsed
+- type: condition
+  qualified_name: load_marts_done
+  status: parsed
+- type: condition
+  qualified_name: load_products_done
+  status: parsed
+- type: condition
+  qualified_name: recon_orders_done
+  status: parsed
+- type: condition
+  qualified_name: recon_payments_done
+  status: parsed
+- type: condition
+  qualified_name: reports_done
+  status: parsed
+- type: condition
+  qualified_name: transform_done
   status: parsed
 edges:
-- from: APP1.j1
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j1
-  to: dep_1
-  kind: etl_reads
-  external: true
-- from: APP1.j1
-  to: done_1
+- from: FIN_CLOSE.close_ap
+  to: ap_closed
   kind: etl_writes
   external: false
-- from: APP1.j1
-  to: scripts/step1.sh
+- from: FIN_CLOSE.close_ap
+  to: gl_closed
+  kind: etl_reads
+  external: false
+- from: FIN_CLOSE.close_ap
+  to: jobs/close_ap.sh
   kind: etl_runs
   external: true
-- from: APP1.j10
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j10
-  to: dep_10
-  kind: etl_reads
-  external: true
-- from: APP1.j10
-  to: done_10
+- from: FIN_CLOSE.close_ar
+  to: ar_closed
   kind: etl_writes
   external: false
-- from: APP1.j10
-  to: scripts/step10.sh
+- from: FIN_CLOSE.close_ar
+  to: gl_closed
+  kind: etl_reads
+  external: false
+- from: FIN_CLOSE.close_ar
+  to: jobs/close_ar.sh
   kind: etl_runs
   external: true
-- from: APP1.j11
-  to: BASECAL
+- from: FIN_CLOSE.close_gl
+  to: MONTH_END
   kind: schedules
-  external: true
-- from: APP1.j11
-  to: dep_11
-  kind: etl_reads
-  external: true
-- from: APP1.j11
-  to: done_11
+  external: false
+- from: FIN_CLOSE.close_gl
+  to: gl_closed
   kind: etl_writes
   external: false
-- from: APP1.j11
-  to: scripts/step11.sh
+- from: FIN_CLOSE.close_gl
+  to: jobs/close_gl.sh
   kind: etl_runs
   external: true
-- from: APP1.j12
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j12
-  to: dep_12
+- from: FIN_CLOSE.close_gl
+  to: transform_done
   kind: etl_reads
+  external: false
+- from: FIN_CLOSE.run_reports
+  to: ap_closed
+  kind: etl_reads
+  external: false
+- from: FIN_CLOSE.run_reports
+  to: ar_closed
+  kind: etl_reads
+  external: false
+- from: FIN_CLOSE.run_reports
+  to: jobs/fin_reports.sh
+  kind: etl_runs
   external: true
-- from: APP1.j12
-  to: done_12
+- from: FIN_CLOSE.run_reports
+  to: reports_done
   kind: etl_writes
   external: false
-- from: APP1.j12
-  to: scripts/step12.sh
+- from: FIN_CLOSE.signoff
+  to: jobs/signoff.sh
   kind: etl_runs
   external: true
-- from: APP1.j2
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j2
-  to: dep_2
+- from: FIN_CLOSE.signoff
+  to: reports_done
+  kind: etl_reads
+  external: false
+- from: NightlyLoad.audit_counts
+  to: MART_ORDER_FACT
   kind: etl_reads
   external: true
-- from: APP1.j2
-  to: done_2
+- from: NightlyLoad.audit_counts
+  to: load_products_done
+  kind: etl_reads
+  external: false
+- from: NightlyLoad.backup_db
+  to: jobs/backup_db.sh
+  kind: etl_runs
+  external: true
+- from: NightlyLoad.backup_db
+  to: reports_done
+  kind: etl_reads
+  external: false
+- from: NightlyLoad.extract_products_api
+  to: NightlyLoad.load_products_api
+  kind: etl_runs
+  external: false
+- from: NightlyLoad.extract_products_api
+  to: WEEKDAYS_CAL
+  kind: schedules
+  external: false
+- from: NightlyLoad.extract_products_api
+  to: extract_products_done
   kind: etl_writes
   external: false
-- from: APP1.j2
-  to: scripts/step2.sh
+- from: NightlyLoad.extract_products_api
+  to: jobs/extract_products.sh
   kind: etl_runs
   external: true
-- from: APP1.j3
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j3
-  to: dep_3
+- from: NightlyLoad.extract_products_api
+  to: upstream_ready
   kind: etl_reads
   external: true
-- from: APP1.j3
-  to: done_3
+- from: NightlyLoad.load_products_api
+  to: NIGHTLY_CAL
+  kind: schedules
+  external: false
+- from: NightlyLoad.load_products_api
+  to: NightlyLoad.audit_counts
+  kind: etl_runs
+  external: false
+- from: NightlyLoad.load_products_api
+  to: extract_products_done
+  kind: etl_reads
+  external: false
+- from: NightlyLoad.load_products_api
+  to: jobs/load_products.sh
+  kind: etl_runs
+  external: true
+- from: NightlyLoad.load_products_api
+  to: load_products_done
   kind: etl_writes
   external: false
-- from: APP1.j3
-  to: scripts/step3.sh
+- from: NightlyLoad.load_products_api
+  to: transform_done
+  kind: etl_reads
+  external: false
+- from: NightlyLoad.post_reports
+  to: jobs/post_reports.sh
   kind: etl_runs
   external: true
-- from: APP1.j4
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j4
-  to: dep_4
+- from: NightlyLoad.post_reports
+  to: reports_done
+  kind: etl_reads
+  external: false
+- from: NightlyLoad.run_sql_recon
+  to: audit_counts
   kind: etl_reads
   external: true
-- from: APP1.j4
-  to: done_4
+- from: NightlyLoad.run_sql_recon
+  to: sql/recon_products.sql
+  kind: etl_runs
+  external: true
+- from: NightlyLoad.sync_crm
+  to: jobs/sync_crm.sh
+  kind: etl_runs
+  external: true
+- from: NightlyLoad.sync_crm
+  to: transform_done
+  kind: etl_reads
+  external: false
+- from: NightlyLoad.validate_gl
+  to: gl_closed
+  kind: etl_reads
+  external: false
+- from: NightlyLoad.validate_gl
+  to: jobs/validate_gl.sh
+  kind: etl_runs
+  external: true
+- from: RETAIL_DAILY.extract_customers
+  to: extract_customers_done
   kind: etl_writes
   external: false
-- from: APP1.j4
-  to: scripts/step4.sh
+- from: RETAIL_DAILY.extract_customers
+  to: jobs/extract_customers.sh
   kind: etl_runs
   external: true
-- from: APP1.j5
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j5
-  to: dep_5
+- from: RETAIL_DAILY.extract_customers
+  to: upstream_ready
   kind: etl_reads
   external: true
-- from: APP1.j5
-  to: done_5
+- from: RETAIL_DAILY.extract_orders
+  to: WEEKDAYS_CAL
+  kind: schedules
+  external: false
+- from: RETAIL_DAILY.extract_orders
+  to: extract_orders_done
   kind: etl_writes
   external: false
-- from: APP1.j5
-  to: scripts/step5.sh
+- from: RETAIL_DAILY.extract_orders
+  to: jobs/extract_orders.sh
   kind: etl_runs
   external: true
-- from: APP1.j6
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j6
-  to: dep_6
+- from: RETAIL_DAILY.extract_orders
+  to: upstream_ready
   kind: etl_reads
   external: true
-- from: APP1.j6
-  to: done_6
+- from: RETAIL_DAILY.extract_payments
+  to: extract_payments_done
   kind: etl_writes
   external: false
-- from: APP1.j6
-  to: scripts/step6.sh
+- from: RETAIL_DAILY.extract_payments
+  to: jobs/extract_payments.sh
   kind: etl_runs
   external: true
-- from: APP1.j7
-  to: BASECAL
-  kind: schedules
+- from: RETAIL_DAILY.load_marts
+  to: jobs/load_marts.sh
+  kind: etl_runs
   external: true
-- from: APP1.j7
-  to: dep_7
-  kind: etl_reads
-  external: true
-- from: APP1.j7
-  to: done_7
+- from: RETAIL_DAILY.load_marts
+  to: load_marts_done
   kind: etl_writes
   external: false
-- from: APP1.j7
-  to: scripts/step7.sh
+- from: RETAIL_DAILY.load_marts
+  to: transform_done
+  kind: etl_reads
+  external: false
+- from: RETAIL_DAILY.transform_core
+  to: NIGHTLY_CAL
+  kind: schedules
+  external: false
+- from: RETAIL_DAILY.transform_core
+  to: extract_customers_done
+  kind: etl_reads
+  external: false
+- from: RETAIL_DAILY.transform_core
+  to: extract_orders_done
+  kind: etl_reads
+  external: false
+- from: RETAIL_DAILY.transform_core
+  to: jobs/transform_orders.sh
   kind: etl_runs
   external: true
-- from: APP1.j8
-  to: BASECAL
-  kind: schedules
-  external: true
-- from: APP1.j8
-  to: dep_8
-  kind: etl_reads
-  external: true
-- from: APP1.j8
-  to: done_8
+- from: RETAIL_DAILY.transform_core
+  to: transform_done
   kind: etl_writes
   external: false
-- from: APP1.j8
-  to: scripts/step8.sh
+- from: RETAIL_RECON.after_bad
+  to: jobs/after.sh
   kind: etl_runs
   external: true
-- from: APP1.j9
-  to: BASECAL
-  kind: schedules
+- from: RETAIL_RECON.notify_ops
+  to: jobs/notify.sh
+  kind: etl_runs
   external: true
-- from: APP1.j9
-  to: dep_9
+- from: RETAIL_RECON.notify_ops
+  to: recon_orders_done
   kind: etl_reads
+  external: false
+- from: RETAIL_RECON.notify_ops
+  to: recon_payments_done
+  kind: etl_reads
+  external: false
+- from: RETAIL_RECON.recon_orders
+  to: recon_orders.sql
+  kind: etl_runs
   external: true
-- from: APP1.j9
-  to: done_9
+- from: RETAIL_RECON.recon_orders
+  to: recon_orders_done
   kind: etl_writes
   external: false
-- from: APP1.j9
-  to: scripts/step9.sh
-  kind: etl_runs
-  external: true
-- from: APP2.ok1
-  to: a.sh
-  kind: etl_runs
-  external: true
-- from: APP2.ok2
-  to: b.sh
-  kind: etl_runs
-  external: true
-- from: F1.job1
-  to: F1.job2
-  kind: etl_runs
-  external: false
-- from: F1.job1
-  to: done_1
+- from: RETAIL_RECON.recon_orders
+  to: transform_done
   kind: etl_reads
   external: false
-- from: F1.job1
-  to: scripts/j1.sh
-  kind: etl_runs
-  external: true
-- from: F1.job10
-  to: done_10
+- from: RETAIL_RECON.recon_payments
+  to: extract_payments_done
   kind: etl_reads
   external: false
-- from: F1.job10
-  to: scripts/j10.sh
+- from: RETAIL_RECON.recon_payments
+  to: jobs/recon_payments.sh
   kind: etl_runs
   external: true
-- from: F1.job2
-  to: F1.job3
-  kind: etl_runs
+- from: RETAIL_RECON.recon_payments
+  to: recon_payments_done
+  kind: etl_writes
   external: false
-- from: F1.job2
-  to: done_2
-  kind: etl_reads
-  external: false
-- from: F1.job2
-  to: scripts/j2.sh
-  kind: etl_runs
-  external: true
-- from: F1.job3
-  to: done_3
+- from: RETAIL_RECON.recon_payments
+  to: transform_done
   kind: etl_reads
   external: false
-- from: F1.job3
-  to: scripts/j3.sh
-  kind: etl_runs
-  external: true
-- from: F1.job4
-  to: done_4
-  kind: etl_reads
-  external: false
-- from: F1.job4
-  to: scripts/j4.sh
-  kind: etl_runs
-  external: true
-- from: F1.job5
-  to: done_5
-  kind: etl_reads
-  external: false
-- from: F1.job5
-  to: scripts/j5.sh
-  kind: etl_runs
-  external: true
-- from: F1.job6
-  to: done_6
-  kind: etl_reads
-  external: false
-- from: F1.job6
-  to: scripts/j6.sh
-  kind: etl_runs
-  external: true
-- from: F1.job7
-  to: done_7
-  kind: etl_reads
-  external: false
-- from: F1.job7
-  to: scripts/j7.sh
-  kind: etl_runs
-  external: true
-- from: F1.job8
-  to: done_8
-  kind: etl_reads
-  external: false
-- from: F1.job8
-  to: scripts/j8.sh
-  kind: etl_runs
-  external: true
-- from: F1.job9
-  to: done_9
-  kind: etl_reads
-  external: false
-- from: F1.job9
-  to: scripts/j9.sh
-  kind: etl_runs
-  external: true
-- from: F1.sqljob1
-  to: t1
-  kind: etl_reads
-  external: true
-- from: F1.sqljob2
-  to: t2
-  kind: etl_reads
-  external: true
-- from: F1.sqljob3
-  to: t3
-  kind: etl_reads
-  external: true
-- from: F1.sqljob4
-  to: t4
-  kind: etl_reads
-  external: true
-- from: F1.sqljob5
-  to: t5
-  kind: etl_reads
-  external: true
-- from: F1.sqljob6
-  to: t6
-  kind: etl_reads
-  external: true
-- from: F1.sqljob7
-  to: t7
-  kind: etl_reads
-  external: true

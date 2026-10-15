@@ -35,6 +35,11 @@ def parse(data: bytes, rel_path: str) -> EtlParseResult:
         builder.issue("warning", "unrecognized_json", "Not a Control-M Automation API file.")
         return builder.result()
     _parse_json(payload, text, rel_path, builder)
+    if not builder.objects:
+        builder.issue("warning", "unrecognized_json", "No Control-M objects found.")
+        from migraai.etl.python.common import file_unparsed
+
+        builder.objects.append(file_unparsed(rel_path, "unrecognized JSON"))
     return builder.result()
 
 
@@ -129,6 +134,8 @@ def _emit_job_xml(
                     span=span(outcond.line),
                 )
                 builder.add("condition", cond, cstmt, outcond.line, outcond.line)
+        else:
+            args.setdefault("outcond_delete", []).append(cond)
     if and_or:
         args["incond_and_or"] = and_or
     if tasktype in {"command", ""}:
@@ -287,6 +294,9 @@ def _emit_job_json(
     seen_conditions = set()
     for cond in spec.get("eventsToWaitFor") or []:
         hints.append(builder.ref(str(cond), "etl_reads", span(line)))
+    deleted = [str(c) for c in spec.get("eventsToDelete") or []]
+    if deleted:
+        args["events_to_delete"] = deleted
     for cond in spec.get("eventsToAdd") or []:
         hints.append(builder.ref(str(cond), "etl_writes", span(line)))
         if str(cond) not in seen_conditions:

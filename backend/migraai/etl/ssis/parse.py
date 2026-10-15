@@ -288,7 +288,8 @@ def _walk_executable(
         _parse_dataflow(exe, qualified, builder, connections)
     for el in _iter(exe):
         if el.local == "PropertyExpression" and el.text.strip():
-            expr, _i = parse_expr(el.text.strip(), el.line)
+            expr, expr_issues = parse_expr(el.text.strip(), el.line)
+            issues.extend(expr_issues)
             args.setdefault("property_expressions", []).append(
                 ast.DialectExpr(
                     name="ssis.property_expression",

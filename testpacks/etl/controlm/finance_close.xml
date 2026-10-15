@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<DEFTABLE>
+  <FOLDER FOLDER_NAME="FIN_CLOSE">
+    <VARIABLE NAME="BIN" VALUE="jobs"/>
+    <JOB JOBNAME="close_gl" TASKTYPE="Command" DAYS="ALL" DAYSCAL="MONTH_END"
+         CMDLINE="sh %%BIN/close_gl.sh">
+      <INCOND NAME="transform_done" ODATE="ODAT"/>
+      <OUTCOND NAME="gl_closed" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="close_ap" TASKTYPE="Command" CMDLINE="sh %%BIN/close_ap.sh">
+      <INCOND NAME="gl_closed" ODATE="ODAT" AND_OR="AND"/>
+      <OUTCOND NAME="ap_closed" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="close_ar" TASKTYPE="Command" CMDLINE="sh %%BIN/close_ar.sh">
+      <INCOND NAME="gl_closed" ODATE="ODAT" AND_OR="AND"/>
+      <OUTCOND NAME="ar_closed" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="run_reports" TASKTYPE="Job" MEMLIB="jobs" MEMNAME="fin_reports.sh">
+      <INCOND NAME="ap_closed" ODATE="ODAT" AND_OR="AND"/>
+      <INCOND NAME="ar_closed" ODATE="ODAT" AND_OR="AND"/>
+      <OUTCOND NAME="reports_done" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="signoff" TASKTYPE="Command" CMDLINE="sh %%BIN/signoff.sh controller">
+      <INCOND NAME="reports_done" ODATE="ODAT"/>
+    </JOB>
+  </FOLDER>
+</DEFTABLE>

@@ -196,6 +196,10 @@ def _parse_dsx_text(text: str, rel_path: str, builder: EtlBuilder) -> None:
             current_job.records.append(current_record)
         current_job.bad = True
         jobs.append(current_job)
+    if not jobs:
+        builder.issue("warning", "unrecognized", "No DSJOB records found.")
+        builder.objects.append(file_unparsed(rel_path, "not a DSX export"))
+        return
     for job in jobs:
         _emit_job(job, rel_path, builder)
 
@@ -219,6 +223,22 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
         ole = rec.ole_type
         if ole in {"CTrxOutput", "CCustomOutput", "CJSActivityOutput", "CCustomInput", "CTrxInput"}:
             partner = rec.props.get("Partner", "")
+            columns = []
+            for sub in rec.subrecords:
+                derivation = sub.props.get("Derivation") or sub.props.get("Expression")
+                parsed = parse_expr(derivation, sub.line)[0] if derivation else None
+                columns.append(
+                    ast.DialectExpr(
+                        name="datastage.column",
+                        args={
+                            "name": ast.Identifier(value=sub.props.get("ColumnName") or sub.name),
+                            "derivation": parsed,
+                        },
+                        span=span(sub.line),
+                    )
+                )
+            trigger = rec.props.get("TriggerExpression") or rec.props.get("Trigger")
+            trigger_expr = parse_expr(trigger, rec.line)[0] if trigger else None
             links.append(
                 ast.DialectExpr(
                     name="datastage.link",
@@ -226,6 +246,8 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
                         "name": ast.Identifier(value=rec.name or rec.identifier),
                         "from_stage": ast.Identifier(value=rec.props.get("Stage", "")),
                         "to_stage": ast.Identifier(value=partner.split("|")[0]),
+                        "columns": columns,
+                        "trigger": trigger_expr,
                     },
                     span=span(rec.line),
                 )
@@ -288,6 +310,9 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
             if command:
                 cmd = f"{command} {props.get('Parameters', '')}".strip()
                 _shell_command(cmd, qualified, rec.line, shints, builder)
+        constraint = props.get("Constraint") or props.get("ConstraintExpr")
+        if constraint:
+            sargs["constraint"] = parse_expr(constraint, rec.line)[0]
         derivations = []
         for sub in rec.subrecords:
             derivation = sub.props.get("Derivation") or sub.props.get("Expression")

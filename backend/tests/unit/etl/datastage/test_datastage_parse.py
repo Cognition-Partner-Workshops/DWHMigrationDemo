@@ -185,3 +185,149 @@ def test_ast_golden(name: str, data: bytes) -> None:
         golden.parent.mkdir(parents=True, exist_ok=True)
         golden.write_text(json.dumps(actual, indent=2) + "\n", encoding="utf-8")
     assert json.loads(golden.read_text()) == actual
+
+
+# ---------------------------------------------------------------------------
+# §13 construct coverage + hardening tests
+# ---------------------------------------------------------------------------
+
+
+def _dump(result) -> str:
+    return (
+        json.dumps([o.to_dict() for o in result.objects])
+        + json.dumps([e.text for e in result.embedded_sql])
+        + json.dumps([i.message for i in result.issues])
+    )
+
+
+def test_link_columns_and_trigger() -> None:
+    data = b"""BEGIN DSJOB
+   Identifier "jl"
+   JobType "0"
+   Name "jl"
+   BEGIN DSRECORD
+      Identifier "L1"
+      OLEType "CTrxOutput"
+      Name "lnk1"
+      Stage "a"
+      Partner "b"
+      TriggerExpression "OK And NOT X"
+      BEGIN DSSUBRECORD
+         Identifier "c1"
+         ColumnName "col1"
+         Derivation "Trim(a.col1)"
+      END DSSUBRECORD
+   END DSRECORD
+END DSJOB"""
+    r = parse(data, "x.dsx")
+    job = next(o for o in r.objects if o.type == "job")
+    links = job.node.args.get("links")
+    assert links and links[0].name == "datastage.link"
+    assert links[0].args["columns"][0].args["derivation"] is not None
+    assert links[0].args["trigger"] is not None
+
+
+def test_transformer_constraint_parsed() -> None:
+    data = b"""BEGIN DSJOB
+   Identifier "jc"
+   JobType "0"
+   Name "jc"
+   BEGIN DSRECORD
+      Identifier "t"
+      OLEType "CTrxStage"
+      Name "tx"
+      StageType "CTransformerStage"
+      Constraint "AMOUNT > 0 And STATUS = 'A'"
+   END DSRECORD
+END DSJOB"""
+    r = parse(data, "x.dsx")
+    stage = next(o for o in r.objects if o.type == "stage")
+    assert stage.node.args.get("constraint") is not None
+
+
+def test_ps_param_becomes_param() -> None:
+    from migraai.discovery import ast as _ast
+
+    node, _ = parse_expr("#ps.region# = 'NA'")
+    params = [n for n in node.walk() if isinstance(n, _ast.Param)]
+    assert params and params[0].text == "@ps.region"
+
+
+def test_dialect_hints() -> None:
+    data = b"""BEGIN DSJOB
+   Identifier "jh"
+   JobType "0"
+   Name "jh"
+   BEGIN DSRECORD
+      Identifier "s"
+      OLEType "CCustomStage"
+      Name "st"
+      StageType "OracleConnectorPX"
+      XMLProperties =+=+=+=
+<XMLProperties><SelectStatement>SELECT 1 FROM t</SelectStatement></XMLProperties>
+      =+=+=+=
+   END DSRECORD
+END DSJOB"""
+    r = parse(data, "x.dsx")
+    assert r.embedded_sql and r.embedded_sql[0].dialect_hint == "oracle"
+
+
+def test_routing_dsx_and_dsexport() -> None:
+    from migraai.discovery.pipeline import discover_files
+
+    objects, _e = discover_files({"jobs/x.dsx": DSX}, "ansi")
+    assert any(o.qualified_name == "j1" for o in objects)
+    xml = b"""<DSExport><Job Identifier="jx"><Record Identifier="ROOT" Type="JobDefn">
+<Property Name="Name">jx</Property><Property Name="JobType">0</Property></Record>
+<Record Identifier="s" Type="CCustomStage"><Property Name="Name">st</Property>
+<Property Name="TableName">w</Property></Record></Job></DSExport>"""
+    objects2, _e2 = discover_files({"exp/x.xml": xml}, "ansi")
+    assert any(o.qualified_name == "jx" for o in objects2)
+
+
+def test_no_execution() -> None:
+    data = b"""BEGIN DSJOB
+   Identifier "jx"
+   JobType "2"
+   Name "jx"
+   BEGIN DSRECORD
+      Identifier "c"
+      OLEType "CJSExecCmdActivity"
+      Name "cmd"
+      CommandName "touch"
+      Parameters "/tmp/PWNED_DS"
+   END DSRECORD
+END DSJOB"""
+    parse(data, "x.dsx")
+    assert not Path("/tmp/PWNED_DS").exists()
+
+
+def test_never_raises_garbage() -> None:
+    for blob in [b"", b"\x00\x01", b"BEGIN DSJOB\n" + b"garbage\n" * 40, DSX[:40], b"<DSExport"]:
+        result = parse(blob, "x.dsx")
+        assert result.objects or result.issues
+
+
+def test_redaction() -> None:
+    data = b"""BEGIN DSJOB
+   Identifier "jr"
+   JobType "2"
+   Name "jr"
+   BEGIN DSRECORD
+      Identifier "c"
+      OLEType "CJSExecCmdActivity"
+      Name "cmd"
+      CommandName "sqlplus u/secretpw@db @x.sql"
+   END DSRECORD
+END DSJOB"""
+    payload = _dump(parse(data, "x.dsx"))
+    assert "secretpw" not in payload
+
+
+def test_expr_precedence_full() -> None:
+    n1, _ = parse_expr("a : b + c")
+    assert getattr(n1, "op", None) == "||"
+    n2, _ = parse_expr("x And y Or Not z")
+    assert getattr(n2, "op", "").casefold() == "or"
+    n3, _ = parse_expr("If a > b Then x Else y")
+    assert type(n3).__name__ == "Case"

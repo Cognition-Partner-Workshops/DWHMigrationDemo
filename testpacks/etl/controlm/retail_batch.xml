@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<DEFTABLE>
+  <FOLDER FOLDER_NAME="RETAIL_DAILY">
+    <VARIABLE NAME="BIN" VALUE="jobs"/>
+    <VARIABLE NAME="CFG" VALUE="cfg"/>
+    <JOB JOBNAME="extract_orders" TASKTYPE="Command" TIMEFROM="2100" TIMETO="2359"
+         DAYS="ALL" DAYSCAL="WEEKDAYS_CAL"
+         CMDLINE="sh %%BIN/extract_orders.sh --date %%ODATE">
+      <INCOND NAME="upstream_ready" ODATE="ODAT" AND_OR="AND"/>
+      <OUTCOND NAME="extract_orders_done" ODATE="ODAT" SIGN="+"/>
+      <OUTCOND NAME="stale_extract" ODATE="ODAT" SIGN="-"/>
+    </JOB>
+    <JOB JOBNAME="extract_customers" TASKTYPE="Command"
+         CMDLINE="sh %%BIN/extract_customers.sh">
+      <INCOND NAME="upstream_ready" ODATE="ODAT" AND_OR="AND"/>
+      <OUTCOND NAME="extract_customers_done" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="extract_payments" TASKTYPE="Command"
+         CMDLINE="sh %%BIN/extract_payments.sh -c %%CFG/payments.cfg">
+      <OUTCOND NAME="extract_payments_done" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="transform_core" TASKTYPE="Job" MEMLIB="jobs" MEMNAME="transform_orders.sh"
+         WEEKSCAL="NIGHTLY_CAL" CYCLIC="N">
+      <INCOND NAME="extract_orders_done" ODATE="ODAT" AND_OR="AND"/>
+      <INCOND NAME="extract_customers_done" ODATE="ODAT" AND_OR="AND"/>
+      <OUTCOND NAME="transform_done" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="load_marts" TASKTYPE="Command"
+         CMDLINE="sh %%BIN/load_marts.sh">
+      <INCOND NAME="transform_done" ODATE="ODAT"/>
+      <OUTCOND NAME="load_marts_done" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <SUB_FOLDER FOLDER_NAME="cleanup">
+      <JOB JOBNAME="purge_staging" TASKTYPE="Command" CMDLINE="sh %%BIN/purge_staging.sh">
+        <INCOND NAME="load_marts_done" ODATE="ODAT"/>
+      </JOB>
+      <JOB JOBNAME="archive_logs" TASKTYPE="Command" CMDLINE="sh %%BIN/archive_logs.sh">
+        <INCOND NAME="load_marts_done" ODATE="ODAT" AND_OR="AND"/>
+      </JOB>
+    </SUB_FOLDER>
+  </FOLDER>
+  <FOLDER FOLDER_NAME="RETAIL_RECON">
+    <VARIABLE NAME="BIN" VALUE="jobs"/>
+    <JOB JOBNAME="recon_orders" TASKTYPE="Command"
+         CMDLINE="sqlplus etl/**** @%%CFG/recon_orders.sql">
+      <INCOND NAME="transform_done" ODATE="ODAT"/>
+      <OUTCOND NAME="recon_orders_done" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="recon_payments" TASKTYPE="Command" CMDLINE="sh %%BIN/recon_payments.sh">
+      <INCOND NAME="extract_payments_done" ODATE="ODAT"/>
+      <INCOND NAME="transform_done" ODATE="ODAT" AND_OR="AND"/>
+      <OUTCOND NAME="recon_payments_done" ODATE="ODAT" SIGN="+"/>
+    </JOB>
+    <JOB JOBNAME="notify_ops" TASKTYPE="Command" CMDLINE="sh %%BIN/notify.sh ops-channel">
+      <INCOND NAME="recon_orders_done" ODATE="ODAT" AND_OR="AND"/>
+      <INCOND NAME="recon_payments_done" ODATE="ODAT" AND_OR="AND"/>
+    </JOB>
+    <JOB JOBNAME="legacy_widget" TASKTYPE="Widget"/>
+    <JOB JOBNAME="bad_quote" TASKTYPE="Command" CMDLINE='sh "unterminated.sh'/>
+    <JOB JOBNAME="after_bad" TASKTYPE="Command" CMDLINE="sh %%BIN/after.sh"/>
+  </FOLDER>
+</DEFTABLE>

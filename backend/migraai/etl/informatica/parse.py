@@ -137,6 +137,7 @@ def _emit_workflow(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
     name = node.get("NAME", "?") or "?"
     qualified = f"{folder}.{name}"
     hints: list[ast.RefHint] = []
+    issues: list[ast.Issue] = []
     args: dict = {"name": ast.Identifier(value=name)}
     links = []
     for task in node.find_all("TASKINSTANCE") + node.find_all("TASK"):
@@ -158,7 +159,8 @@ def _emit_workflow(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
         condition = link.get("CONDITION", "")
         expr = None
         if condition:
-            expr, issues, _lookups = parse_expr(condition, link.line)
+            expr, _expr_issues, _calls = parse_expr(condition, link.line)
+            issues.extend(_expr_issues)
             links.append(
                 ast.DialectExpr(
                     name="informatica.link",
@@ -203,6 +205,7 @@ def _emit_workflow(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
         stmt,
         node.line,
         node.end_line,
+        issues,
     )
 
 
@@ -296,7 +299,7 @@ def _emit_mapping(
         span=span(node.line, node.end_line),
     )
     builder.add(
-        "mapplet" if node.local == "MAPPLET" else "mapping",
+        "mapplet" if node.local.casefold() == "mapplet" else "mapping",
         qualified,
         stmt,
         node.line,
@@ -314,10 +317,14 @@ def _emit_transformation(node: XmlNode, folder: str, qualified: str, builder: Et
     for field in node.find_all("TRANSFORMFIELD"):
         expr_text = field.get("EXPRESSION")
         if expr_text:
-            expr, expr_issues, lookups = parse_expr(expr_text, field.line)
+            expr, expr_issues, expr_calls = parse_expr(expr_text, field.line)
             issues.extend(expr_issues)
-            for lookup in lookups:
-                hints.append(builder.ref(f"{folder}.{lookup}", "calls", span(field.line)))
+            for call in expr_calls:
+                target = call.args.get("lookup") or call.args.get("procedure")
+                if target is not None:
+                    cname = ".".join(p.value for p in target.parts)
+                    hints.append(builder.ref(f"{folder}.{cname}", "calls", span(field.line)))
+                args.setdefault("call_exprs", []).append(call)
             fields.append(
                 ast.DialectExpr(
                     name="informatica.field",

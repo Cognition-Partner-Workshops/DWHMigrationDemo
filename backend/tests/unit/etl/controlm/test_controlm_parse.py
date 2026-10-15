@@ -124,3 +124,89 @@ def test_ast_golden(name: str, data: bytes, routed: bool) -> None:
         golden.parent.mkdir(parents=True, exist_ok=True)
         golden.write_text(json.dumps(actual, indent=2) + "\n", encoding="utf-8")
     assert json.loads(golden.read_text()) == actual
+
+
+# ---------------------------------------------------------------------------
+# §13 construct coverage + hardening tests
+# ---------------------------------------------------------------------------
+
+
+def _dump(result) -> str:
+    return (
+        json.dumps([o.to_dict() for o in result.objects])
+        + json.dumps([e.text for e in result.embedded_sql])
+        + json.dumps([i.message for i in result.issues])
+    )
+
+
+def test_outcond_delete_in_args() -> None:
+    data = b"""<DEFTABLE><FOLDER FOLDER_NAME="F">
+<JOB JOBNAME="j" TASKTYPE="Command" CMDLINE="sh x.sh">
+<OUTCOND NAME="stale" ODATE="ODAT" SIGN="-"/></JOB></FOLDER></DEFTABLE>"""
+    r = xml_route(data, "x.xml")
+    job = next(o for o in r.objects if o.name == "j")
+    assert job.node.args.get("outcond_delete") == ["stale"]
+    assert not any(n == "stale" for _, n in names(job))
+
+
+def test_events_to_delete_json() -> None:
+    data = b'{"j": {"Type": "Job:Command", "Command": "sh x.sh", "eventsToDelete": ["e1"]}}'
+    r = parse(data, "x.json")
+    job = next(o for o in r.objects if o.name == "j")
+    assert job.node.args.get("events_to_delete") == ["e1"]
+
+
+def test_sqlscript_and_embedded_dialect() -> None:
+    data = b'{"j": {"Type": "Job:Database:SQLScript", "SQLScript": "sql/run.sql"}}'
+    r = parse(data, "x.json")
+    job = next(o for o in r.objects if o.name == "j")
+    assert any(k == "etl_runs" for k, _ in names(job))
+
+
+def test_no_execution_xml_and_json(tmp_path: Path) -> None:
+    data = b"""<DEFTABLE><FOLDER FOLDER_NAME="F">
+<JOB JOBNAME="j" TASKTYPE="Command" CMDLINE="touch /tmp/PWNED_CTM"/></FOLDER></DEFTABLE>"""
+    xml_route(data, "x.xml")
+    parse(b'{"j": {"Type": "Job:Command", "Command": "touch /tmp/PWNED_CTM2"}}', "x.json")
+    assert not Path("/tmp/PWNED_CTM").exists()
+    assert not Path("/tmp/PWNED_CTM2").exists()
+
+
+def test_never_raises_garbage() -> None:
+    for blob in [b"", b"\x00\xff", b"[1,2", b"{}", JSON[:30], b"<DEFTABLE><unclosed"]:
+        result = parse(blob, "x.json") if not blob.startswith(b"<") else xml_route(blob, "x.xml")
+        assert result.objects or result.issues
+
+
+def test_redaction() -> None:
+    data = b"""<DEFTABLE><FOLDER FOLDER_NAME="F">
+<JOB JOBNAME="j" TASKTYPE="Command" CMDLINE="sqlplus u/secretpw@db @x.sql"/>
+</FOLDER></DEFTABLE>"""
+    payload = _dump(xml_route(data, "x.xml"))
+    assert "secretpw" not in payload
+
+
+def test_routing_xml_and_json() -> None:
+    from migraai.discovery.pipeline import discover_files
+
+    objects, _e = discover_files({"ctm/batch.xml": XML}, "ansi")
+    assert any(o.qualified_name == "APP.extract" for o in objects)
+    objects2, _e2 = discover_files({"ctm/api.json": JSON}, "ansi")
+    assert any(o.qualified_name == "F1.extract" for o in objects2)
+
+
+def test_bad_cmdline_partial() -> None:
+    data = b"""<DEFTABLE><FOLDER FOLDER_NAME="F">
+<JOB JOBNAME="bad" TASKTYPE="Command" CMDLINE='sh "unterminated'/>
+<JOB JOBNAME="good" TASKTYPE="Command" CMDLINE="sh ok.sh"/>
+</FOLDER></DEFTABLE>"""
+    r = xml_route(data, "x.xml")
+    good = next(o for o in r.objects if o.name == "good")
+    assert good.status == "parsed"
+
+
+def test_expr_precedence_full() -> None:
+    n1, _ = parse_expr("a or b and c")
+    assert getattr(n1, "op", "").casefold() == "or"
+    n2, _ = parse_expr("(a or b) and c")
+    assert getattr(n2, "op", "").casefold() == "and"

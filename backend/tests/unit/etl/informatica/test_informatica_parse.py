@@ -105,8 +105,8 @@ def test_unrecognized_and_malformed_xml() -> None:
 def test_expr_precedence() -> None:
     node, _, _ = parse_expr("a + b * c")
     assert type(node).__name__ in {"Binary", "FunctionCall"}
-    node2, _, lk = parse_expr("IIF(x, :LKP.f(y), 0)")
-    assert lk == ["f"]
+    node2, _, calls = parse_expr("IIF(x, :LKP.f(y), 0)")
+    assert [c.name for c in calls] == ["informatica.lookup_call"]
 
 
 @pytest.mark.parametrize(
@@ -138,3 +138,103 @@ def test_ast_golden(name: str, data: bytes) -> None:
         golden.parent.mkdir(parents=True, exist_ok=True)
         golden.write_text(json.dumps(actual, indent=2) + "\n", encoding="utf-8")
     assert json.loads(golden.read_text()) == actual
+
+
+# ---------------------------------------------------------------------------
+# §13 construct coverage + hardening tests
+# ---------------------------------------------------------------------------
+
+
+def _dump(result) -> str:
+    return (
+        json.dumps([o.to_dict() for o in result.objects])
+        + json.dumps([e.text for e in result.embedded_sql])
+        + json.dumps([i.message for i in result.issues])
+    )
+
+
+def test_mapplet_objects() -> None:
+    r = parse(FOLDER, "x.xml")
+    # reuse FOLDER has mapping; add a mapplet-bearing file
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F"><MAPplet NAME="mp1">
+<TRANSFORMATION NAME="in_t" TRANSFORMATION_TYPE="Input Transformation"/>
+</MAPplet></FOLDER></REPOSITORY></POWERMART>"""
+    r = parse(data, "x.xml")
+    assert any(o.type == "mapplet" for o in r.objects)
+
+
+def test_lookup_table_and_stored_proc() -> None:
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F">
+<TRANSFORMATION NAME="lkp" REUSABLE="YES" TRANSFORMATION_TYPE="Lookup Procedure">
+<TABLEATTRIBUTE NAME="Lookup table name" VALUE="ref.CATS"/></TRANSFORMATION>
+<TRANSFORMATION NAME="sp" REUSABLE="YES" TRANSFORMATION_TYPE="Stored Procedure">
+<TABLEATTRIBUTE NAME="Stored Procedure Name" VALUE="etl.AUDIT"/></TRANSFORMATION>
+</FOLDER></REPOSITORY></POWERMART>"""
+    r = parse(data, "x.xml")
+    lkp = next(o for o in r.objects if o.name == "lkp")
+    assert ("etl_reads", "ref.CATS") in names(lkp)
+    sp = next(o for o in r.objects if o.name == "sp")
+    assert ("calls", "etl.AUDIT") in names(sp)
+
+
+def test_sp_call_expr() -> None:
+    node, _, calls = parse_expr("IIF(a, :SP.proc1(x,y), 0)")
+    assert calls[0].name == "informatica.sp_call"
+    proc = calls[0].args["procedure"]
+    assert ".".join(p.value for p in proc.parts) == "proc1"
+
+
+def test_params_become_param_nodes() -> None:
+    from migraai.discovery import ast as _ast
+
+    node, _, _ = parse_expr("$$BatchId + $PMSessionLogDir")
+    params = [n for n in node.walk() if isinstance(n, _ast.Param)]
+    assert len(params) == 2
+
+
+def test_routing_xml_to_informatica() -> None:
+    from migraai.discovery.pipeline import discover_files
+
+    objects, _edges = discover_files({"f/maps.xml": FOLDER}, "ansi")
+    assert any(o.qualified_name == "DWH.m1" for o in objects)
+
+
+def test_never_executes() -> None:
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F"><WORKFLOW NAME="w">
+<TASK NAME="c" TASKTYPE="Command"><VALUEPAIR NAME="Command" VALUE="touch /tmp/PWNED_INFA"/></TASK>
+</WORKFLOW></FOLDER></REPOSITORY></POWERMART>"""
+    parse(data, "x.xml")
+    assert not Path("/tmp/PWNED_INFA").exists()
+
+
+def test_never_raises_garbage() -> None:
+    for blob in [b"", b"   \x00\x01 garbage", b"<\xff\xfe", b"{" * 50, FOLDER[:60]]:
+        result = parse(blob, "x.xml")
+        assert result.objects or result.issues
+
+
+def test_redaction() -> None:
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F"><SESSION NAME="s" MAPPINGNAME="m">
+<ATTRIBUTE NAME="Pre-session command" VALUE="sqlplus u/secretpw@db @x.sql"/>
+</SESSION></FOLDER></REPOSITORY></POWERMART>"""
+    payload = _dump(parse(data, "x.xml"))
+    assert "secretpw" not in payload
+
+
+def test_expr_precedence_full() -> None:
+    # || concat vs comparison vs AND/OR/NOT
+    node, _, _ = parse_expr("a || b = c")
+    assert type(node).__name__ == "Binary"
+    node, _, _ = parse_expr("NOT a AND b OR c")
+    assert type(node).__name__ == "Binary"
+
+
+def test_recovering_partial_workflow() -> None:
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F">
+<WORKFLOW NAME="bad"><WORKFLOWLINK FROMTASK="a" TOTASK="b" CONDITION="IIF(("/></WORKFLOW>
+<WORKFLOW NAME="good"><WORKFLOWLINK FROMTASK="x" TOTASK="y"/></WORKFLOW>
+</FOLDER></REPOSITORY></POWERMART>"""
+    r = parse(data, "x.xml")
+    bad = next(o for o in r.objects if o.name == "bad")
+    good = next(o for o in r.objects if o.name == "good")
+    assert bad.status == "partial" and good.status == "parsed"
