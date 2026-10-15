@@ -30,8 +30,8 @@ All KB endpoints use the same session-cookie, CSRF, and local Host protections d
 
 | Method and path | Behavior |
 |---|---|
-| `POST /api/plan` | Starts or regenerates a plan for the confirmed pair. A current-version Devin plan is reused unless `{"regenerate":true}` is supplied. Missing or unsupported tokens produce a local draft. |
-| `GET /api/plan` | Returns job progress, plan, origin, fallback reason, KB version, and stale status. |
+| `POST /api/plan` | Starts or regenerates a plan for the confirmed pair. A Devin plan is reused only when its KB version and selected-inventory fingerprint match; otherwise a new plan is generated. Missing or unsupported tokens produce a local draft. |
+| `GET /api/plan` | Returns job progress, plan, origin, fallback reason, KB version, `stale` status, and `inventory_stale` when the selected inventory differs from the plan's fingerprint. |
 | `DELETE /api/plan/job` | Cancels the active plan job and terminates the Devin session when supported. |
 | `GET /api/plan.pdf` | Downloads the latest plan as a PDF, or returns `404` if none exists. |
 | `GET /api/resources` | Returns the confirmed source platform's catalog with upload availability state. |
@@ -55,3 +55,5 @@ Discovery endpoints require a confirmed source/target pair and return `409` othe
 | `GET /api/graph?object_id=…&depth=1` | Returns the selected object's dependency neighbourhood. Depth is 1–3 and the result is capped at 300 nodes. |
 
 `GET /api/resources` includes `count` for catalog object types in selected uploads and `auto_available`, which is true when the count is non-zero. Inventory and discovery state are session-local; session replacement and application shutdown clear them.
+
+When selected uploads contain parsed objects, plan generation sends Devin an **aggregate-only** inventory summary: counts by object type and parse status, detected file type, dependency kind and severity, plus total dependencies, external references, and source lines. Object names, schema names, file names, paths, source code, and issue messages are not included. A cached plan remains available when the inventory changes and is returned with `inventory_stale: true`; the user may explicitly regenerate it with the current aggregate summary.

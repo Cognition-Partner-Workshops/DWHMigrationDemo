@@ -23,6 +23,7 @@ const fallbackPlan = {
   cached: false,
   kb_version: 1,
   stale: false,
+  inventory_stale: false,
   created_at: "2026-10-15T00:00:00Z",
 };
 

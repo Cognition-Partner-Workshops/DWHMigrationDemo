@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import sqlite3
 import threading
 import uuid
@@ -21,7 +23,8 @@ class Inventory:
                 id TEXT PRIMARY KEY, rel_path TEXT NOT NULL, size INTEGER NOT NULL,
                 detected_type TEXT NOT NULL, status TEXT NOT NULL, message TEXT,
                 selected INTEGER NOT NULL, object_count INTEGER NOT NULL,
-                digest TEXT NOT NULL, store_path TEXT NOT NULL
+                digest TEXT NOT NULL, store_path TEXT NOT NULL,
+                source_lines INTEGER NOT NULL DEFAULT 0
             );
             CREATE TABLE object (
                 id TEXT PRIMARY KEY, upload_id TEXT, file TEXT NOT NULL, type TEXT NOT NULL,
@@ -43,7 +46,9 @@ class Inventory:
     def add_upload(self, row: UploadRow) -> None:
         with self.lock, self.connection:
             self.connection.execute(
-                """INSERT OR REPLACE INTO upload VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                """INSERT OR REPLACE INTO upload
+                (id,rel_path,size,detected_type,status,message,selected,object_count,
+                digest,store_path,source_lines) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
                 (
                     row.id,
                     row.rel_path,
@@ -55,6 +60,7 @@ class Inventory:
                     row.object_count,
                     row.digest,
                     row.store_path,
+                    0,
                 ),
             )
 
@@ -102,6 +108,11 @@ class Inventory:
             self.connection.execute("DELETE FROM issue")
             self.connection.execute("DELETE FROM object")
             for upload in uploads.values():
+                source_lines = len(previews.get(upload.rel_path, "").splitlines())
+                self.connection.execute(
+                    "UPDATE upload SET source_lines=? WHERE id=?",
+                    (source_lines, upload.id),
+                )
                 if upload.message and upload.status != "rejected":
                     self.connection.execute(
                         """INSERT INTO issue(upload_id,severity,code,message)
@@ -322,6 +333,91 @@ class Inventory:
                     types,
                 ).fetchone()[0]
             )
+
+    def aggregates(self) -> dict[str, Any]:
+        with self.lock:
+            objects_by_type = {
+                str(row["type"]): int(row["count"])
+                for row in self.connection.execute(
+                    """SELECT o.type,count(*) AS count FROM object o
+                    JOIN upload u ON u.id=o.upload_id
+                    WHERE u.selected=1 GROUP BY o.type ORDER BY o.type"""
+                )
+            }
+            parse_status_counts = {
+                str(row["status"]): int(row["count"])
+                for row in self.connection.execute(
+                    """SELECT o.status,count(*) AS count FROM object o
+                    JOIN upload u ON u.id=o.upload_id
+                    WHERE u.selected=1 GROUP BY o.status ORDER BY o.status"""
+                )
+            }
+            files_by_detected_type = {
+                str(row["detected_type"]): int(row["count"])
+                for row in self.connection.execute(
+                    """SELECT detected_type,count(*) AS count FROM upload
+                    WHERE selected=1 GROUP BY detected_type ORDER BY detected_type"""
+                )
+            }
+            dependencies_by_kind = {
+                str(row["kind"]): int(row["count"])
+                for row in self.connection.execute(
+                    """SELECT d.kind,count(*) AS count FROM dependency d
+                    JOIN object o ON o.id=d.source_id
+                    JOIN upload u ON u.id=o.upload_id
+                    WHERE u.selected=1 GROUP BY d.kind ORDER BY d.kind"""
+                )
+            }
+            total_dependencies = int(
+                self.connection.execute(
+                    """SELECT count(*) FROM dependency d
+                    JOIN object o ON o.id=d.source_id
+                    JOIN upload u ON u.id=o.upload_id
+                    WHERE u.selected=1"""
+                ).fetchone()[0]
+            )
+            external_reference_count = int(
+                self.connection.execute(
+                    """SELECT count(*) FROM dependency d
+                    JOIN object o ON o.id=d.source_id
+                    JOIN upload u ON u.id=o.upload_id
+                    WHERE u.selected=1 AND d.external=1"""
+                ).fetchone()[0]
+            )
+            issues_by_severity = {
+                str(row["severity"]): int(row["count"])
+                for row in self.connection.execute(
+                    """SELECT i.severity,count(*) AS count FROM issue i
+                    JOIN upload u ON u.id=i.upload_id
+                    WHERE u.selected=1 GROUP BY i.severity ORDER BY i.severity"""
+                )
+            }
+            total_source_lines = int(
+                self.connection.execute(
+                    "SELECT coalesce(sum(source_lines),0) FROM upload WHERE selected=1"
+                ).fetchone()[0]
+            )
+        return {
+            "objects_by_type": objects_by_type,
+            "parse_status_counts": parse_status_counts,
+            "files_by_detected_type": files_by_detected_type,
+            "total_dependencies": total_dependencies,
+            "dependencies_by_kind": dependencies_by_kind,
+            "external_reference_count": external_reference_count,
+            "issues_by_severity": issues_by_severity,
+            "total_source_lines": total_source_lines,
+        }
+
+    def fingerprint(self) -> str:
+        with self.lock:
+            aggregates = self.aggregates()
+            selected_upload = self.connection.execute(
+                "SELECT 1 FROM upload WHERE selected=1 LIMIT 1"
+            ).fetchone()
+            if selected_upload is None:
+                return ""
+            canonical = json.dumps(aggregates, sort_keys=True, separators=(",", ":"))
+            return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
     def close(self) -> None:
         with self.lock:

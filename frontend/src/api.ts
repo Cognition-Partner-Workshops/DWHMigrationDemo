@@ -74,6 +74,7 @@ export type PlanStatus = {
   cached: boolean;
   kb_version: number | null;
   stale: boolean;
+  inventory_stale: boolean;
   label?: string | null;
   created_at?: string | null;
   devin_session_id?: string | null;

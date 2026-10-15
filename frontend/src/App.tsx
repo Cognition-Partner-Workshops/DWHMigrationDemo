@@ -257,10 +257,22 @@ export default function App() {
   const mainRef = useRef<HTMLElement | null>(null);
   const planningSectionRef = useRef<HTMLElement | null>(null);
   const updateUploads = useCallback((next: UploadRecord[]) => setUploads(next), []);
-  const refreshInventory = useCallback(
-    () => setInventoryRevision((current) => current + 1),
-    [],
-  );
+  const refreshInventory = useCallback(() => {
+    setInventoryRevision((current) => current + 1);
+    void getPlan()
+      .then((nextPlan) => {
+        setSession((current) => {
+          if (
+            !current ||
+            (current.plan && current.plan.inventory_stale === nextPlan.inventory_stale)
+          ) {
+            return current;
+          }
+          return { ...current, plan: nextPlan };
+        });
+      })
+      .catch(() => undefined);
+  }, []);
   const hasUploaded = uploads.some((row) => row.status !== "rejected");
   const objectCount = uploads.reduce(
     (total, row) => total + (row.selected ? row.object_count : 0),

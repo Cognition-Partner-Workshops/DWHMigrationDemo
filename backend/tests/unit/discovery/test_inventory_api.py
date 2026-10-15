@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import threading
 import time
 from pathlib import Path
@@ -145,6 +147,115 @@ def test_inventory_api_filters_graph_resource_counts_and_privacy(
         assert "private_upload.sql" not in contents
         assert "private_object" not in contents
         assert "line 250" not in contents
+
+
+def test_inventory_aggregates_selected_objects_and_fingerprint() -> None:
+    inventory = Inventory()
+    empty_fingerprint = inventory.fingerprint()
+    selected = UploadRow(
+        id="selected",
+        rel_path="selected.sql",
+        size=20,
+        detected_type="sql:ansi",
+        status="done",
+        store_path="uploads/selected",
+    )
+    deselected = UploadRow(
+        id="deselected",
+        rel_path="deselected.sql",
+        size=15,
+        detected_type="sql:ansi",
+        status="done",
+        selected=False,
+        store_path="uploads/deselected",
+    )
+    uploads = {selected.id: selected, deselected.id: deselected}
+    inventory.add_upload(selected)
+    inventory.add_upload(deselected)
+    uploaded_fingerprint = inventory.fingerprint()
+    assert uploaded_fingerprint
+    assert uploaded_fingerprint != empty_fingerprint
+    objects = [
+        ParsedObject(
+            type="table",
+            schema=None,
+            name="customers",
+            qualified_name="customers",
+            start_line=1,
+            end_line=2,
+            status="parsed",
+            references=[],
+            issues=[],
+            node=ast.Unparsed(),
+            file_path=selected.rel_path,
+        ),
+        ParsedObject(
+            type="view",
+            schema=None,
+            name="v_summary",
+            qualified_name="v_summary",
+            start_line=3,
+            end_line=4,
+            status="partial",
+            references=[],
+            issues=[],
+            node=ast.Unparsed(),
+            file_path=selected.rel_path,
+        ),
+        ParsedObject(
+            type="function",
+            schema=None,
+            name="ignored_function",
+            qualified_name="ignored_function",
+            start_line=1,
+            end_line=1,
+            status="unparsed",
+            references=[],
+            issues=[],
+            node=ast.Unparsed(),
+            file_path=deselected.rel_path,
+        ),
+    ]
+    inventory.replace_discovery(
+        objects,
+        [
+            DiscoveryEdge("v_summary", "customers", "reads", False),
+            DiscoveryEdge("v_summary", "missing_object", "reads", True),
+            DiscoveryEdge("ignored_function", "customers", "writes", False),
+        ],
+        uploads,
+        {
+            selected.rel_path: "one\ntwo\nthree\nfour\nfive",
+            deselected.rel_path: "excluded",
+        },
+    )
+    inventory.add_issue(selected.id, severity="warning", code="selected.warning", message="private")
+    inventory.add_issue(deselected.id, severity="error", code="excluded.error", message="private")
+
+    aggregates = inventory.aggregates()
+    assert aggregates == {
+        "objects_by_type": {"table": 1, "view": 1},
+        "parse_status_counts": {"parsed": 1, "partial": 1},
+        "files_by_detected_type": {"sql:ansi": 1},
+        "total_dependencies": 2,
+        "dependencies_by_kind": {"reads": 2},
+        "external_reference_count": 1,
+        "issues_by_severity": {"warning": 1},
+        "total_source_lines": 5,
+    }
+    initial_fingerprint = inventory.fingerprint()
+    assert initial_fingerprint
+    canonical = json.dumps(aggregates, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    assert initial_fingerprint == hashlib.sha256(canonical).hexdigest()
+    assert inventory.fingerprint() == initial_fingerprint
+
+    inventory.set_selected(selected.id, False)
+    assert inventory.fingerprint() == ""
+    inventory.set_selected(selected.id, True)
+    assert inventory.fingerprint() == initial_fingerprint
+    inventory.delete_upload(selected.id)
+    assert inventory.fingerprint() == ""
+    inventory.close()
 
 
 def test_inventory_graph_is_capped_at_300_nodes() -> None:
