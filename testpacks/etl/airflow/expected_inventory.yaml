@@ -35,6 +35,9 @@ objects:
 - type: task
   qualified_name: cleanup.vacuum
   status: parsed
+- type: module
+  qualified_name: dags.broken_dag
+  status: partial
 - type: unsupported
   qualified_name: dags/factory.yaml
   status: unparsed

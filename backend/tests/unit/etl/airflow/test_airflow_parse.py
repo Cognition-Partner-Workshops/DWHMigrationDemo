@@ -246,3 +246,34 @@ with DAG("g") as dag:
         GOLDEN_DIR.mkdir(parents=True, exist_ok=True)
         golden.write_text(json.dumps(actual, indent=2) + "\n", encoding="utf-8")
     assert json.loads(golden.read_text()) == actual
+
+
+def test_broken_python_partial_matches_python_parse() -> None:
+    from migraai.etl.python.parse import parse as python_parse
+
+    data = (
+        b"from airflow import DAG\n"
+        b"from airflow.operators.empty import EmptyOperator\n\n"
+        b'with DAG("broken_dag") as dag:\n'
+        b'    first = EmptyOperator(task_id="first")\n'
+        b'    second = EmptyOperator(task_id="second")\n'
+        b"    first >> second\n\n\n"
+        b"def malformed(:\n"
+        b"    pass\n"
+    )
+    airflow_result = parse(data, "dags/broken_dag.py")
+    python_result = python_parse(data, "dags/broken_dag.py")
+    af_mod = next(o for o in airflow_result.objects if o.type == "module")
+    py_mod = next(o for o in python_result.objects if o.type == "module")
+    assert af_mod.qualified_name == py_mod.qualified_name == "dags.broken_dag"
+    assert af_mod.status == py_mod.status == "partial"
+    dag = next(o for o in airflow_result.objects if o.type == "dag")
+    assert dag.status == "parsed"
+
+
+def test_broken_dag_pack_partial() -> None:
+    data = (Path("../testpacks/etl/airflow") / "dags" / "broken_dag.py").read_bytes()
+    objects = parse(data, "dags/broken_dag.py").objects
+    mod = next(o for o in objects if o.type == "module")
+    assert mod.qualified_name == "dags.broken_dag"
+    assert mod.status == "partial"
