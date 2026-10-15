@@ -1,0 +1,277 @@
+{
+  "kind": "merge",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 82
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 12,
+      "end_line": 1,
+      "end_col": 13
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 12,
+          "end_line": 1,
+          "end_col": 13
+        },
+        "value": "t",
+        "quoted": false
+      }
+    ]
+  },
+  "source": {
+    "kind": "table_ref",
+    "span": {
+      "start_line": 1,
+      "start_col": 20,
+      "end_line": 1,
+      "end_col": 21
+    },
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 20,
+        "end_line": 1,
+        "end_col": 21
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 20,
+            "end_line": 1,
+            "end_col": 21
+          },
+          "value": "s",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "on": {
+    "kind": "binary",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 1
+    },
+    "op": "=",
+    "left": {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 25,
+        "end_line": 1,
+        "end_col": 29
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 25,
+          "end_line": 1,
+          "end_col": 29
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 25,
+              "end_line": 1,
+              "end_col": 26
+            },
+            "value": "t",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 27,
+              "end_line": 1,
+              "end_col": 29
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "column_ref",
+      "span": {
+        "start_line": 1,
+        "start_col": 30,
+        "end_line": 1,
+        "end_col": 34
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 30,
+          "end_line": 1,
+          "end_col": 34
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 30,
+              "end_line": 1,
+              "end_col": 31
+            },
+            "value": "s",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 32,
+              "end_line": 1,
+              "end_col": 34
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  },
+  "clauses": [
+    {
+      "kind": "merge_clause",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "matched": false,
+      "action": {
+        "kind": "insert",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "target": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 12,
+            "end_line": 1,
+            "end_col": 13
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 12,
+                "end_line": 1,
+                "end_col": 13
+              },
+              "value": "t",
+              "quoted": false
+            }
+          ]
+        },
+        "columns": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 65,
+              "end_line": 1,
+              "end_col": 67
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ],
+        "source": {
+          "kind": "values",
+          "span": {
+            "start_line": 1,
+            "start_col": 69,
+            "end_line": 1,
+            "end_col": 75
+          },
+          "rows": [
+            {
+              "kind": "values_row",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "values": [
+                {
+                  "kind": "column_ref",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 77,
+                    "end_line": 1,
+                    "end_col": 81
+                  },
+                  "name": {
+                    "kind": "qualified_name",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 77,
+                      "end_line": 1,
+                      "end_col": 81
+                    },
+                    "parts": [
+                      {
+                        "kind": "identifier",
+                        "span": {
+                          "start_line": 1,
+                          "start_col": 77,
+                          "end_line": 1,
+                          "end_col": 78
+                        },
+                        "value": "s",
+                        "quoted": false
+                      },
+                      {
+                        "kind": "identifier",
+                        "span": {
+                          "start_line": 1,
+                          "start_col": 79,
+                          "end_line": 1,
+                          "end_col": 81
+                        },
+                        "value": "id",
+                        "quoted": false
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "overwrite": false
+      }
+    }
+  ]
+}

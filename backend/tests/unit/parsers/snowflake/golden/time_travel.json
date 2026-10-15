@@ -1,0 +1,119 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 52
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 10
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 10
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 10
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 10
+                },
+                "value": "id",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 22
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 16,
+            "end_line": 1,
+            "end_col": 22
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 16,
+                "end_line": 1,
+                "end_col": 22
+              },
+              "value": "orders",
+              "quoted": false
+            }
+          ]
+        },
+        "temporal": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": "temporal",
+          "args": {
+            "mode": "at",
+            "kind": "timestamp",
+            "value": {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 51,
+                "end_line": 1,
+                "end_col": 63
+              },
+              "type": "string",
+              "value": "2025-01-01"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

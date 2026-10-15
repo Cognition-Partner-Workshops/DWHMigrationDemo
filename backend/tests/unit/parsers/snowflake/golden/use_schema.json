@@ -1,0 +1,42 @@
+{
+  "kind": "use",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 18
+  },
+  "database": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 12,
+      "end_line": 1,
+      "end_col": 18
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 12,
+          "end_line": 1,
+          "end_col": 14
+        },
+        "value": "db",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 15,
+          "end_line": 1,
+          "end_col": 18
+        },
+        "value": "sch",
+        "quoted": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+CREATE TABLE analytics.raw.customers (id NUMBER, email STRING, region STRING);
+CREATE TABLE analytics.raw.orders (id NUMBER, customer_id NUMBER, amount NUMBER);
+CREATE TABLE analytics.raw.order_lines (order_id NUMBER, product_id NUMBER, quantity NUMBER);
+CREATE TABLE analytics.raw.products (id NUMBER, name STRING, category STRING);
+CREATE TABLE analytics.raw.payments (id NUMBER, order_id NUMBER, paid_at TIMESTAMP_NTZ);
+CREATE TABLE analytics.raw.returns (id NUMBER, order_id NUMBER, reason STRING);
+CREATE TABLE analytics.raw.events (id NUMBER, event_type STRING, created_at TIMESTAMP_NTZ);
+CREATE TABLE analytics.raw.inventory (product_id NUMBER, available NUMBER);
+CREATE TABLE analytics.raw.currencies (code STRING, rate NUMBER);
+CREATE TABLE analytics.raw.shipping (order_id NUMBER, carrier STRING);
+CREATE TABLE analytics.raw.addresses (customer_id NUMBER, city STRING, region STRING);
+CREATE TABLE analytics.raw.suppliers (id NUMBER, name STRING);
+CREATE TABLE analytics.raw.regions (id NUMBER, name STRING);
+CREATE TABLE analytics.raw.discounts (id NUMBER, product_id NUMBER, percent NUMBER);
+CREATE ALERT broken_alert;
+CREATE TABLE analytics.raw.recovery_survivor (id NUMBER);

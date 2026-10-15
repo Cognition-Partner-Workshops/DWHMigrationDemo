@@ -1,0 +1,93 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 46
+  },
+  "name": "create_task",
+  "args": {
+    "object_type": "task",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 13,
+        "end_line": 1,
+        "end_col": 18
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 13,
+            "end_line": 1,
+            "end_col": 18
+          },
+          "value": "task1",
+          "quoted": false
+        }
+      ]
+    },
+    "replace": false,
+    "if_not_exists": false,
+    "temporary": false,
+    "properties": {
+      "warehouse": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 29,
+          "end_line": 1,
+          "end_col": 31
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 29,
+              "end_line": 1,
+              "end_col": 31
+            },
+            "value": "wh",
+            "quoted": false
+          }
+        ]
+      }
+    },
+    "body": {
+      "kind": "call",
+      "span": {
+        "start_line": 1,
+        "start_col": 35,
+        "end_line": 1,
+        "end_col": 46
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 40,
+          "end_line": 1,
+          "end_col": 44
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 40,
+              "end_line": 1,
+              "end_col": 44
+            },
+            "value": "proc",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  }
+}
