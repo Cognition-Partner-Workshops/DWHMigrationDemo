@@ -1,0 +1,29 @@
+broad_grants.sql:
+  - redshift.security.no_grant_all
+  - redshift.security.no_grant_to_public
+  - redshift.security.no_with_grant_option
+distribution_keys.sql:
+  - redshift.rule.diststyle_key_requires_distkey
+  - redshift.rule.single_column_distkey
+embedded_credentials.sql:
+  - redshift.security.no_access_keys
+  - redshift.security.no_plaintext_password
+identity_decimal.sql:
+  - redshift.lint.identity_requires_int_or_bigint
+merge_with_cte.sql:
+  - redshift.rule.merge_without_with_clause
+missing_explanation.sql:
+  - core.rule.explanation_block
+procedure_constructs.sql:
+  - redshift.rule.no_transaction_commands_in_procedure
+  - redshift.rule.procedure_plpgsql_body
+sequence_partition_index.sql:
+  - redshift.lint.no_create_index
+  - redshift.rule.no_sequences
+  - redshift.rule.no_table_partitioning
+unsupported_constructs.sql:
+  - redshift.rule.no_unsupported_functions
+  - redshift.rule.no_unsupported_types
+  - redshift.rule.no_triggers
+view_select_star.sql:
+  - redshift.lint.no_select_star_in_view

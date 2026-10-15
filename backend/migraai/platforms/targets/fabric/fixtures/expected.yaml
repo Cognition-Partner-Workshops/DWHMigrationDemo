@@ -1,0 +1,34 @@
+broad_grants.sql:
+  - fabric.security.no_grant_all
+  - fabric.security.no_grant_to_public
+  - fabric.security.no_with_grant_option
+constraints_and_default.sql:
+  - fabric.rule.constraints_not_enforced
+  - fabric.rule.no_default_constraints
+  - fabric.rule.no_inline_constraints
+create_user_predict.sql:
+  - fabric.rule.no_create_user
+  - fabric.rule.no_predict
+distributed_transaction.sql:
+  - fabric.rule.no_distributed_or_named_transactions
+embedded_credentials.sql:
+  - fabric.security.no_plaintext_password
+  - fabric.security.no_storage_secret
+identity_type_and_seed.sql:
+  - fabric.lint.identity_requires_bigint
+  - fabric.lint.identity_without_seed_increment
+missing_explanation.sql:
+  - core.rule.explanation_block
+ownership_change.sql:
+  - fabric.security.no_ownership_change
+sequence_materialized_view.sql:
+  - fabric.rule.no_materialized_views
+  - fabric.rule.no_sequences
+session_settings_xml.sql:
+  - fabric.rule.no_for_xml
+  - fabric.rule.no_unsupported_session_settings
+unsupported_types_trigger.sql:
+  - fabric.rule.no_triggers
+  - fabric.rule.no_unsupported_types
+view_select_star.sql:
+  - fabric.lint.no_select_star_in_view
