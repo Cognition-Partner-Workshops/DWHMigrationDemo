@@ -1,0 +1,13 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 10
+  },
+  "name": "list_resources",
+  "args": {
+    "resource_type": "jars"
+  }
+}

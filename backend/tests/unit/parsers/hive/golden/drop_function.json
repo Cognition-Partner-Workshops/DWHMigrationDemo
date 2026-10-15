@@ -1,0 +1,36 @@
+{
+  "kind": "drop",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 44
+  },
+  "object_kind": "temporary function",
+  "names": [
+    {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 35,
+        "end_line": 1,
+        "end_col": 44
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 35,
+            "end_line": 1,
+            "end_col": 44
+          },
+          "value": "normalize",
+          "quoted": false
+        }
+      ]
+    }
+  ],
+  "if_exists": true,
+  "cascade": false
+}

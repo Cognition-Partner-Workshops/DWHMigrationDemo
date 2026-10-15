@@ -1,0 +1,135 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 135
+  },
+  "name": "insert_directory",
+  "args": {
+    "local": true,
+    "path": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 51,
+        "end_line": 1,
+        "end_col": 68
+      },
+      "type": "string",
+      "value": "hdfs:///tmp/out"
+    },
+    "row_format": {
+      "format": "delimited",
+      "fields_terminated_by": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 97,
+          "end_line": 1,
+          "end_col": 100
+        },
+        "type": "string",
+        "value": ","
+      }
+    },
+    "stored_as": {
+      "stored_as": "TEXTFILE"
+    },
+    "query": {
+      "kind": "query",
+      "span": {
+        "start_line": 1,
+        "start_col": 117,
+        "end_line": 1,
+        "end_col": 123
+      },
+      "body": {
+        "kind": "select",
+        "span": {
+          "start_line": 1,
+          "start_col": 117,
+          "end_line": 1,
+          "end_col": 123
+        },
+        "distinct": false,
+        "projections": [
+          {
+            "kind": "select_item",
+            "span": {
+              "start_line": 1,
+              "start_col": 124,
+              "end_line": 1,
+              "end_col": 126
+            },
+            "expr": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 124,
+                "end_line": 1,
+                "end_col": 126
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 124,
+                  "end_line": 1,
+                  "end_col": 126
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 124,
+                      "end_line": 1,
+                      "end_col": 126
+                    },
+                    "value": "id",
+                    "quoted": false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "from_": [
+          {
+            "kind": "table_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 132,
+              "end_line": 1,
+              "end_col": 135
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 132,
+                "end_line": 1,
+                "end_col": 135
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 132,
+                    "end_line": 1,
+                    "end_col": 135
+                  },
+                  "value": "src",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

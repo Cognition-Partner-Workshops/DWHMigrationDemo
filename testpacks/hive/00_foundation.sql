@@ -1,0 +1,52 @@
+CREATE DATABASE analytics COMMENT 'Analytics warehouse';
+USE analytics;
+CREATE FUNCTION normalize AS 'com.example.Normalize' USING JAR 'hdfs:///udf/normalize.jar';
+
+CREATE TABLE raw_customers (id BIGINT);
+CREATE TABLE raw_orders (id BIGINT);
+CREATE TABLE raw_order_lines (id BIGINT);
+CREATE TABLE raw_products (id BIGINT);
+CREATE TABLE raw_payments (id BIGINT);
+CREATE TABLE raw_returns (id BIGINT);
+CREATE TABLE raw_events (id BIGINT);
+CREATE TABLE raw_shipments (id BIGINT);
+CREATE TABLE raw_addresses (id BIGINT);
+CREATE TABLE raw_inventory (id BIGINT);
+CREATE TABLE raw_discounts (id BIGINT);
+CREATE TABLE raw_currencies (id BIGINT);
+CREATE TABLE raw_regions (id BIGINT);
+CREATE TABLE raw_suppliers (id BIGINT);
+CREATE TABLE raw_promotions (id BIGINT);
+CREATE TABLE raw_reviews (id BIGINT);
+CREATE TABLE raw_clickstream (id BIGINT);
+CREATE TABLE raw_sessions (id BIGINT);
+CREATE TABLE raw_tax_rates (id BIGINT);
+CREATE TABLE raw_refunds (id BIGINT);
+
+CREATE TABLE dim_customers (id BIGINT);
+CREATE TABLE dim_products (id BIGINT);
+CREATE TABLE dim_dates (id BIGINT);
+CREATE TABLE dim_regions (id BIGINT);
+CREATE TABLE dim_stores (id BIGINT);
+CREATE TABLE dim_suppliers (id BIGINT);
+CREATE TABLE dim_currency (id BIGINT);
+CREATE TABLE dim_status (id BIGINT);
+CREATE TABLE dim_channels (id BIGINT);
+CREATE TABLE dim_promotion (id BIGINT);
+
+CREATE TABLE stage_orders (id BIGINT);
+CREATE TABLE stage_customers (id BIGINT);
+CREATE TABLE stage_products (id BIGINT);
+CREATE TABLE stage_payments (id BIGINT);
+CREATE TABLE stage_events (id BIGINT);
+CREATE TABLE stage_returns (id BIGINT);
+CREATE TABLE stage_shipments (id BIGINT);
+CREATE TABLE stage_inventory (id BIGINT);
+CREATE TABLE stage_addresses (id BIGINT);
+CREATE TABLE stage_discounts (id BIGINT);
+
+CREATE TABLE audit_events (id BIGINT);
+CREATE TABLE job_runs (id BIGINT);
+CREATE TABLE quality_checks (id BIGINT);
+CREATE TABLE etl_batches (id BIGINT);
+CREATE TABLE data_watermarks (id BIGINT);

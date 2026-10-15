@@ -1,0 +1,218 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 69
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 9
+        },
+        "expr": {
+          "kind": "column_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 15
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 8,
+              "end_line": 1,
+              "end_col": 15
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 8,
+                  "end_line": 1,
+                  "end_col": 9
+                },
+                "value": "e",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 10,
+                  "end_line": 1,
+                  "end_col": 15
+                },
+                "value": "value",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "join",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "join_type": "cross",
+        "left": {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 21,
+            "end_line": 1,
+            "end_col": 24
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 21,
+              "end_line": 1,
+              "end_col": 24
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 21,
+                  "end_line": 1,
+                  "end_col": 24
+                },
+                "value": "src",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "right": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": "lateral_view",
+          "args": {
+            "call": {
+              "kind": "function_call",
+              "span": {
+                "start_line": 1,
+                "start_col": 44,
+                "end_line": 1,
+                "end_col": 51
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 44,
+                  "end_line": 1,
+                  "end_col": 51
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 44,
+                      "end_line": 1,
+                      "end_col": 51
+                    },
+                    "value": "explode",
+                    "quoted": false
+                  }
+                ]
+              },
+              "args": [
+                {
+                  "kind": "column_ref",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 52,
+                    "end_line": 1,
+                    "end_col": 57
+                  },
+                  "name": {
+                    "kind": "qualified_name",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 52,
+                      "end_line": 1,
+                      "end_col": 57
+                    },
+                    "parts": [
+                      {
+                        "kind": "identifier",
+                        "span": {
+                          "start_line": 1,
+                          "start_col": 52,
+                          "end_line": 1,
+                          "end_col": 57
+                        },
+                        "value": "items",
+                        "quoted": false
+                      }
+                    ]
+                  }
+                }
+              ],
+              "distinct": false,
+              "star": false
+            },
+            "table_alias": {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 59,
+                "end_line": 1,
+                "end_col": 60
+              },
+              "value": "e",
+              "quoted": false
+            },
+            "column_aliases": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 64,
+                  "end_line": 1,
+                  "end_col": 69
+                },
+                "value": "value",
+                "quoted": false
+              }
+            ],
+            "outer": "true"
+          }
+        }
+      }
+    ]
+  }
+}

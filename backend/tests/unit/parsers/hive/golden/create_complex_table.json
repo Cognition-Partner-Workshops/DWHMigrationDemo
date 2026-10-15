@@ -1,0 +1,598 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 390
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 37,
+      "end_line": 1,
+      "end_col": 46
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 37,
+          "end_line": 1,
+          "end_col": 39
+        },
+        "value": "db",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 40,
+          "end_line": 1,
+          "end_col": 46
+        },
+        "value": "events",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 48,
+          "end_line": 1,
+          "end_col": 50
+        },
+        "value": "id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 51,
+          "end_line": 1,
+          "end_col": 57
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 51,
+            "end_line": 1,
+            "end_col": 57
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 51,
+                "end_line": 1,
+                "end_col": 57
+              },
+              "value": "BIGINT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 59,
+          "end_line": 1,
+          "end_col": 64
+        },
+        "value": "attrs",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 65,
+          "end_line": 1,
+          "end_col": 88
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 65,
+            "end_line": 1,
+            "end_col": 68
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 65,
+                "end_line": 1,
+                "end_col": 68
+              },
+              "value": "MAP",
+              "quoted": false
+            }
+          ]
+        },
+        "children": [
+          {
+            "kind": "data_type",
+            "span": {
+              "start_line": 1,
+              "start_col": 69,
+              "end_line": 1,
+              "end_col": 75
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 69,
+                "end_line": 1,
+                "end_col": 75
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 69,
+                    "end_line": 1,
+                    "end_col": 75
+                  },
+                  "value": "STRING",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          {
+            "kind": "data_type",
+            "span": {
+              "start_line": 1,
+              "start_col": 77,
+              "end_line": 1,
+              "end_col": 87
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 77,
+                "end_line": 1,
+                "end_col": 82
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 77,
+                    "end_line": 1,
+                    "end_col": 82
+                  },
+                  "value": "ARRAY",
+                  "quoted": false
+                }
+              ]
+            },
+            "children": [
+              {
+                "kind": "data_type",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 83,
+                  "end_line": 1,
+                  "end_col": 86
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 83,
+                    "end_line": 1,
+                    "end_col": 86
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 83,
+                        "end_line": 1,
+                        "end_col": 86
+                      },
+                      "value": "INT",
+                      "quoted": false
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 90,
+          "end_line": 1,
+          "end_col": 97
+        },
+        "value": "payload",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 98,
+          "end_line": 1,
+          "end_col": 148
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 98,
+            "end_line": 1,
+            "end_col": 104
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 98,
+                "end_line": 1,
+                "end_col": 104
+              },
+              "value": "STRUCT",
+              "quoted": false
+            }
+          ]
+        },
+        "children": [
+          {
+            "kind": "struct_field",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "name": {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 105,
+                "end_line": 1,
+                "end_col": 109
+              },
+              "value": "name",
+              "quoted": false
+            },
+            "type": {
+              "kind": "data_type",
+              "span": {
+                "start_line": 1,
+                "start_col": 110,
+                "end_line": 1,
+                "end_col": 116
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 110,
+                  "end_line": 1,
+                  "end_col": 116
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 110,
+                      "end_line": 1,
+                      "end_col": 116
+                    },
+                    "value": "STRING",
+                    "quoted": false
+                  }
+                ]
+              }
+            },
+            "comment": {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 132,
+                "end_line": 1,
+                "end_col": 139
+              },
+              "type": "string",
+              "value": "label"
+            }
+          },
+          {
+            "kind": "struct_field",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "name": {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 133,
+                "end_line": 1,
+                "end_col": 139
+              },
+              "value": "active",
+              "quoted": false
+            },
+            "type": {
+              "kind": "data_type",
+              "span": {
+                "start_line": 1,
+                "start_col": 140,
+                "end_line": 1,
+                "end_col": 147
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 140,
+                  "end_line": 1,
+                  "end_col": 147
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 140,
+                      "end_line": 1,
+                      "end_col": 147
+                    },
+                    "value": "BOOLEAN",
+                    "quoted": false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "temporary": false,
+  "external": true,
+  "replace": false,
+  "if_not_exists": true,
+  "options": {
+    "comment": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 166,
+        "end_line": 1,
+        "end_col": 174
+      },
+      "type": "string",
+      "value": "events"
+    },
+    "partitioned_by": [
+      {
+        "kind": "column_def",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 183,
+            "end_line": 1,
+            "end_col": 186
+          },
+          "value": "day",
+          "quoted": false
+        },
+        "type": {
+          "kind": "data_type",
+          "span": {
+            "start_line": 1,
+            "start_col": 187,
+            "end_line": 1,
+            "end_col": 193
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 187,
+              "end_line": 1,
+              "end_col": 193
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 187,
+                  "end_line": 1,
+                  "end_col": 193
+                },
+                "value": "STRING",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "clustered_by": {
+      "columns": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 209,
+            "end_line": 1,
+            "end_col": 211
+          },
+          "value": "id",
+          "quoted": false
+        }
+      ],
+      "sorted_by": [
+        {
+          "kind": "order_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 224,
+              "end_line": 1,
+              "end_col": 226
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 224,
+                "end_line": 1,
+                "end_col": 226
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 224,
+                    "end_line": 1,
+                    "end_col": 226
+                  },
+                  "value": "id",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "desc": true
+        }
+      ],
+      "buckets": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 238,
+          "end_line": 1,
+          "end_col": 239
+        },
+        "type": "number",
+        "value": "4"
+      }
+    },
+    "row_format": {
+      "format": "delimited",
+      "fields_terminated_by": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 293,
+          "end_line": 1,
+          "end_col": 296
+        },
+        "type": "string",
+        "value": ","
+      },
+      "escaped_by": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 309,
+          "end_line": 1,
+          "end_col": 313
+        },
+        "type": "string",
+        "value": "\\"
+      }
+    },
+    "stored_as": "ORC",
+    "location": {
+      "kind": "literal",
+      "span": {
+        "start_line": 1,
+        "start_col": 359,
+        "end_line": 1,
+        "end_col": 385
+      },
+      "type": "string",
+      "value": "hdfs:///warehouse/events"
+    },
+    "tblproperties": {
+      "owner": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 389,
+          "end_line": 1,
+          "end_col": 395
+        },
+        "type": "string",
+        "value": "data"
+      }
+    }
+  }
+}
