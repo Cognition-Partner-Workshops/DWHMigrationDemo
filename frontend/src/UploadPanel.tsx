@@ -330,11 +330,15 @@ export function UploadPanel({
                 <td className="file-name">{file.name}</td>
                 <td>—</td>
                 <td>{formatSize(file.size)}</td>
-                <td>
+                <td className="upload-status-cell">
                   <span className={`file-status ${message ? "rejected" : "pending"}`}>
                     {message ? "Rejected" : "Selected"}
                   </span>
-                  {message && <small className="upload-row-message">{message}</small>}
+                  {message && (
+                    <small className="upload-row-message" title={message}>
+                      {message}
+                    </small>
+                  )}
                 </td>
                 <td>—</td>
                 <td>{message ? 1 : 0}</td>
@@ -363,9 +367,13 @@ export function UploadPanel({
                 <td className="file-name">{row.rel_path}</td>
                 <td>{row.detected_type}</td>
                 <td>{formatSize(row.size)}</td>
-                <td>
+                <td className="upload-status-cell">
                   <span className={`file-status ${statusClass(row.status)}`}>{row.status}</span>
-                  {row.message && <small className="upload-row-message">{row.message}</small>}
+                  {row.message && (
+                    <small className="upload-row-message" title={row.message}>
+                      {row.message}
+                    </small>
+                  )}
                 </td>
                 <td>{row.object_count}</td>
                 <td>{row.issue_count ?? (row.message ? 1 : 0)}</td>

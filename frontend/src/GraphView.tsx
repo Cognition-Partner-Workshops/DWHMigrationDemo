@@ -3,6 +3,8 @@ import cytoscape from "cytoscape";
 import type { Core, ElementDefinition } from "cytoscape";
 
 import { getGraph, type GraphResult } from "./api";
+import { graphLayoutOptionsForNodeCount } from "./graphLayout";
+import { graphLabelFontSizeForZoom } from "./graphLabelSizing";
 
 const TYPE_COLORS: Record<string, string> = {
   database: "#5473a8",
@@ -40,14 +42,14 @@ function fitGraph(cy: Core) {
   cy.zoom(Math.max(0.2, Math.min(1.5, cy.zoom())));
 }
 
-function fitInitialGraph(cy: Core, objectId: string) {
-  fitGraph(cy);
-  if (cy.zoom() < 0.7) {
-    const selectedNode = cy.getElementById(objectId);
-    if (selectedNode.nonempty()) {
-      cy.zoom({ level: 0.7, position: selectedNode.position() });
-    }
-  }
+const NODE_LABEL_MAX_WIDTH = 130;
+
+function updateNodeLabelSizing(cy: Core) {
+  const zoom = cy.zoom();
+  cy.nodes().style({
+    "font-size": graphLabelFontSizeForZoom(zoom),
+    "text-max-width": `${NODE_LABEL_MAX_WIDTH / zoom}px`,
+  });
 }
 
 export function GraphView({
@@ -104,6 +106,7 @@ export function GraphView({
         },
       })),
     ];
+    const layout = graphLayoutOptionsForNodeCount(graph.nodes.length);
 
     const cy = cytoscape({
       container,
@@ -113,9 +116,9 @@ export function GraphView({
           selector: "node",
           style: {
             label: "data(label)",
-            "font-size": 11,
-            "min-zoomed-font-size": 4,
-            "text-wrap": "wrap",
+            "font-size": 10,
+            "min-zoomed-font-size": 0,
+            "text-wrap": "ellipsis",
             "text-max-width": "130px",
             "text-valign": "bottom",
             "text-halign": "center",
@@ -166,7 +169,7 @@ export function GraphView({
           },
         },
       ],
-      layout: { name: "cose", animate: false, padding: 40 },
+      layout,
       minZoom: 0.2,
       maxZoom: 1.5,
     });
@@ -184,7 +187,9 @@ export function GraphView({
     cy.on("mouseout", "edge", (event) => {
       event.target.style("label", "");
     });
-    fitInitialGraph(cy, objectId);
+    cy.on("zoom", () => updateNodeLabelSizing(cy));
+    fitGraph(cy);
+    updateNodeLabelSizing(cy);
 
     return () => {
       cy.destroy();
@@ -199,7 +204,7 @@ export function GraphView({
     }
     const cy = cyRef.current;
     if (cy) {
-      cy.layout({ name: "cose", animate: false, padding: 40 }).run();
+      cy.layout(graphLayoutOptionsForNodeCount(graph?.nodes.length ?? 0)).run();
       fitGraph(cy);
     }
   }

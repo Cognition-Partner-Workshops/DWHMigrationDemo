@@ -241,7 +241,7 @@ export function InventoryView({
             <div className="inventory-detail-heading">
               <div>
                 <span className="eyebrow">{detail.type}</span>
-                <h3>{detail.qualified_name}</h3>
+                <h3 title={detail.qualified_name}>{detail.qualified_name}</h3>
                 <small>{detail.file}:{detail.start_line}-{detail.end_line}</small>
               </div>
               <button className="button graph-button" onClick={() => setShowGraph((value) => !value)} type="button">

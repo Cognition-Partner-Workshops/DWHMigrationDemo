@@ -119,6 +119,10 @@ describe("InventoryView", () => {
     render(<InventoryView revision={0} uploads={[]} />);
 
     await user.click(await screen.findByText("dw.orders"));
+    expect(await screen.findByRole("heading", { name: "dw.orders" })).toHaveAttribute(
+      "title",
+      "dw.orders",
+    );
     await user.click(await screen.findByRole("button", { name: "Show graph" }));
     expect(await screen.findByText("Mock dependency graph")).toBeInTheDocument();
   });

@@ -2079,13 +2079,18 @@ th {
   max-width: 240px;
 }
 
+.discovery-upload-table-scroll .upload-status-cell {
+  padding-top: 8px;
+  vertical-align: top;
+}
+
 .upload-row-message {
   display: block;
   max-width: 260px;
-  overflow: hidden;
+  overflow-wrap: anywhere;
   color: #9b3e37;
   font-size: 8px;
-  text-overflow: ellipsis;
+  white-space: normal;
 }
 
 .file-status.done,

@@ -63,7 +63,12 @@ describe("UploadPanel", () => {
       },
     });
     expect(screen.getByText("Rejected")).toBeInTheDocument();
+    expect(screen.getByText("Rejected").closest("td")).toHaveClass("upload-status-cell");
     expect(screen.getByText("Unsupported file format.")).toBeInTheDocument();
+    expect(screen.getByText("Unsupported file format.")).toHaveAttribute(
+      "title",
+      "Unsupported file format.",
+    );
 
     await user.click(screen.getByRole("button", { name: "Upload Files" }));
     await waitFor(() => expect(mocks.uploadFiles).toHaveBeenCalledOnce());
