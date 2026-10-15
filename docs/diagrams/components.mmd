@@ -1,0 +1,27 @@
+flowchart LR
+  subgraph Frontend
+    S1[1 System Selection] --- S2[2 Migration Planning]
+    S2 --- S3[3 Resources Confirmation]
+    S3 --- S4[4 Convert Objects]
+    ST[Settings: Devin PAT, org, API domain, threshold, concurrency, ACU cap]
+  end
+  subgraph Backend
+    APIR[REST + SSE API]
+    REG[Platform Registry<br/>8 sources, 7 targets, object types]
+    DISC[Discovery & Parsers<br/>SQL dialects + ETL formats]
+    MAP[Mapping Engine]
+    RULE[Rule Engine]
+    KBS[KB Service + Refresh]
+    GW[Devin Gateway<br/>rate limit, retries, cost tracking]
+    VOTE[Voting & Confidence Engine]
+    VALF[Validation Framework]
+    PACK[Packager]
+    REP[Report Generator]
+    SECM[Security: crypto, DPAPI, wipe, audit]
+  end
+  Frontend --> APIR
+  APIR --> REG & DISC & KBS & PACK & REP & SECM
+  DISC --> MAP --> RULE
+  RULE --> GW --> VOTE --> VALF
+  VALF -->|low confidence| GW
+  VALF --> PACK --> REP

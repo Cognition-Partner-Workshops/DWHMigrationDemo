@@ -1,0 +1,23 @@
+flowchart TB
+  U[Enterprise user] --> B[Browser: Edge/Chrome<br/>MigraAI SPA]
+  B -->|HTTP 127.0.0.1 + launch token| API[FastAPI backend]
+  subgraph Local laptop
+    API --> SEC[Session & Security Manager]
+    API --> FM[File Manager<br/>encrypted temp storage]
+    API --> JO[Job Orchestrator]
+    API --> PL[Planning Service]
+    API --> RP[Report & PDF Service]
+    JO --> LG[LangGraph multi-agent workflow]
+    LG --> KB[(KB: SQLite FTS5 + sqlite-vec)]
+    LG --> RE[Rule & Mapping Engine + SQLGlot]
+    LG --> VAL[Validation Framework]
+    LG --> PK[Packaging Agent]
+    SEC --> AUD[(Audit log)]
+    PL --> KB
+    LG --> DG[Devin Gateway]
+  end
+  DG -->|HTTPS: 3 voter sessions per object| DV[(Devin cloud API)]
+  DG -->|HTTPS: 1 escalation session per low-confidence object| DV
+  KB -. one-click refresh .-> DOCS[Vendor docs / public sources]
+  PK --> ZIP[name-converted.zip + report.md/pdf]
+  ZIP --> B

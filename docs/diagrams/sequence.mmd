@@ -1,0 +1,46 @@
+sequenceDiagram
+  actor User
+  participant UI
+  participant API as FastAPI
+  participant DA as Discovery Agent
+  participant PA as Planning/Mapping Agents
+  participant KB
+  participant GW as Devin Gateway
+  participant DV as Devin cloud
+  participant VA as Validation Agent
+  participant PK as Packaging Agent
+  User->>UI: Select source + target, Confirm
+  UI->>API: POST /api/session/confirm
+  API->>PA: Generate plan (A–U) + resource catalog
+  PA->>KB: Retrieve rules, mappings, docs
+  API-->>UI: Plan + resources
+  User->>UI: Upload ZIP / files
+  UI->>API: POST /api/uploads (stream, encrypt)
+  API->>DA: Detect types, parse, inventory, dependency graph
+  User->>UI: Convert
+  UI->>API: POST /api/convert
+  loop each selected object (bounded concurrency)
+    API->>KB: Context for object + pair
+    par Voter A
+      GW->>DV: create session (object + context, JSON schema)
+    and Voter B
+      GW->>DV: create session
+    and Voter C
+      GW->>DV: create session
+    end
+    GW->>DV: poll until exit, read structured_output
+    GW->>VA: 3 candidates
+    VA->>VA: Normalise (SQLGlot), compare, 7 validations, score
+    alt confidence >= threshold
+      VA->>PK: consensus result
+    else confidence < threshold
+      GW->>DV: escalation session (3 candidates + findings)
+      DV-->>GW: revised result
+      VA->>VA: re-validate, re-score, keep best
+      VA->>PK: best result (+ expert-review flag if still low)
+    end
+  end
+  PK-->>UI: progress via SSE
+  User->>UI: Download (optional ZIP name)
+  UI->>API: GET /api/download
+  API-->>User: name-converted.zip + report

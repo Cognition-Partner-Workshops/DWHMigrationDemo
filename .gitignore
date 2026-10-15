@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+ENV/
+node_modules/
+dist/
+build/
+*.db
+.env
+packaging/windows/out/

@@ -1,0 +1,24 @@
+flowchart TB
+  IN[Uploaded assets] --> DISC[Discovery Agent<br/>type detection, parsing, inventory]
+  DISC --> SECA[Security Agent<br/>users, roles, grants, RLS/CLS]
+  DISC --> PLAN[Planning Agent<br/>strategy, phases, risks, effort]
+  DISC --> MAPA[Mapping Agent<br/>object + type + function mappings]
+  MAPA --> SR{Source Router}
+  SR --> SAG[Source Agent: Teradata / Oracle / SQL Server / Snowflake / Synapse / Db2 / Hive / Netezza<br/>dialect knowledge, construct extraction]
+  SAG --> TR{Target Router}
+  TR --> TAG[Target Agent: Databricks / Redshift / Snowflake / Fabric / BigQuery / Synapse / ClickHouse<br/>idioms, constraints, prompt pack]
+  TAG --> CTX[Context builder: KB retrieval + rules + dependencies]
+  CTX --> V1[Devin voter A]
+  CTX --> V2[Devin voter B]
+  CTX --> V3[Devin voter C]
+  V1 & V2 & V3 --> CON[Consensus Engine]
+  CON --> CS[Confidence Scoring]
+  CS --> VALA[Validation Agent: 7 checks]
+  VALA --> TH{Confidence >= threshold?}
+  TH -- Yes --> PKG[Packaging Agent]
+  TH -- No --> ESC[Devin escalation session<br/>adjudicate + rewrite]
+  ESC --> VALA2[Re-validate + re-score]
+  VALA2 --> PKG
+  SECA --> PKG
+  PLAN --> PKG
+  PKG --> OUT[Converted ZIP, Mapping Workbook, Execution Scripts, Report MD/PDF]

@@ -1,0 +1,9 @@
+flowchart LR
+  subgraph Laptop[Windows 10/11 laptop, standard user]
+    Z[MigraAI-portable folder<br/>python/ app/ wheels/ web/ models/ vcruntime/] --> SC[start.cmd]
+    SC --> PY[Embedded Python 3.12 + Uvicorn on 127.0.0.1:random port]
+    PY --> BR[Opens default browser with one-time launch token]
+    PY --> DATA[%LOCALAPPDATA%/MigraAI<br/>app.db, kb.db, logs, sessions/ encrypted temp]
+  end
+  PY -->|HTTPS 443| DEVIN[Devin enterprise API domain]
+  PY -->|HTTPS 443, KB refresh only| VD[Vendor documentation sites]
