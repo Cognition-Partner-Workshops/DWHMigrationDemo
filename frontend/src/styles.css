@@ -76,10 +76,15 @@ button:disabled {
 }
 
 .brand-logo {
-  width: 38px;
-  height: 38px;
+  width: auto;
+  max-width: 72px;
+  height: 48px;
+  flex: 0 0 auto;
+  padding: 3px 4px;
   object-fit: contain;
-  border-radius: 8px;
+  border: 1px solid #dce4ef;
+  border-radius: 7px;
+  background: #fff;
 }
 
 .brand > div {
@@ -114,7 +119,6 @@ button:disabled {
   gap: 18px;
 }
 
-.local-chip,
 .settings-trigger {
   display: inline-flex;
   align-items: center;
@@ -123,19 +127,42 @@ button:disabled {
   font-size: 12px;
 }
 
-.local-chip {
-  padding: 6px 10px;
-  border: 1px solid rgb(255 255 255 / 25%);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 8%);
+.local-mode-tile {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px;
+  border: 1px solid #d6dfeb;
+  border-radius: 7px;
+  color: #172b4b;
+  background: #fff;
 }
 
-.local-chip span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #39d28a;
-  box-shadow: 0 0 0 3px rgb(57 210 138 / 14%);
+.local-mode-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  color: #168b58;
+}
+
+.local-mode-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.local-mode-copy strong {
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.local-mode-copy span {
+  color: #50617b;
+  font-size: 8px;
+  line-height: 1.1;
 }
 
 .settings-trigger,
@@ -605,7 +632,10 @@ th {
 }
 
 .egress-banner {
+  display: flex;
   flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
   margin: 4px 0 6px 41px;
   padding: 4px 8px;
   border: 1px solid #f0dfb7;
@@ -615,8 +645,10 @@ th {
   font-size: 9px;
 }
 
-.egress-banner span {
-  margin-right: 5px;
+.egress-icon {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
   color: #c18312;
 }
 
@@ -798,6 +830,10 @@ th {
   align-items: center;
   gap: 5px;
   white-space: nowrap;
+}
+
+.footer-note {
+  color: #52647c;
 }
 
 .status-dot {
@@ -991,7 +1027,7 @@ th {
   }
 
   .brand span,
-  .local-chip {
+  .local-mode-tile {
     display: none;
   }
 

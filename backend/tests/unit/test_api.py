@@ -3,9 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
+from migraai.api import session as session_api
 from migraai.core.security import AuthState
+from migraai.core.storage import create_session_dir
 from migraai.main import create_app
 
 HOST_HEADER = {"Host": "127.0.0.1:80"}
@@ -157,6 +160,48 @@ def test_platforms_and_session_validation(client: TestClient) -> None:
     )
     assert unsupported.status_code == 422
     assert same.status_code == 422
+
+
+def test_reconfirm_wipes_only_previous_session_and_audits_replacement(
+    client: TestClient,
+    data_dir: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    csrf = launch(client)
+    headers = {**HOST_HEADER, "X-MigraAI-CSRF": csrf}
+    payload = {"source": "teradata", "target": "databricks"}
+    first = client.post("/api/session/confirm", json=payload, headers=headers)
+    previous_session_id = first.json()["session_id"]
+    previous_session_dir = data_dir / "sessions" / previous_session_id
+    (previous_session_dir / "previous.txt").write_text("remove me", encoding="utf-8")
+
+    unrelated_session_dir = create_session_dir(data_dir)
+    unrelated_file = unrelated_session_dir / "keep.txt"
+    unrelated_file.write_text("keep me", encoding="utf-8")
+
+    original_create_session_dir = session_api.create_session_dir
+
+    def create_after_previous_session_is_wiped(root: Path) -> Path:
+        assert not previous_session_dir.exists()
+        return original_create_session_dir(root)
+
+    monkeypatch.setattr(session_api, "create_session_dir", create_after_previous_session_is_wiped)
+    second = client.post("/api/session/confirm", json=payload, headers=headers)
+    replacement_session_id = second.json()["session_id"]
+
+    assert second.status_code == 200
+    assert replacement_session_id != previous_session_id
+    assert not previous_session_dir.exists()
+    assert (data_dir / "sessions" / replacement_session_id).is_dir()
+    assert unrelated_file.read_text(encoding="utf-8") == "keep me"
+
+    audit_records = [
+        json.loads(line)
+        for line in (data_dir / "logs" / "audit.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    replacement = next(record for record in audit_records if record["action"] == "session.replace")
+    assert replacement["target"] == previous_session_id
+    assert replacement["details"] == {"new_session_id": replacement_session_id}
 
 
 def test_access_log_omits_query_string_and_session_cookie(

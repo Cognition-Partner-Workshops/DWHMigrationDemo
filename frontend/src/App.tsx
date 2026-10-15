@@ -486,7 +486,33 @@ export default function App() {
         </div>
         <p className="topbar-tagline">Your AI-powered data warehouse migration partner</p>
         <div className="topbar-actions">
-          <span className="local-chip"><span /> Local Mode</span>
+          <div className="local-mode-tile">
+            <svg aria-hidden="true" className="local-mode-icon" viewBox="0 0 24 24">
+              <path
+                d="M12 2.8 20 6v5.4c0 5.1-3.4 8.5-8 10.2-4.6-1.7-8-5.1-8-10.2V6l8-3.2Z"
+                fill="none"
+                stroke="currentColor"
+                strokeLinejoin="round"
+                strokeWidth="1.7"
+              />
+              <path
+                d="m8.4 12.1 2.3 2.3 4.8-5"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.7"
+              />
+            </svg>
+            <div className="local-mode-copy">
+              <strong>Local Mode</strong>
+              <span>
+                {health?.devin_configured
+                  ? "Conversions are sent to Devin cloud"
+                  : "Your data stays on this machine"}
+              </span>
+            </div>
+          </div>
           <button
             aria-label="Open settings"
             className="settings-trigger"
@@ -671,7 +697,11 @@ export default function App() {
             </div>
           </div>
           <p className="egress-banner">
-            <span aria-hidden="true">ⓘ</span>
+            <svg aria-hidden="true" className="egress-icon" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M8 7.2v3.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
+              <circle cx="8" cy="4.75" r=".8" fill="currentColor" />
+            </svg>
             Converted objects and their context are sent to Devin cloud for conversion.
           </p>
           <div className="convert-content">
@@ -769,6 +799,7 @@ export default function App() {
             <i className={`status-dot ${health?.devin_configured ? "" : "muted-dot"}`} />
             Devin: {health?.devin_configured ? "configured" : "not configured"}
           </span>
+          <span className="footer-note">Uploads are deleted on exit</span>
         </div>
       </footer>
 

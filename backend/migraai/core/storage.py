@@ -58,15 +58,21 @@ def _make_writable(function: object, path: str, _: object) -> None:
         logger.warning("Could not delete session file %s: %s", target, exc)
 
 
+def wipe_session_dir(session_dir: Path) -> None:
+    if not session_dir.exists() and not session_dir.is_symlink():
+        return
+    try:
+        if session_dir.is_dir() and not session_dir.is_symlink():
+            shutil.rmtree(session_dir, onerror=_make_writable)
+        else:
+            session_dir.unlink(missing_ok=True)
+    except OSError as exc:
+        logger.warning("Could not wipe session path %s: %s", session_dir, exc)
+
+
 def wipe_sessions(data_root: Path | None = None) -> None:
     sessions_dir = (data_root or get_data_root()).expanduser() / "sessions"
     if not sessions_dir.exists():
         return
     for path in sessions_dir.iterdir():
-        try:
-            if path.is_dir() and not path.is_symlink():
-                shutil.rmtree(path, onerror=_make_writable)
-            else:
-                path.unlink(missing_ok=True)
-        except OSError as exc:
-            logger.warning("Could not wipe session path %s: %s", path, exc)
+        wipe_session_dir(path)

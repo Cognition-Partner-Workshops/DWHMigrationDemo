@@ -13,7 +13,7 @@ const settingsResponse = {
   acu_cap_per_run: null,
 };
 
-function mockApi() {
+function mockApi(devinConfigured = true) {
   const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
     const path = String(input);
     if (path.endsWith("/api/health")) {
@@ -21,7 +21,7 @@ function mockApi() {
         status: "ready",
         mode: "local",
         version: "0.1.0",
-        devin_configured: true,
+        devin_configured: devinConfigured,
       });
     }
     if (path.endsWith("/api/platforms")) {
@@ -122,6 +122,22 @@ describe("MigraAI foundation UI", () => {
     expect(token).toHaveValue("");
     expect(token).toHaveAttribute("placeholder", "••••abcd");
     expect(screen.getByText("Current token: ••••abcd")).toBeInTheDocument();
+  });
+
+  it("shows local data handling text and the upload cleanup note", async () => {
+    mockApi(false);
+    const { container } = render(<App />);
+
+    expect(await screen.findByText("Your data stays on this machine")).toBeInTheDocument();
+    expect(screen.getByText("Uploads are deleted on exit")).toBeInTheDocument();
+    expect(container.querySelector(".egress-banner svg")).toBeInTheDocument();
+  });
+
+  it("shows Devin cloud egress when Devin is configured", async () => {
+    mockApi(true);
+    render(<App />);
+
+    expect(await screen.findByText("Conversions are sent to Devin cloud")).toBeInTheDocument();
   });
 
   it("sends same-origin credentials and CSRF token on mutations", async () => {

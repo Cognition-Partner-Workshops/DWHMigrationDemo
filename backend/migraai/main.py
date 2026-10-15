@@ -34,7 +34,7 @@ def _register_console_cleanup(data_dir: Path) -> None:
 
     @handler_type
     def handler(event: int) -> bool:
-        if event == 2:
+        if event in {2, 5, 6}:
             wipe_sessions(data_dir)
             return True
         return False
