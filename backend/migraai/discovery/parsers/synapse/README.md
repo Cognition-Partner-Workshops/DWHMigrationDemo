@@ -6,17 +6,22 @@ fields.
 
 | Construct | AST representation | Test |
 |---|---|---|
-| Hash/round-robin/replicate distribution and table indexes | `CreateTable.options["distribution"]`, `DialectExpr("table_index")` | `test_synapse_table_distribution_partition_and_ctas` |
-| Range partitioning | `DialectExpr("partition")` | `test_synapse_table_distribution_partition_and_ctas` |
-| External data source and file format | `DialectStatement` object types `external_data_source`, `external_file_format` | `test_synapse_external_objects_and_secret_redaction` |
-| External table and CETAS | `CreateTable(external=True)` | `test_synapse_external_objects_and_secret_redaction`, `test_synapse_distribution_indexes_cetas_and_materialized_view` |
-| Scoped credential/master key | `DialectStatement` object types `credential`, `master_key` with redacted secrets | `test_synapse_external_objects_and_secret_redaction` |
-| `COPY INTO` | `DialectStatement("copy_into")` with write `RefHint` | `test_synapse_copy_into_and_rename` |
-| Workload groups/classifiers | `DialectStatement` object types `workload_group`, `workload_classifier` | `test_synapse_workload_and_statistics_nodes` |
-| `RENAME OBJECT` | `Rename` | `test_synapse_copy_into_and_rename` |
-| Materialized views | `CreateView(materialized=True)` | `test_synapse_distribution_indexes_cetas_and_materialized_view` |
-| Create/update statistics | `DialectStatement("create_statistics"/"update_statistics")` | `test_synapse_workload_and_statistics_nodes` |
-| Inherited T-SQL statements | Shared T-SQL AST nodes | `test_synapse_inherits_tsql_dml_and_query` |
+| `DISTRIBUTION = HASH` | `CreateTable.options["distribution"]` | `test_synapse_hash_distribution` |
+| `DISTRIBUTION = ROUND_ROBIN` | `CreateTable.options["distribution"]` | `test_synapse_round_robin_distribution` |
+| `DISTRIBUTION = REPLICATE` | `CreateTable.options["distribution"]` | `test_synapse_replicate_distribution` |
+| `CLUSTERED COLUMNSTORE INDEX` | `DialectExpr("table_index")` | `test_synapse_clustered_columnstore_index` |
+| `HEAP` | `DialectExpr("table_index")` | `test_synapse_heap_index` |
+| `PARTITION` | `DialectExpr("partition")` | `test_synapse_partition` |
+| CTAS | `CreateTable.as_query` | `test_synapse_ctas` |
+| External data source | `DialectStatement` object type `external_data_source` | `test_synapse_external_data_source` |
+| External file format | `DialectStatement` object type `external_file_format` | `test_synapse_external_file_format` |
+| External table | `CreateTable(external=True)` | `test_synapse_external_table` |
+| `COPY INTO` | `DialectStatement("copy_into")` with write `RefHint` | `test_synapse_copy_into` |
+| Workload group | `DialectStatement` object type `workload_group` | `test_synapse_workload_group` |
+| Workload classifier | `DialectStatement` object type `workload_classifier` | `test_synapse_workload_classifier` |
+| `RENAME OBJECT` | `Rename` | `test_synapse_rename_object` |
+| `LABEL` option | `Select.hints` | `test_synapse_label_option` |
+| Materialized views | `CreateView(materialized=True)` | `test_synapse_materialized_view` |
 
 Statistics are modeled as catalog objects for `CREATE STATISTICS`; `UPDATE
 STATISTICS` is an operation and does not define an object. External-object

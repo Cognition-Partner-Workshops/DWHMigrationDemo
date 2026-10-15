@@ -6,12 +6,14 @@ from migraai.discovery import ast
 from migraai.discovery.lexer import TokenKind
 from migraai.discovery.parsers.sqlserver import Parser, TSqlParserBase
 from migraai.discovery.parsers.sqlserver.lexer import LEXER_CONFIG, TSqlLexer
+from migraai.discovery.references import extract as extract_references
 
 
 def _parse_one(sql: str) -> ast.Node:
     result = Parser().parse(sql)
     assert not result.issues, result.issues
     assert len(result.statements) == 1
+    assert all(node.kind != "unparsed" for root in result.statements for node in root.walk())
     return result.statements[0]
 
 
@@ -115,6 +117,60 @@ def test_sqlserver_create_table_computed_identity_constraints_and_options() -> N
     assert node.constraints[0].ref_table.parts[-1].value == "Parent"
     assert node.options["filegroup"].parts[0].value == "PRIMARY"
     assert node.options["data_compression"].name.parts[0].value == "PAGE"
+
+
+def test_sqlserver_multistatement_table_function_with_table_variable_insert() -> None:
+    function = _parse_one(
+        "CREATE FUNCTION dbo.h(@a INT) RETURNS @r TABLE (id INT) AS BEGIN "
+        "INSERT INTO @r SELECT id FROM dbo.t RETURN END"
+    )
+    assert isinstance(function, ast.CreateRoutine)
+    assert function.params[0].name.value == "@a"
+    assert function.options["function_form"] == "multi_statement"
+    insert = function.body.statements[0]
+    assert isinstance(insert, ast.Insert)
+    assert insert.target is None
+    assert insert.target_variable.name == "@r"
+    assert [
+        (reference.ref_kind, [part.value for part in reference.name.parts])
+        for reference in extract_references(insert, Parser)
+    ] == [("reads", ["dbo", "t"])]
+
+
+def test_sqlserver_table_variable_insert_update_delete_targets() -> None:
+    result = Parser().parse("INSERT INTO @r (id) VALUES (1); UPDATE @r SET id = 2; DELETE FROM @r")
+    assert not result.issues, result.issues
+    assert all(node.kind != "unparsed" for root in result.statements for node in root.walk())
+    insert, update, delete = result.statements
+    for node in (insert, update, delete):
+        assert node.target is None
+        assert node.target_variable.name == "@r"
+        assert all(
+            "@r" not in ".".join(part.value for part in reference.name.parts)
+            for reference in extract_references(node, Parser)
+        )
+
+
+def test_sqlserver_create_user_login_and_default_schema() -> None:
+    user = _parse_one("CREATE USER u FOR LOGIN l WITH DEFAULT_SCHEMA = dbo")
+    assert isinstance(user, ast.CreatePrincipal)
+    assert user.principal_kind == "user"
+    assert user.options["login"].parts[-1].value == "l"
+    assert user.options["default_schema"].parts[-1].value == "dbo"
+
+
+def test_sqlserver_create_user_from_login_and_without_login() -> None:
+    from_login = _parse_one("CREATE USER u FROM LOGIN l")
+    without_login = _parse_one("CREATE USER u2 WITHOUT LOGIN")
+    assert from_login.options["login"].parts[-1].value == "l"
+    assert without_login.options["without_login"] is True
+
+
+def test_sqlserver_create_role_authorization() -> None:
+    role = _parse_one("CREATE ROLE r AUTHORIZATION dbo")
+    assert isinstance(role, ast.CreatePrincipal)
+    assert role.principal_kind == "role"
+    assert role.options["authorization"].parts[-1].value == "dbo"
 
 
 def test_sqlserver_routine_trigger_and_try_catch_nodes() -> None:
