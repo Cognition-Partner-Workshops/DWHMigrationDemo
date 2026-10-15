@@ -66,6 +66,26 @@ def test_case_rule_and_unqualified_default_schema_resolution() -> None:
     assert len(objects) == 2
 
 
+def test_defined_in_prefers_same_name_package_over_package_body() -> None:
+    body = _object("sales_api")
+    body.type = "package_body"
+    body.references = [
+        Reference(
+            ast.QualifiedName(parts=[ast.Identifier(value="sales_api")]),
+            "defined_in",
+            ast.Span(),
+        )
+    ]
+    package = _object("sales_api")
+    package.type = "package"
+
+    objects, edges = resolve([body, package], "ansi")
+
+    assert len(objects) == 2
+    assert edges[0].target == package.qualified_name
+    assert not any(issue.code == "ambiguous_reference" for issue in body.issues)
+
+
 def test_ambiguous_and_external_references_are_reported() -> None:
     source = _object("source", refs=["duplicate", "missing"])
     first = _object("one.duplicate", schema="one", path="b.sql")

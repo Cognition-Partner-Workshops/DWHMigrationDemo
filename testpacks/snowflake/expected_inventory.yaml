@@ -60,7 +60,7 @@ edges:
   - {from: analytics.curated.agg_return_rates, to: analytics.raw.returns, kind: reads, external: false}
   - {from: analytics.security.row_region, to: analytics.raw.regions, kind: reads, external: false}
   - {from: analytics.curated.task_orders, to: analytics.curated.agg_daily_sales, kind: writes, external: false}
-  - {from: analytics.curated.task_orders, to: analytics.curated.task_stage, kind: schedules, external: false}
+  - {from: analytics.curated.task_orders, to: analytics.curated.task_stage, kind: runs_after, external: false}
   - {from: analytics.curated.task_orders, to: analytics.raw.orders, kind: reads, external: false}
   - {from: analytics.curated.task_orders, to: analytics.raw.stream_orders, kind: reads, external: false}
   - {from: analytics.curated.task_stage, to: analytics.raw.events, kind: writes, external: false}
@@ -92,5 +92,5 @@ edges:
   - {from: analytics.curated.p_refresh, to: analytics.curated.agg_daily_sales, kind: writes, external: false}
   - {from: analytics.curated.p_refresh, to: analytics.raw.orders, kind: reads, external: false}
   - {from: analytics.curated.task_rebuild, to: analytics.curated.p_refresh, kind: calls, external: false}
-  - {from: analytics.curated.task_rebuild, to: analytics.curated.task_orders, kind: schedules, external: false}
+  - {from: analytics.curated.task_rebuild, to: analytics.curated.task_orders, kind: runs_after, external: false}
   - {from: analytics.curated.v_event_items, to: analytics.raw.events, kind: reads, external: false}

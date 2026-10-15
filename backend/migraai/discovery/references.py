@@ -88,6 +88,7 @@ def extract(node: ast.Node, dialect: Any = None) -> list[Reference]:
         if isinstance(current, ast.CreateTable):
             if current.as_query is not None:
                 add(current.name, "writes", current.span)
+            add(current.like, "reads", current.span)
             visit(current.as_query, ctes)
             for column in current.columns:
                 for constraint in column.constraints:
@@ -152,6 +153,11 @@ def extract(node: ast.Node, dialect: Any = None) -> list[Reference]:
             visit(current.filter, ctes)
             visit(current.within_group, ctes)
             visit(current.over, ctes)
+            return
+        if isinstance(current, ast.DialectExpr):
+            for hint in current.ref_hints:
+                add(hint.name, hint.ref_kind, hint.span)
+            visit(current.args, ctes)
             return
         if isinstance(current, ast.DialectStatement):
             for hint in current.references:

@@ -5,9 +5,9 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from migraai.discovery import ast
-from migraai.discovery.lexer import LexerConfig, Token, TokenKind
+from migraai.discovery.lexer import Token, TokenKind
 from migraai.discovery.parser_base import ParseError, ParserBase
-from migraai.discovery.parsers.hive.lexer import HiveLexer
+from migraai.discovery.parsers.hive.lexer import LEXER_CONFIG, HiveLexer
 
 
 @dataclass(slots=True)
@@ -29,6 +29,8 @@ HiveStructField.kind = "struct_field"
 
 
 class Parser(ParserBase):
+    lexer_class = HiveLexer
+    lexer_config = LEXER_CONFIG
     case_rule = "lower"
     binary_ops = {
         **ParserBase.binary_ops,
@@ -103,30 +105,8 @@ class Parser(ParserBase):
     default_schema: str | None = None
 
     def __init__(self, text: str | None = None, rel_path: str = "") -> None:
-        super().__init__(
-            text,
-            rel_path,
-            lexer_config=LexerConfig(
-                ident_quotes={"`": "`"},
-                string_escapes="backslash",
-                param_styles=frozenset({"hivevar"}),
-                extra_operators=("&", "|", "^"),
-            ),
-        )
+        super().__init__(text, rel_path, lexer_config=self.lexer_config)
         self.default_schema = None
-        self._lexer_issues: list[ast.Issue] = []
-
-    def parse(self, text: str | None = None, rel_path: str | None = None) -> ast.ParseResult:
-        if text is not None:
-            self.text = text
-            self.default_schema = None
-            lexer = HiveLexer(text)
-            self.tokens = lexer.tokenize()
-            self._lexer_issues = list(lexer.issues)
-        result = super().parse(None, rel_path)
-        result.issues[:0] = self._lexer_issues
-        self.issues = result.issues
-        return result
 
     def parse_identifier(self) -> ast.Identifier:
         first = self.peek()

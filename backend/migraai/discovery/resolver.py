@@ -122,6 +122,12 @@ def resolve(
                 if in_schema:
                     candidates = list(in_schema)
             candidates = list({id(candidate): candidate for candidate in candidates}.values())
+            if reference.ref_kind == "defined_in":
+                packages = [
+                    candidate for candidate in candidates if candidate.type.casefold() == "package"
+                ]
+                if packages:
+                    candidates = packages
             target: str
             is_external = False
             if len(candidates) == 1:

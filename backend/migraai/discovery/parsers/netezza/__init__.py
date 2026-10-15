@@ -679,29 +679,8 @@ class Parser(ParserBase):
         limit = self._parse_limit() if self._is_limit_start() else None
         return ast.Query(with_clause, body, order_by, limit, span=self._token_span(start))
 
-    def _recover(self, start: int) -> None:
-        begin_proc = next(
-            (
-                index
-                for index in range(start, min(self.index, len(self.tokens)))
-                if self.tokens[index].text.casefold() == "begin_proc"
-            ),
-            None,
-        )
-        if begin_proc is not None:
-            end_proc = next(
-                (
-                    index
-                    for index in range(max(self.index, begin_proc + 1), len(self.tokens) - 1)
-                    if self.tokens[index].text.casefold() == "end_proc"
-                ),
-                None,
-            )
-            if end_proc is not None:
-                self.index = end_proc + 1
-                self.accept(TokenKind.TERMINATOR)
-                return
-        return super()._recover(start)
+    def is_statement_end(self, token: Token) -> bool:
+        return super().is_statement_end(token) or token.text.casefold() == "end_proc"
 
 
 __all__ = ["Parser"]

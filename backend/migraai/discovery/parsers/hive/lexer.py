@@ -3,18 +3,17 @@ from __future__ import annotations
 from migraai.discovery.ast import Issue, Span
 from migraai.discovery.lexer import Lexer, LexerConfig, TokenKind
 
+LEXER_CONFIG = LexerConfig(
+    ident_quotes={"`": "`"},
+    string_escapes="backslash",
+    param_styles=frozenset({"hivevar"}),
+    extra_operators=("&", "|", "^"),
+)
+
 
 class HiveLexer(Lexer):
-    def __init__(self, text: str) -> None:
-        super().__init__(
-            text,
-            LexerConfig(
-                ident_quotes={"`": "`"},
-                string_escapes="backslash",
-                param_styles=frozenset({"hivevar"}),
-                extra_operators=("&", "|", "^"),
-            ),
-        )
+    def __init__(self, text: str, config: LexerConfig | None = None) -> None:
+        super().__init__(text, config or LEXER_CONFIG)
 
     def _scan_string(self) -> bool:
         if self.text[self._offset] != '"':

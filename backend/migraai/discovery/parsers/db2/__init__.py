@@ -47,6 +47,7 @@ class Db2Lexer(Lexer):
 
 
 class Parser(PsmMixin, ParserBase):
+    lexer_class = Db2Lexer
     case_rule = "insensitive"
     builtin_functions = ParserBase.ansi_builtins | frozenset(
         {
@@ -78,47 +79,16 @@ class Parser(PsmMixin, ParserBase):
     def __init__(self, text: str | None = None, rel_path: str = "", terminator: str = ";") -> None:
         super().__init__(text, rel_path, lexer_config=self.lexer_config)
         self.default_schema: str | None = None
-        self._active_terminators: list[str | None] = []
         self._query_depth = 0
         self._requested_terminator = terminator
 
-    def parse(self, text: str | None = None, rel_path: str | None = None) -> ast.ParseResult:
-        if text is not None:
-            self.text = text
-        if rel_path is not None:
-            self.rel_path = rel_path
-        lexer = Db2Lexer(self.text, self.lexer_config)
-        self.tokens = lexer.tokenize()
-        self._active_terminators = lexer.terminator_contexts
-        lexer_issues = list(lexer.issues)
-        result = super().parse(None, rel_path)
-        result.issues[:0] = lexer_issues
-        self.issues = result.issues
-        self.default_schema = None
-        for statement in result.statements:
-            if isinstance(statement, ast.Use):
-                self.default_schema = ".".join(part.value for part in statement.database.parts)
-        return result
-
-    def _recover(self, start: int) -> None:
-        terminator = (
-            self._active_terminators[start] if start < len(self._active_terminators) else None
-        )
-        if not terminator:
-            return super()._recover(start)
-        if self.index <= start:
-            self.index = min(start + 1, len(self.tokens) - 1)
-        depth = 0
-        while self.index < len(self.tokens) - 1:
-            token = self.tokens[self.index]
-            if token.kind is TokenKind.PUNCT and token.text == "(":
-                depth += 1
-            elif token.kind is TokenKind.PUNCT and token.text == ")":
-                depth = max(0, depth - 1)
-            elif token.kind is TokenKind.TERMINATOR and token.text == terminator and depth == 0:
-                self.index += 1
-                return
-            self.index += 1
+    def is_statement_end(self, token: Token) -> bool:
+        lexer = self._lexer
+        contexts = getattr(lexer, "terminator_contexts", ())
+        terminator = contexts[self.index] if self.index < len(contexts) else None
+        if terminator is None:
+            return super().is_statement_end(token)
+        return token.kind is TokenKind.TERMINATOR and token.text == terminator
 
     def parse_statement_ext(self) -> ast.Node | None:
         if self.at_keyword("RETURN") and self.at_keyword("SELECT", "WITH", 1):

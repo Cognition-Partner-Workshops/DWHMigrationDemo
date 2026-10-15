@@ -4,19 +4,18 @@ import re
 
 from migraai.discovery.lexer import Lexer, LexerConfig, TokenKind
 
+LEXER_CONFIG = LexerConfig(
+    ident_quotes={'"': '"'},
+    string_escapes="backslash",
+    dollar_quoting=True,
+    param_styles=frozenset(),
+    extra_operators=("=>", "::"),
+)
+
 
 class SnowflakeLexer(Lexer):
-    def __init__(self, text: str) -> None:
-        super().__init__(
-            text,
-            LexerConfig(
-                ident_quotes={'"': '"'},
-                string_escapes="backslash",
-                dollar_quoting=True,
-                param_styles=frozenset(),
-                extra_operators=("=>", "::"),
-            ),
-        )
+    def __init__(self, text: str, config: LexerConfig | None = None) -> None:
+        super().__init__(text, config or LEXER_CONFIG)
 
     def _scan_parameter(self) -> bool:
         remaining = self.text[self._offset :]

@@ -55,6 +55,8 @@ class LexerConfig:
         {"question", "colon", "dollar_numeric", "at", "ampersand", "hivevar"}
     )
     extra_operators: tuple[str, ...] = ()
+    hash_identifiers: bool = False
+    dynamic_terminators: bool = False
 
 
 _OPERATORS = (
@@ -102,6 +104,7 @@ class Lexer:
         self._line = 1
         self._col = 1
         self._line_start = 0
+        self._statement_terminators = config.statement_terminators if config else (";",)
 
     def tokenize(self) -> list[Token]:
         if self.tokens:
@@ -113,6 +116,8 @@ class Lexer:
                 char = self.text[self._offset]
                 if char.isspace():
                     self._advance(char)
+                elif char == "#" and self.config.hash_identifiers and self._scan_hash_identifier():
+                    continue
                 elif self.text.startswith("--", self._offset) or (
                     char == "#"
                     and not any(
@@ -221,7 +226,20 @@ class Lexer:
             end = len(self.text)
         raw = self.text[self._offset : end]
         self.comments.append(Comment(raw, self._span(line, col, raw)))
+        if self.config.dynamic_terminators:
+            match = re.fullmatch(r"--#SET\s+TERMINATOR\s+(\S+)\s*", raw, flags=re.IGNORECASE)
+            if match:
+                self._statement_terminators = (match.group(1),)
         self._advance(raw)
+
+    def _scan_hash_identifier(self) -> bool:
+        match = re.match(r"#{1,2}[\w@$#]+", self.text[self._offset :], re.UNICODE)
+        if match is None:
+            return False
+        raw = match.group(0)
+        self._emit(TokenKind.IDENT, raw, raw)
+        self._advance(raw)
+        return True
 
     def _scan_block_comment(self) -> None:
         line, col = self._position()
@@ -459,7 +477,7 @@ class Lexer:
         elif "question" in styles and remaining.startswith("?"):
             matched = "?"
         elif "colon" in styles and remaining.startswith(":") and not remaining.startswith("::"):
-            match = re.match(r":[A-Za-z_][A-Za-z_0-9$]*", remaining)
+            match = re.match(r"(?::[A-Za-z_][A-Za-z_0-9$]*|:\d+)", remaining)
             if match:
                 matched = match.group(0)
         elif "at" in styles and remaining.startswith("@"):
@@ -506,7 +524,7 @@ class Lexer:
             self._emit(TokenKind.OPERATOR, "(+)", "(+)")
             self._advance("(+)")
             return True
-        for terminator in sorted(self.config.statement_terminators, key=len, reverse=True):
+        for terminator in sorted(self._statement_terminators, key=len, reverse=True):
             if terminator and remaining.startswith(terminator):
                 self._emit(TokenKind.TERMINATOR, terminator, terminator)
                 self._advance(terminator)
@@ -520,6 +538,10 @@ class Lexer:
                 self._advance(operator)
                 return True
         char = self.text[self._offset]
+        if char == ";" and self.config.dynamic_terminators:
+            self._emit(TokenKind.PUNCT, char, char)
+            self._advance(char)
+            return True
         if char in "+-*/%=<>!~|&^:":
             self._emit(TokenKind.OPERATOR, char, char)
             self._advance(char)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import fields
 
+from migraai.discovery import ast
 from migraai.discovery.ast import (
     Binary,
     ColumnConstraint,
@@ -16,6 +17,7 @@ from migraai.discovery.ast import (
     TableConstraint,
     walk,
 )
+from migraai.discovery.parser_base import ParserBase
 
 
 def test_to_dict_has_stable_ordered_keys_and_omits_empty_fields() -> None:
@@ -68,3 +70,39 @@ def test_domain_kinds_do_not_shadow_the_node_discriminator() -> None:
     assert RefHint(ref_kind="reads").kind == "ref_hint"
     assert ColumnConstraint(constraint_kind="foreign_key").kind == "column_constraint"
     assert TableConstraint(constraint_kind="foreign_key").kind == "table_constraint"
+
+
+def test_new_ast_fields_default_without_changing_default_serialization() -> None:
+    assert ast.Query().distribute_by == []
+    assert ast.Query().sort_by == []
+    assert ast.Query().cluster_by == []
+    assert ast.StructField().comment is None
+    assert ast.Grant().grantee_kinds == []
+    assert ast.Revoke().grantee_kinds == []
+    assert ast.Select().hierarchical is None
+    assert ast.Select().into_list == []
+    assert ast.Select().bulk_collect is False
+    assert ast.Fetch().bulk_collect is False
+    assert ast.Fetch().limit is None
+    for node in (ast.Insert(), ast.Update(), ast.Delete(), ast.Merge()):
+        assert node.top is None
+        assert node.output == []
+        assert node.output_into is None
+        assert node.target_variable is None
+    assert ast.While().label is None
+    assert ast.Repeat().label is None
+    assert ast.ForLoop().label is None
+    assert ast.ForLoop().cursor is None
+    assert ast.DialectExpr().ref_hints == []
+    assert ast.Cast().function_name is None
+
+    assert "bulk_collect" not in ast.Select().to_dict()
+    assert "bulk_collect" not in ast.Fetch().to_dict()
+    assert "default_schema" not in ast.ParseResult().to_dict()
+
+
+def test_parse_result_includes_the_current_default_schema() -> None:
+    result = ParserBase().parse("USE first_db; USE second_db")
+
+    assert result.default_schema == "second_db"
+    assert result.to_dict()["default_schema"] == "second_db"

@@ -211,9 +211,10 @@ def test_teradata_select_into_and_unstored_loop_labels() -> None:
     assert isinstance(routine.body.statements[0], ast.While)
     assert isinstance(routine.body.statements[1], ast.Repeat)
     assert isinstance(routine.body.statements[2], ast.ForLoop)
-    assert not hasattr(routine.body.statements[0], "label")
-    assert not hasattr(routine.body.statements[1], "label")
-    assert not hasattr(routine.body.statements[2], "label")
+    assert routine.body.statements[0].label is None
+    assert routine.body.statements[1].label is None
+    assert routine.body.statements[2].label is None
+    assert routine.body.statements[2].cursor is None
 
 
 def test_teradata_sampling_alias_dml_and_partition_forms() -> None:

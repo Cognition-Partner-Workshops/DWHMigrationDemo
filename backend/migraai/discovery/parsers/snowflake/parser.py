@@ -7,7 +7,7 @@ from typing import Any
 from migraai.discovery import ast
 from migraai.discovery.lexer import Token, TokenKind
 from migraai.discovery.parser_base import ParseError, ParserBase
-from migraai.discovery.parsers.snowflake.lexer import SnowflakeLexer
+from migraai.discovery.parsers.snowflake.lexer import LEXER_CONFIG, SnowflakeLexer
 
 
 @dataclass(slots=True)
@@ -27,6 +27,8 @@ SnowflakeRevoke.kind = "revoke"
 
 
 class Parser(ParserBase):
+    lexer_class = SnowflakeLexer
+    lexer_config = LEXER_CONFIG
     case_rule = "upper"
     default_schema: str | None = None
     builtin_functions = ParserBase.ansi_builtins | frozenset(
@@ -87,24 +89,8 @@ class Parser(ParserBase):
     )
 
     def __init__(self, text: str | None = None, rel_path: str = "") -> None:
-        super().__init__(text, rel_path)
+        super().__init__(text, rel_path, lexer_config=self.lexer_config)
         self.default_schema = None
-        self._lexer_issues: list[ast.Issue] = []
-
-    def parse(self, text: str | None = None, rel_path: str | None = None) -> ast.ParseResult:
-        if text is not None:
-            self.text = text
-            self.default_schema = None
-            lexer = SnowflakeLexer(text)
-            self.tokens = lexer.tokenize()
-            self._lexer_issues = list(lexer.issues)
-        result = super().parse(None, rel_path)
-        result.issues[:0] = self._lexer_issues
-        self.issues = result.issues
-        for statement in result.statements:
-            if isinstance(statement, ast.Use):
-                self._set_default_schema(statement.database)
-        return result
 
     def _set_default_schema(self, name: ast.QualifiedName) -> None:
         if not name.parts:
@@ -116,6 +102,12 @@ class Parser(ParserBase):
             self.default_schema = f"{self.default_schema.split('.', 1)[0]}.{parts[0]}"
         else:
             self.default_schema = parts[0]
+
+    def _update_default_schema(self, statement: ast.Node) -> None:
+        if isinstance(statement, ast.Use):
+            self._set_default_schema(statement.database)
+        else:
+            super()._update_default_schema(statement)
 
     def parse_qualified_name(self) -> ast.QualifiedName:
         if self.at(TokenKind.OPERATOR, ":"):
@@ -1014,7 +1006,7 @@ class Parser(ParserBase):
             properties["schedule"] = self._parse_property_value()
         if self.accept_keyword("AFTER"):
             args["after"] = self.parse_comma_list(self.parse_qualified_name)
-            references.extend(ast.RefHint(name, "schedules") for name in args["after"])
+            references.extend(ast.RefHint(name, "runs_after") for name in args["after"])
         if self.accept_keyword("WHEN"):
             args["when"] = self.parse_expr()
             if isinstance(args["when"], ast.FunctionCall) and args["when"].name.parts:
