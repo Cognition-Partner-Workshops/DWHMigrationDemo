@@ -79,7 +79,7 @@ describe("InventoryView", () => {
       items: [],
       page: 1,
       page_size: 50,
-      total: 57,
+      total: 58,
       external_total: 1,
     });
     render(<InventoryView revision={0} uploads={[]} />);

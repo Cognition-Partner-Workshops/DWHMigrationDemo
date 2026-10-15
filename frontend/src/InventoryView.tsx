@@ -56,6 +56,7 @@ export function InventoryView({
   const [showGraph, setShowGraph] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const localTotal = total - externalTotal;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -225,8 +226,8 @@ export function InventoryView({
             {loading
               ? "Loading…"
               : externalTotal > 0
-                ? `${total} objects · ${externalTotal} external reference${externalTotal === 1 ? "" : "s"}`
-                : `${total} objects`}
+                ? `${localTotal} objects · ${externalTotal} external reference${externalTotal === 1 ? "" : "s"}`
+                : `${localTotal} objects`}
           </span>
           <button disabled={page <= 1} onClick={() => setPage((current) => current - 1)} type="button">Previous</button>
           <span>Page {page} of {pages}</span>

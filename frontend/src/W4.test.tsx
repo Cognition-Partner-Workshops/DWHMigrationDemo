@@ -155,6 +155,7 @@ describe("Phase 2 W4 frontend", () => {
     render(
       <PlanningPanel
         confidenceThreshold={0.85}
+        devinConfigured
         session={sessionWithPlan(planStatus({ cached: true }))}
         sourceName="Teradata"
         targetName="Snowflake"
@@ -243,6 +244,7 @@ describe("Phase 2 W4 frontend", () => {
     const { rerender } = render(
       <PlanningPanel
         confidenceThreshold={0.85}
+        devinConfigured
         session={sessionWithPlan(planStatus())}
         sourceName="Teradata"
         targetName="Snowflake"
@@ -253,6 +255,7 @@ describe("Phase 2 W4 frontend", () => {
     rerender(
       <PlanningPanel
         confidenceThreshold={0.85}
+        devinConfigured
         session={sessionWithPlan(stalePlan)}
         sourceName="Teradata"
         targetName="Snowflake"
@@ -268,12 +271,34 @@ describe("Phase 2 W4 frontend", () => {
     rerender(
       <PlanningPanel
         confidenceThreshold={0.85}
+        devinConfigured
         session={sessionWithPlan(planStatus())}
         sourceName="Teradata"
         targetName="Snowflake"
       />,
     );
     expect(screen.queryByRole("button", { name: "Regenerate with inventory" })).toBeNull();
+    confirm.mockRestore();
+  });
+
+  it("uses the local-draft confirmation when Devin is not configured", async () => {
+    const user = userEvent.setup();
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    render(
+      <PlanningPanel
+        confidenceThreshold={0.85}
+        devinConfigured={false}
+        session={sessionWithPlan(planStatus({ inventory_stale: true }))}
+        sourceName="Teradata"
+        targetName="Snowflake"
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Regenerate with inventory" }));
+    expect(confirm).toHaveBeenCalledWith(
+      "Devin isn't configured, so this creates a new local draft using the inventory counts. No ACUs are used.",
+    );
+    expect(apiMocks.startPlan).toHaveBeenCalledWith(true);
     confirm.mockRestore();
   });
 

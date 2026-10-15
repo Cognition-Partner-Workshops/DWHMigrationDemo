@@ -1262,6 +1262,23 @@ th {
   font-size: 9px;
 }
 
+.inline-notice.replacement-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notice-dismiss {
+  padding: 0 2px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
 .statusbar {
   display: flex;
   flex: 0 0 34px;

@@ -40,6 +40,16 @@ function fitGraph(cy: Core) {
   cy.zoom(Math.max(0.2, Math.min(1.5, cy.zoom())));
 }
 
+function fitInitialGraph(cy: Core, objectId: string) {
+  fitGraph(cy);
+  if (cy.zoom() < 0.7) {
+    const selectedNode = cy.getElementById(objectId);
+    if (selectedNode.nonempty()) {
+      cy.zoom({ level: 0.7, position: selectedNode.position() });
+    }
+  }
+}
+
 export function GraphView({
   objectId,
   onSelectObject,
@@ -104,7 +114,7 @@ export function GraphView({
           style: {
             label: "data(label)",
             "font-size": 11,
-            "min-zoomed-font-size": 11,
+            "min-zoomed-font-size": 4,
             "text-wrap": "wrap",
             "text-max-width": "130px",
             "text-valign": "bottom",
@@ -174,7 +184,7 @@ export function GraphView({
     cy.on("mouseout", "edge", (event) => {
       event.target.style("label", "");
     });
-    fitGraph(cy);
+    fitInitialGraph(cy, objectId);
 
     return () => {
       cy.destroy();

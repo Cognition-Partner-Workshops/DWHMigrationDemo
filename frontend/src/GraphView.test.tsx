@@ -12,7 +12,11 @@ const mocks = vi.hoisted(() => ({
     on: vi.fn(),
     zoom: vi.fn(),
   },
-  node: { select: vi.fn() },
+  node: {
+    nonempty: vi.fn(() => true),
+    position: vi.fn(() => ({ x: 100, y: 200 })),
+    select: vi.fn(),
+  },
   layout: { run: vi.fn() },
 }));
 
@@ -22,11 +26,18 @@ vi.mock("./api", () => ({ getGraph: mocks.getGraph }));
 import { GraphView } from "./GraphView";
 
 describe("GraphView", () => {
+  let currentZoom = 2;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    currentZoom = 2;
     mocks.cy.getElementById.mockReturnValue(mocks.node);
     mocks.cy.layout.mockReturnValue(mocks.layout);
-    mocks.cy.zoom.mockImplementation((level?: number) => level ?? 2);
+    mocks.cy.zoom.mockImplementation((value?: number | { level: number }) => {
+      if (typeof value === "number") currentZoom = value;
+      if (typeof value === "object") currentZoom = value.level;
+      return currentZoom;
+    });
     mocks.cyFactory.mockReturnValue(mocks.cy);
     mocks.getGraph.mockResolvedValue({
       nodes: [{
@@ -58,6 +69,7 @@ describe("GraphView", () => {
     expect(graphOptions.maxZoom).toBe(1.5);
     expect(graphOptions.elements[0].data.label).toBe("orders");
     expect(graphOptions.style[0].style["font-size"]).toBe(11);
+    expect(graphOptions.style[0].style["min-zoomed-font-size"]).toBe(4);
     expect(graphOptions.style[0].style["text-valign"]).toBe("bottom");
     expect(mocks.cy.fit).toHaveBeenCalledWith(undefined, 40);
     expect(mocks.cy.zoom).toHaveBeenCalledWith(1.5);
@@ -65,6 +77,18 @@ describe("GraphView", () => {
 
     unmount();
     expect(mocks.cy.destroy).toHaveBeenCalledOnce();
+  });
+
+  it("raises a low automatic fit to 0.7 centered on the selected node", async () => {
+    currentZoom = 0.5;
+    render(<GraphView objectId="object-1" onSelectObject={vi.fn()} />);
+
+    await waitFor(() =>
+      expect(mocks.cy.zoom).toHaveBeenCalledWith({
+        level: 0.7,
+        position: { x: 100, y: 200 },
+      }),
+    );
   });
 
   it("shows each type in the current graph once", async () => {

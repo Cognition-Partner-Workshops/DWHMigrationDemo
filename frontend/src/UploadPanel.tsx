@@ -67,6 +67,7 @@ export function UploadPanel({
   const [discovery, setDiscovery] = useState<DiscoveryStatus | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [replacementNotice, setReplacementNotice] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
   const stopPollingRef = useRef<(() => void) | null>(null);
@@ -166,6 +167,7 @@ export function UploadPanel({
     setProgress(0);
     setError("");
     setNotice("");
+    setReplacementNotice("");
     try {
       const result = await uploadFiles(validFiles, (loaded, total) => {
         setProgress(total > 0 ? Math.round((loaded / total) * 100) : 0);
@@ -180,9 +182,14 @@ export function UploadPanel({
       setSelectedFiles((current) =>
         current.filter(({ file }) => !validFiles.includes(file)),
       );
-      setNotice(
+      setReplacementNotice(
         result.replaced.length > 0
           ? `Replaced ${result.replaced.length} earlier file${result.replaced.length === 1 ? "" : "s"} with the same path.`
+          : "",
+      );
+      setNotice(
+        result.replaced.length > 0
+          ? ""
           : "Files uploaded. Discovery is processing the selected files.",
       );
       startPolling();
@@ -224,11 +231,9 @@ export function UploadPanel({
   const noticeMessage =
     discovery?.state === "failed"
       ? "Discovery failed."
-      : notice.startsWith("Replaced ")
-        ? notice
-        : discovery?.state === "done" || uploadsFinished
-          ? "Discovery complete."
-          : notice;
+      : discovery?.state === "done" || uploadsFinished
+        ? "Discovery complete."
+        : notice;
 
   return (
     <div className="upload-workspace">
@@ -286,7 +291,20 @@ export function UploadPanel({
           {discovery.current_file && <span className="current-discovery-file">{discovery.current_file}</span>}
         </div>
       )}
-      {(error || noticeMessage) && (
+      {replacementNotice && (
+        <div className="inline-notice replacement-notice" role="status">
+          <span>{replacementNotice}</span>
+          <button
+            aria-label="Dismiss replacement notice"
+            className="notice-dismiss"
+            onClick={() => setReplacementNotice("")}
+            type="button"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      {(error || (noticeMessage && !replacementNotice)) && (
         <p className={error ? "inline-notice error-banner" : "inline-notice"} role={error ? "alert" : "status"}>
           {error || noticeMessage}
         </p>

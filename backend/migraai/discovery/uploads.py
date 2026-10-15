@@ -10,13 +10,16 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath, PureWindowsPath
 from typing import BinaryIO
 
-from migraai.discovery.detect import detect_file
+from migraai.discovery.detect import decode_source, detect_file
 
 MAX_SESSION_BYTES = 100 * 1024 * 1024
 MAX_ZIP_ENTRIES = 10_000
 MAX_ZIP_UNCOMPRESSED = 1024 * 1024 * 1024
 MAX_COMPRESSION_RATIO = 200
 CHUNK_SIZE = 64 * 1024
+XML_DECLARATION_REJECTION = (
+    "XML with DOCTYPE or entity declarations is not accepted for security reasons."
+)
 ALLOWED_EXTENSIONS = frozenset(
     {
         ".sql",
@@ -138,8 +141,18 @@ def _store_row(
         compressed_size=compressed_size,
         session=session if count_zip_bytes else None,
     )
-    session["store"].write_stream(store_path, reader)
-    data = session["store"].read(store_path)
+    if _extension(rel_path) == ".xml":
+        chunks = []
+        while chunk := reader.read(CHUNK_SIZE):
+            chunks.append(chunk)
+        data = b"".join(chunks)
+        text, _, _ = decode_source(data)
+        if "<!doctype" in text.casefold() or "<!entity" in text.casefold():
+            return _reject(rel_path, reader.total, XML_DECLARATION_REJECTION, session)
+        session["store"].write_stream(store_path, io.BytesIO(data))
+    else:
+        session["store"].write_stream(store_path, reader)
+        data = session["store"].read(store_path)
     detection = detect_file(rel_path, data, session["source"])
     row = UploadRow(
         row_id,

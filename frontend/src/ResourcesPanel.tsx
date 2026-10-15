@@ -48,7 +48,13 @@ function ResourceGroup({
   );
 }
 
-export function ResourcesPanel({ confirmed }: { confirmed: boolean }) {
+export function ResourcesPanel({
+  confirmed,
+  refreshKey,
+}: {
+  confirmed: boolean;
+  refreshKey: number;
+}) {
   const [items, setItems] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -81,7 +87,7 @@ export function ResourcesPanel({ confirmed }: { confirmed: boolean }) {
     return () => {
       active = false;
     };
-  }, [confirmed]);
+  }, [confirmed, refreshKey]);
 
   async function changeAvailability(item: ResourceItem, available: boolean) {
     setUpdatingId(item.id);

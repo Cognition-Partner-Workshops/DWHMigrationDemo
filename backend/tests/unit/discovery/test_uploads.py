@@ -72,6 +72,47 @@ def test_extension_spoof_is_rejected(tmp_path: Path) -> None:
     assert "extension" in (row.message or "")
 
 
+@pytest.mark.parametrize("zip_member", [False, True])
+def test_xml_declarations_are_rejected_before_storage(tmp_path: Path, zip_member: bool) -> None:
+    session = _session(tmp_path)
+    payload = b"""<!DOCTYPE x [<!ENTITY e SYSTEM 'file:///etc/passwd'>]>
+    <x>&e;</x>"""
+    filename = "unsafe.xml"
+    content = payload
+    if zip_member:
+        filename = "archive.zip"
+        content = _zip([("unsafe.xml", payload, None)])
+
+    row = ingest_file(filename, io.BytesIO(content), session)[0]
+
+    assert row.status == "rejected"
+    assert row.message == (
+        "XML with DOCTYPE or entity declarations is not accepted for security reasons."
+    )
+    assert not row.store_path
+    assert not (session["store"].directory / "uploads").exists()
+
+
+@pytest.mark.parametrize(
+    ("filename", "content", "detected_type"),
+    [
+        ("informatica.xml", b"<POWERMART/>", "informatica"),
+        ("ssis.xml", b'<DTS:Executable xmlns:DTS="urn:dts"/>', "ssis"),
+    ],
+)
+def test_normal_etl_xml_is_accepted(
+    tmp_path: Path, filename: str, content: bytes, detected_type: str
+) -> None:
+    session = _session(tmp_path)
+
+    row = ingest_file(filename, io.BytesIO(content), session)[0]
+
+    assert row.status == "pending"
+    assert row.detected_type == detected_type
+    assert row.store_path
+    assert session["store"].read(row.store_path) == content
+
+
 def test_disallowed_extension_inside_zip_is_rejected(tmp_path: Path) -> None:
     rows = ingest_file(
         "archive.zip",

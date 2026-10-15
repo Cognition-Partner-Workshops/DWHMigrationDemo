@@ -552,6 +552,7 @@ export default function App() {
             >
               <PlanningPanel
                 confidenceThreshold={settings.confidence_threshold}
+                devinConfigured={health?.devin_configured ?? false}
                 session={sessionConfirmed ? session : null}
                 sourceName={
                   platforms.sources.find((item) => item.id === session?.source)?.name ?? ""
@@ -585,7 +586,7 @@ export default function App() {
               title="Resources Confirmation"
             />
           </div>
-          <ResourcesPanel confirmed={sessionConfirmed} />
+          <ResourcesPanel confirmed={sessionConfirmed} refreshKey={inventoryRevision} />
         </section>
 
         <section aria-labelledby="convert-heading" className="panel convert-panel">

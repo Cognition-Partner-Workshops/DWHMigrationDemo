@@ -42,11 +42,13 @@ export function PlanningPanel({
   sourceName,
   targetName,
   confidenceThreshold,
+  devinConfigured = false,
 }: {
   session: SessionView | null;
   sourceName: string;
   targetName: string;
   confidenceThreshold: number;
+  devinConfigured?: boolean;
 }) {
   const [plan, setPlan] = useState<PlanStatus | null>(session?.plan ?? null);
   const [selectedSection, setSelectedSection] = useState("A");
@@ -123,7 +125,9 @@ export function PlanningPanel({
   function confirmRegeneration() {
     if (
       window.confirm(
-        "Regenerate this plan? This starts a new Devin session and uses ACUs.",
+        devinConfigured
+          ? "Regenerate this plan? This starts a new Devin session and uses ACUs."
+          : "Devin isn't configured, so this creates a new local draft using the inventory counts. No ACUs are used.",
       )
     ) {
       void requestPlan(true);

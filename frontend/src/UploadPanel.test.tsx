@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -101,10 +101,18 @@ describe("UploadPanel", () => {
     const user = userEvent.setup();
     const onUploadsChange = vi.fn();
     const replacement = { ...upload, id: "upload-new", rel_path: "tables.sql" };
+    let reportStatus: ((snapshot: {
+      status: { state: string; files_total: number; files_completed: number; current_file: null };
+      uploads: typeof upload[];
+    }) => void) | undefined;
     mocks.getUploads.mockResolvedValueOnce([]).mockResolvedValueOnce([upload, replacement]);
     mocks.uploadFiles.mockResolvedValue({
       uploads: [replacement],
       replaced: ["upload-1"],
+    });
+    mocks.watchDiscoveryStatus.mockImplementation((onStatus: typeof reportStatus) => {
+      reportStatus = onStatus;
+      return () => undefined;
     });
     render(
       <UploadPanel
@@ -123,6 +131,18 @@ describe("UploadPanel", () => {
     expect(await screen.findByText("Replaced 1 earlier file with the same path."))
       .toBeInTheDocument();
     expect(onUploadsChange).toHaveBeenLastCalledWith([replacement]);
+
+    act(() => {
+      reportStatus?.({
+        status: { state: "done", files_total: 1, files_completed: 1, current_file: null },
+        uploads: [replacement],
+      });
+    });
+    expect(screen.getByText("Discovery done")).toBeInTheDocument();
+    expect(screen.getByText("Replaced 1 earlier file with the same path.")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Dismiss replacement notice" }));
+    expect(screen.queryByText("Replaced 1 earlier file with the same path.")).toBeNull();
   });
 
   it("replaces the processing notice when discovery completes", async () => {
