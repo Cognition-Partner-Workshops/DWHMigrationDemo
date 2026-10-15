@@ -1,0 +1,19 @@
+target: redshift
+identifier_case: lower
+quote_char: '"'
+max_identifier_length: 127
+qualification: two_part
+reserved_words: ["AES128", "ALL", "ANALYSE", "ANALYZE", "AND", "ANY", "AS", "ASC", "AUTHORIZATION", "BACKUP", "BETWEEN", "BINARY", "BOTH", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "CONSTRAINT", "CREATE", "CREDENTIALS", "CROSS", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", "DEFAULT", "DEFERRABLE", "DESC", "DISTINCT", "DO", "ELSE", "END", "EXCEPT", "FALSE", "FOR", "FOREIGN", "FROM", "FULL", "GRANT", "GROUP", "HAVING", "IDENTITY", "ILIKE", "IN", "INNER", "INTERSECT", "INTO", "IS", "ISNULL", "JOIN", "LEADING", "LEFT", "LIKE", "LIMIT", "LOCALTIME", "LOCALTIMESTAMP", "MINUS", "NATURAL", "NEW", "NOT", "NOTNULL", "NULL", "NULLS", "OFF", "OFFSET", "OLD", "ON", "ONLY", "OPEN", "OR", "ORDER", "OUTER", "OVERLAPS", "PARALLEL", "PARTITION", "PERCENT", "PIVOT", "PRIMARY", "REFERENCES", "RIGHT", "SELECT", "SESSION_USER", "SIMILAR", "SOME", "SYSDATE", "SYSTEM", "TABLE", "THEN", "TIMESTAMP", "TO", "TOP", "TRAILING", "TRUE", "UNION", "UNIQUE", "UNNEST", "UNPIVOT", "USER", "USING", "WHEN", "WHERE", "WITH", "WITHOUT"]
+claims:
+  - text: Standard and delimited identifiers must be between 1 and 127 bytes long, and ASCII letters in identifiers are case-insensitive and folded to lowercase.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_names.html
+    accessed: 2026-10-15
+    confidence: high
+  - text: Delimited identifiers are enclosed in double quotation marks and can contain otherwise invalid characters such as spaces.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_names.html
+    accessed: 2026-10-15
+    confidence: high
+  - text: Amazon Redshift publishes a list of reserved words that can't be used as identifiers unless they are delimited.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_pg_keywords.html
+    accessed: 2026-10-15
+    confidence: high

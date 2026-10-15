@@ -1,0 +1,32 @@
+broad_grants.sql:
+  - synapse.security.no_grant_all
+  - synapse.security.no_grant_to_public
+  - synapse.security.no_with_grant_option
+columnstore_max_type.sql:
+  - synapse.lint.columnstore_without_max_types
+embedded_credentials.sql:
+  - synapse.security.no_plaintext_password
+  - synapse.security.no_storage_secret
+identity_in_ctas.sql:
+  - synapse.lint.no_identity_in_ctas
+merge_unsupported_forms.sql:
+  - synapse.rule.merge_no_hint
+  - synapse.rule.merge_no_values_source
+missing_explanation.sql:
+  - core.rule.explanation_block
+ownership_change.sql:
+  - synapse.security.no_ownership_change
+primary_key_insert_exec.sql:
+  - synapse.rule.no_insert_exec
+  - synapse.rule.pk_unique_not_enforced
+procedure_unsupported_features.sql:
+  - synapse.rule.no_error_line
+  - synapse.rule.no_unsupported_procedure_options
+sequence_and_check.sql:
+  - synapse.rule.no_foreign_key_or_check
+  - synapse.rule.no_sequences
+unsupported_type_trigger.sql:
+  - synapse.rule.no_triggers
+  - synapse.rule.no_unsupported_types
+view_select_star.sql:
+  - synapse.lint.no_select_star_in_view
