@@ -331,3 +331,95 @@ def test_expr_precedence_full() -> None:
     assert getattr(n2, "op", "").casefold() == "or"
     n3, _ = parse_expr("If a > b Then x Else y")
     assert type(n3).__name__ == "Case"
+
+
+def test_stage_direction_via_link_records() -> None:
+    # output link record: Stage feeds Partner -> Partner writes
+    data = b"""BEGIN DSJOB
+   Identifier "jd"
+   JobType "0"
+   Name "jd"
+   BEGIN DSRECORD
+      Identifier "s1"
+      OLEType "CCustomStage"
+      Name "src_t"
+      StageType "OracleConnectorPX"
+      TableName "ods.t1"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "s2"
+      OLEType "CCustomStage"
+      Name "tgt_t"
+      StageType "DB2ConnectorPX"
+      TableName "mart.t2"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "L1"
+      OLEType "CTrxOutput"
+      Name "lnk"
+      Stage "src_t"
+      Partner "tgt_t"
+   END DSRECORD
+END DSJOB"""
+    r = parse(data, "x.dsx")
+    assert ("etl_reads", "ods.t1") in names(next(o for o in r.objects if o.name == "src_t"))
+    assert ("etl_writes", "mart.t2") in names(next(o for o in r.objects if o.name == "tgt_t"))
+
+
+def test_stage_direction_via_input_link_and_pins() -> None:
+    # CTrxInput: Stage receives from Partner -> Stage writes; InputPins prop likewise
+    data = b"""BEGIN DSJOB
+   Identifier "jp"
+   JobType "0"
+   Name "jp"
+   BEGIN DSRECORD
+      Identifier "s1"
+      OLEType "CCustomStage"
+      Name "src_a"
+      StageType "OracleConnectorPX"
+      TableName "ods.a"
+      OutputPins "tgt_b"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "s2"
+      OLEType "CCustomStage"
+      Name "tgt_b"
+      StageType "DB2ConnectorPX"
+      TableName "mart.b"
+      InputPins "src_a"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "s3"
+      OLEType "CCustomStage"
+      Name "tgt_c"
+      StageType "ODBCConnectorPX"
+      TableName "mart.c"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "L2"
+      OLEType "CTrxInput"
+      Name "lnk2"
+      Stage "tgt_c"
+      Partner "src_a"
+   END DSRECORD
+END DSJOB"""
+    r = parse(data, "x.dsx")
+    by_name = {o.name: o for o in r.objects}
+    assert ("etl_writes", "mart.b") in names(by_name["tgt_b"])
+    assert ("etl_writes", "mart.c") in names(by_name["tgt_c"])
+    assert ("etl_reads", "ods.a") in names(by_name["src_a"])
+
+
+def test_dsexport_xml_pins_direction() -> None:
+    data = b"""<DSExport><Job Identifier="jx"><Record Identifier="ROOT" Type="JobDefn">
+<Property Name="Name">jx</Property><Property Name="JobType">0</Property></Record>
+<Record Identifier="s1" Type="CCustomStage"><Property Name="Name">src_x</Property>
+<Property Name="StageType">OracleConnectorPX</Property><Property Name="TableName">ods.x</Property>
+<Collection Name="OutputPins"><SubRecord>tgt_y</SubRecord></Collection></Record>
+<Record Identifier="s2" Type="CCustomStage"><Property Name="Name">tgt_y</Property>
+<Property Name="StageType">DB2ConnectorPX</Property><Property Name="TableName">mart.y</Property>
+<Collection Name="InputPins"><SubRecord>src_x</SubRecord></Collection></Record></Job></DSExport>"""
+    r = parse(data, "x.xml")
+    by_name = {o.name: o for o in r.objects}
+    assert ("etl_reads", "ods.x") in names(by_name["src_x"])
+    assert ("etl_writes", "mart.y") in names(by_name["tgt_y"])

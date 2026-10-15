@@ -8,6 +8,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "good_src"
       StageType "OracleConnectorPX"
+      OutputPins "good_tgt"
       TableName "ods.returns"
    END DSRECORD
    BEGIN DSRECORD
@@ -21,6 +22,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "good_tgt"
       StageType "DB2ConnectorPX"
+      InputPins "good_src"
       TableName "mart.returns_fact"
    END DSRECORD
 END DSJOB

@@ -102,15 +102,26 @@ def _parse_informatica(root: XmlNode, builder: EtlBuilder) -> None:
         for src in folder.find_all("SOURCE"):
             key = src.get("NAME") or ""
             sources[key] = (src.get("DATABASETYPE"), src.get("DBDNAME"))
+        shortcut_names = {
+            sc.get("NAME") for sc in folder.find_all("SHORTCUT") if sc.get("NAME")
+        }
+        folder_hint = next(
+            (
+                _dbtype_hint(dbtype)
+                for dbtype, _dbdname in sources.values()
+                if _dbtype_hint(dbtype)
+            ),
+            None,
+        )
         for child in folder.children:
             local = child.local.upper()
             name = child.get("NAME", "?") or "?"
             if local in {"WORKFLOW", "WORKLET"}:
                 _emit_workflow(child, folder_name, builder)
             elif local == "SESSION":
-                _emit_session(child, folder_name, builder)
+                _emit_session(child, folder_name, builder, folder_hint)
             elif local in {"MAPPING", "MAPPLET"}:
-                _emit_mapping(child, folder_name, builder, sources)
+                _emit_mapping(child, folder_name, builder, sources, shortcut_names)
             elif local == "TRANSFORMATION":
                 if child.get("REUSABLE", "").upper() == "YES":
                     _emit_transformation(child, folder_name, f"{folder_name}.{name}", builder)
@@ -125,6 +136,24 @@ def _parse_informatica(root: XmlNode, builder: EtlBuilder) -> None:
                     f"Unsupported FOLDER element {local}.",
                     span(child.line),
                 )
+
+
+_DBTYPE_HINTS = {
+    "oracle": "oracle",
+    "teradata": "teradata",
+    "microsoft sql server": "sqlserver",
+    "db2": "db2",
+    "netezza": "netezza",
+}
+
+
+def _dbtype_hint(dbtype: str | None) -> str | None:
+    from migraai.discovery.registry import get_sql_parser
+
+    if not dbtype:
+        return None
+    hint = _DBTYPE_HINTS.get(dbtype.strip().casefold())
+    return hint if hint and get_sql_parser(hint) is not None else None
 
 
 def _walk(node: XmlNode):
@@ -209,7 +238,9 @@ def _emit_workflow(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
     )
 
 
-def _emit_session(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
+def _emit_session(
+    node: XmlNode, folder: str, builder: EtlBuilder, hint: str | None = None
+) -> None:
     name = node.get("NAME", "?") or "?"
     qualified = f"{folder}.{name}"
     hints: list[ast.RefHint] = []
@@ -221,7 +252,7 @@ def _emit_session(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
             attr = (el.get("NAME") or "").strip()
             value = el.get("VALUE") or ""
             if attr in _SQL_ATTRIBUTES and value.strip():
-                builder.embed(qualified, value, attr)
+                builder.embed(qualified, value, attr, hint)
             elif (
                 attr.casefold()
                 in {
@@ -235,7 +266,7 @@ def _emit_session(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
         elif el.local == "SESSTRANSFORMATIONINST":
             for at in el.find_all("ATTRIBUTE"):
                 if (at.get("NAME") or "") in _SQL_ATTRIBUTES and (at.get("VALUE") or "").strip():
-                    builder.embed(qualified, at.get("VALUE") or "", at.get("NAME") or "sql")
+                    builder.embed(qualified, at.get("VALUE") or "", at.get("NAME") or "sql", hint)
     stmt = ast.DialectStatement(
         name="informatica.session",
         args={"name": ast.Identifier(value=name)},
@@ -246,7 +277,11 @@ def _emit_session(node: XmlNode, folder: str, builder: EtlBuilder) -> None:
 
 
 def _emit_mapping(
-    node: XmlNode, folder: str, builder: EtlBuilder, sources: dict[str, tuple[str | None, str]]
+    node: XmlNode,
+    folder: str,
+    builder: EtlBuilder,
+    sources: dict[str, tuple[str | None, str]],
+    shortcut_names: set[str] | None = None,
 ) -> None:
     name = node.get("NAME", "?") or "?"
     qualified = f"{folder}.{name}"
@@ -254,27 +289,47 @@ def _emit_mapping(
     args: dict = {"name": ast.Identifier(value=name)}
     connectors = []
     variables = [v.get("NAME") for v in node.find_all("MAPPINGVARIABLE") if v.get("NAME")]
+    mapping_hint = next(
+        (
+            hint
+            for inst in node.find_all("INSTANCE")
+            if (inst.get("TYPE") or inst.get("TRANSFORMATION_TYPE") or "").upper() == "SOURCE"
+            for dbtype in (
+                (inst.get("DATABASETYPE") or (sources.get(inst.get("TRANSFORMATION_NAME") or "") or (None,))[0]),
+            )
+            if (hint := _dbtype_hint(dbtype))
+        ),
+        None,
+    )
     for inst in node.find_all("INSTANCE"):
         inst_type = (inst.get("TYPE") or inst.get("TRANSFORMATION_TYPE") or "").upper()
         inst_name = inst.get("NAME") or inst.get("TRANSFORMATION_NAME") or "?"
         tname = inst.get("TRANSFORMATION_NAME") or inst_name
         if inst_type == "SOURCE":
-            src = sources.get(tname)
-            owner = inst.get("DBDNAME")
-            if src and src[1]:
-                owner = owner or src[1]
-            ref = f"{owner}.{tname}" if owner else tname
-            hints.append(builder.ref(ref, "etl_reads", span(inst.line)))
+            if shortcut_names and tname in shortcut_names:
+                hints.append(builder.ref(f"{folder}.{tname}", "etl_reads", span(inst.line)))
+            else:
+                src = sources.get(tname)
+                owner = inst.get("DBDNAME")
+                if src and src[1]:
+                    owner = owner or src[1]
+                ref = f"{owner}.{tname}" if owner else tname
+                hints.append(builder.ref(ref, "etl_reads", span(inst.line)))
         elif inst_type == "TARGET":
-            hints.append(builder.ref(tname, "etl_writes", span(inst.line)))
+            if shortcut_names and tname in shortcut_names:
+                hints.append(builder.ref(f"{folder}.{tname}", "etl_writes", span(inst.line)))
+            else:
+                hints.append(builder.ref(tname, "etl_writes", span(inst.line)))
         elif inst.get("REUSABLE", "").upper() == "YES" or inst_type == "MAPPLET":
             hints.append(builder.ref(f"{folder}.{tname}", "calls", span(inst.line)))
         else:
-            _emit_transformation(inst, folder, f"{qualified}.{inst_name}", builder)
+            _emit_transformation(
+                inst, folder, f"{qualified}.{inst_name}", builder, mapping_hint
+            )
     for child in node.find_all("TRANSFORMATION"):
         if child.get("REUSABLE", "").upper() != "YES":
             cname = child.get("NAME", "?") or "?"
-            _emit_transformation(child, folder, f"{qualified}.{cname}", builder)
+            _emit_transformation(child, folder, f"{qualified}.{cname}", builder, mapping_hint)
     for conn in node.find_all("CONNECTOR"):
         connectors.append(
             ast.DialectExpr(
@@ -307,7 +362,9 @@ def _emit_mapping(
     )
 
 
-def _emit_transformation(node: XmlNode, folder: str, qualified: str, builder: EtlBuilder) -> None:
+def _emit_transformation(
+    node: XmlNode, folder: str, qualified: str, builder: EtlBuilder, hint: str | None = None
+) -> None:
     name = qualified.rsplit(".", 1)[-1]
     ttype = node.get("TRANSFORMATION_TYPE") or node.get("TYPE") or ""
     hints: list[ast.RefHint] = []
@@ -346,7 +403,7 @@ def _emit_transformation(node: XmlNode, folder: str, qualified: str, builder: Et
         attr = (at.get("NAME") or "").strip()
         value = at.get("VALUE") or ""
         if attr in _SQL_ATTRIBUTES and value.strip():
-            builder.embed(qualified, value, attr)
+            builder.embed(qualified, value, attr, hint)
         elif attr.casefold() == "lookup table name" and value.strip():
             hints.append(builder.ref(value, "etl_reads", span(at.line)))
         elif attr.casefold() == "stored procedure name" and value.strip():

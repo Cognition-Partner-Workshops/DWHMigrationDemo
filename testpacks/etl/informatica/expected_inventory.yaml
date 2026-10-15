@@ -93,7 +93,7 @@ objects:
   qualified_name: RETAIL_ORDERS.wf_rejects
   status: partial
 - type: worklet
-  qualified_name: RETAIL_ORDERS.wk_customer
+  qualified_name: RETAIL_ORDERS.wk_orders
   status: parsed
 - type: transformation
   qualified_name: RETAIL_PRODUCT.lkp_categories
@@ -239,9 +239,9 @@ edges:
   kind: etl_writes
   external: true
 - from: RETAIL_ORDERS.m_order_enrich
-  to: sc_customer
+  to: RETAIL_ORDERS.sc_customer
   kind: etl_reads
-  external: true
+  external: false
 - from: RETAIL_ORDERS.m_order_enrich.lkp_status
   to: ref.ORDER_STATUS
   kind: etl_reads
@@ -319,7 +319,7 @@ edges:
   kind: schedules
   external: false
 - from: RETAIL_ORDERS.wf_nightly_batch
-  to: RETAIL_ORDERS.wk_customer
+  to: RETAIL_ORDERS.wk_orders
   kind: etl_runs
   external: false
 - from: RETAIL_ORDERS.wf_nightly_batch
@@ -330,14 +330,14 @@ edges:
   to: RETAIL_ORDERS.s_order_extract
   kind: etl_runs
   external: false
-- from: RETAIL_ORDERS.wk_customer
-  to: RETAIL_ORDERS.s_customer_dedup
+- from: RETAIL_ORDERS.wk_orders
+  to: RETAIL_ORDERS.s_order_enrich
   kind: etl_runs
-  external: true
-- from: RETAIL_ORDERS.wk_customer
-  to: RETAIL_ORDERS.s_customer_load
+  external: false
+- from: RETAIL_ORDERS.wk_orders
+  to: RETAIL_ORDERS.s_order_extract
   kind: etl_runs
-  external: true
+  external: false
 - from: RETAIL_PRODUCT.lkp_categories
   to: ref.CATEGORIES
   kind: etl_reads

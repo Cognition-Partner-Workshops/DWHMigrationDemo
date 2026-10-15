@@ -8,6 +8,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "src_cust"
       StageType "TeradataConnectorPX"
+      OutputPins "tx_dedup"
       TableName "dw.customers"
    END DSRECORD
    BEGIN DSRECORD
@@ -15,6 +16,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "sql_cust"
       StageType "OracleConnectorPX"
+      OutputPins "tx_dedup"
       XMLProperties =+=+=+=
 <XMLProperties><UserDefinedSQL>SELECT CUST_ID, SEGMENT_CODE FROM ods.customers WHERE REGION = '#ps.region#'</UserDefinedSQL><BeforeSQL>CALL etl.pre_load()</BeforeSQL><AfterSQL>CALL etl.post_load()</AfterSQL></XMLProperties>
       =+=+=+=
@@ -40,6 +42,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "tgt_dim"
       StageType "NetezzaConnectorPX"
+      InputPins "tx_dedup"
       TableName "mart.customer_dim"
    END DSRECORD
    BEGIN DSRECORD
@@ -47,6 +50,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "audit_log"
       StageType "SQLServerConnectorPX"
+      InputPins "tx_dedup"
       TableName "etl.audit_log"
    END DSRECORD
 END DSJOB

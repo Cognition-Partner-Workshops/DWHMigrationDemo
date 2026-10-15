@@ -253,7 +253,14 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
                 )
             )
             for piece in partner.split("|"):
-                if piece:
+                if not piece:
+                    continue
+                if "Input" in ole:
+                    inputs[rec.props.get("Stage", "")] = (
+                        inputs.get(rec.props.get("Stage", ""), 0) + 1
+                    )
+                    outputs.setdefault(piece, 0)
+                else:
                     outputs.setdefault(rec.props.get("Stage", ""), 0)
                     inputs[piece] = inputs.get(piece, 0) + 1
             continue
@@ -297,6 +304,8 @@ def _emit_job(job: Job, rel_path: str, builder: EtlBuilder) -> None:
         for prop_name, sql_text in sql_props.items():
             sql_text = _PARAM_REF.sub(lambda m: f":{m.group(1).replace('.', '_')}", sql_text)
             builder.embed(qualified, sql_text, prop_name, _dialect_hint(stype))
+        if props.get("InputPins"):
+            inputs[stage_name] = inputs.get(stage_name, 0) + 1
         if "Connector" in (stype or "") or props.get("TableName"):
             table = props.get("TableName")
             direction = "etl_writes" if inputs.get(stage_name) else "etl_reads"
@@ -427,6 +436,8 @@ def _record_from_xml(el: XmlNode) -> Record:
             else:
                 props[pname] = child.text.strip()
         elif child.local == "Collection":
+            if child.get("Name", "") in {"InputPins", "OutputPins"}:
+                props[child.get("Name", "")] = "true"
             subs.extend(_record_from_xml(s) for s in child.find_all("SubRecord"))
         elif child.local == "SubRecord":
             subs.append(_record_from_xml(child))

@@ -8,6 +8,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "src_prod"
       StageType "OracleConnectorPX"
+      OutputPins "tx_category"
       TableName "ods.products"
    END DSRECORD
    BEGIN DSRECORD

@@ -122,24 +122,6 @@ objects:
 - type: stage
   qualified_name: recovered_job.good_tgt
   status: parsed
-- type: sequence
-  qualified_name: seq
-  status: parsed
-- type: stage
-  qualified_name: seq.act1
-  status: parsed
-- type: stage
-  qualified_name: seq.act2
-  status: parsed
-- type: stage
-  qualified_name: seq.act3
-  status: parsed
-- type: stage
-  qualified_name: seq.act4
-  status: parsed
-- type: stage
-  qualified_name: seq.act5
-  status: parsed
 - type: job
   qualified_name: server_payments
   status: parsed
@@ -155,6 +137,27 @@ objects:
 - type: stage
   qualified_name: server_payments.tx_validate
   status: parsed
+- type: sequence
+  qualified_name: weekly_seq
+  status: parsed
+- type: stage
+  qualified_name: weekly_seq.export_marts
+  status: parsed
+- type: stage
+  qualified_name: weekly_seq.wk_customers
+  status: parsed
+- type: stage
+  qualified_name: weekly_seq.wk_orders
+  status: parsed
+- type: stage
+  qualified_name: weekly_seq.wk_payments
+  status: parsed
+- type: stage
+  qualified_name: weekly_seq.wk_products
+  status: parsed
+- type: stage
+  qualified_name: weekly_seq.wk_recover
+  status: parsed
 edges:
 - from: dsexport_products.src_prod
   to: ods.products
@@ -166,11 +169,11 @@ edges:
   external: true
 - from: dsx_inventory_snap.tgt_snap
   to: mart.inventory_snap
-  kind: etl_reads
+  kind: etl_writes
   external: true
 - from: dsx_products_agg.agg_output
   to: mart.category_agg
-  kind: etl_reads
+  kind: etl_writes
   external: true
 - from: dsx_products_agg.src_products
   to: ods.products
@@ -178,7 +181,7 @@ edges:
   external: true
 - from: dsx_products_agg.tgt_catalog
   to: mart.product_catalog
-  kind: etl_reads
+  kind: etl_writes
   external: true
 - from: dw_orders_load.sql_items
   to: inv.order_items
@@ -242,7 +245,7 @@ edges:
   external: false
 - from: px_customers.audit_log
   to: etl.audit_log
-  kind: etl_reads
+  kind: etl_writes
   external: true
 - from: px_customers.sql_cust
   to: ods.customers
@@ -254,7 +257,7 @@ edges:
   external: true
 - from: px_customers.tgt_dim
   to: mart.customer_dim
-  kind: etl_reads
+  kind: etl_writes
   external: true
 - from: recovered_job.good_src
   to: ods.returns
@@ -262,27 +265,7 @@ edges:
   external: true
 - from: recovered_job.good_tgt
   to: mart.returns_fact
-  kind: etl_reads
-  external: true
-- from: seq.act1
-  to: job1
-  kind: etl_runs
-  external: true
-- from: seq.act2
-  to: job2
-  kind: etl_runs
-  external: true
-- from: seq.act3
-  to: job3
-  kind: etl_runs
-  external: true
-- from: seq.act4
-  to: job4
-  kind: etl_runs
-  external: true
-- from: seq.act5
-  to: job5
-  kind: etl_runs
+  kind: etl_writes
   external: true
 - from: server_payments.reject_rows
   to: etl.rejects
@@ -294,5 +277,29 @@ edges:
   external: true
 - from: server_payments.tgt_pay
   to: mart.payment_fact
-  kind: etl_reads
+  kind: etl_writes
   external: true
+- from: weekly_seq.export_marts
+  to: scripts/weekly_export.sh
+  kind: etl_runs
+  external: true
+- from: weekly_seq.wk_customers
+  to: px_customers
+  kind: etl_runs
+  external: false
+- from: weekly_seq.wk_orders
+  to: dw_orders_load
+  kind: etl_runs
+  external: false
+- from: weekly_seq.wk_payments
+  to: server_payments
+  kind: etl_runs
+  external: false
+- from: weekly_seq.wk_products
+  to: dsexport_products
+  kind: etl_runs
+  external: false
+- from: weekly_seq.wk_recover
+  to: recovered_job
+  kind: etl_runs
+  external: false

@@ -1,35 +1,66 @@
 BEGIN DSJOB
-   Identifier "seq"
+   Identifier "weekly_seq"
+   OLEType "CJobDefn"
    JobType "2"
-   Name "seq"
+   Name "weekly_seq"
    BEGIN DSRECORD
-      Identifier "act1"
+      Identifier "V0S1"
       OLEType "CJSJobActivity"
-      Name "act1"
-      Jobname "job1"
+      Name "wk_orders"
+      Jobname "dw_orders_load"
    END DSRECORD
    BEGIN DSRECORD
-      Identifier "act2"
+      Identifier "V0S2"
       OLEType "CJSJobActivity"
-      Name "act2"
-      Jobname "job2"
+      Name "wk_customers"
+      Jobname "px_customers"
    END DSRECORD
    BEGIN DSRECORD
-      Identifier "act3"
+      Identifier "V0S3"
       OLEType "CJSJobActivity"
-      Name "act3"
-      Jobname "job3"
+      Name "wk_payments"
+      Jobname "server_payments"
    END DSRECORD
    BEGIN DSRECORD
-      Identifier "act4"
+      Identifier "V0S4"
       OLEType "CJSJobActivity"
-      Name "act4"
-      Jobname "job4"
+      Name "wk_products"
+      Jobname "dsexport_products"
    END DSRECORD
    BEGIN DSRECORD
-      Identifier "act5"
+      Identifier "V0S5"
       OLEType "CJSJobActivity"
-      Name "act5"
-      Jobname "job5"
+      Name "wk_recover"
+      Jobname "recovered_job"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S6"
+      OLEType "CJSExecCmdActivity"
+      Name "export_marts"
+      CommandName "sh"
+      Parameters "scripts/weekly_export.sh"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "L1"
+      OLEType "CJSActivityOutput"
+      Name "lnk_orders"
+      Stage "wk_orders"
+      Partner "wk_customers"
+      TriggerExpression "OK"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "L2"
+      OLEType "CJSActivityOutput"
+      Name "lnk_customers"
+      Stage "wk_customers"
+      Partner "wk_payments"
+      TriggerExpression "OK And NOT Warnings"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "L3"
+      OLEType "CJSActivityOutput"
+      Name "lnk_products"
+      Stage "wk_products"
+      Partner "wk_recover"
    END DSRECORD
 END DSJOB

@@ -238,3 +238,39 @@ def test_recovering_partial_workflow() -> None:
     bad = next(o for o in r.objects if o.name == "bad")
     good = next(o for o in r.objects if o.name == "good")
     assert bad.status == "partial" and good.status == "parsed"
+
+
+def test_shortcut_instance_refs_resolve() -> None:
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F">
+<MAPPING NAME="m"><INSTANCE NAME="i1" TYPE="SOURCE" TRANSFORMATION_NAME="sc_cust"/>
+<INSTANCE NAME="i2" TYPE="TARGET" TRANSFORMATION_NAME="sc_mart"/></MAPPING>
+<SHORTCUT NAME="sc_cust" FOLDERNAME="G" REFOBJECTNAME="CUST" REFOBJTYPE="Source Definition"/>
+<SHORTCUT NAME="sc_mart" FOLDERNAME="G" REFOBJECTNAME="MART" REFOBJTYPE="Target Definition"/>
+</FOLDER></REPOSITORY></POWERMART>"""
+    r = parse(data, "x.xml")
+    m = next(o for o in r.objects if o.name == "m")
+    assert ("etl_reads", "F.sc_cust") in names(m)
+    assert ("etl_writes", "F.sc_mart") in names(m)
+
+
+def test_dialect_hint_from_databasetype() -> None:
+    data = b"""<POWERMART><REPOSITORY><FOLDER NAME="F">
+<SOURCE NAME="ODS_CUST" DATABASETYPE="Oracle" DBDNAME="ods"/>
+<MAPPING NAME="m"><INSTANCE NAME="sq" TYPE="SOURCE" TRANSFORMATION_NAME="ODS_CUST"/>
+<TRANSFORMATION NAME="SQ_C" TRANSFORMATION_TYPE="Source Qualifier">
+<TABLEATTRIBUTE NAME="Sql Query" VALUE="SELECT 1 FROM ODS_CUST"/></TRANSFORMATION></MAPPING>
+<SESSION NAME="s" MAPPINGNAME="m">
+<ATTRIBUTE NAME="Pre SQL" VALUE="DELETE FROM etl.log"/></SESSION>
+</FOLDER></REPOSITORY></POWERMART>"""
+    r = parse(data, "x.xml")
+    from migraai.discovery.registry import get_sql_parser
+
+    if get_sql_parser("oracle") is not None:
+        assert {e.dialect_hint for e in r.embedded_sql} == {"oracle"}
+    else:
+        # oracle not registered in this build -> no hint per §13 rule
+        assert all(e.dialect_hint is None for e in r.embedded_sql)
+    # unregistered type -> no hint
+    data2 = data.replace(b'DATABASETYPE="Oracle"', b'DATABASETYPE="HiveMQ"')
+    r2 = parse(data2, "x.xml")
+    assert all(e.dialect_hint is None for e in r2.embedded_sql)

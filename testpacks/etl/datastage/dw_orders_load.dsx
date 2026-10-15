@@ -77,7 +77,7 @@ BEGIN DSJOB
       Identifier "L2"
       OLEType "CTrxInput"
       Name "ln_tx_fact"
-      Stage "tx_enrich"
-      Partner "tgt_fact"
+      Stage "tgt_fact"
+      Partner "tx_enrich"
    END DSRECORD
 END DSJOB

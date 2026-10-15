@@ -8,6 +8,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "src_pay"
       StageType "DB2ConnectorPX"
+      OutputPins "tx_validate"
       TableName "fin.payments"
    END DSRECORD
    BEGIN DSRECORD
@@ -32,6 +33,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "tgt_pay"
       StageType "OracleConnectorPX"
+      InputPins "tx_validate"
       TableName "mart.payment_fact"
    END DSRECORD
    BEGIN DSRECORD
@@ -39,6 +41,7 @@ BEGIN DSJOB
       OLEType "CCustomStage"
       Name "reject_rows"
       StageType "ODBCConnectorPX"
+      InputPins "tx_validate"
       XMLProperties =+=+=+=
 <XMLProperties><InsertStatement>INSERT INTO etl.rejects (ROW_DATA, REASON) VALUES (?, 'VALIDATION')</InsertStatement></XMLProperties>
       =+=+=+=
