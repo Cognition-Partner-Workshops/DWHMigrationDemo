@@ -1,0 +1,233 @@
+source: teradata
+target: synapse
+architecture_overview:
+- text: Teradata PE and AMP vprocs share neither memory nor disk, giving a shared-nothing design.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+  accessed: '2026-10-15'
+  confidence: high
+- text: Azure Synapse dedicated SQL pool is an MPP engine where a control node distributes work to compute nodes over 60 distributions.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool tables are hash-distributed, round-robin or replicated.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Teradata row partitioning (PPI) enables row partition elimination for large query gains.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/Advantages-and-Disadvantages-of-Partitioned-Primary-Indexes
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse dedicated SQL pool tables default to clustered columnstore indexes.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Choosing primary indexes so joined rows hash to the same AMP avoids redistributing rows across the BYNET.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse dedicated SQL pool compute is scaled by changing data warehouse units (DWUs) and can be paused.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Teradata balances work by spreading rows evenly across AMPs, each solely responsible for its own data.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse dedicated SQL pool compute is scaled by changing data warehouse units (DWUs) and can be paused.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Teradata resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into Synapse, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for Synapse instead of copying Teradata structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: TABLE (primary index)
+  target_object: Hash-distributed columnstore table
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool tables are hash-distributed, round-robin or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MACRO
+  target_object: T-SQL stored procedure
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool stored procedures support a subset of T-SQL features.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: SQL stored procedure
+  target_object: T-SQL stored procedure
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool stored procedures support a subset of T-SQL features.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Row-level security constraint
+  target_object: Row-level security
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Foreign table (NOS)
+  target_object: External table / COPY load
+  notes: ''
+  claim:
+    text: Synapse recommends ELT loading with PolyBase or the COPY statement from Azure storage.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: A Teradata macro is one or more SQL statements run as a single request.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata ZEROIFNULL converts null to 0.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/ZEROIFNULL
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata OREPLACE replaces every occurrence of a search string.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/OREPLACE
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool stored procedures support a subset of T-SQL features.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool supports a subset of SQL Server data types.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool supports table partitioning on a single column, usually a date.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-partition
+  accessed: '2026-10-15'
+  confidence: high
+- text: Microsoft's Teradata to Synapse guide lists SQL differences to minimize during migration.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/teradata/5-minimize-sql-issues
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Teradata NOS can authenticate to Amazon S3 buckets with IAM credentials for READ_NOS and WRITE_NOS.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/Authentication-for-External-Object-Stores/Using-IAM-Credentials-with-Amazon-S3-Buckets
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse recommends ELT loading with PolyBase or the COPY statement from Azure storage.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: '2026-10-15'
+  confidence: high
+- text: Microsoft's Teradata to Synapse guide covers ETL and load migration options.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/teradata/2-etl-load-migration-considerations
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Teradata Parallel Transporter (TPT) is a client for parallel extraction, loading and updating that builds on FastLoad, MultiLoad, FastExport and TPump.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20/Introduction-to-Teradata-PT/High-Level-Description
+  accessed: '2026-10-15'
+  applies_to: TPT 17.20
+  confidence: high
+- text: Synapse recommends ELT loading with PolyBase or the COPY statement from Azure storage.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: '2026-10-15'
+  confidence: high
+- text: Microsoft's Teradata to Synapse guide covers design and performance differences such as distribution choices.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/teradata/1-design-performance-migration
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Teradata privileges are acquired implicitly through ownership, automatically on creation, by inheritance or by explicit grant.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata directory users inherit privileges of mapped database users and of external roles mapped to their groups.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+  accessed: '2026-10-15'
+  confidence: high
+- text: Microsoft's Teradata to Synapse guide covers migrating security, access and operations.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/migration-guides/teradata/3-security-access-operations
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: td_pi_distribution
+  claim:
+    text: Teradata hashes each row to an AMP using the row hash of its primary index or primary AMP index.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+- id: td_macros
+  claim:
+    text: A Teradata macro is one or more SQL statements run as a single request.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+    accessed: '2026-10-15'
+    confidence: high
+- id: td_rls_labels
+  claim:
+    text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: td_pi_distribution
+  claim:
+    text: Synapse dedicated SQL pool tables are hash-distributed, round-robin or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: '2026-10-15'
+    confidence: high
+- for: td_macros
+  claim:
+    text: Synapse dedicated SQL pool stored procedures support a subset of T-SQL features.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- for: td_rls_labels
+  claim:
+    text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: Teradata extensions and procedural code need rewriting for Synapse.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: low
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: medium
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: Synapse dedicated SQL pool tables default to clustered columnstore indexes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse workload management uses workload classification, importance and isolation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+  accessed: '2026-10-15'
+  confidence: high

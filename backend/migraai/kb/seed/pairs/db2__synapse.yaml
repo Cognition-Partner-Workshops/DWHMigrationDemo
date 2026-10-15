@@ -1,0 +1,232 @@
+source: db2
+target: synapse
+architecture_overview:
+- text: A Db2 Warehouse MPP cluster scales out by adding data nodes with minimal interruption.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+  accessed: '2026-10-15'
+  confidence: high
+- text: Azure Synapse dedicated SQL pool is an MPP engine where a control node distributes work to compute nodes over 60 distributions.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/massively-parallel-processing-mpp-architecture
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool tables are hash-distributed, round-robin or replicated.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Db2 CREATE TABLE has an ORGANIZE BY clause to choose column- or row-organized storage.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse dedicated SQL pool tables default to clustered columnstore indexes.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Db2 workload management uses DDL objects such as service classes, workloads, thresholds and work action sets.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=identification-workload-management-ddl-statements
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse dedicated SQL pool compute is scaled by changing data warehouse units (DWUs) and can be paused.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Db2 Warehouse row and column access control (RCAC) filters rows and masks columns per user as fine-grained access control.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Db2 Warehouse MPP cluster needs at least three nodes (one head, two data) and an SMP deployment cannot be turned into MPP by adding nodes.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Synapse dedicated SQL pool compute is scaled by changing data warehouse units (DWUs) and can be paused.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Db2 Warehouse resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into Synapse, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for Synapse instead of copying Db2 Warehouse structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: Table (DISTRIBUTE BY / ORGANIZE BY)
+  target_object: Hash-distributed columnstore table
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool tables are hash-distributed, round-robin or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: SQL procedure (SQL PL)
+  target_object: T-SQL stored procedure
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool stored procedures support a subset of T-SQL features.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: RCAC row permission
+  target_object: Row-level security
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: RCAC column mask
+  target_object: Dynamic data masking
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Informational constraint
+  target_object: NOT ENFORCED PRIMARY KEY / UNIQUE
+  notes: ''
+  claim:
+    text: Synapse dedicated SQL pool supports primary key and unique constraints only as NOT ENFORCED and has no foreign keys.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-table-constraints
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: External table
+  target_object: External table / COPY load
+  notes: ''
+  claim:
+    text: Synapse recommends ELT loading with PolyBase or the COPY statement from Azure storage.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Db2 Warehouse accepts the Oracle (+) outer join operator in WHERE predicates.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-oracle
+  accessed: '2026-10-15'
+  confidence: high
+- text: Db2 Warehouse supports Oracle-style hierarchical (recursive) queries.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-oracle
+  accessed: '2026-10-15'
+  confidence: high
+- text: Db2 DECODE compares an expression with search values and returns the matching result.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-decode
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool stored procedures support a subset of T-SQL features.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool supports a subset of SQL Server data types.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool supports table partitioning on a single column, usually a date.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-partition
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: A Db2 Warehouse external table maps a delimited or fixed-length file outside the database and can be used to query or unload data.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table-external
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse recommends ELT loading with PolyBase or the COPY statement from Azure storage.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool tables are hash-distributed, round-robin or replicated.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: The Db2 Warehouse dbload command loads data files in local mode or in remote mode over the network.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=command-loading-data-files-dbload
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse recommends ELT loading with PolyBase or the COPY statement from Azure storage.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/design-elt-data-loading
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Db2 GRANT ROLE grants roles to users, groups or other roles, optionally WITH ADMIN OPTION.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-grant-role
+  accessed: '2026-10-15'
+  confidence: high
+- text: Only users with SECADM authority can manage Db2 row and column access controls.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse dedicated SQL pool supports primary key and unique constraints only as NOT ENFORCED and has no foreign keys.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-table-constraints
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: db2_distribute_by
+  claim:
+    text: Db2 CREATE TABLE distributes rows across database partitions with DISTRIBUTE BY HASH, RANDOM or REPLICATION.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- id: db2_sql_pl
+  claim:
+    text: Db2 SQL procedures are routines implemented entirely in SQL (SQL PL).
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=routines-sql-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- id: db2_rcac
+  claim:
+    text: Db2 Warehouse row and column access control (RCAC) filters rows and masks columns per user as fine-grained access control.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: db2_distribute_by
+  claim:
+    text: Synapse dedicated SQL pool tables are hash-distributed, round-robin or replicated.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-distribute
+    accessed: '2026-10-15'
+    confidence: high
+- for: db2_sql_pl
+  claim:
+    text: Synapse dedicated SQL pool stored procedures support a subset of T-SQL features.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-develop-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- for: db2_rcac
+  claim:
+    text: Synapse dedicated SQL pool supports Microsoft Entra authentication, row-level security and dynamic data masking.
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-overview-manage-security
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Db2 Warehouse extensions and procedural code need rewriting for Synapse.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: low
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: medium
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: Synapse dedicated SQL pool tables default to clustered columnstore indexes.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-tables-index
+  accessed: '2026-10-15'
+  confidence: high
+- text: Synapse workload management uses workload classification, importance and isolation.
+  url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/sql-data-warehouse-workload-management
+  accessed: '2026-10-15'
+  confidence: high

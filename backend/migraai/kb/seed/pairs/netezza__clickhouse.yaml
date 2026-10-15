@@ -1,0 +1,248 @@
+source: netezza
+target: clickhouse
+architecture_overview:
+- text: Netezza spreads processing across SPUs that each own memory and data slices in a shared-nothing design.
+  url: https://www.ibm.com/docs/en/netezza?topic=keys-distribution-collocated-joins
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse is a column-oriented database that stores each column separately.
+  url: https://clickhouse.com/docs/concepts/core-concepts/academic-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: MergeTree is ClickHouse's main table engine family for high ingest rates and large data volumes.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Netezza zone maps let the storage manager skip table extents that cannot contain rows matching a restricted scan.
+    url: https://www.ibm.com/docs/en/netezza?topic=statistics-zone-maps
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Each INSERT into a ClickHouse MergeTree table creates an immutable data part.
+    url: https://clickhouse.com/docs/concepts/core-concepts/parts
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Tables that are commonly joined should be distributed on the join column so Netezza can run a collocated join without moving data between SPUs.
+    url: https://www.ibm.com/docs/en/netezza?topic=keys-distribution-collocated-joins
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse parallelizes a query across CPU cores by splitting data into processing lanes.
+    url: https://clickhouse.com/docs/concepts/core-concepts/query-parallelism
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: In Netezza, privileges granted to a group are inherited by all its members and are additive.
+    url: https://www.ibm.com/docs/en/netezza?topic=control-security-model
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse access control supports users, roles, settings profiles, quotas and row policies.
+    url: https://clickhouse.com/docs/concepts/features/security/access-rights
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Netezza tables are distributed with DISTRIBUTE ON (columns) for hash distribution or DISTRIBUTE ON RANDOM for random distribution.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse replication is provided by Replicated* variants of MergeTree engines.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replication
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Netezza resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into ClickHouse, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for ClickHouse instead of copying Netezza structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: TABLE (DISTRIBUTE ON)
+  target_object: MergeTree table
+  notes: ''
+  claim:
+    text: MergeTree is ClickHouse's main table engine family for high ingest rates and large data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Stored procedure (NZPLSQL)
+  target_object: SQL user-defined function
+  notes: Procedural control flow has to move to application or ETL code.
+  claim:
+    text: ClickHouse CREATE FUNCTION defines a SQL user-defined function from a lambda expression.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Row-secure table
+  target_object: Row policy
+  notes: ''
+  claim:
+    text: A ClickHouse row policy is a filter that defines which rows a user or role can read.
+    url: https://clickhouse.com/docs/reference/statements/create/row-policy
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: External table
+  target_object: S3 table engine
+  notes: ''
+  claim:
+    text: The ClickHouse S3 table engine reads and writes data in Amazon S3 or S3-compatible storage.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/s3
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: JSON / JSONB column
+  target_object: JSON column
+  notes: ''
+  claim:
+    text: The ClickHouse JSON type stores semi-structured JSON documents.
+    url: https://clickhouse.com/docs/reference/data-types/newjson
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Materialized view
+  target_object: Incremental materialized view
+  notes: ''
+  claim:
+    text: ClickHouse incremental materialized views run their query on each inserted block and write results to a target table.
+    url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Netezza DECODE compares an expression to search values and returns the matching result or a default.
+  url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza DATE_PART('field', value) extracts a datetime field like EXTRACT.
+  url: https://www.ibm.com/docs/en/netezza?topic=operators-functions
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza INTERVAL (alias TIMESPAN) is a nonstandard implementation expressed in a single unit.
+  url: https://www.ibm.com/docs/en/netezza?topic=types-temporal-data
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse SELECT supports standard join types including INNER, LEFT, RIGHT, FULL and CROSS.
+  url: https://clickhouse.com/docs/reference/statements/select/join
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse supports a QUALIFY clause for filtering on window function results.
+  url: https://clickhouse.com/docs/reference/statements/select/qualify
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse lightweight DELETE marks rows as deleted so they are hidden immediately and removed during later merges.
+  url: https://clickhouse.com/docs/concepts/features/operations/delete/lightweight-delete
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Netezza unloads data by inserting from a user table into an external table.
+  url: https://www.ibm.com/docs/en/netezza?topic=loading-external-tables
+  accessed: '2026-10-15'
+  confidence: high
+- text: The ClickHouse S3 table engine reads and writes data in Amazon S3 or S3-compatible storage.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/s3
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse can ingest data exported to cloud object storage such as S3, GCS or Azure Blob storage.
+  url: https://clickhouse.com/docs/get-started/migrate/other-methods/object-storage-to-clickhouse
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: nzload is a CLI loader that creates a temporary external table, runs the insert and then drops the external table.
+  url: https://www.ibm.com/docs/en/netezza?topic=loading-nzload-command
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse integrates with third-party ETL/ELT tools for loading data from other systems.
+  url: https://clickhouse.com/docs/get-started/migrate/other-methods/etl-tool-to-clickhouse
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse documents migration paths from other databases, ETL tools and object storage.
+  url: https://clickhouse.com/docs/get-started/migrate/overview
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: In Netezza, privileges granted to a group are inherited by all its members and are additive.
+  url: https://www.ibm.com/docs/en/netezza?topic=control-security-model
+  accessed: '2026-10-15'
+  confidence: high
+- text: Netezza GRANT has no column list; column-level access is done by granting on a view with those columns.
+  url: https://www.ibm.com/docs/en/netezza?topic=reference-grant
+  accessed: '2026-10-15'
+  confidence: medium
+- text: ClickHouse access control supports users, roles, settings profiles, quotas and row policies.
+  url: https://clickhouse.com/docs/concepts/features/security/access-rights
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse GRANT gives privileges to users or roles, with optional WITH GRANT OPTION.
+  url: https://clickhouse.com/docs/reference/statements/grant
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: nz_distribute_on
+  claim:
+    text: Netezza tables are distributed with DISTRIBUTE ON (columns) for hash distribution or DISTRIBUTE ON RANDOM for random distribution.
+    url: https://www.ibm.com/docs/en/netezza?topic=databases-distribution-keys
+    accessed: '2026-10-15'
+    confidence: high
+- id: nz_nzplsql
+  claim:
+    text: Netezza stored procedures are written in the NZPLSQL procedural language.
+    url: https://www.ibm.com/docs/en/netezza?topic=users-stored-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- id: nz_row_secure_tables
+  claim:
+    text: A Netezza row-secure table returns different rows to users depending on their security label.
+    url: https://www.ibm.com/docs/en/netezza?topic=tables-row-secure
+    accessed: '2026-10-15'
+    confidence: high
+- id: nz_groom_table
+  claim:
+    text: GROOM TABLE reclaims space from deleted or outdated rows and reorganizes clustered base tables by their organizing keys.
+    url: https://www.ibm.com/docs/en/netezza?topic=reference-groom-table
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: nz_distribute_on
+  claim:
+    text: ClickHouse primary keys build a sparse index over granules of rows rather than an index entry per row.
+    url: https://clickhouse.com/docs/concepts/core-concepts/primary-indexes
+    accessed: '2026-10-15'
+    confidence: high
+- for: nz_nzplsql
+  claim:
+    text: ClickHouse CREATE FUNCTION defines a SQL user-defined function from a lambda expression.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+- for: nz_row_secure_tables
+  claim:
+    text: A ClickHouse row policy is a filter that defines which rows a user or role can read.
+    url: https://clickhouse.com/docs/reference/statements/create/row-policy
+    accessed: '2026-10-15'
+    confidence: high
+- for: nz_groom_table
+  claim:
+    text: ClickHouse background merges combine smaller data parts into larger ones.
+    url: https://clickhouse.com/docs/concepts/core-concepts/merges
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: Netezza extensions and procedural code need rewriting for ClickHouse.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: medium
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: high
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: ClickHouse recommends materialized views to shift computation from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/best-practices/use-materialized-views
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse projections store an alternative ordering or pre-aggregation of a table's data inside the table's parts.
+  url: https://clickhouse.com/docs/concepts/features/projections/projections
+  accessed: '2026-10-15'
+  confidence: high

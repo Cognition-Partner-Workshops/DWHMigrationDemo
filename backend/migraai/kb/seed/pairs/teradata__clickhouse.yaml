@@ -1,0 +1,237 @@
+source: teradata
+target: clickhouse
+architecture_overview:
+- text: Teradata PE and AMP vprocs share neither memory nor disk, giving a shared-nothing design.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse is a column-oriented database that stores each column separately.
+  url: https://clickhouse.com/docs/concepts/core-concepts/academic-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: MergeTree is ClickHouse's main table engine family for high ingest rates and large data volumes.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Teradata row partitioning (PPI) enables row partition elimination for large query gains.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Primary-Index-Primary-AMP-Index-and-NoPI-Objects/Advantages-and-Disadvantages-of-Partitioned-Primary-Indexes
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Each INSERT into a ClickHouse MergeTree table creates an immutable data part.
+    url: https://clickhouse.com/docs/concepts/core-concepts/parts
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Choosing primary indexes so joined rows hash to the same AMP avoids redistributing rows across the BYNET.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse parallelizes a query across CPU cores by splitting data into processing lanes.
+    url: https://clickhouse.com/docs/concepts/core-concepts/query-parallelism
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse access control supports users, roles, settings profiles, quotas and row policies.
+    url: https://clickhouse.com/docs/concepts/features/security/access-rights
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Teradata balances work by spreading rows evenly across AMPs, each solely responsible for its own data.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse replication is provided by Replicated* variants of MergeTree engines.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replication
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Teradata resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into ClickHouse, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for ClickHouse instead of copying Teradata structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: TABLE (primary index)
+  target_object: MergeTree table
+  notes: ''
+  claim:
+    text: MergeTree is ClickHouse's main table engine family for high ingest rates and large data volumes.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MACRO
+  target_object: SQL user-defined function
+  notes: Procedural control flow has to move to application or ETL code.
+  claim:
+    text: ClickHouse CREATE FUNCTION defines a SQL user-defined function from a lambda expression.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: SQL stored procedure
+  target_object: SQL user-defined function
+  notes: Procedural control flow has to move to application or ETL code.
+  claim:
+    text: ClickHouse CREATE FUNCTION defines a SQL user-defined function from a lambda expression.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Row-level security constraint
+  target_object: Row policy
+  notes: ''
+  claim:
+    text: A ClickHouse row policy is a filter that defines which rows a user or role can read.
+    url: https://clickhouse.com/docs/reference/statements/create/row-policy
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Foreign table (NOS)
+  target_object: S3 table engine
+  notes: ''
+  claim:
+    text: The ClickHouse S3 table engine reads and writes data in Amazon S3 or S3-compatible storage.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/s3
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: JSON column
+  target_object: JSON column
+  notes: ''
+  claim:
+    text: The ClickHouse JSON type stores semi-structured JSON documents.
+    url: https://clickhouse.com/docs/reference/data-types/newjson
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: A Teradata macro is one or more SQL statements run as a single request.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata ZEROIFNULL converts null to 0.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/ZEROIFNULL
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata OREPLACE replaces every occurrence of a search string.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/OREPLACE
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse SELECT supports standard join types including INNER, LEFT, RIGHT, FULL and CROSS.
+  url: https://clickhouse.com/docs/reference/statements/select/join
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse supports a QUALIFY clause for filtering on window function results.
+  url: https://clickhouse.com/docs/reference/statements/select/qualify
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse lightweight DELETE marks rows as deleted so they are hidden immediately and removed during later merges.
+  url: https://clickhouse.com/docs/concepts/features/operations/delete/lightweight-delete
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Teradata NOS can authenticate to Amazon S3 buckets with IAM credentials for READ_NOS and WRITE_NOS.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Native-Object-Store-Getting-Started-Guide/Authentication-for-External-Object-Stores/Using-IAM-Credentials-with-Amazon-S3-Buckets
+  accessed: '2026-10-15'
+  confidence: high
+- text: The ClickHouse S3 table engine reads and writes data in Amazon S3 or S3-compatible storage.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/s3
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse can ingest data exported to cloud object storage such as S3, GCS or Azure Blob storage.
+  url: https://clickhouse.com/docs/get-started/migrate/other-methods/object-storage-to-clickhouse
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Teradata Parallel Transporter (TPT) is a client for parallel extraction, loading and updating that builds on FastLoad, MultiLoad, FastExport and TPump.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_Lake_VMware/Teradata-Parallel-Transporter-User-Guide-17.20/Introduction-to-Teradata-PT/High-Level-Description
+  accessed: '2026-10-15'
+  applies_to: TPT 17.20
+  confidence: high
+- text: ClickHouse integrates with third-party ETL/ELT tools for loading data from other systems.
+  url: https://clickhouse.com/docs/get-started/migrate/other-methods/etl-tool-to-clickhouse
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse documents migration paths from other databases, ETL tools and object storage.
+  url: https://clickhouse.com/docs/get-started/migrate/overview
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Teradata privileges are acquired implicitly through ownership, automatically on creation, by inheritance or by explicit grant.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+  accessed: '2026-10-15'
+  confidence: high
+- text: Teradata directory users inherit privileges of mapped database users and of external roles mapped to their groups.
+  url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Vantage-Security/Database-Privileges
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse access control supports users, roles, settings profiles, quotas and row policies.
+  url: https://clickhouse.com/docs/concepts/features/security/access-rights
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse GRANT gives privileges to users or roles, with optional WITH GRANT OPTION.
+  url: https://clickhouse.com/docs/reference/statements/grant
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: td_pi_distribution
+  claim:
+    text: Teradata hashes each row to an AMP using the row hash of its primary index or primary AMP index.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Design-for-Vantage/Data-Placement-to-Support-Parallel-Processing
+    accessed: '2026-10-15'
+    confidence: high
+- id: td_macros
+  claim:
+    text: A Teradata macro is one or more SQL statements run as a single request.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Introduction/Database-Objects-Databases-and-Users/Macros
+    accessed: '2026-10-15'
+    confidence: high
+- id: td_rls_labels
+  claim:
+    text: Teradata row level security controls access per row and per SQL operation by comparing user and row security labels.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Security-Administration/Implementing-Row-Level-Security/Row-Level-Security
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: td_pi_distribution
+  claim:
+    text: ClickHouse primary keys build a sparse index over granules of rows rather than an index entry per row.
+    url: https://clickhouse.com/docs/concepts/core-concepts/primary-indexes
+    accessed: '2026-10-15'
+    confidence: high
+- for: td_macros
+  claim:
+    text: ClickHouse CREATE FUNCTION defines a SQL user-defined function from a lambda expression.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+- for: td_rls_labels
+  claim:
+    text: A ClickHouse row policy is a filter that defines which rows a user or role can read.
+    url: https://clickhouse.com/docs/reference/statements/create/row-policy
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: Teradata extensions and procedural code need rewriting for ClickHouse.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: medium
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: high
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: ClickHouse recommends materialized views to shift computation from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/best-practices/use-materialized-views
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse projections store an alternative ordering or pre-aggregation of a table's data inside the table's parts.
+  url: https://clickhouse.com/docs/concepts/features/projections/projections
+  accessed: '2026-10-15'
+  confidence: high

@@ -1,0 +1,379 @@
+platform: teradata
+types:
+- native: BYTEINT
+  canonical: int8
+  notes: Teradata extension.
+  claim:
+    text: Teradata BYTEINT is a signed integer from -128 to 127.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Numeric-Data-Types/BYTEINT-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: SMALLINT
+  canonical: int16
+  notes: ''
+  claim:
+    text: Teradata SMALLINT is a signed integer from -32768 to 32767.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Numeric-Data-Types/SMALLINT-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTEGER
+  canonical: int32
+  notes: Alias INT.
+  claim:
+    text: Teradata INTEGER (INT) is a signed 32-bit integer.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Numeric-Data-Types/INTEGER-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: BIGINT
+  canonical: int64
+  notes: ''
+  claim:
+    text: Teradata BIGINT is a signed 64-bit integer.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Numeric-Data-Types/BIGINT-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: NUMBER(p,s)
+  canonical: decimal
+  notes: NUMBER without precision behaves like floating decimal; check targets.
+  claim:
+    text: Teradata NUMBER is a numeric type with optional precision and scale and is a Teradata extension.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Numeric-Data-Types/NUMBER-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: CHAR(n)
+  canonical: char
+  notes: ''
+  claim:
+    text: Teradata CHARACTER is a fixed-length character string.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Character-and-CLOB-Data-Types/CHARACTER-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR(n)
+  canonical: varchar
+  notes: LONG VARCHAR is the longest variant.
+  claim:
+    text: Teradata VARCHAR is a variable-length string of 0 to n characters.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Character-and-CLOB-Data-Types/VARCHAR-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: GRAPHIC(n)
+  canonical: char
+  notes: Teradata extension.
+  claim:
+    text: Teradata GRAPHIC is a Teradata extension related to CHARACTER.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Character-and-CLOB-Data-Types/CHARACTER-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: CLOB
+  canonical: string
+  notes: Character large object.
+  claim:
+    text: Teradata CLOB stores large character data.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Character-and-CLOB-Data-Types/CLOB-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: BYTE(n)
+  canonical: binary
+  notes: Teradata extension.
+  claim:
+    text: Teradata BYTE is a fixed-length binary string.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Byte-and-BLOB-Data-Types/BYTE-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARBYTE(n)
+  canonical: varbinary
+  notes: Teradata extension.
+  claim:
+    text: Teradata VARBYTE is a variable-length binary string.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Byte-and-BLOB-Data-Types/VARBYTE-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: BLOB
+  canonical: binary
+  notes: ''
+  claim:
+    text: Teradata BLOB stores large raw binary strings such as files and images.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Byte-and-BLOB-Data-Types/BLOB-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE
+  canonical: date
+  notes: ANSI only with DATEFORM=ANSIDATE.
+  claim:
+    text: Teradata DATE is ANSI compliant when DATEFORM is ANSIDATE.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/DateTime-and-Interval-Data-Types/DATE-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIME(n)
+  canonical: time
+  notes: ''
+  claim:
+    text: Teradata TIME stores a time of day value.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/DateTime-and-Interval-Data-Types/TIME-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIME(n) WITH TIME ZONE
+  canonical: time_tz
+  notes: ''
+  claim:
+    text: Teradata TIME WITH TIME ZONE stores a time with a displacement from UTC.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/DateTime-and-Interval-Data-Types/TIME-WITH-TIME-ZONE-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP(n)
+  canonical: timestamp
+  notes: Stored in UTC.
+  claim:
+    text: Teradata stores TIMESTAMP values in UTC.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/DateTime-and-Interval-Data-Types/TIMESTAMP-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP(n) WITH TIME ZONE
+  canonical: timestamp_tz
+  notes: ''
+  claim:
+    text: Teradata TIMESTAMP WITH TIME ZONE stores a timestamp with a displacement from UTC.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/DateTime-and-Interval-Data-Types/TIMESTAMP-WITH-TIME-ZONE-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTERVAL DAY(n)
+  canonical: interval
+  notes: Other INTERVAL qualifiers map the same way.
+  claim:
+    text: Teradata INTERVAL DAY is an ANSI interval in days.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/DateTime-and-Interval-Data-Types/INTERVAL-DAY-Data-Type
+    accessed: '2026-10-15'
+    confidence: high
+- native: PERIOD(DATE|TIMESTAMP)
+  canonical: period
+  notes: Most targets lack a PERIOD type; split into begin/end columns.
+  claim:
+    text: Teradata PERIOD represents an anchored duration of time.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Temporal-Table-Support/Getting-Started/Introduction-to-Temporal-Table-Support
+    accessed: '2026-10-15'
+    confidence: high
+- native: JSON
+  canonical: json
+  notes: Optional BSON storage format.
+  claim:
+    text: Teradata JSON can be stored in binary BSON format via STORAGE FORMAT.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Database-Design/Database-Level-Capacity-Planning-Considerations/JSON-Data-Type-Binary-Format
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: ZEROIFNULL(x)
+  canonical: COALESCE(x, 0)
+  notes: ''
+  claim:
+    text: Teradata ZEROIFNULL converts null to 0.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/ZEROIFNULL
+    accessed: '2026-10-15'
+    confidence: high
+- native: NULLIFZERO(x)
+  canonical: NULLIF(x, 0)
+  notes: ''
+  claim:
+    text: Teradata NULLIFZERO converts 0 to null.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/NULLIFZERO
+    accessed: '2026-10-15'
+    confidence: high
+- native: MOD(a, b) / a MOD b
+  canonical: MOD(a, b)
+  notes: ''
+  claim:
+    text: Teradata MOD returns the remainder of a divided by b.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/MOD
+    accessed: '2026-10-15'
+    confidence: high
+- native: ROUND(x, n)
+  canonical: ROUND(x, n)
+  notes: ''
+  claim:
+    text: Teradata ROUND rounds to n places left or right of the decimal point.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/ROUND
+    accessed: '2026-10-15'
+    confidence: high
+- native: TRUNC(x, n)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Teradata TRUNC truncates to n places left or right of the decimal point.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Arithmetic-Trigonometric-Hyperbolic-Operators/Functions/TRUNC
+    accessed: '2026-10-15'
+    confidence: high
+- native: CHARACTER_LENGTH(s)
+  canonical: CHAR_LENGTH(s)
+  notes: ''
+  claim:
+    text: Teradata CHARACTER_LENGTH returns length in characters or bytes.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Attribute-Functions/CHARACTER_LENGTH
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECODE(x, s1, r1, ..., d)
+  canonical: CASE x WHEN s1 THEN r1 ... ELSE d END
+  notes: ''
+  claim:
+    text: Teradata DECODE compares an expression to each search value and returns the paired result.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Comparison-Operators-and-Functions/DECODE
+    accessed: '2026-10-15'
+    confidence: high
+- native: NVL(a, b)
+  canonical: COALESCE(a, b)
+  notes: ''
+  claim:
+    text: Teradata NVL replaces a null with another value.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Null-Handling-Functions/NVL
+    accessed: '2026-10-15'
+    confidence: high
+- native: NVL2(x, a, b)
+  canonical: CASE WHEN x IS NOT NULL THEN a ELSE b END
+  notes: ''
+  claim:
+    text: Teradata NVL2 returns one of two values depending on whether the first is null.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Null-Handling-Functions/NVL2
+    accessed: '2026-10-15'
+    confidence: high
+- native: REGEXP_REPLACE(s, re, r)
+  canonical: (no ANSI equivalent)
+  notes: Regex dialects differ between engines.
+  claim:
+    text: Teradata REGEXP_REPLACE replaces regex matches and accepts 2 to 6 parameters.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Regular-Expression-Functions/REGEXP_REPLACE
+    accessed: '2026-10-15'
+    confidence: high
+- native: REGEXP_SUBSTR(s, re)
+  canonical: (no ANSI equivalent)
+  notes: Regex dialects differ between engines.
+  claim:
+    text: Teradata REGEXP_SUBSTR extracts a substring matching a regex.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/Regular-Expression-Functions/REGEXP_SUBSTR
+    accessed: '2026-10-15'
+    confidence: high
+- native: INITCAP(s)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Teradata INITCAP uppercases the first letter of each word and lowercases the rest.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/INITCAP
+    accessed: '2026-10-15'
+    confidence: high
+- native: INSTR(s, search)
+  canonical: POSITION(search IN s)
+  notes: Start and occurrence arguments do not map.
+  claim:
+    text: Teradata INSTR searches a string for occurrences of a search string.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/INSTR
+    accessed: '2026-10-15'
+    confidence: high
+- native: LPAD(s, n, fill)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Teradata LPAD left-pads a string to a given length.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/LPAD
+    accessed: '2026-10-15'
+    confidence: high
+- native: OREPLACE(s, from, to)
+  canonical: (no ANSI equivalent)
+  notes: Usually maps to REPLACE.
+  claim:
+    text: Teradata OREPLACE replaces every occurrence of a search string.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/OREPLACE
+    accessed: '2026-10-15'
+    confidence: high
+- native: OTRANSLATE(s, from, to)
+  canonical: (no ANSI equivalent)
+  notes: Usually maps to TRANSLATE.
+  claim:
+    text: Teradata OTRANSLATE replaces characters one-for-one from a mapping list.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/OTRANSLATE
+    accessed: '2026-10-15'
+    confidence: high
+- native: POSITION(a IN b)
+  canonical: POSITION(a IN b)
+  notes: ''
+  claim:
+    text: Teradata POSITION returns where one string starts inside another.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/POSITION
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRTOK(s, delims, n)
+  canonical: (no ANSI equivalent)
+  notes: Usually maps to SPLIT_PART-style functions.
+  claim:
+    text: Teradata STRTOK splits a string on delimiters and returns the nth token.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/STRTOK
+    accessed: '2026-10-15'
+    confidence: high
+- native: SUBSTRING(s FROM p FOR l) / SUBSTR
+  canonical: SUBSTRING(s FROM p FOR l)
+  notes: ''
+  claim:
+    text: Teradata SUBSTRING extracts a substring by position.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/SUBSTRING
+    accessed: '2026-10-15'
+    confidence: high
+- native: TRIM(s)
+  canonical: TRIM(s)
+  notes: ''
+  claim:
+    text: Teradata TRIM removes pad characters or bytes from a string.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Functions-Expressions-and-Predicates/String-Operators-and-Functions/TRIM
+    accessed: '2026-10-15'
+    confidence: high
+- native: ADD_MONTHS(d, n)
+  canonical: d + n * INTERVAL '1' MONTH
+  notes: ADD_MONTHS normalizes month-end; ANSI interval addition can fail on invalid dates.
+  claim:
+    text: Teradata ADD_MONTHS adds months to a DATE or TIMESTAMP and normalizes the result.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Date-and-Time-Functions-and-Expressions/DateTime-and-Interval-Functions-and-Expressions/ADD_MONTHS
+    accessed: '2026-10-15'
+    confidence: high
+- native: EXTRACT(f FROM x)
+  canonical: EXTRACT(f FROM x)
+  notes: ''
+  claim:
+    text: Teradata EXTRACT returns one field of a DateTime or Interval value as an exact number.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Date-and-Time-Functions-and-Expressions/DateTime-and-Interval-Functions-and-Expressions/EXTRACT
+    accessed: '2026-10-15'
+    confidence: high
+- native: LAST_DAY(d)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Teradata LAST_DAY returns the last day of the month of a date.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Date-and-Time-Functions-and-Expressions/DateTime-and-Interval-Functions-and-Expressions/LAST_DAY
+    accessed: '2026-10-15'
+    confidence: high
+- native: MONTHS_BETWEEN(a, b)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Teradata MONTHS_BETWEEN returns the months between two dates or timestamps.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Date-and-Time-Functions-and-Expressions/DateTime-and-Interval-Functions-and-Expressions/MONTHS_BETWEEN
+    accessed: '2026-10-15'
+    confidence: high
+- native: NEXT_DAY(d, weekday)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Teradata NEXT_DAY returns the first given weekday after a date.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Date-and-Time-Functions-and-Expressions/DateTime-and-Interval-Functions-and-Expressions/NEXT_DAY
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_DATE(s, fmt)
+  canonical: CAST(s AS DATE)
+  notes: Format template has no ANSI equivalent.
+  claim:
+    text: Teradata TO_DATE converts a string to DATE only.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Data-Type-Conversion-Functions/TO_DATE
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_NUMBER(s, fmt)
+  canonical: CAST(s AS DECIMAL(p,s))
+  notes: Format template has no ANSI equivalent.
+  claim:
+    text: Teradata TO_NUMBER converts a string to the NUMBER type.
+    url: https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Data-Type-Conversion-Functions/TO_NUMBER
+    accessed: '2026-10-15'
+    confidence: high

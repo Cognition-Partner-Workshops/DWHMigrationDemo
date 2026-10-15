@@ -1,0 +1,459 @@
+platform: clickhouse
+types:
+- native: Int8
+  canonical: int8
+  notes: ''
+  claim:
+    text: ClickHouse Int8 is a signed 8-bit integer.
+    url: https://clickhouse.com/docs/reference/data-types/int-uint
+    accessed: '2026-10-15'
+    confidence: high
+- native: Int16
+  canonical: int16
+  notes: ''
+  claim:
+    text: ClickHouse Int16 is a signed 16-bit integer.
+    url: https://clickhouse.com/docs/reference/data-types/int-uint
+    accessed: '2026-10-15'
+    confidence: high
+- native: Int32
+  canonical: int32
+  notes: ''
+  claim:
+    text: ClickHouse Int32 is a signed 32-bit integer.
+    url: https://clickhouse.com/docs/reference/data-types/int-uint
+    accessed: '2026-10-15'
+    confidence: high
+- native: Int64
+  canonical: int64
+  notes: ''
+  claim:
+    text: ClickHouse Int64 is a signed 64-bit integer.
+    url: https://clickhouse.com/docs/reference/data-types/int-uint
+    accessed: '2026-10-15'
+    confidence: high
+- native: Decimal(P,S)
+  canonical: decimal
+  notes: P up to 76.
+  claim:
+    text: ClickHouse Decimal(P,S) supports precision up to 76 digits.
+    url: https://clickhouse.com/docs/reference/data-types/decimal
+    accessed: '2026-10-15'
+    confidence: high
+- native: Float32
+  canonical: float32
+  notes: ''
+  claim:
+    text: ClickHouse Float32 is a single-precision float.
+    url: https://clickhouse.com/docs/reference/data-types/float
+    accessed: '2026-10-15'
+    confidence: high
+- native: Float64
+  canonical: float64
+  notes: ''
+  claim:
+    text: ClickHouse Float64 is a double-precision float.
+    url: https://clickhouse.com/docs/reference/data-types/float
+    accessed: '2026-10-15'
+    confidence: high
+- native: Bool
+  canonical: boolean
+  notes: ''
+  claim:
+    text: ClickHouse Bool stores true or false.
+    url: https://clickhouse.com/docs/reference/data-types/boolean
+    accessed: '2026-10-15'
+    confidence: high
+- native: FixedString(N)
+  canonical: char
+  notes: Fixed N bytes, padded with null bytes.
+  claim:
+    text: ClickHouse FixedString(N) is a fixed-length string of N bytes.
+    url: https://clickhouse.com/docs/reference/data-types/fixedstring
+    accessed: '2026-10-15'
+    confidence: high
+- native: String
+  canonical: varchar
+  notes: No length limit enforced.
+  claim:
+    text: ClickHouse String holds arbitrary-length byte strings.
+    url: https://clickhouse.com/docs/reference/data-types/string
+    accessed: '2026-10-15'
+    confidence: high
+- native: String
+  canonical: string
+  notes: ''
+  claim:
+    text: ClickHouse String holds arbitrary-length byte strings.
+    url: https://clickhouse.com/docs/reference/data-types/string
+    accessed: '2026-10-15'
+    confidence: high
+- native: String
+  canonical: binary
+  notes: String stores arbitrary bytes.
+  claim:
+    text: ClickHouse String can store arbitrary bytes.
+    url: https://clickhouse.com/docs/reference/data-types/string
+    accessed: '2026-10-15'
+    confidence: high
+- native: String
+  canonical: varbinary
+  notes: String stores arbitrary bytes.
+  claim:
+    text: ClickHouse String can store arbitrary bytes.
+    url: https://clickhouse.com/docs/reference/data-types/string
+    accessed: '2026-10-15'
+    confidence: high
+- native: Date32
+  canonical: date
+  notes: Date has a narrower range; Date32 is wider.
+  claim:
+    text: ClickHouse Date32 stores dates over a wider range than Date.
+    url: https://clickhouse.com/docs/reference/data-types/date32
+    accessed: '2026-10-15'
+    confidence: high
+- native: Time
+  canonical: time
+  notes: ''
+  claim:
+    text: ClickHouse Time stores a time of day.
+    url: https://clickhouse.com/docs/reference/data-types/time
+    accessed: '2026-10-15'
+    confidence: high
+- native: DateTime64(P, tz)
+  canonical: timestamp
+  notes: Sub-second precision.
+  claim:
+    text: ClickHouse DateTime64 stores an instant with sub-second precision.
+    url: https://clickhouse.com/docs/reference/data-types/datetime64
+    accessed: '2026-10-15'
+    confidence: high
+- native: DateTime64(P, 'tz')
+  canonical: timestamp_tz
+  notes: Time zone is column metadata, not per-value.
+  claim:
+    text: ClickHouse DateTime64 can take a time zone parameter.
+    url: https://clickhouse.com/docs/reference/data-types/datetime64
+    accessed: '2026-10-15'
+    confidence: high
+- native: Interval*
+  canonical: interval
+  notes: Not storable in tables.
+  claim:
+    text: ClickHouse Interval types represent time intervals.
+    url: https://clickhouse.com/docs/reference/data-types/special-data-types/interval
+    accessed: '2026-10-15'
+    confidence: high
+- native: JSON
+  canonical: json
+  notes: ''
+  claim:
+    text: ClickHouse JSON type stores semi-structured JSON documents.
+    url: https://clickhouse.com/docs/reference/data-types/newjson
+    accessed: '2026-10-15'
+    confidence: high
+- native: Array(T)
+  canonical: array
+  notes: ''
+  claim:
+    text: ClickHouse Array(T) is an array of elements of type T.
+    url: https://clickhouse.com/docs/reference/data-types/array
+    accessed: '2026-10-15'
+    confidence: high
+- native: Map(K, V)
+  canonical: map
+  notes: ''
+  claim:
+    text: ClickHouse Map(K, V) stores key-value pairs.
+    url: https://clickhouse.com/docs/reference/data-types/map
+    accessed: '2026-10-15'
+    confidence: high
+- native: Tuple(...)
+  canonical: struct
+  notes: ''
+  claim:
+    text: ClickHouse Tuple groups elements of different types.
+    url: https://clickhouse.com/docs/reference/data-types/tuple
+    accessed: '2026-10-15'
+    confidence: high
+- native: UUID
+  canonical: uuid
+  notes: ''
+  claim:
+    text: ClickHouse UUID stores 16-byte identifiers.
+    url: https://clickhouse.com/docs/reference/data-types/uuid
+    accessed: '2026-10-15'
+    confidence: high
+- native: Point/Polygon
+  canonical: geometry
+  notes: Planar geo types.
+  claim:
+    text: ClickHouse provides geo types such as Point and Polygon.
+    url: https://clickhouse.com/docs/reference/data-types/geo
+    accessed: '2026-10-15'
+    confidence: high
+- native: Enum8/Enum16
+  canonical: other
+  notes: Enumerations.
+  claim:
+    text: ClickHouse Enum types map string values to integers.
+    url: https://clickhouse.com/docs/reference/data-types/enum
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: coalesce(a, b)
+  canonical: COALESCE(a, b)
+  notes: ''
+  claim:
+    text: ClickHouse coalesce returns the first non-null argument.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/functions-for-nulls
+    accessed: '2026-10-15'
+    confidence: high
+- native: ifNull(x, alt)
+  canonical: COALESCE(x, alt)
+  notes: ''
+  claim:
+    text: ClickHouse ifNull returns an alternative when the value is null.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/functions-for-nulls
+    accessed: '2026-10-15'
+    confidence: high
+- native: nullIf(a, b)
+  canonical: NULLIF(a, b)
+  notes: ''
+  claim:
+    text: ClickHouse nullIf returns null when the arguments are equal.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/functions-for-nulls
+    accessed: '2026-10-15'
+    confidence: high
+- native: if(c, a, b)
+  canonical: CASE WHEN c THEN a ELSE b END
+  notes: ''
+  claim:
+    text: ClickHouse if is the conditional function.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/conditional-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: multiIf(c1, a1, ..., d)
+  canonical: CASE WHEN c1 THEN a1 ... ELSE d END
+  notes: ''
+  claim:
+    text: ClickHouse multiIf is a compact CASE form.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/conditional-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: CAST(x AS T)
+  canonical: CAST(x AS T)
+  notes: ''
+  claim:
+    text: ClickHouse supports CAST between types.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/type-conversion-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: toDate(x)
+  canonical: CAST(x AS DATE)
+  notes: ''
+  claim:
+    text: ClickHouse toDate converts a value to Date.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/type-conversion-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: toDecimal64(x, S)
+  canonical: CAST(x AS DECIMAL(18,S))
+  notes: ''
+  claim:
+    text: ClickHouse toDecimal64 converts a value to Decimal64.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/type-conversion-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: EXTRACT(part FROM d)
+  canonical: EXTRACT(part FROM d)
+  notes: ''
+  claim:
+    text: ClickHouse date functions include toYear-style extractors.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/date-time-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: addMonths(d, n)
+  canonical: d + n * INTERVAL '1' MONTH
+  notes: ''
+  claim:
+    text: ClickHouse addMonths adds months to a date.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/date-time-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: dateDiff('unit', a, b)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse dateDiff returns the difference between two dates in a unit.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/date-time-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: toStartOfMonth(d)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse toStartOfMonth rounds a date down to the first of the month.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/date-time-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: toLastDayOfMonth(d)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse toLastDayOfMonth returns the last day of the month.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/date-time-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: now()
+  canonical: CURRENT_TIMESTAMP
+  notes: ''
+  claim:
+    text: ClickHouse now returns the current date and time.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/date-time-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: formatDateTime(d, fmt)
+  canonical: CAST(d AS VARCHAR(n))
+  notes: ''
+  claim:
+    text: ClickHouse formatDateTime formats a date by pattern.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/date-time-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: lower(s)
+  canonical: LOWER(s)
+  notes: ''
+  claim:
+    text: ClickHouse lower converts ASCII letters to lowercase.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: upper(s)
+  canonical: UPPER(s)
+  notes: ''
+  claim:
+    text: ClickHouse upper converts ASCII letters to uppercase.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: lengthUTF8(s)
+  canonical: CHAR_LENGTH(s)
+  notes: length counts bytes.
+  claim:
+    text: ClickHouse lengthUTF8 returns the length in Unicode code points.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: substring(s, p, l)
+  canonical: SUBSTRING(s FROM p FOR l)
+  notes: ''
+  claim:
+    text: ClickHouse substring returns part of a string.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: trimBoth(s)
+  canonical: TRIM(BOTH ' ' FROM s)
+  notes: ''
+  claim:
+    text: ClickHouse trimBoth removes whitespace from both ends.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: leftPad(s, n, fill)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse leftPad left-pads a string.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: concat(a, b)
+  canonical: a || b
+  notes: ''
+  claim:
+    text: ClickHouse concat joins strings.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: initcap(s)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse initcap capitalizes the first letter of each word.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: position(s, needle)
+  canonical: POSITION(needle IN s)
+  notes: Argument order differs.
+  claim:
+    text: ClickHouse position returns the position of a substring.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-search-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: replaceAll(s, a, b)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse replaceAll replaces all occurrences of a substring.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-replace-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: replaceRegexpAll(s, re, r)
+  canonical: (no ANSI equivalent)
+  notes: RE2 syntax.
+  claim:
+    text: ClickHouse replaceRegexpAll replaces all regex matches.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-replace-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: translate(s, from, to)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse translate replaces characters one-for-one.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/string-replace-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: splitByChar(sep, s)[n]
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse splitByChar splits a string into an array.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/splitting-merging-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: round(x, n)
+  canonical: ROUND(x, n)
+  notes: ''
+  claim:
+    text: ClickHouse round rounds numbers.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/rounding-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: trunc(x, n)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse trunc truncates numbers.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/rounding-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: MD5(s)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse MD5 computes an MD5 hash.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/hash-functions
+    accessed: '2026-10-15'
+    confidence: high
+- native: JSONExtractString(j, k)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: ClickHouse JSONExtractString extracts a string from JSON.
+    url: https://clickhouse.com/docs/reference/functions/regular-functions/json-functions
+    accessed: '2026-10-15'
+    confidence: high

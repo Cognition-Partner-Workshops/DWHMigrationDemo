@@ -1,0 +1,248 @@
+source: db2
+target: snowflake
+architecture_overview:
+- text: A Db2 Warehouse MPP cluster scales out by adding data nodes with minimal interruption.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake separates centralized storage from virtual warehouse compute in a hybrid shared-disk and shared-nothing design.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake stores table data in automatically managed micro-partitions.
+  url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Db2 CREATE TABLE has an ORGANIZE BY clause to choose column- or row-organized storage.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake stores table data in automatically managed micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Db2 workload management uses DDL objects such as service classes, workloads, thresholds and work action sets.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=identification-workload-management-ddl-statements
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake separates centralized storage from virtual warehouse compute in a hybrid shared-disk and shared-nothing design.
+    url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Db2 Warehouse row and column access control (RCAC) filters rows and masks columns per user as fine-grained access control.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake access control combines discretionary and role-based models, granting privileges to roles.
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Db2 Warehouse MPP cluster needs at least three nodes (one head, two data) and an SMP deployment cannot be turned into MPP by adding nodes.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=deployment-scaling-out
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Snowflake multi-cluster warehouses add clusters automatically to handle query concurrency.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Start with an inventory from the Db2 Warehouse resource catalog, then convert DDL and SQL with a translation tool where one exists and review the output by hand. Move data in bulk through cloud object storage into Snowflake, then load increments until cut-over. Re-design physical layout (distribution, partitioning, indexing) for Snowflake instead of copying Db2 Warehouse structures, rewrite procedural code and security rules, and validate row counts and aggregates per table before switching consumers.
+object_mapping:
+- source_object: Table (DISTRIBUTE BY / ORGANIZE BY)
+  target_object: Table (micro-partitioned)
+  notes: ''
+  claim:
+    text: Snowflake stores table data in automatically managed micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: SQL procedure (SQL PL)
+  target_object: Stored procedure (Snowflake Scripting)
+  notes: ''
+  claim:
+    text: Snowflake stored procedures can be written in SQL (Snowflake Scripting), JavaScript, Python, Java or Scala.
+    url: https://docs.snowflake.com/en/developer-guide/stored-procedure/stored-procedures-overview
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: RCAC row permission
+  target_object: Row access policy
+  notes: ''
+  claim:
+    text: Snowflake row access policies determine which rows a query can return.
+    url: https://docs.snowflake.com/en/user-guide/security-row-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: RCAC column mask
+  target_object: Masking policy
+  notes: ''
+  claim:
+    text: Snowflake dynamic data masking applies masking policies to columns at query time.
+    url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Informational constraint
+  target_object: Constraint (only NOT NULL enforced)
+  notes: ''
+  claim:
+    text: Snowflake enforces only NOT NULL constraints; primary, unique and foreign keys are not enforced on standard tables.
+    url: https://docs.snowflake.com/en/sql-reference/constraints-overview
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: External table
+  target_object: External stage
+  notes: ''
+  claim:
+    text: A Snowflake named external stage is a schema object that stores the URL to files in cloud storage.
+    url: https://docs.snowflake.com/en/user-guide/data-load-overview
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Db2 Warehouse accepts the Oracle (+) outer join operator in WHERE predicates.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-oracle
+  accessed: '2026-10-15'
+  confidence: high
+- text: Db2 Warehouse supports Oracle-style hierarchical (recursive) queries.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=compatibility-features-oracle
+  accessed: '2026-10-15'
+  confidence: high
+- text: Db2 DECODE compares an expression with search values and returns the matching result.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-decode
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake supports QUALIFY to filter window function results.
+  url: https://docs.snowflake.com/en/sql-reference/constructs/qualify
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake MERGE inserts, updates and deletes target rows based on a source.
+  url: https://docs.snowflake.com/en/sql-reference/sql/merge
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake Scripting adds procedural blocks, variables, loops and exception handling to SQL.
+  url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: A Db2 Warehouse external table maps a delimited or fixed-length file outside the database and can be used to query or unload data.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table-external
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake loads data from stages with COPY INTO and continuously with Snowpipe.
+  url: https://docs.snowflake.com/en/user-guide/data-load-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: A Snowflake named external stage is a schema object that stores the URL to files in cloud storage.
+  url: https://docs.snowflake.com/en/user-guide/data-load-overview
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: The Db2 Warehouse dbload command loads data files in local mode or in remote mode over the network.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=command-loading-data-files-dbload
+  accessed: '2026-10-15'
+  confidence: high
+- text: SnowConvert is Snowflake's tool for converting source DDL, SQL and procedural code to Snowflake.
+  url: https://docs.snowflake.com/en/migrations/snowconvert-docs/general/about
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake publishes migration tooling and guides for moving legacy warehouses to Snowflake.
+  url: https://docs.snowflake.com/en/migrations/README
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Db2 GRANT ROLE grants roles to users, groups or other roles, optionally WITH ADMIN OPTION.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-grant-role
+  accessed: '2026-10-15'
+  confidence: high
+- text: Only users with SECADM authority can manage Db2 row and column access controls.
+  url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake access control combines discretionary and role-based models, granting privileges to roles.
+  url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake dynamic data masking applies masking policies to columns at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: db2_distribute_by
+  claim:
+    text: Db2 CREATE TABLE distributes rows across database partitions with DISTRIBUTE BY HASH, RANDOM or REPLICATION.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- id: db2_sql_pl
+  claim:
+    text: Db2 SQL procedures are routines implemented entirely in SQL (SQL PL).
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=routines-sql-procedures
+    accessed: '2026-10-15'
+    confidence: high
+- id: db2_rcac
+  claim:
+    text: Db2 Warehouse row and column access control (RCAC) filters rows and masks columns per user as fine-grained access control.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=management-row-column-access-control-rcac
+    accessed: '2026-10-15'
+    confidence: high
+- id: db2_temporal
+  claim:
+    text: Db2 temporal tables support system periods maintained by the database and application periods supplied by users.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=tables-time-travel-query-using-temporal
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: db2_distribute_by
+  claim:
+    text: Snowflake clustering keys co-locate related rows in micro-partitions for very large tables.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-keys
+    accessed: '2026-10-15'
+    confidence: high
+- for: db2_sql_pl
+  claim:
+    text: Snowflake Scripting adds procedural blocks, variables, loops and exception handling to SQL.
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+    accessed: '2026-10-15'
+    confidence: high
+- for: db2_rcac
+  claim:
+    text: Snowflake row access policies determine which rows a query can return.
+    url: https://docs.snowflake.com/en/user-guide/security-row-intro
+    accessed: '2026-10-15'
+    confidence: high
+- for: db2_temporal
+  claim:
+    text: Snowflake Time Travel lets you query and restore data as it was at earlier points in time.
+    url: https://docs.snowflake.com/en/user-guide/data-time-travel
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Db2 Warehouse extensions and procedural code need rewriting for Snowflake.
+  data:
+    level: medium
+    notes: Type differences (precision, time zones, large objects, semi-structured data) need per-column checks.
+  security:
+    level: medium
+    notes: Grants and row/column rules must be re-implemented with the target security model.
+  governance:
+    level: low
+    notes: Lineage, ownership and audit settings must be re-established on the target.
+  platform:
+    level: medium
+    notes: Unenforced or missing constraints and different transaction semantics can change behaviour.
+  operational:
+    level: medium
+    notes: Load jobs, scheduling and monitoring move to target-native tooling.
+optimization_hints:
+- text: Snowflake clustering keys co-locate related rows in micro-partitions for very large tables.
+  url: https://docs.snowflake.com/en/user-guide/tables-clustering-keys
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake search optimization speeds up selective point-lookup queries.
+  url: https://docs.snowflake.com/en/user-guide/search-optimization-service
+  accessed: '2026-10-15'
+  confidence: high

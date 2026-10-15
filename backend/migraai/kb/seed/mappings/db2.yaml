@@ -1,0 +1,395 @@
+platform: db2
+types:
+- native: SMALLINT
+  canonical: int16
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts SMALLINT as a built-in numeric column type.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTEGER
+  canonical: int32
+  notes: Alias INT.
+  claim:
+    text: Db2 CREATE TABLE accepts INTEGER (INT) as a built-in column type.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: BIGINT
+  canonical: int64
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts BIGINT as a built-in column type.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECIMAL(p,s)
+  canonical: decimal
+  notes: Alias NUMERIC.
+  claim:
+    text: Db2 CREATE TABLE accepts DECIMAL and NUMERIC for fixed-point columns.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: REAL
+  canonical: float32
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts REAL for single-precision floating point.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: DOUBLE
+  canonical: float64
+  notes: Alias FLOAT.
+  claim:
+    text: Db2 CREATE TABLE accepts DOUBLE and FLOAT for double-precision floating point.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECFLOAT
+  canonical: decimal
+  notes: Decimal floating point; target support varies.
+  claim:
+    text: Db2 CREATE TABLE accepts DECFLOAT decimal floating-point columns.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: CHAR(n)
+  canonical: char
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts CHARACTER (CHAR) fixed-length strings.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR(n)
+  canonical: varchar
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts VARCHAR variable-length strings.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: CLOB
+  canonical: string
+  notes: Character large object.
+  claim:
+    text: Db2 CREATE TABLE accepts CLOB character large objects.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: GRAPHIC(n)
+  canonical: char
+  notes: Double-byte fixed length.
+  claim:
+    text: Db2 CREATE TABLE accepts GRAPHIC double-byte strings.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARGRAPHIC(n)
+  canonical: varchar
+  notes: Double-byte variable length.
+  claim:
+    text: Db2 CREATE TABLE accepts VARGRAPHIC double-byte strings.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: BINARY(n)
+  canonical: binary
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts BINARY fixed-length binary strings.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARBINARY(n)
+  canonical: varbinary
+  notes: Alias BINARY VARYING.
+  claim:
+    text: Db2 CREATE TABLE accepts VARBINARY (BINARY VARYING).
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: BLOB
+  canonical: binary
+  notes: Binary large object.
+  claim:
+    text: Db2 CREATE TABLE accepts BLOB (BINARY LARGE OBJECT).
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE
+  canonical: date
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts DATE columns.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIME
+  canonical: time
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts TIME columns.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP(p)
+  canonical: timestamp
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts TIMESTAMP columns.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: BOOLEAN
+  canonical: boolean
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts BOOLEAN columns.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+- native: XML
+  canonical: xml
+  notes: ''
+  claim:
+    text: Db2 CREATE TABLE accepts XML columns.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=statements-create-table
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: COALESCE(a, b, ...)
+  canonical: COALESCE(a, b, ...)
+  notes: ''
+  claim:
+    text: Db2 COALESCE returns the first non-null argument.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-coalesce
+    accessed: '2026-10-15'
+    confidence: high
+- native: NVL(a, b)
+  canonical: COALESCE(a, b)
+  notes: ''
+  claim:
+    text: Db2 NVL returns the first non-null argument.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-nvl
+    accessed: '2026-10-15'
+    confidence: high
+- native: NVL2(x, a, b)
+  canonical: CASE WHEN x IS NOT NULL THEN a ELSE b END
+  notes: ''
+  claim:
+    text: Db2 NVL2 returns one of two values depending on whether the first argument is null.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-nvl2
+    accessed: '2026-10-15'
+    confidence: high
+- native: NULLIF(a, b)
+  canonical: NULLIF(a, b)
+  notes: ''
+  claim:
+    text: Db2 NULLIF returns null when both arguments are equal.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-nullif
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECODE(x, s1, r1, ..., d)
+  canonical: CASE x WHEN s1 THEN r1 ... ELSE d END
+  notes: ''
+  claim:
+    text: Db2 DECODE compares an expression with search values and returns the matching result.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-decode
+    accessed: '2026-10-15'
+    confidence: high
+- native: EXTRACT(f FROM x)
+  canonical: EXTRACT(f FROM x)
+  notes: ''
+  claim:
+    text: Db2 EXTRACT returns a datetime field.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-extract
+    accessed: '2026-10-15'
+    confidence: high
+- native: ADD_MONTHS(d, n)
+  canonical: d + n * INTERVAL '1' MONTH
+  notes: ''
+  claim:
+    text: Db2 ADD_MONTHS adds a number of months to a date.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-add-months
+    accessed: '2026-10-15'
+    confidence: high
+- native: LAST_DAY(d)
+  canonical: (no ANSI equivalent)
+  notes: Derive from date arithmetic.
+  claim:
+    text: Db2 LAST_DAY returns the last day of the month of a date.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-last-day
+    accessed: '2026-10-15'
+    confidence: high
+- native: MONTHS_BETWEEN(a, b)
+  canonical: (no ANSI equivalent)
+  notes: Fractional months.
+  claim:
+    text: Db2 MONTHS_BETWEEN returns the number of months between two dates.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-months-between
+    accessed: '2026-10-15'
+    confidence: high
+- native: DAYS_BETWEEN(a, b)
+  canonical: CAST(a AS DATE) - CAST(b AS DATE)
+  notes: Result as day count.
+  claim:
+    text: Db2 DAYS_BETWEEN returns the number of days between two values.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-days-between
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMPDIFF(n, expr)
+  canonical: (no ANSI equivalent)
+  notes: Interval code argument; estimates.
+  claim:
+    text: Db2 TIMESTAMPDIFF returns an estimated number of intervals between two timestamps.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-timestampdiff
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR_FORMAT(x, fmt)
+  canonical: CAST(x AS VARCHAR(n))
+  notes: Formatting lost.
+  claim:
+    text: Db2 VARCHAR_FORMAT returns a formatted character representation of a value.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-varchar-format
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP_FORMAT(s, fmt)
+  canonical: CAST(s AS TIMESTAMP)
+  notes: Format template lost.
+  claim:
+    text: Db2 TIMESTAMP_FORMAT converts a string to a timestamp using a format.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-timestamp-format
+    accessed: '2026-10-15'
+    confidence: high
+- native: LCASE(s)
+  canonical: LOWER(s)
+  notes: ''
+  claim:
+    text: Db2 LCASE returns a lowercase string.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-lcase
+    accessed: '2026-10-15'
+    confidence: high
+- native: UPPER(s)
+  canonical: UPPER(s)
+  notes: ''
+  claim:
+    text: Db2 UPPER returns an uppercase string.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-upper
+    accessed: '2026-10-15'
+    confidence: high
+- native: LENGTH(s)
+  canonical: CHAR_LENGTH(s)
+  notes: Db2 LENGTH depends on string units.
+  claim:
+    text: Db2 LENGTH returns the length of a value.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-length
+    accessed: '2026-10-15'
+    confidence: high
+- native: LOCATE(search, s)
+  canonical: POSITION(search IN s)
+  notes: ''
+  claim:
+    text: Db2 LOCATE returns the start position of a search string.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-locate
+    accessed: '2026-10-15'
+    confidence: high
+- native: INSTR(s, search)
+  canonical: POSITION(search IN s)
+  notes: Extra start/occurrence args do not map.
+  claim:
+    text: Db2 INSTR returns the position of a search string.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-instr
+    accessed: '2026-10-15'
+    confidence: high
+- native: SUBSTR(s, p, l)
+  canonical: SUBSTRING(s FROM p FOR l)
+  notes: ''
+  claim:
+    text: Db2 SUBSTR returns a substring.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-substr
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRIP(s)
+  canonical: TRIM(s)
+  notes: ''
+  claim:
+    text: Db2 STRIP removes blanks or a given character from a string.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-strip
+    accessed: '2026-10-15'
+    confidence: high
+- native: TRIM(s)
+  canonical: TRIM(s)
+  notes: ''
+  claim:
+    text: Db2 TRIM removes leading and/or trailing characters.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-trim
+    accessed: '2026-10-15'
+    confidence: high
+- native: LTRIM(s)
+  canonical: TRIM(LEADING ' ' FROM s)
+  notes: ''
+  claim:
+    text: Db2 LTRIM removes leading characters.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-ltrim
+    accessed: '2026-10-15'
+    confidence: high
+- native: RTRIM(s)
+  canonical: TRIM(TRAILING ' ' FROM s)
+  notes: ''
+  claim:
+    text: Db2 RTRIM removes trailing characters.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-rtrim
+    accessed: '2026-10-15'
+    confidence: high
+- native: LPAD(s, n, pad)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Db2 LPAD pads a string on the left.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-lpad
+    accessed: '2026-10-15'
+    confidence: high
+- native: CONCAT(a, b)
+  canonical: a || b
+  notes: ''
+  claim:
+    text: Db2 CONCAT combines two strings.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-concat
+    accessed: '2026-10-15'
+    confidence: high
+- native: REPLACE(s, from, to)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Db2 REPLACE replaces all occurrences of a search string.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-replace
+    accessed: '2026-10-15'
+    confidence: high
+- native: LISTAGG(x, sep)
+  canonical: LISTAGG(x, sep) WITHIN GROUP (ORDER BY ...)
+  notes: ''
+  claim:
+    text: Db2 LISTAGG aggregates strings with a separator.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-listagg
+    accessed: '2026-10-15'
+    confidence: high
+- native: MOD(a, b)
+  canonical: MOD(a, b)
+  notes: ''
+  claim:
+    text: Db2 MOD returns the remainder.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-mod
+    accessed: '2026-10-15'
+    confidence: high
+- native: ROUND(x, n)
+  canonical: ROUND(x, n)
+  notes: ''
+  claim:
+    text: Db2 ROUND rounds a number.
+    url: https://www.ibm.com/docs/en/db2-warehouse?topic=functions-round
+    accessed: '2026-10-15'
+    confidence: high

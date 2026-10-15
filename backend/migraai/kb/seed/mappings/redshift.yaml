@@ -1,0 +1,507 @@
+platform: redshift
+types:
+- native: SMALLINT
+  canonical: int8
+  notes: No 1-byte integer; SMALLINT is the smallest.
+  claim:
+    text: Redshift SMALLINT (INT2) is a 2-byte signed integer.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: SMALLINT
+  canonical: int16
+  notes: ''
+  claim:
+    text: Redshift SMALLINT (INT2) is a 2-byte signed integer.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTEGER
+  canonical: int32
+  notes: ''
+  claim:
+    text: Redshift INTEGER (INT, INT4) is a 4-byte signed integer.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: BIGINT
+  canonical: int64
+  notes: ''
+  claim:
+    text: Redshift BIGINT (INT8) is an 8-byte signed integer.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECIMAL(p,s)
+  canonical: decimal
+  notes: Maximum precision 38.
+  claim:
+    text: Redshift DECIMAL (NUMERIC) supports user-defined precision up to 38 digits.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: REAL
+  canonical: float32
+  notes: ''
+  claim:
+    text: Redshift REAL (FLOAT4) is a single-precision floating-point type.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: DOUBLE PRECISION
+  canonical: float64
+  notes: ''
+  claim:
+    text: Redshift DOUBLE PRECISION (FLOAT8) is a double-precision floating-point type.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Numeric_types201.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: BOOLEAN
+  canonical: boolean
+  notes: ''
+  claim:
+    text: Redshift BOOLEAN stores true, false or null in a single byte.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Boolean_type.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: CHAR(n)
+  canonical: char
+  notes: Length counted in bytes.
+  claim:
+    text: Redshift CHAR is a fixed-length string type.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Character_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR(n)
+  canonical: varchar
+  notes: Length counted in bytes, max 65535.
+  claim:
+    text: Redshift VARCHAR is a variable-length string of up to 65535 bytes.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Character_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR(65535)
+  canonical: string
+  notes: Use the maximum VARCHAR for unbounded text.
+  claim:
+    text: Redshift VARCHAR can hold up to 65535 bytes.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Character_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARBYTE(n)
+  canonical: varbinary
+  notes: ''
+  claim:
+    text: Redshift VARBYTE stores variable-length binary values.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_VARBYTE_type.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARBYTE(n)
+  canonical: binary
+  notes: No fixed-length binary type.
+  claim:
+    text: Redshift VARBYTE stores variable-length binary values.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_VARBYTE_type.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE
+  canonical: date
+  notes: ''
+  claim:
+    text: Redshift DATE stores a calendar date without time.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIME
+  canonical: time
+  notes: ''
+  claim:
+    text: Redshift TIME stores time of day without time zone.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMETZ
+  canonical: time_tz
+  notes: ''
+  claim:
+    text: Redshift TIMETZ stores time of day with time zone.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP
+  canonical: timestamp
+  notes: ''
+  claim:
+    text: Redshift TIMESTAMP stores date and time without time zone.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMPTZ
+  canonical: timestamp_tz
+  notes: ''
+  claim:
+    text: Redshift TIMESTAMPTZ stores date and time with time zone.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTERVAL
+  canonical: interval
+  notes: ''
+  claim:
+    text: Redshift supports interval data types such as INTERVAL YEAR TO MONTH and INTERVAL DAY TO SECOND.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_interval_data_types.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: SUPER
+  canonical: json
+  notes: ''
+  claim:
+    text: Redshift SUPER stores semi-structured data such as JSON.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: SUPER
+  canonical: array
+  notes: SUPER holds arrays.
+  claim:
+    text: Redshift SUPER can hold arrays and nested structures.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: SUPER
+  canonical: struct
+  notes: SUPER holds nested objects.
+  claim:
+    text: Redshift SUPER can hold arrays and nested structures.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUPER_type.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: GEOMETRY
+  canonical: geometry
+  notes: ''
+  claim:
+    text: Redshift supports the GEOMETRY spatial type.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/geospatial-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: GEOGRAPHY
+  canonical: geography
+  notes: ''
+  claim:
+    text: Redshift supports the GEOGRAPHY spatial type.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/geospatial-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: COALESCE(a, b)
+  canonical: COALESCE(a, b)
+  notes: NVL is a synonym.
+  claim:
+    text: Redshift NVL and COALESCE return the first non-null expression.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_NVL_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: NVL2(x, a, b)
+  canonical: CASE WHEN x IS NOT NULL THEN a ELSE b END
+  notes: ''
+  claim:
+    text: Redshift NVL2 returns one of two values depending on whether the expression is null.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_NVL2.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: NULLIF(a, b)
+  canonical: NULLIF(a, b)
+  notes: ''
+  claim:
+    text: Redshift NULLIF returns null when its two arguments are equal.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_NULLIF_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECODE(x, s1, r1, ..., d)
+  canonical: CASE x WHEN s1 THEN r1 ... ELSE d END
+  notes: ''
+  claim:
+    text: Redshift supports DECODE as a CASE-style expression.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_DECODE_expression.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: CAST(x AS t)
+  canonical: CAST(x AS t)
+  notes: ''
+  claim:
+    text: Redshift CAST converts a value to another data type.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CAST_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: EXTRACT(f FROM x)
+  canonical: EXTRACT(f FROM x)
+  notes: ''
+  claim:
+    text: Redshift EXTRACT returns a date or time part.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_EXTRACT_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: ADD_MONTHS(d, n)
+  canonical: d + n * INTERVAL '1' MONTH
+  notes: ''
+  claim:
+    text: Redshift ADD_MONTHS adds months to a date or timestamp.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_ADD_MONTHS.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATEADD(part, n, d)
+  canonical: d + n * INTERVAL '1' <part>
+  notes: ''
+  claim:
+    text: Redshift DATEADD increments a date or time by an interval.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_DATEADD_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATEDIFF(part, a, b)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift DATEDIFF returns the difference between two dates or times in a given part.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_DATEDIFF_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE_TRUNC('part', ts)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift DATE_TRUNC truncates a timestamp to a date part.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_DATE_TRUNC.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: LAST_DAY(d)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift LAST_DAY returns the last day of the month for a date.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_LAST_DAY.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: MONTHS_BETWEEN(a, b)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift MONTHS_BETWEEN returns the months between two dates.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_MONTHS_BETWEEN_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: CURRENT_DATE
+  canonical: CURRENT_DATE
+  notes: ''
+  claim:
+    text: Redshift CURRENT_DATE returns the session date.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CURRENT_DATE_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: GETDATE()
+  canonical: CURRENT_TIMESTAMP
+  notes: ''
+  claim:
+    text: Redshift GETDATE returns the current date and time.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_GETDATE.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: CONVERT_TIMEZONE(from, to, ts)
+  canonical: ts AT TIME ZONE to
+  notes: ''
+  claim:
+    text: Redshift CONVERT_TIMEZONE converts a timestamp between time zones.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/CONVERT_TIMEZONE.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: POSITION(b IN s)
+  canonical: POSITION(b IN s)
+  notes: STRPOS and CHARINDEX are synonyms.
+  claim:
+    text: Redshift POSITION returns the location of a substring.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_POSITION.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRPOS(s, b)
+  canonical: POSITION(b IN s)
+  notes: ''
+  claim:
+    text: Redshift STRPOS returns the position of a substring.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_STRPOS.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: SUBSTRING(s, p, l)
+  canonical: SUBSTRING(s FROM p FOR l)
+  notes: ''
+  claim:
+    text: Redshift SUBSTRING returns part of a string.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_SUBSTRING.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TRIM(s)
+  canonical: TRIM(s)
+  notes: ''
+  claim:
+    text: Redshift TRIM removes leading and trailing characters.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_TRIM.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: UPPER(s)
+  canonical: UPPER(s)
+  notes: ''
+  claim:
+    text: Redshift UPPER converts a string to uppercase.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_UPPER.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: LEN(s)
+  canonical: CHAR_LENGTH(s)
+  notes: ''
+  claim:
+    text: Redshift LEN returns the length of a string.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_LEN.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: LPAD(s, n, fill)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift LPAD left-pads a string to a length.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_LPAD.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: REPLACE(s, a, b)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift REPLACE replaces all occurrences of a substring.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_REPLACE.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TRANSLATE(s, from, to)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift TRANSLATE replaces characters one-for-one.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_TRANSLATE.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: SPLIT_PART(s, d, n)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift SPLIT_PART returns the nth field of a delimited string.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/SPLIT_PART.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: REGEXP_REPLACE(s, re, r)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift REGEXP_REPLACE replaces regex matches.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/REGEXP_REPLACE.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: REGEXP_SUBSTR(s, re)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift REGEXP_SUBSTR returns a regex match.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/REGEXP_SUBSTR.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: INITCAP(s)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift INITCAP capitalizes the first letter of each word.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_INITCAP.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: CONCAT(a, b)
+  canonical: a || b
+  notes: ''
+  claim:
+    text: Redshift CONCAT joins two expressions.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CONCAT.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: LISTAGG(x, d) WITHIN GROUP (ORDER BY ...)
+  canonical: LISTAGG(x, d) WITHIN GROUP (ORDER BY ...)
+  notes: ''
+  claim:
+    text: Redshift LISTAGG concatenates group values with a delimiter.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_LISTAGG.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: ROUND(x, n)
+  canonical: ROUND(x, n)
+  notes: ''
+  claim:
+    text: Redshift ROUND rounds numbers.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_ROUND.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TRUNC(x, n)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift TRUNC truncates numbers.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_TRUNC.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: MOD(a, b)
+  canonical: MOD(a, b)
+  notes: ''
+  claim:
+    text: Redshift MOD returns the remainder.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_MOD.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_CHAR(x, fmt)
+  canonical: CAST(x AS VARCHAR(n))
+  notes: ''
+  claim:
+    text: Redshift TO_CHAR formats a timestamp or number as a string.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_TO_CHAR.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_DATE(s, fmt)
+  canonical: CAST(s AS DATE)
+  notes: ''
+  claim:
+    text: Redshift TO_DATE converts a string to a date using a format.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_TO_DATE_function.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: GREATEST(a, b, ...)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift GREATEST and LEAST return the largest or smallest value.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_GREATEST_LEAST.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: MD5(s)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift MD5 returns an MD5 hash string.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_MD5.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: ROW_NUMBER() OVER (...)
+  canonical: ROW_NUMBER() OVER (...)
+  notes: ''
+  claim:
+    text: Redshift ROW_NUMBER numbers rows within a window.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_WF_ROW_NUMBER.html
+    accessed: '2026-10-15'
+    confidence: high
+- native: JSON_EXTRACT_PATH_TEXT(j, k)
+  canonical: (no ANSI equivalent)
+  notes: ''
+  claim:
+    text: Redshift JSON_EXTRACT_PATH_TEXT returns a value from a JSON string by path.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/JSON_EXTRACT_PATH_TEXT.html
+    accessed: '2026-10-15'
+    confidence: high

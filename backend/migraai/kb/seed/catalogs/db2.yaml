@@ -1,0 +1,81 @@
+source: db2
+mandatory:
+- id: ddl_tables
+  name: Table DDL
+  description: CREATE TABLE statements including ORGANIZE BY and DISTRIBUTE BY clauses.
+  object_types:
+  - table
+  extraction_hint: db2look -d <db> -e -z <schema>; list from SYSCAT.TABLES
+- id: ddl_views
+  name: View DDL
+  description: CREATE VIEW statements.
+  object_types:
+  - view
+  extraction_hint: db2look -d <db> -e; SYSCAT.VIEWS.TEXT
+- id: mqts
+  name: Materialized query tables
+  description: MQT definitions and refresh options.
+  object_types:
+  - materialized_query_table
+  extraction_hint: db2look -d <db> -e; SYSCAT.TABLES where TYPE = 'S'
+- id: procedures
+  name: SQL procedures
+  description: SQL PL and NZPLSQL procedure source.
+  object_types:
+  - procedure
+  extraction_hint: SYSCAT.ROUTINES where ROUTINETYPE = 'P' (TEXT column)
+- id: functions_udfs
+  name: Functions and UDFs
+  description: User-defined scalar and table functions.
+  object_types:
+  - function
+  extraction_hint: SYSCAT.ROUTINES where ROUTINETYPE = 'F'
+- id: security_objects
+  name: Roles, grants and RCAC
+  description: Roles, authorities, object privileges, row permissions and column masks.
+  object_types:
+  - role
+  - grant
+  - row_permission
+  - column_mask
+  extraction_hint: db2look -d <db> -x; SYSCAT.ROLEAUTH, SYSCAT.TABAUTH, SYSCAT.CONTROLS
+- id: etl_definitions
+  name: ETL and load jobs
+  description: Load scripts, external table definitions and scheduler jobs.
+  object_types:
+  - etl_job
+  - external_table
+  extraction_hint: Export dbload/LOAD scripts from the ETL repository or scheduler
+- id: sequences
+  name: Sequences
+  description: Sequence definitions.
+  object_types:
+  - sequence
+  extraction_hint: db2look -d <db> -e; SYSCAT.SEQUENCES
+optional:
+- id: statistics
+  name: Table statistics
+  description: Catalog statistics used by the optimizer.
+  object_types:
+  - statistics
+  extraction_hint: SYSCAT.TABLES CARD/NPAGES; db2look -m for statistics updates
+- id: sample_data
+  name: Sample data
+  description: Representative row samples per table for validation tests.
+  object_types:
+  - sample
+  extraction_hint: SELECT * FROM <tbl> FETCH FIRST 1000 ROWS ONLY;
+- id: workload_objects
+  name: WLM objects
+  description: Service classes, workloads and thresholds.
+  object_types:
+  - service_class
+  - workload
+  - threshold
+  extraction_hint: db2look -d <db> -wlm; SYSCAT.SERVICECLASSES, SYSCAT.WORKLOADS
+- id: temporal_tables
+  name: Temporal table definitions
+  description: System-period and application-period table definitions with history tables.
+  object_types:
+  - table
+  extraction_hint: SYSCAT.PERIODS joined to SYSCAT.TABLES
