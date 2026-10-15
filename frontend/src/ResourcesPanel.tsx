@@ -47,14 +47,14 @@ function ResourceGroup({
   );
 }
 
-export function ResourcesPanel({ sessionId }: { sessionId: string | null }) {
+export function ResourcesPanel({ confirmed }: { confirmed: boolean }) {
   const [items, setItems] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!sessionId) {
+    if (!confirmed) {
       setItems([]);
       return;
     }
@@ -80,7 +80,7 @@ export function ResourcesPanel({ sessionId }: { sessionId: string | null }) {
     return () => {
       active = false;
     };
-  }, [sessionId]);
+  }, [confirmed]);
 
   async function changeAvailability(item: ResourceItem, available: boolean) {
     setUpdatingId(item.id);
@@ -104,7 +104,7 @@ export function ResourcesPanel({ sessionId }: { sessionId: string | null }) {
     }
   }
 
-  if (!sessionId) {
+  if (!confirmed) {
     return (
       <div className="resource-empty-state">
         Confirm a source and target to load the source catalog.

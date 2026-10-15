@@ -26,7 +26,15 @@ const fallbackPlan = {
   created_at: "2026-10-15T00:00:00Z",
 };
 
-function mockApi(devinConfigured = true) {
+function mockApi(
+  devinConfigured = true,
+  currentSession: {
+    source: string | null;
+    target: string | null;
+    confirmed: boolean;
+  } = { source: null, target: null, confirmed: false },
+  planResponse: Record<string, unknown> = fallbackPlan,
+) {
   const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
     const path = String(input);
     if (path.endsWith("/api/health")) {
@@ -51,6 +59,12 @@ function mockApi(devinConfigured = true) {
     }
     if (path.endsWith("/api/settings")) {
       return Response.json(settingsResponse);
+    }
+    if (path.endsWith("/api/session") && !path.endsWith("/api/session/confirm")) {
+      return Response.json(currentSession);
+    }
+    if (path.endsWith("/api/plan")) {
+      return Response.json(planResponse);
     }
     if (path.endsWith("/api/resources")) {
       return Response.json([]);
@@ -148,6 +162,42 @@ describe("MigraAI foundation UI", () => {
 
     await waitFor(() =>
       expect(scrollTo).toHaveBeenCalledWith({ top: 500, behavior: "auto" }),
+    );
+  });
+
+  it("restores a confirmed pair and resumes polling a running plan", async () => {
+    const runningPlan = {
+      ...fallbackPlan,
+      state: "running",
+      progress: { phase: "running", elapsed_s: 12, devin_url: null },
+      origin: "devin",
+      reason: null,
+    };
+    const fetchMock = mockApi(
+      true,
+      { source: "teradata", target: "snowflake", confirmed: true },
+      runningPlan,
+    );
+    render(<App />);
+
+    const source = await screen.findByLabelText("Source platform");
+    const target = await screen.findByLabelText("Target platform");
+    expect(source).toHaveValue("teradata");
+    expect(target).toHaveValue("snowflake");
+    expect(source).toBeDisabled();
+    expect(target).toBeDisabled();
+    expect(screen.getByRole("button", { name: /confirm/i })).toBeDisabled();
+    expect(await screen.findByText("running")).toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.some(([input]) => String(input).endsWith("/api/session/confirm")),
+    ).toBe(false);
+
+    await waitFor(
+      () =>
+        expect(
+          fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/api/plan")).length,
+        ).toBeGreaterThan(1),
+      { timeout: 5000 },
     );
   });
 

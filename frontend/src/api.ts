@@ -86,6 +86,18 @@ export type SessionResponse = {
   plan: PlanStatus;
 };
 
+export type SessionView = {
+  source: string;
+  target: string;
+  plan: PlanStatus | null;
+};
+
+export type CurrentSessionResponse = {
+  source: string | null;
+  target: string | null;
+  confirmed: boolean;
+};
+
 export type ResourceItem = {
   id: string;
   name: string;
@@ -174,6 +186,10 @@ export function confirmSession(source: string, target: string): Promise<SessionR
     method: "POST",
     body: { source, target },
   });
+}
+
+export function getCurrentSession(): Promise<CurrentSessionResponse> {
+  return apiRequest<CurrentSessionResponse>("/api/session");
 }
 
 export function getPlan(): Promise<PlanStatus> {

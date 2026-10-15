@@ -8,7 +8,7 @@ import {
   startPlan,
   type PlanSection,
   type PlanStatus,
-  type SessionResponse,
+  type SessionView,
 } from "./api";
 
 const TERMINAL_STATES = new Set(["done", "failed_fallback", "cancelled", "failed"]);
@@ -43,7 +43,7 @@ export function PlanningPanel({
   targetName,
   confidenceThreshold,
 }: {
-  session: SessionResponse | null;
+  session: SessionView | null;
   sourceName: string;
   targetName: string;
   confidenceThreshold: number;
@@ -57,7 +57,7 @@ export function PlanningPanel({
     setPlan(session?.plan ?? null);
     setSelectedSection("A");
     setError("");
-  }, [session?.session_id, session?.plan]);
+  }, [session?.source, session?.target, session?.plan]);
 
   useEffect(() => {
     const currentPlan = plan;

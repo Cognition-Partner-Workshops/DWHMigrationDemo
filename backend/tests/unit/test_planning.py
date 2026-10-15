@@ -4,6 +4,7 @@ import inspect
 import json
 import threading
 import time
+from io import BytesIO
 from pathlib import Path
 
 import httpx
@@ -513,9 +514,17 @@ def test_devin_v3_session_state_mapping(
 
 
 class FakeClient:
-    def __init__(self, responses: list[dict], created: threading.Event | None = None) -> None:
+    def __init__(
+        self,
+        responses: list[dict],
+        created: threading.Event | None = None,
+        create_release: threading.Event | None = None,
+        terminate_error: Exception | None = None,
+    ) -> None:
         self.responses = responses
         self.created = created
+        self.create_release = create_release
+        self.terminate_error = terminate_error
         self.terminated: list[str] = []
         self.closed = False
 
@@ -525,6 +534,8 @@ class FakeClient:
     def create_session(self, prompt: str, **kwargs) -> tuple[str, str]:
         if self.created:
             self.created.set()
+        if self.create_release:
+            self.create_release.wait(2)
         return "devin-test", "https://devin.test/session"
 
     def get_session(self, session_id: str) -> dict:
@@ -532,6 +543,8 @@ class FakeClient:
 
     def terminate_session(self, session_id: str) -> None:
         self.terminated.append(session_id)
+        if self.terminate_error:
+            raise self.terminate_error
 
     def close(self) -> None:
         self.closed = True
@@ -543,6 +556,8 @@ def _v1_job(
     *,
     requests: list[httpx.Request] | None = None,
     session_created: threading.Event | None = None,
+    session_release: threading.Event | None = None,
+    terminate_status: int = 204,
 ) -> tuple[PlanJob, KBStore, list[httpx.Request]]:
     kb_store, plan_store, audit = _stores(tmp_path)
     captured = requests if requests is not None else []
@@ -554,6 +569,8 @@ def _v1_job(
         if request.method == "POST" and request.url.path == "/v1/sessions":
             if session_created:
                 session_created.set()
+            if session_release:
+                session_release.wait(2)
             return httpx.Response(
                 200,
                 json={
@@ -570,6 +587,12 @@ def _v1_job(
                     "teradata", "snowflake", kb_store.current_path
                 ).model_dump()
             return httpx.Response(200, json=result, request=request)
+        if request.method == "DELETE" and terminate_status != 204:
+            return httpx.Response(
+                terminate_status,
+                json={"detail": "termination failed"},
+                request=request,
+            )
         return httpx.Response(204, request=request)
 
     job = PlanJob(
@@ -627,17 +650,18 @@ class ImmediateEvent:
 
 def test_v1_job_finished_and_blocked_outputs_complete(tmp_path: Path) -> None:
     for index, enum in enumerate(("finished", "blocked")):
-        job, store, _ = _v1_job(
+        job, store, requests = _v1_job(
             tmp_path / str(index),
             [{"status": "Raw status", "status_enum": enum, "structured_output": "local-draft"}],
         )
         job.cancel_event = ImmediateEvent()
         job.run()
         assert job.snapshot()["state"] == "done"
+        assert sum(request.method == "DELETE" for request in requests) == 1
 
 
 def test_v1_job_blocked_twice_and_expired_fall_back(tmp_path: Path) -> None:
-    blocked, _, _ = _v1_job(
+    blocked, _, blocked_requests = _v1_job(
         tmp_path / "blocked",
         [
             {"status": "Blocked", "status_enum": "blocked"},
@@ -647,14 +671,33 @@ def test_v1_job_blocked_twice_and_expired_fall_back(tmp_path: Path) -> None:
     blocked.cancel_event = ImmediateEvent()
     blocked.run()
     assert blocked.snapshot()["reason"] == "Devin asked for input"
+    assert sum(request.method == "DELETE" for request in blocked_requests) == 1
 
-    expired, _, _ = _v1_job(
+    expired, _, expired_requests = _v1_job(
         tmp_path / "expired",
         [{"status": "Expired", "status_enum": "expired"}],
     )
     expired.cancel_event = ImmediateEvent()
     expired.run()
     assert expired.snapshot()["reason"] == "Devin session ended: Expired; expired"
+    assert sum(request.method == "DELETE" for request in expired_requests) == 1
+
+
+def test_v1_job_termination_failure_keeps_completed_plan(tmp_path: Path) -> None:
+    job, _, requests = _v1_job(
+        tmp_path,
+        [{"status": "Finished", "status_enum": "finished", "structured_output": "local-draft"}],
+        terminate_status=500,
+    )
+    job.cancel_event = ImmediateEvent()
+    job.run()
+
+    assert job.snapshot()["state"] == "done"
+    assert sum(request.method == "DELETE" for request in requests) == 1
+    records = [json.loads(line) for line in job.audit.path.read_text().splitlines()]
+    failure = next(record for record in records if record["action"] == "plan.terminate_failed")
+    assert failure["target"] == "legacy-session"
+    assert "token" not in json.dumps(failure).casefold()
 
 
 def test_v1_job_cancel_issues_delete(tmp_path: Path) -> None:
@@ -672,6 +715,28 @@ def test_v1_job_cancel_issues_delete(tmp_path: Path) -> None:
         request.method == "DELETE" and request.url.path == "/v1/sessions/legacy-session"
         for request in requests
     )
+    assert sum(request.method == "DELETE" for request in requests) == 1
+
+
+def test_v1_job_cancel_during_session_creation_terminates_once(tmp_path: Path) -> None:
+    created = threading.Event()
+    release = threading.Event()
+    job, _, requests = _v1_job(
+        tmp_path,
+        [],
+        session_created=created,
+        session_release=release,
+    )
+    job.start()
+    assert created.wait(2)
+
+    job.cancel()
+    release.set()
+    job.join(2)
+
+    assert not job.is_alive()
+    assert job.snapshot()["state"] == "cancelled"
+    assert sum(request.method == "DELETE" for request in requests) == 1
 
 
 def test_plan_job_validates_citations_and_saves_devin_plan(tmp_path: Path) -> None:
@@ -710,6 +775,7 @@ def test_plan_job_validates_citations_and_saves_devin_plan(tmp_path: Path) -> No
         }
     ]
     assert first["unverified_citations"] is True
+    assert fake.terminated == ["devin-test"]
 
 
 @pytest.mark.parametrize(
@@ -729,6 +795,7 @@ def test_plan_job_error_statuses_fall_back(
     assert job.snapshot()["state"] == "failed_fallback"
     assert job.snapshot()["reason"] == reason
     assert job.snapshot()["origin"] == "local_draft"
+    assert fake.terminated == ["devin-test"]
 
 
 def test_plan_job_waiting_invalid_and_timeout_fallbacks(tmp_path: Path) -> None:
@@ -742,40 +809,44 @@ def test_plan_job_waiting_invalid_and_timeout_fallbacks(tmp_path: Path) -> None:
     waiting.cancel_event = ImmediateEvent()
     waiting.run()
     assert waiting.snapshot()["reason"] == "Devin asked for input"
+    assert fake.terminated == ["devin-test"]
 
-    invalid = _job(
-        tmp_path / "invalid",
-        FakeClient([{"state": "done", "detail": "exit", "structured_output": {}}]),
-    )
+    invalid_fake = FakeClient([{"state": "done", "detail": "exit", "structured_output": {}}])
+    invalid = _job(tmp_path / "invalid", invalid_fake)
     invalid.cancel_event = ImmediateEvent()
     invalid.run()
     assert invalid.snapshot()["reason"] == "Devin returned an invalid plan"
+    assert invalid_fake.terminated == ["devin-test"]
 
-    missing_output = _job(
-        tmp_path / "missing-output",
-        FakeClient([{"state": "done", "detail": "finished", "structured_output": None}]),
+    missing_output_fake = FakeClient(
+        [{"state": "done", "detail": "finished", "structured_output": None}]
     )
+    missing_output = _job(tmp_path / "missing-output", missing_output_fake)
     missing_output.cancel_event = ImmediateEvent()
     missing_output.run()
     assert missing_output.snapshot()["reason"] == "Devin returned an invalid plan"
+    assert missing_output_fake.terminated == ["devin-test"]
 
     store, _, _ = _stores(tmp_path / "http")
     invalid_url_plan = build_local_draft("teradata", "snowflake", store.current_path).model_dump()
     invalid_url_plan["sections"][0]["citations"] = [
         {"url": "http://insecure.example/doc", "note": "insecure"}
     ]
-    invalid_url = _job(
-        tmp_path / "invalid-url",
-        FakeClient([{"state": "done", "detail": "exit", "structured_output": invalid_url_plan}]),
+    invalid_url_fake = FakeClient(
+        [{"state": "done", "detail": "exit", "structured_output": invalid_url_plan}]
     )
+    invalid_url = _job(tmp_path / "invalid-url", invalid_url_fake)
     invalid_url.cancel_event = ImmediateEvent()
     invalid_url.run()
     assert invalid_url.snapshot()["reason"] == "Devin returned an invalid plan"
+    assert invalid_url_fake.terminated == ["devin-test"]
 
-    timeout = _job(tmp_path / "timeout", FakeClient([]), timeout_minutes=0)
+    timeout_fake = FakeClient([])
+    timeout = _job(tmp_path / "timeout", timeout_fake, timeout_minutes=0)
     timeout.cancel_event = ImmediateEvent()
     timeout.run()
     assert timeout.snapshot()["reason"] == "Devin session timed out"
+    assert timeout_fake.terminated == ["devin-test"]
 
 
 def test_plan_job_cancel_terminates_session(tmp_path: Path) -> None:
@@ -793,24 +864,59 @@ def test_plan_job_cancel_terminates_session(tmp_path: Path) -> None:
     assert job.snapshot()["state"] == "cancelled"
 
 
+def test_plan_job_cancel_during_session_creation_terminates_once(tmp_path: Path) -> None:
+    created = threading.Event()
+    release = threading.Event()
+    fake = FakeClient([], created=created, create_release=release)
+    job = _job(tmp_path, fake)
+    job.start()
+    assert created.wait(2)
+
+    job.cancel()
+    release.set()
+    job.join(2)
+
+    assert not job.is_alive()
+    assert job.snapshot()["state"] == "cancelled"
+    assert fake.terminated == ["devin-test"]
+
+
 def test_plan_job_completes_blocked_v3_output(tmp_path: Path) -> None:
     store, _, _ = _stores(tmp_path)
     output = build_local_draft("teradata", "snowflake", store.current_path).model_dump()
-    job = _job(
-        tmp_path,
-        FakeClient(
-            [
-                {
-                    "state": "blocked",
-                    "detail": "running; waiting_for_user",
-                    "structured_output": output,
-                }
-            ]
-        ),
+    fake = FakeClient(
+        [
+            {
+                "state": "blocked",
+                "detail": "running; waiting_for_user",
+                "structured_output": output,
+            }
+        ]
     )
+    job = _job(tmp_path, fake)
     job.cancel_event = ImmediateEvent()
     job.run()
     assert job.snapshot()["state"] == "done"
+    assert fake.terminated == ["devin-test"]
+
+
+def test_plan_job_termination_failure_keeps_completed_plan(tmp_path: Path) -> None:
+    store, _, _ = _stores(tmp_path)
+    output = build_local_draft("teradata", "snowflake", store.current_path).model_dump()
+    fake = FakeClient(
+        [{"state": "done", "detail": "finished", "structured_output": output}],
+        terminate_error=RuntimeError("sensitive remote error"),
+    )
+    job = _job(tmp_path, fake)
+    job.cancel_event = ImmediateEvent()
+    job.run()
+
+    assert job.snapshot()["state"] == "done"
+    records = [json.loads(line) for line in job.audit.path.read_text().splitlines()]
+    failure = next(record for record in records if record["action"] == "plan.terminate_failed")
+    assert failure["target"] == "devin-test"
+    assert failure["details"] == {"error_type": "RuntimeError"}
+    assert "sensitive remote error" not in job.audit.path.read_text()
 
 
 def test_plan_job_selects_client_from_token_prefix(
@@ -871,3 +977,41 @@ def test_pdf_has_all_sections_and_escapes_raw_html(tmp_path: Path) -> None:
     )
     for _, title in SECTIONS:
         assert title in text
+
+
+def test_pdf_maps_non_winansi_glyphs_without_changing_the_stored_plan(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    store, plan_store, _ = _stores(tmp_path)
+    plan = build_local_draft("teradata", "snowflake", store.current_path)
+    plan.sections[0].content = "Teradata → Snowflake ← ≤ ≥ ≠ ✓ ✗ × – — “WinAnsi” •"
+    record = plan_store.save(
+        plan,
+        source="teradata",
+        target="snowflake",
+        kb_version=1,
+        origin="local_draft",
+    )
+    logo = Path(__file__).parents[2] / "migraai/planning/assets/logo.png"
+
+    with caplog.at_level("WARNING"):
+        content = render_plan_pdf(record, logo)
+
+    text = "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(content)).pages)
+    assert "Teradata -> Snowflake" in text
+    assert "<-" in text
+    assert "<=" in text
+    assert ">=" in text
+    assert "!=" in text
+    assert "[x]" in text
+    assert "[ ]" in text
+    assert "x" in text
+    assert "–" in text
+    assert "—" in text
+    assert "“WinAnsi”" in text
+    assert "•" in text
+    assert "→" not in text
+    assert "×" not in text
+    assert record["payload"]["sections"][0]["content"] == plan.sections[0].content
+    assert "glyph" not in caplog.text.casefold()
+    assert "→" not in caplog.text

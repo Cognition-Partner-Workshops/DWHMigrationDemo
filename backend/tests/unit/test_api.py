@@ -166,6 +166,60 @@ def test_platforms_and_session_validation(client: TestClient) -> None:
     assert same.status_code == 422
 
 
+def test_get_current_session_restores_pair_without_starting_another_plan_job(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert client.get("/api/session", headers=HOST_HEADER).status_code == 401
+    csrf = launch(client)
+    headers = {**HOST_HEADER, "X-MigraAI-CSRF": csrf}
+    assert client.get("/api/session", headers=HOST_HEADER).json() == {
+        "source": None,
+        "target": None,
+        "confirmed": False,
+    }
+
+    from migraai.api import plan as plan_api
+
+    starts: list[str] = []
+
+    class StubPlanJob:
+        def __init__(self, **kwargs) -> None:
+            starts.append("created")
+
+        def start(self) -> None:
+            starts.append("started")
+
+        def snapshot(self) -> dict:
+            return {"state": "running"}
+
+        def is_alive(self) -> bool:
+            return False
+
+    monkeypatch.setattr(plan_api, "PlanJob", StubPlanJob)
+    client.app.state.settings_store.update(
+        SettingsUpdate(devin_pat="cog_test", devin_org_id="org-test")
+    )
+    confirmed = client.post(
+        "/api/session/confirm",
+        json={"source": "teradata", "target": "snowflake"},
+        headers=headers,
+    )
+    assert confirmed.status_code == 200
+    assert starts == ["created", "started"]
+    current_session = client.app.state.current_session
+
+    restored = client.get("/api/session", headers=HOST_HEADER)
+
+    assert restored.status_code == 200
+    assert restored.json() == {
+        "source": "teradata",
+        "target": "snowflake",
+        "confirmed": True,
+    }
+    assert client.app.state.current_session is current_session
+    assert starts == ["created", "started"]
+
+
 def test_reconfirm_wipes_only_previous_session_and_audits_replacement(
     client: TestClient,
     data_dir: Path,

@@ -20,11 +20,25 @@ class SessionConfirm(BaseModel):
     target: str
 
 
+class CurrentSession(BaseModel):
+    source: str | None
+    target: str | None
+    confirmed: bool
+
+
 class SessionConfirmed(BaseModel):
     session_id: str
     source: str
     target: str
     plan: dict
+
+
+@router.get("", response_model=CurrentSession)
+def get_current_session(request: Request) -> CurrentSession:
+    session = request.app.state.current_session
+    if not session:
+        return CurrentSession(source=None, target=None, confirmed=False)
+    return CurrentSession(source=session["source"], target=session["target"], confirmed=True)
 
 
 @router.post("/confirm", response_model=SessionConfirmed)

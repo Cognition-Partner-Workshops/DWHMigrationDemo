@@ -9,6 +9,7 @@ All endpoints are local to `127.0.0.1`. Except for health and launch-token excha
 | `GET /api/platforms` | Returns the eight source and seven target `{id,name}` entries. |
 | `GET /api/settings` | Returns settings, PAT status as `{"configured":true,"masked":"••••abcd"}`, and `token_kind` (`v3`, `legacy`, or `none`); never returns the PAT. |
 | `PUT /api/settings` | Accepts supplied settings fields; empty `devin_pat` clears the stored token. Returns the same masked representation. |
+| `GET /api/session` | Returns the current pair as `{"source":"teradata","target":"snowflake","confirmed":true}`, or null platforms with `confirmed:false`; does not start planning. |
 | `POST /api/session/confirm` | Accepts `{"source":"teradata","target":"databricks"}`, starts planning, and returns the confirmed pair, session ID, and plan state. Unknown IDs or identical source/target return `422`. |
 
 Authentication failures return `401`, CSRF failures `403`, and invalid Host headers `400`. Upload and conversion endpoints are not implemented; see [Phase-Gate 0 §10](phase-gate-0-plan.md#10-api-specification-summary).

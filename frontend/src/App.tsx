@@ -5,10 +5,12 @@ import {
   apiRequest,
   confirmSession,
   exchangeLaunchToken,
+  getCurrentSession,
+  getPlan,
   type HealthResponse,
   type Platform,
   type PlatformResponse,
-  type SessionResponse,
+  type SessionView,
   type SettingsResponse,
   type SettingsUpdate,
 } from "./api";
@@ -275,7 +277,7 @@ export default function App() {
   const [target, setTarget] = useState("");
   const [sessionConfirmed, setSessionConfirmed] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [session, setSession] = useState<SessionResponse | null>(null);
+  const [session, setSession] = useState<SessionView | null>(null);
   const [files, setFiles] = useState<FileRow[]>([]);
   const [hasUploaded, setHasUploaded] = useState(false);
   const [converted, setConverted] = useState(false);
@@ -303,9 +305,19 @@ export default function App() {
         }
       }
 
-      const nextHealth = await apiRequest<HealthResponse>("/api/health").catch(() => null);
-      const nextPlatforms = await apiRequest<PlatformResponse>("/api/platforms").catch(() => null);
-      const nextSettings = await apiRequest<SettingsResponse>("/api/settings").catch(() => null);
+      const [nextHealth, nextPlatforms, nextSettings, currentSession] = await Promise.all([
+        apiRequest<HealthResponse>("/api/health").catch(() => null),
+        apiRequest<PlatformResponse>("/api/platforms").catch(() => null),
+        apiRequest<SettingsResponse>("/api/settings").catch(() => null),
+        getCurrentSession().catch(() => null),
+      ]);
+      if (!active) {
+        return;
+      }
+      let restoredPlan = null;
+      if (currentSession?.confirmed && currentSession.source && currentSession.target) {
+        restoredPlan = await getPlan().catch(() => null);
+      }
       if (!active) {
         return;
       }
@@ -320,6 +332,16 @@ export default function App() {
       if (nextSettings) {
         setSettings(nextSettings);
       }
+      if (currentSession?.confirmed && currentSession.source && currentSession.target) {
+        setSource(currentSession.source);
+        setTarget(currentSession.target);
+        setSessionConfirmed(true);
+        setSession({
+          source: currentSession.source,
+          target: currentSession.target,
+          plan: restoredPlan,
+        });
+      }
     }
     void bootstrap();
     return () => {
@@ -327,7 +349,9 @@ export default function App() {
     };
   }, []);
 
-  const canConfirm = Boolean(source && target && source !== target && !confirming);
+  const canConfirm = Boolean(
+    source && target && source !== target && !confirming && !sessionConfirmed,
+  );
   const canUpload =
     sessionConfirmed &&
     !hasUploaded &&
@@ -346,7 +370,7 @@ export default function App() {
     setError("");
     try {
       const response = await confirmSession(source, target);
-      setSession(response);
+      setSession({ source: response.source, target: response.target, plan: response.plan });
       setSessionConfirmed(true);
       requestAnimationFrame(() => {
         const main = mainRef.current;
@@ -535,6 +559,7 @@ export default function App() {
               <span className="platform-label">Source Database</span>
               <select
                 aria-label="Source platform"
+                disabled={sessionConfirmed}
                 onChange={(event) => setSource(event.target.value)}
                 value={source}
               >
@@ -555,6 +580,7 @@ export default function App() {
               <span className="platform-label">Target Database</span>
               <select
                 aria-label="Target platform"
+                disabled={sessionConfirmed}
                 onChange={(event) => setTarget(event.target.value)}
                 value={target}
               >
@@ -599,7 +625,7 @@ export default function App() {
               title="Resources Confirmation"
             />
           </div>
-          <ResourcesPanel sessionId={sessionConfirmed ? session?.session_id ?? null : null} />
+          <ResourcesPanel confirmed={sessionConfirmed} />
         </section>
 
         <section aria-labelledby="convert-heading" className="panel convert-panel">

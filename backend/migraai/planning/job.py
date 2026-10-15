@@ -46,6 +46,8 @@ class PlanJob(threading.Thread):
         self.client_factory = client_factory
         self.cancel_event = threading.Event()
         self.lock = threading.Lock()
+        self._termination_lock = threading.Lock()
+        self._termination_attempted = False
         self.state = "queued"
         self.phase = "queued"
         self.started = time.monotonic()
@@ -86,13 +88,29 @@ class PlanJob(threading.Thread):
             self.state = state
             self.phase = phase or state
 
-    def cancel(self) -> None:
-        self.cancel_event.set()
-        if self.client is not None and self.session_id:
+    def _terminate_session(self) -> None:
+        with self._termination_lock:
+            if self._termination_attempted or self.client is None or not self.session_id:
+                return
+            self._termination_attempted = True
+            client = self.client
+            session_id = self.session_id
+        try:
+            client.terminate_session(session_id)
+        except Exception as error:
             try:
-                self.client.terminate_session(self.session_id)
+                self.audit.append(
+                    "system",
+                    "plan.terminate_failed",
+                    session_id,
+                    {"error_type": type(error).__name__},
+                )
             except Exception:
                 pass
+
+    def cancel(self) -> None:
+        self.cancel_event.set()
+        self._terminate_session()
         self._phase("cancelled")
         self.audit.append(
             "user",
@@ -103,6 +121,7 @@ class PlanJob(threading.Thread):
 
     def _fallback(self, context: PlanContext | None, reason: str) -> None:
         if self.cancel_event.is_set():
+            self._terminate_session()
             self._phase("cancelled")
             return
         plan = build_local_draft(self.source, self.target, self.db_path)
@@ -217,6 +236,10 @@ class PlanJob(threading.Thread):
                 title=f"{self.source} to {self.target} migration plan",
                 tags=["migraai", "migration-plan"],
             )
+            if self.cancel_event.is_set():
+                self._terminate_session()
+                self._phase("cancelled")
+                return
             self._phase("running")
             deadline = time.monotonic() + self.timeout_minutes * 60
             interval = 15
@@ -226,10 +249,12 @@ class PlanJob(threading.Thread):
                     self._fallback(context, "Devin session timed out")
                     return
                 if self.cancel_event.wait(min(interval, max(0, deadline - time.monotonic()))):
+                    self._terminate_session()
                     self._phase("cancelled")
                     return
                 session = self.client.get_session(self.session_id)
                 if self.cancel_event.is_set():
+                    self._terminate_session()
                     self._phase("cancelled")
                     return
                 state = str(session.get("state", "working")).casefold()
@@ -259,5 +284,6 @@ class PlanJob(threading.Thread):
             if not self.cancel_event.is_set():
                 self._fallback(context, "Devin request failed")
         finally:
+            self._terminate_session()
             if self.client is not None:
                 self.client.close()
