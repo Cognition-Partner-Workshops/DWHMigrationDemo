@@ -11,6 +11,7 @@ from urllib.parse import urlsplit
 import httpx
 import yaml
 from pydantic import BaseModel, ValidationError
+from yaml.nodes import MappingNode, ScalarNode, SequenceNode
 
 from migraai.kb.seed_models import (
     Claim,
@@ -111,6 +112,57 @@ def _minimum_errors(path: Path, model: BaseModel) -> list[str]:
             )
         if model.source == model.target:
             errors.append(f"{path}: source and target must differ")
+    return errors
+
+
+def _mapping_entry_lines(path: Path) -> dict[str, list[int]]:
+    node = yaml.compose(path.read_text(encoding="utf-8"), Loader=yaml.SafeLoader)
+    if not isinstance(node, MappingNode):
+        return {}
+    fields = {key.value: value for key, value in node.value if isinstance(key, ScalarNode)}
+    return {
+        field: [item.start_mark.line + 1 for item in value.value]
+        for field in ("types", "functions")
+        if isinstance((value := fields.get(field)), SequenceNode)
+    }
+
+
+def _duplicate_mapping_errors(
+    mappings: list[tuple[Path, BaseModel]],
+) -> list[str]:
+    locations: dict[
+        tuple[str, str, str],
+        list[tuple[Path, int, str, str]],
+    ] = {}
+    for path, model in mappings:
+        if not isinstance(model, PlatformMappings):
+            continue
+        lines_by_field = _mapping_entry_lines(path)
+        for kind, field, entries in (
+            ("type", "types", model.types),
+            ("function", "functions", model.functions),
+        ):
+            for index, item in enumerate(entries):
+                lines = lines_by_field.get(field, [])
+                if index >= len(lines):
+                    continue
+                key = (model.platform.casefold(), kind, " ".join(item.native.split()).casefold())
+                locations.setdefault(key, []).append(
+                    (path, lines[index], item.native, item.canonical)
+                )
+
+    errors: list[str] = []
+    for (platform, kind, native), entries in locations.items():
+        if len(entries) < 2:
+            continue
+        first_path, first_line, _, first_canonical = entries[0]
+        for path, line, _, canonical in entries[1:]:
+            errors.append(
+                f"{path}:{line}: duplicate mapping key "
+                f"({platform}, {kind}, {native!r}); first declared at "
+                f"{first_path}:{first_line} with canonical {first_canonical!r}; "
+                f"duplicate canonical {canonical!r}"
+            )
     return errors
 
 
@@ -241,6 +293,8 @@ def validate_seed_dir(
             loaded[category].append((path, model))
         if len(found_ids) != len(set(found_ids)):
             errors.append(f"{category}: ids must be unique")
+
+    errors.extend(_duplicate_mapping_errors(loaded["mappings"]))
 
     profiles = {
         model.id: model for _, model in loaded["platforms"] if isinstance(model, PlatformProfile)

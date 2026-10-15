@@ -34,9 +34,9 @@ types:
     confidence: high
 - native: decimal(p,s)
   canonical: decimal
-  notes: Fixed precision and scale; Delta DECIMAL maps to decimal(p,s).
+  notes: Fixed precision and scale; Delta DECIMAL maps to decimal(p,s). NOT supported for persisted storage — use decimal (monetary unit is not stored).
   claim:
-    text: decimal/numeric is a supported exact-numeric type and Delta DECIMAL maps to decimal(p,s) in the SQL analytics endpoint.
+    text: decimal/numeric is a supported exact-numeric type and Delta DECIMAL maps to decimal(p,s) in the SQL analytics endpoint. money and smallmoney are not supported for tables in Fabric Data Warehouse; decimal is the documented alternative.
     url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
     accessed: *id001
     confidence: high
@@ -117,14 +117,6 @@ types:
   notes: Stored as a binary type in Delta Parquet; values can't be read on the SQL analytics endpoint.
   claim:
     text: uniqueidentifier has no matching Delta Parquet type and is stored as a binary type; it can't be read on the SQL analytics endpoint.
-    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
-    accessed: *id001
-    confidence: high
-- native: decimal(p,s)
-  canonical: decimal
-  notes: NOT supported for persisted storage — use decimal (monetary unit is not stored).
-  claim:
-    text: money and smallmoney are not supported for tables in Fabric Data Warehouse; decimal is the documented alternative.
     url: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-types
     accessed: *id001
     confidence: high

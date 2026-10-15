@@ -1,4 +1,6 @@
+from datetime import date
 from pathlib import Path
+from shutil import copytree
 
 from migraai.kb.validate import validate_seed_dir
 
@@ -25,3 +27,43 @@ def test_complete_validation_reports_missing_expected_ids() -> None:
 
     assert any("sources: missing ids:" in error for error in errors)
     assert any("pairs: missing ids:" in error for error in errors)
+
+
+def test_duplicate_mapping_keys_report_both_file_lines(tmp_path: Path) -> None:
+    seed_dir = tmp_path / "seed"
+    copytree(FIXTURES / "good", seed_dir)
+    mappings_dir = seed_dir / "mappings"
+    mappings_dir.mkdir()
+    (mappings_dir / "teradata.yaml").write_text(
+        f"""platform: teradata
+types:
+  - native: " DECIMAL   (p,s) "
+    canonical: decimal
+    notes: first
+    claim:
+      text: first claim
+      url: https://docs.example.test/types
+      accessed: {date.today().isoformat()}
+      confidence: high
+  - native: "decimal (p,s)"
+    canonical: decimal
+    notes: second
+    claim:
+      text: second claim
+      url: https://docs.example.test/types
+      accessed: {date.today().isoformat()}
+      confidence: high
+functions: []
+""",
+        encoding="utf-8",
+    )
+
+    errors, _ = validate_seed_dir(seed_dir, allow_incomplete=True)
+
+    duplicate_errors = [error for error in errors if "duplicate mapping key" in error]
+    assert duplicate_errors == [
+        f"{mappings_dir / 'teradata.yaml'}:11: duplicate mapping key "
+        "(teradata, type, 'decimal (p,s)'); first declared at "
+        f"{mappings_dir / 'teradata.yaml'}:3 with canonical 'decimal'; "
+        "duplicate canonical 'decimal'"
+    ]
