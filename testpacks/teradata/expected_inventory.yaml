@@ -25,6 +25,7 @@ objects:
   - {type: table, qualified_name: "sales.customer", status: parsed}
   - {type: view, qualified_name: "sales.customer_accounts", status: parsed}
   - {type: synonym, qualified_name: "sales.customer_alias", status: parsed}
+  - {type: external, qualified_name: "sales.customer_archive", status: external}
   - {type: view, qualified_name: "sales.customer_external_rate", status: parsed}
   - {type: view, qualified_name: "sales.customer_loans", status: parsed}
   - {type: view, qualified_name: "sales.customer_risk", status: parsed}

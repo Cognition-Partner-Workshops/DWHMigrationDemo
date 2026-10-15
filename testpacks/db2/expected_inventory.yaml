@@ -41,6 +41,8 @@ objects:
   - {type: view, qualified_name: "BANK.UNCOMMITTED_CUSTOMERS", status: parsed}
   - {type: procedure, qualified_name: "BANK.UPDATE_BALANCE", status: parsed}
   - {type: grant, qualified_name: "EXECUTE on BANK.RECORD_PAYMENT", status: parsed}
+  - {type: external, qualified_name: "EXTDB.REMOTE.CUSTOMER", status: external}
+  - {type: external, qualified_name: "S1", status: external}
   - {type: grant, qualified_name: "SELECT, UPDATE on BANK.ACCOUNT", status: parsed}
   - {type: script, qualified_name: "load_script.sql", status: parsed}
   - {type: script, qualified_name: "maintenance.sql", status: parsed}

@@ -2,6 +2,9 @@ objects:
 - type: group
   qualified_name: ANALYSTS
   status: parsed
+- type: external
+  qualified_name: ERP.REMOTE.CUSTOMER
+  status: external
 - type: user
   qualified_name: ETL_USER
   status: parsed
