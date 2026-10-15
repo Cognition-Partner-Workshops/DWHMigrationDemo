@@ -1,0 +1,58 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 3,
+    "start_col": 1,
+    "end_line": 6,
+    "end_col": 1
+  },
+  "name": "ssis.task",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "e",
+      "quoted": false
+    },
+    "type": "STOCK:EXECUTEPACKAGETASK"
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 3,
+        "start_col": 1,
+        "end_line": 3,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "C",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_runs"
+    }
+  ]
+}

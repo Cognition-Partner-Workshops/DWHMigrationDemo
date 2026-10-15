@@ -1,0 +1,126 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 5,
+    "start_col": 1,
+    "end_line": 13,
+    "end_col": 1
+  },
+  "name": "datastage.stage",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "tr",
+      "quoted": false
+    },
+    "stage_type": "CTrxStage",
+    "derivations": [
+      {
+        "kind": "dialect_expr",
+        "span": {
+          "start_line": 9,
+          "start_col": 1,
+          "end_line": 9,
+          "end_col": 1
+        },
+        "name": "datastage.derivation",
+        "args": {
+          "column": {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "out",
+            "quoted": false
+          },
+          "expression": {
+            "kind": "function_call",
+            "span": {
+              "start_line": 9,
+              "start_col": 1,
+              "end_line": 9,
+              "end_col": 5
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 9,
+                "start_col": 1,
+                "end_line": 9,
+                "end_col": 5
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 9,
+                    "start_col": 1,
+                    "end_line": 9,
+                    "end_col": 5
+                  },
+                  "value": "Trim",
+                  "quoted": false
+                }
+              ]
+            },
+            "args": [
+              {
+                "kind": "column_ref",
+                "span": {
+                  "start_line": 9,
+                  "start_col": 6,
+                  "end_line": 9,
+                  "end_col": 13
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 9,
+                    "start_col": 6,
+                    "end_line": 9,
+                    "end_col": 13
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 9,
+                        "start_col": 6,
+                        "end_line": 9,
+                        "end_col": 10
+                      },
+                      "value": "lnk1",
+                      "quoted": false
+                    },
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 9,
+                        "start_col": 11,
+                        "end_line": 9,
+                        "end_col": 13
+                      },
+                      "value": "in",
+                      "quoted": false
+                    }
+                  ]
+                }
+              }
+            ],
+            "distinct": false,
+            "star": false
+          }
+        }
+      }
+    ]
+  }
+}

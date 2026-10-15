@@ -1,0 +1,8 @@
+{
+  "file": "jobs/transform.py",
+  "className": "com.acme.etl.TransformJob",
+  "args": ["--date", "2024-01-01"],
+  "jars": ["lib/etl.jar"],
+  "pyFiles": ["lib/helpers.zip"],
+  "conf": {"spark.executor.memory": "4g"}
+}

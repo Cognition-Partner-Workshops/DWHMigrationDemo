@@ -1,0 +1,100 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 3,
+    "start_col": 1,
+    "end_line": 4,
+    "end_col": 1
+  },
+  "name": "informatica.mapping",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "m1",
+      "quoted": false
+    }
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 3,
+        "start_col": 1,
+        "end_line": 3,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "src",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "ORDERS",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_reads"
+    },
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 4,
+        "start_col": 1,
+        "end_line": 4,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "STG",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_writes"
+    }
+  ]
+}

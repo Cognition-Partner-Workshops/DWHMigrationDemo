@@ -1,0 +1,56 @@
+BEGIN DSJOB
+   Identifier "px_customers"
+   OLEType "CJobDefn"
+   JobType "3"
+   Name "px_customers"
+   BEGIN DSRECORD
+      Identifier "V0S1"
+      OLEType "CCustomStage"
+      Name "src_cust"
+      StageType "TeradataConnectorPX"
+      OutputPins "tx_dedup"
+      TableName "dw.customers"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S2"
+      OLEType "CCustomStage"
+      Name "sql_cust"
+      StageType "OracleConnectorPX"
+      OutputPins "tx_dedup"
+      XMLProperties =+=+=+=
+<XMLProperties><UserDefinedSQL>SELECT CUST_ID, SEGMENT_CODE FROM ods.customers WHERE REGION = '#ps.region#'</UserDefinedSQL><BeforeSQL>CALL etl.pre_load()</BeforeSQL><AfterSQL>CALL etl.post_load()</AfterSQL></XMLProperties>
+      =+=+=+=
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S3"
+      OLEType "CTrxStage"
+      Name "tx_dedup"
+      StageType "CTransformerStage"
+      BEGIN DSSUBRECORD
+         Identifier "C1"
+         ColumnName "CUST_KEY"
+         Derivation "Trim(src_cust.CUST_ID) : '-' : SEGMENT_CODE"
+      END DSSUBRECORD
+      BEGIN DSSUBRECORD
+         Identifier "C2"
+         ColumnName "IS_VIP"
+         Derivation "If SEGMENT_CODE = 'G' Then 1 Else 0"
+      END DSSUBRECORD
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S4"
+      OLEType "CCustomStage"
+      Name "tgt_dim"
+      StageType "NetezzaConnectorPX"
+      InputPins "tx_dedup"
+      TableName "mart.customer_dim"
+   END DSRECORD
+   BEGIN DSRECORD
+      Identifier "V0S5"
+      OLEType "CCustomStage"
+      Name "audit_log"
+      StageType "SQLServerConnectorPX"
+      InputPins "tx_dedup"
+      TableName "etl.audit_log"
+   END DSRECORD
+END DSJOB

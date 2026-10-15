@@ -1,0 +1,147 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 5,
+    "end_col": 1
+  },
+  "name": "shell.script",
+  "args": {
+    "path": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "bin/job.sh",
+      "quoted": false
+    },
+    "statements": [
+      {
+        "kind": "if",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 5,
+          "end_col": 1
+        },
+        "branches": [
+          [
+            {
+              "kind": "dialect_statement",
+              "span": {
+                "start_line": 1,
+                "start_col": 1,
+                "end_line": 1,
+                "end_col": 1
+              },
+              "name": "shell.command",
+              "args": {
+                "program": {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 1,
+                    "end_line": 1,
+                    "end_col": 1
+                  },
+                  "value": "test",
+                  "quoted": false
+                },
+                "args": [
+                  {
+                    "kind": "literal",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 1,
+                      "end_line": 1,
+                      "end_col": 1
+                    },
+                    "type": "string",
+                    "value": "-f"
+                  },
+                  {
+                    "kind": "literal",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 1,
+                      "end_line": 1,
+                      "end_col": 1
+                    },
+                    "type": "string",
+                    "value": "x"
+                  }
+                ]
+              }
+            },
+            [
+              {
+                "kind": "dialect_statement",
+                "span": {
+                  "start_line": 2,
+                  "start_col": 1,
+                  "end_line": 2,
+                  "end_col": 1
+                },
+                "name": "shell.command",
+                "args": {
+                  "program": {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 2,
+                      "start_col": 1,
+                      "end_line": 2,
+                      "end_col": 1
+                    },
+                    "value": "bteq",
+                    "quoted": false
+                  },
+                  "redirects": [
+                    {
+                      "kind": "dialect_expr",
+                      "span": {
+                        "start_line": 2,
+                        "start_col": 1,
+                        "end_line": 2,
+                        "end_col": 1
+                      },
+                      "name": "shell.redirect",
+                      "args": {
+                        "op": "<<",
+                        "target": {
+                          "kind": "literal",
+                          "span": {
+                            "start_line": 2,
+                            "start_col": 1,
+                            "end_line": 2,
+                            "end_col": 1
+                          },
+                          "type": "string",
+                          "value": "SQL"
+                        },
+                        "heredoc": {
+                          "kind": "literal",
+                          "span": {
+                            "start_line": 2,
+                            "start_col": 1,
+                            "end_line": 2,
+                            "end_col": 1
+                          },
+                          "type": "string",
+                          "value": "SELECT 1;"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          ]
+        ]
+      }
+    ]
+  }
+}

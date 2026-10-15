@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<DSExport>
+  <Header CharacterSet="UTF8" ExportingTool="DataStage" ToolVersion="11.7"/>
+  <Job Identifier="dsx_products_agg" Date="2024-03-14">
+    <Record Identifier="ROOT" Type="JobDefn">
+      <Property Name="Name">dsx_products_agg</Property>
+      <Property Name="JobType">0</Property>
+      <Collection Name="Parameters" Type="Parameters">
+        <SubRecord>
+          <Property Name="Name">P_REGION</Property>
+          <Property Name="ParamType">0</Property>
+          <Property Name="Default">#NA#</Property>
+        </SubRecord>
+      </Collection>
+    </Record>
+    <Record Identifier="V0S1" Type="CCustomStage">
+      <Property Name="Name">src_products</Property>
+      <Collection Name="OutputPins"><SubRecord>tx_filter</SubRecord></Collection>
+      <Property Name="StageType">OracleConnectorPX</Property>
+      <Property Name="TableName">ods.products</Property>
+    </Record>
+    <Record Identifier="V0S2" Type="CTrxStage">
+      <Property Name="Name">tx_filter</Property>
+      <Collection Name="InputPins"><SubRecord>src_products</SubRecord></Collection>
+      <Property Name="StageType">CTransformerStage</Property>
+      <Collection Name="Columns" Type="TransformerColumn">
+        <SubRecord>
+          <Property Name="Name">SKU_KEY</Property>
+          <Property Name="Derivation">Trim(src_products.SKU)</Property>
+        </SubRecord>
+      </Collection>
+    </Record>
+    <Record Identifier="V0S3" Type="CCustomStage">
+      <Property Name="Name">tgt_catalog</Property>
+      <Collection Name="InputPins"><SubRecord>tx_filter</SubRecord></Collection>
+      <Property Name="StageType">DB2ConnectorPX</Property>
+      <Property Name="TableName">mart.product_catalog</Property>
+    </Record>
+    <Record Identifier="V0S4" Type="CCustomStage">
+      <Property Name="Name">agg_output</Property>
+      <Collection Name="InputPins"><SubRecord>tx_filter</SubRecord></Collection>
+      <Property Name="StageType">ODBCConnectorPX</Property>
+      <Property Name="TableName">mart.category_agg</Property>
+    </Record>
+  </Job>
+  <Job Identifier="dsx_inventory_snap" Date="2024-03-14">
+    <Record Identifier="ROOT" Type="JobDefn">
+      <Property Name="Name">dsx_inventory_snap</Property>
+      <Property Name="JobType">0</Property>
+    </Record>
+    <Record Identifier="V0S1" Type="CCustomStage">
+      <Property Name="Name">src_inv</Property>
+      <Collection Name="OutputPins"><SubRecord>tgt_snap</SubRecord></Collection>
+      <Property Name="StageType">TeradataConnectorPX</Property>
+      <Property Name="TableName">dw.inventory</Property>
+    </Record>
+    <Record Identifier="V0S2" Type="CCustomStage">
+      <Property Name="Name">tgt_snap</Property>
+      <Collection Name="InputPins"><SubRecord>src_inv</SubRecord></Collection>
+      <Property Name="StageType">NetezzaConnectorPX</Property>
+      <Property Name="TableName">mart.inventory_snap</Property>
+    </Record>
+  </Job>
+</DSExport>

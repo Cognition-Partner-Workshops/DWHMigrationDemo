@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ExecutableType="SSIS.Package.3" DTS:refId="Package">
+  <DTS:Property DTS:Name="ObjectName">recon_payments</DTS:Property>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\recon_check">
+    <DTS:Property DTS:Name="ObjectName">recon_check</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_TD">
+        <SQLTask:SqlStatementSource>SELECT SUM(AMOUNT) FROM STG_PAYMENTS</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:Executable DTS:ExecutableType="STOCK:SQLTask" DTS:refId="Package\recon_finish">
+    <DTS:Property DTS:Name="ObjectName">recon_finish</DTS:Property>
+    <ObjectData>
+      <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+        SQLTask:Connection="DW_TD">
+        <SQLTask:SqlStatementSource>CALL etl.recon_done()</SQLTask:SqlStatementSource>
+      </SQLTask:SqlTaskData>
+    </ObjectData>
+  </DTS:Executable>
+  <DTS:PrecedenceConstraint DTS:From="Package\recon_check" DTS:To="Package\recon_finish">
+    <DTS:Property DTS:Name="From">Package\recon_check</DTS:Property>
+    <DTS:Property DTS:Name="To">Package\recon_finish</DTS:Property>
+  </DTS:PrecedenceConstraint>
+</DTS:Executable>

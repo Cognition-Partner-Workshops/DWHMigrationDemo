@@ -1,0 +1,70 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 6,
+    "end_col": 1
+  },
+  "name": "python.module",
+  "args": {
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "value": "m",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "value": "x",
+          "quoted": false
+        }
+      ]
+    },
+    "statements": [
+      {
+        "kind": "dialect_statement",
+        "span": {
+          "start_line": 4,
+          "start_col": 1,
+          "end_line": 4,
+          "end_col": 4
+        },
+        "name": "python.pass"
+      }
+    ],
+    "recovered": [
+      {
+        "kind": "unparsed",
+        "span": {
+          "start_line": 4,
+          "start_col": 1,
+          "end_line": 6,
+          "end_col": 1
+        },
+        "text": "def broken(:\n    pass\n",
+        "reason": "invalid syntax (<unknown>, line 4)"
+      }
+    ]
+  }
+}

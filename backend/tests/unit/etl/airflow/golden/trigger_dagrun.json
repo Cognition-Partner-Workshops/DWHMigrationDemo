@@ -1,0 +1,101 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 4,
+    "start_col": 1,
+    "end_line": 4,
+    "end_col": 1
+  },
+  "name": "airflow.task",
+  "args": {
+    "task_id": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "t",
+      "quoted": false
+    },
+    "operator": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "TriggerDagRunOperator",
+      "quoted": false
+    },
+    "params": [
+      {
+        "kind": "named_arg",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "value": "trigger_dag_id",
+          "quoted": false
+        },
+        "value": {
+          "kind": "literal",
+          "span": {
+            "start_line": 4,
+            "start_col": 59,
+            "end_line": 4,
+            "end_col": 65
+          },
+          "type": "string",
+          "value": "child"
+        }
+      }
+    ]
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 4,
+        "start_col": 1,
+        "end_line": 4,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "child",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "etl_runs"
+    }
+  ]
+}

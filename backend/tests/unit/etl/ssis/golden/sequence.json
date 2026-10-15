@@ -1,0 +1,24 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 3,
+    "start_col": 1,
+    "end_line": 5,
+    "end_col": 1
+  },
+  "name": "ssis.container",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "s",
+      "quoted": false
+    },
+    "type": "STOCK:SEQUENCE"
+  }
+}

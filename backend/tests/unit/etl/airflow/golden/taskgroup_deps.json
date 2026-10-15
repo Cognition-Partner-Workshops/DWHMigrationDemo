@@ -1,0 +1,47 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 4,
+    "start_col": 1,
+    "end_line": 8,
+    "end_col": 1
+  },
+  "name": "airflow.dag",
+  "args": {
+    "dag_id": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "tg",
+      "quoted": false
+    },
+    "tasks": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "value": "a",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "value": "g.b",
+        "quoted": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,249 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 4,
+    "end_col": 1
+  },
+  "name": "shell.function",
+  "args": {
+    "name": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "f",
+      "quoted": false
+    },
+    "body": [
+      {
+        "kind": "for_loop",
+        "span": {
+          "start_line": 2,
+          "start_col": 1,
+          "end_line": 2,
+          "end_col": 1
+        },
+        "var": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 2,
+            "start_col": 1,
+            "end_line": 2,
+            "end_col": 1
+          },
+          "value": "x",
+          "quoted": false
+        },
+        "iterable": {
+          "kind": "array_literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "items": [
+            {
+              "kind": "literal",
+              "span": {
+                "start_line": 2,
+                "start_col": 1,
+                "end_line": 2,
+                "end_col": 1
+              },
+              "type": "string",
+              "value": "a"
+            },
+            {
+              "kind": "literal",
+              "span": {
+                "start_line": 2,
+                "start_col": 1,
+                "end_line": 2,
+                "end_col": 1
+              },
+              "type": "string",
+              "value": "b"
+            }
+          ]
+        },
+        "statements": [
+          {
+            "kind": "dialect_statement",
+            "span": {
+              "start_line": 2,
+              "start_col": 1,
+              "end_line": 2,
+              "end_col": 1
+            },
+            "name": "shell.command",
+            "args": {
+              "program": {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 2,
+                  "start_col": 1,
+                  "end_line": 2,
+                  "end_col": 1
+                },
+                "value": "echo",
+                "quoted": false
+              },
+              "args": [
+                {
+                  "kind": "variable",
+                  "span": {
+                    "start_line": 2,
+                    "start_col": 1,
+                    "end_line": 2,
+                    "end_col": 1
+                  },
+                  "name": "x"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "kind": "while",
+        "span": {
+          "start_line": 3,
+          "start_col": 1,
+          "end_line": 3,
+          "end_col": 1
+        },
+        "condition": {
+          "kind": "dialect_statement",
+          "span": {
+            "start_line": 3,
+            "start_col": 1,
+            "end_line": 3,
+            "end_col": 1
+          },
+          "name": "shell.command",
+          "args": {
+            "program": {
+              "kind": "identifier",
+              "span": {
+                "start_line": 3,
+                "start_col": 1,
+                "end_line": 3,
+                "end_col": 1
+              },
+              "value": "read",
+              "quoted": false
+            },
+            "args": [
+              {
+                "kind": "literal",
+                "span": {
+                  "start_line": 3,
+                  "start_col": 1,
+                  "end_line": 3,
+                  "end_col": 1
+                },
+                "type": "string",
+                "value": "l"
+              }
+            ]
+          }
+        },
+        "statements": [
+          {
+            "kind": "dialect_statement",
+            "span": {
+              "start_line": 3,
+              "start_col": 1,
+              "end_line": 3,
+              "end_col": 1
+            },
+            "name": "shell.case",
+            "args": {
+              "subject": {
+                "kind": "variable",
+                "span": {
+                  "start_line": 3,
+                  "start_col": 1,
+                  "end_line": 3,
+                  "end_col": 1
+                },
+                "name": "l"
+              },
+              "arms": [
+                {
+                  "kind": "dialect_expr",
+                  "span": {
+                    "start_line": 3,
+                    "start_col": 1,
+                    "end_line": 3,
+                    "end_col": 1
+                  },
+                  "name": "shell.case_arm",
+                  "args": {
+                    "patterns": [
+                      {
+                        "kind": "literal",
+                        "span": {
+                          "start_line": 3,
+                          "start_col": 1,
+                          "end_line": 3,
+                          "end_col": 1
+                        },
+                        "type": "string",
+                        "value": "a"
+                      }
+                    ],
+                    "statements": [
+                      {
+                        "kind": "dialect_statement",
+                        "span": {
+                          "start_line": 3,
+                          "start_col": 1,
+                          "end_line": 3,
+                          "end_col": 1
+                        },
+                        "name": "shell.command",
+                        "args": {
+                          "program": {
+                            "kind": "identifier",
+                            "span": {
+                              "start_line": 3,
+                              "start_col": 1,
+                              "end_line": 3,
+                              "end_col": 1
+                            },
+                            "value": "echo",
+                            "quoted": false
+                          },
+                          "args": [
+                            {
+                              "kind": "literal",
+                              "span": {
+                                "start_line": 3,
+                                "start_col": 1,
+                                "end_line": 3,
+                                "end_col": 1
+                              },
+                              "type": "string",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
