@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sqlite3
 import tempfile
+from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -38,7 +40,8 @@ def create_schema(connection: sqlite3.Connection) -> None:
         PRAGMA journal_mode=WAL;
         CREATE TABLE IF NOT EXISTS kb_versions (
           version INTEGER PRIMARY KEY, created_at TEXT NOT NULL,
-          documents INTEGER NOT NULL DEFAULT 0, chunks INTEGER NOT NULL DEFAULT 0
+          documents INTEGER NOT NULL DEFAULT 0, chunks INTEGER NOT NULL DEFAULT 0,
+          seed_sha256 TEXT NOT NULL DEFAULT ''
         );
         CREATE TABLE IF NOT EXISTS documents (
           id TEXT PRIMARY KEY, url TEXT NOT NULL, title TEXT NOT NULL,
@@ -73,8 +76,17 @@ def create_schema(connection: sqlite3.Connection) -> None:
           source TEXT NOT NULL, target TEXT NOT NULL, section TEXT NOT NULL, value TEXT NOT NULL,
           PRIMARY KEY(source, target, section)
         );
+        CREATE TABLE IF NOT EXISTS platform_hosts (
+          platform TEXT NOT NULL, host TEXT NOT NULL, PRIMARY KEY(platform,host)
+        );
         """
     )
+    columns = {row["name"] for row in connection.execute("PRAGMA table_info(kb_versions)")}
+    if "seed_sha256" not in columns:
+        connection.execute(
+            "ALTER TABLE kb_versions ADD COLUMN seed_sha256 TEXT NOT NULL DEFAULT ''"
+        )
+    connection.commit()
 
 
 def insert_chunk(
@@ -95,6 +107,136 @@ def insert_chunk(
         (chunk_id, sqlite_vec.serialize_float32(embedding)),
     )
     return chunk_id
+
+
+def compute_seed_hash(connection: sqlite3.Connection) -> str:
+    tables = (
+        (
+            "documents",
+            """SELECT url,title,platform,sha256,etag,last_modified FROM documents
+            WHERE origin='seed' ORDER BY url,title""",
+        ),
+        (
+            "chunks",
+            """SELECT c.text,c.url,c.accessed,c.platform,c.source,c.target,c.section,
+            c.object_type,c.claim_confidence FROM chunks c
+            JOIN documents d ON d.id=c.document_id WHERE d.origin='seed'
+            ORDER BY c.url,c.section,c.text""",
+        ),
+        (
+            "claims",
+            """SELECT text,url,accessed,applies_to,confidence,platform,source,target,section,
+            object_type
+            FROM claims ORDER BY url,section,text""",
+        ),
+        (
+            "mappings",
+            "SELECT platform,kind,native,canonical,notes,url FROM mappings ORDER BY 1,2,3",
+        ),
+        (
+            "catalog_rows",
+            """SELECT source,tier,id,name,description,object_types,extraction_hint
+            FROM catalog_rows ORDER BY 1,2,3""",
+        ),
+        ("pair_text", "SELECT source,target,section,value FROM pair_text ORDER BY 1,2,3"),
+        ("platform_hosts", "SELECT platform,host FROM platform_hosts ORDER BY 1,2"),
+    )
+    digest = hashlib.sha256()
+    for table, query in tables:
+        digest.update(table.encode("utf-8") + b"\0")
+        for row in connection.execute(query):
+            digest.update(
+                json.dumps(list(row), ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            )
+            digest.update(b"\n")
+    return digest.hexdigest()
+
+
+def seed_database_hash(database: Path) -> str:
+    with closing(connect(database)) as connection:
+        create_schema(connection)
+        row = connection.execute(
+            "SELECT version,seed_sha256 FROM kb_versions ORDER BY version DESC LIMIT 1"
+        ).fetchone()
+        if row is None:
+            return compute_seed_hash(connection)
+        if row["seed_sha256"]:
+            return str(row["seed_sha256"])
+        digest = compute_seed_hash(connection)
+        connection.execute(
+            "UPDATE kb_versions SET seed_sha256=? WHERE version=?", (digest, row["version"])
+        )
+        connection.commit()
+        return digest
+
+
+def upgrade_seed_database(
+    seed_database: Path,
+    current_database: Path,
+    output_database: Path,
+    version: int,
+) -> Path:
+    output_database.parent.mkdir(parents=True, exist_ok=True)
+    output_database.unlink(missing_ok=True)
+    with closing(connect(seed_database)) as seed, closing(connect(output_database)) as output:
+        seed.backup(output)
+        create_schema(output)
+    with closing(connect(current_database)) as current, closing(connect(output_database)) as output:
+        for row in current.execute("SELECT * FROM documents WHERE origin='refresh'"):
+            output.execute(
+                """INSERT INTO documents
+                (id,url,title,fetched_at,platform,sha256,etag,last_modified,origin)
+                VALUES(?,?,?,?,?,?,?,?,?)""",
+                tuple(row),
+            )
+        next_chunk_id = int(
+            output.execute("SELECT COALESCE(MAX(id),0)+1 FROM chunks").fetchone()[0]
+        )
+        refresh_chunks = current.execute(
+            """SELECT c.*,v.embedding FROM chunks c
+            JOIN documents d ON d.id=c.document_id
+            JOIN chunks_vec v ON v.rowid=c.id
+            WHERE d.origin='refresh' ORDER BY c.id"""
+        ).fetchall()
+        for row in refresh_chunks:
+            chunk_id = next_chunk_id
+            next_chunk_id += 1
+            output.execute(
+                """INSERT INTO chunks
+                (id,document_id,text,url,accessed,platform,source,target,section,object_type,
+                 claim_confidence) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    chunk_id,
+                    row["document_id"],
+                    row["text"],
+                    row["url"],
+                    row["accessed"],
+                    row["platform"],
+                    row["source"],
+                    row["target"],
+                    row["section"],
+                    row["object_type"],
+                    row["claim_confidence"],
+                ),
+            )
+            output.execute(
+                "INSERT INTO chunks_fts(rowid,text) VALUES(?,?)", (chunk_id, row["text"])
+            )
+            output.execute(
+                "INSERT INTO chunks_vec(rowid,embedding) VALUES(?,?)",
+                (chunk_id, bytes(row["embedding"])),
+            )
+        document_count = int(output.execute("SELECT count(*) FROM documents").fetchone()[0])
+        chunk_count = int(output.execute("SELECT count(*) FROM chunks").fetchone()[0])
+        seed_hash = compute_seed_hash(output)
+        output.execute("DELETE FROM kb_versions")
+        output.execute(
+            """INSERT INTO kb_versions(version,created_at,documents,chunks,seed_sha256)
+            VALUES(?,?,?,?,?)""",
+            (version, datetime.now(UTC).isoformat(), document_count, chunk_count, seed_hash),
+        )
+        output.commit()
+    return output_database
 
 
 class KBStore:
@@ -120,6 +262,11 @@ class KBStore:
         version = self.current_version
         path = self.root / f"kb-v{version}.db" if version is not None else None
         return path if path and path.is_file() else None
+
+    @property
+    def current_seed_hash(self) -> str | None:
+        path = self.current_path
+        return seed_database_hash(path) if path else None
 
     def version_path(self, version: int) -> Path:
         return self.root / f"kb-v{version}.db"
@@ -162,9 +309,11 @@ class KBStore:
         path = self.version_path(version)
         with connect(path) as connection:
             create_schema(connection)
+            seed_hash = compute_seed_hash(connection)
             connection.execute(
-                "INSERT OR REPLACE INTO kb_versions(version,created_at) VALUES(?,?)",
-                (version, datetime.now(UTC).isoformat()),
+                """INSERT OR REPLACE INTO kb_versions
+                (version,created_at,documents,chunks,seed_sha256) VALUES(?,?,?,?,?)""",
+                (version, datetime.now(UTC).isoformat(), 0, 0, seed_hash),
             )
         self.activate(version)
         return path

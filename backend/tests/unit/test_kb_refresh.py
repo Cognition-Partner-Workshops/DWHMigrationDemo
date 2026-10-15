@@ -48,6 +48,18 @@ def fixture_site():
                 )
                 content_type = "text/html"
                 status = 200
+            elif self.path == "/docs/redirect":
+                self.send_response(302)
+                self.send_header("Location", "/manual/start")
+                self.end_headers()
+                return
+            elif self.path == "/manual/start":
+                body = (
+                    b'<html><main>redirected seed <a href="/docs/child">in prefix</a>'
+                    b'<a href="/manual/child">outside configured prefix</a></main></html>'
+                )
+                content_type = "text/html"
+                status = 200
             elif self.path == "/docs/child":
                 if self.headers.get("If-None-Match") == '"child-v1"':
                     self.send_response(304)
@@ -151,6 +163,30 @@ def test_refresh_link_cap_and_etag_reuse_avoid_reembedding(
     assert any(path == "/docs/child" and etag == '"child-v1"' for path, etag in requests)
     with connect(store.current_path) as connection:
         assert [row["id"] for row in connection.execute("SELECT id FROM chunks")] == original_ids
+
+
+def test_refresh_follows_same_host_seed_redirect_and_keeps_configured_prefix(
+    fixture_site, tmp_path: Path, monkeypatch
+) -> None:
+    root, requests = fixture_site
+    store, seed_dir, job = prepare_job(tmp_path, root, monkeypatch)
+    seed_file = seed_dir / "sources" / "teradata.yaml"
+    seed_file.write_text(
+        seed_file.read_text(encoding="utf-8").replace("/docs/start", "/docs/redirect"),
+        encoding="utf-8",
+    )
+
+    job.run()
+
+    assert job.error is None, job.error
+    with connect(store.current_path) as connection:
+        urls = {row["url"] for row in connection.execute("SELECT url FROM documents")}
+    paths = [path for path, _ in requests]
+    assert f"{root}/manual/start" in urls
+    assert f"{root}/docs/child" in urls
+    assert not any(path == "/manual/child" for path in paths)
+    assert paths.count("/docs/redirect") == 1
+    assert paths.count("/manual/start") == 1
 
 
 def test_cancelled_refresh_preserves_active_version_and_removes_partial(

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from migraai.core.audit import AuditLog
@@ -44,6 +42,7 @@ def status(request: Request) -> dict:
         "last_refresh_summary": store.state().get("last_refresh_summary"),
         "running": job.snapshot() if job and not job.done else None,
         "rollback_versions": [version for version in store.versions() if version != current],
+        "seed_error": getattr(request.app.state, "kb_seed_error", None),
     }
 
 
@@ -54,7 +53,7 @@ def start_refresh(request: Request) -> dict:
             raise HTTPException(status_code=409, detail="A KB refresh is already running.")
         job = RefreshJob(
             _store(request),
-            Path(__file__).resolve().parents[1] / "kb" / "seed",
+            request.app.state.kb_seed_dir,
             audit=lambda action, details: request.app.state.audit_log.append(
                 "user", action, "knowledge-base", details
             ),

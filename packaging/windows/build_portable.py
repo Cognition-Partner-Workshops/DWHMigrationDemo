@@ -117,6 +117,27 @@ def write_launch_files() -> None:
     )
 
 
+def prune_model_cache(model_dir: Path, site_packages: Path) -> None:
+    for link in [path for path in model_dir.rglob("*") if path.is_symlink()]:
+        resolved = link.resolve(strict=True)
+        replacement = link.with_name(f"{link.name}.materialized")
+        shutil.copy2(resolved, replacement)
+        link.unlink()
+        replacement.replace(link)
+    for blob_dir in model_dir.rglob("blobs"):
+        if blob_dir.is_dir():
+            shutil.rmtree(blob_dir)
+    for lock_dir in model_dir.rglob(".locks"):
+        if lock_dir.is_dir():
+            shutil.rmtree(lock_dir)
+    for path in list(site_packages.rglob("__pycache__")):
+        if path.is_dir():
+            shutil.rmtree(path)
+    for path in list(site_packages.rglob("tests")):
+        if path.is_dir():
+            shutil.rmtree(path)
+
+
 def create_archive() -> Path:
     archive_path = OUT_DIR / f"MigraAI-portable-{VERSION}-win64.zip"
     with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -164,6 +185,7 @@ def main() -> None:
         allow_incomplete=True,
         embedder=embedder,
     )
+    prune_model_cache(model_dir, site_packages)
     if os.name == "nt":
         system = Path(os.environ.get("WINDIR", r"C:\Windows")) / "System32"
         for name in ("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll"):

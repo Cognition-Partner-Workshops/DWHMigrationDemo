@@ -17,8 +17,9 @@ from migraai.kb.seed_models import (
     PlatformMappings,
     PlatformProfile,
     ResourceCatalog,
+    SourceSeeds,
 )
-from migraai.kb.store import connect, create_schema, insert_chunk
+from migraai.kb.store import compute_seed_hash, connect, create_schema, insert_chunk
 from migraai.kb.validate import MODELS, validate_seed_dir
 
 
@@ -140,7 +141,12 @@ def build_database(
                 vector,
             )
         for model in models:
-            if isinstance(model, PlatformMappings):
+            if isinstance(model, SourceSeeds):
+                connection.executemany(
+                    "INSERT OR IGNORE INTO platform_hosts(platform,host) VALUES(?,?)",
+                    [(model.platform, host.casefold()) for host in model.allowed_hosts],
+                )
+            elif isinstance(model, PlatformMappings):
                 for kind, entries in (("type", model.types), ("function", model.functions)):
                     for item in entries:
                         connection.execute(
@@ -186,9 +192,11 @@ def build_database(
                             json.dumps(getattr(model, section), default=json_default),
                         ),
                     )
+        seed_hash = compute_seed_hash(connection)
         connection.execute(
-            "INSERT INTO kb_versions(version,created_at,documents,chunks) VALUES(1,?,?,?)",
-            (now, len(docs), len(claims)),
+            """INSERT INTO kb_versions(version,created_at,documents,chunks,seed_sha256)
+            VALUES(1,?,?,?,?)""",
+            (now, len(docs), len(claims), seed_hash),
         )
         connection.commit()
     return out

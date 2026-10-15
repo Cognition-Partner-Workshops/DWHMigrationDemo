@@ -147,6 +147,41 @@ class RefreshJob:
                     request_times[host] = time.monotonic()
                     return response
 
+            def fetch_with_redirects(
+                host: str,
+                url: str,
+                headers: dict[str, str],
+                robot_parser: RobotFileParser,
+                path_prefix: str,
+                seed_page: bool,
+            ) -> tuple[httpx.Response | None, str, str]:
+                current = url
+                for hop in range(6):
+                    parts = urlsplit(current)
+                    if (
+                        parts.scheme not in {"http", "https"}
+                        or parts.netloc != host
+                        or (not seed_page and not parts.path.startswith(path_prefix))
+                    ):
+                        return None, current, "skipped"
+                    if not robot_parser.can_fetch(USER_AGENT, current):
+                        return None, current, "skipped"
+                    request_headers = dict(headers) if hop == 0 else {"User-Agent": USER_AGENT}
+                    cached = previous.get(current, {})
+                    if hop > 0:
+                        if cached.get("etag"):
+                            request_headers["If-None-Match"] = cached["etag"]
+                        if cached.get("last_modified"):
+                            request_headers["If-Modified-Since"] = cached["last_modified"]
+                    response = request(host, current, request_headers)
+                    if response.status_code not in {301, 302, 303, 307, 308}:
+                        return response, current, "ok"
+                    location = response.headers.get("location")
+                    if not location or hop == 5:
+                        return response, current, "failed"
+                    current = normalize_url(urljoin(current, location))
+                return None, current, "failed"
+
             def crawl_host(host: str, host_seeds: list[tuple[str, dict]]) -> None:
                 nonlocal page_counter
                 status = self.progress["hosts"][host]
@@ -166,6 +201,7 @@ class RefreshJob:
                     robot_parser.parse([])
                 for platform, seed in host_seeds:
                     base = normalize_url(seed["url"])
+                    effective_prefix = seed["path_prefix"]
                     if not urlsplit(base).path.startswith(seed["path_prefix"]):
                         status["failed"] += 1
                         continue
@@ -195,7 +231,30 @@ class RefreshJob:
                         if old.get("last_modified"):
                             headers["If-Modified-Since"] = old["last_modified"]
                         try:
-                            response = request(host, url, headers)
+                            response, final_url, fetch_status = fetch_with_redirects(
+                                host,
+                                url,
+                                headers,
+                                robot_parser,
+                                effective_prefix,
+                                index == 0,
+                            )
+                            if fetch_status == "skipped":
+                                status["skipped"] += 1
+                                continue
+                            if fetch_status == "failed" or response is None:
+                                status["failed"] += 1
+                                continue
+                            with seen_lock:
+                                if final_url != url and final_url in seen:
+                                    status["skipped"] += 1
+                                    continue
+                                seen.add(final_url)
+                            old = previous.get(final_url, old)
+                            if index == 0 and final_url != url:
+                                final_path = urlsplit(final_url).path
+                                if final_path.startswith(seed["path_prefix"]):
+                                    effective_prefix = final_path.rstrip("/") or "/"
                             if response.status_code == 304:
                                 status["skipped"] += 1
                                 continue
@@ -215,15 +274,17 @@ class RefreshJob:
                                 continue
                             digest = hashlib.sha256(body).hexdigest()
                             soup = BeautifulSoup(body, "html.parser")
-                            title = soup.title.get_text(" ", strip=True) if soup.title else url
+                            title = (
+                                soup.title.get_text(" ", strip=True) if soup.title else final_url
+                            )
                             if index == 0:
                                 for anchor in soup.find_all("a", href=True):
-                                    link = normalize_url(urljoin(url, anchor["href"]))
+                                    link = normalize_url(urljoin(final_url, anchor["href"]))
                                     parts = urlsplit(link)
                                     if (
                                         parts.scheme in {"http", "https"}
                                         and parts.netloc == host
-                                        and parts.path.startswith(seed["path_prefix"])
+                                        and parts.path.startswith(effective_prefix)
                                         and link not in seen
                                         and link not in candidates
                                         and len(candidates) - 1 < MAX_LINKS_PER_SEED
@@ -234,7 +295,7 @@ class RefreshJob:
                                 continue
                             for tag in soup(["nav", "header", "footer", "script", "style"]):
                                 tag.decompose()
-                            page_results[url] = (
+                            page_results[final_url] = (
                                 platform,
                                 title,
                                 soup.get_text(" ", strip=True),
@@ -330,9 +391,13 @@ class RefreshJob:
                     )
                 document_count = connection.execute("SELECT count(*) FROM documents").fetchone()[0]
                 chunk_count = connection.execute("SELECT count(*) FROM chunks").fetchone()[0]
+                seed_hash = connection.execute(
+                    "SELECT seed_sha256 FROM kb_versions WHERE version=?", (old_version,)
+                ).fetchone()[0]
                 connection.execute(
-                    "INSERT INTO kb_versions(version,created_at,documents,chunks) VALUES(?,?,?,?)",
-                    (next_version, now, document_count, chunk_count),
+                    """INSERT INTO kb_versions
+                    (version,created_at,documents,chunks,seed_sha256) VALUES(?,?,?,?,?)""",
+                    (next_version, now, document_count, chunk_count, seed_hash),
                 )
                 connection.commit()
             if self.cancel_event.is_set():

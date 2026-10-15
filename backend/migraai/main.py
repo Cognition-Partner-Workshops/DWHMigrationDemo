@@ -4,12 +4,12 @@ import atexit
 import ctypes
 import logging
 import os
-import shutil
 import sys
 import threading
 import time
 from collections.abc import Callable
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, closing
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +25,15 @@ from migraai.core.security import AuthState, security_middleware
 from migraai.core.settings_store import SettingsStore
 from migraai.core.storage import wipe_sessions
 from migraai.kb.build import build_database
-from migraai.kb.store import KBStore
+from migraai.kb.store import (
+    KBStore,
+    compute_seed_hash,
+    connect,
+    create_schema,
+    seed_database_hash,
+    upgrade_seed_database,
+)
+from migraai.kb.validate import validate_seed_dir
 
 logger = logging.getLogger(__name__)
 _console_handlers: list[Any] = []
@@ -74,6 +82,100 @@ def _serve_spa(web_dir: Path | None) -> Callable[[str], Response]:
     return fallback
 
 
+def _initialize_kb(store: KBStore, seed_dir: Path, bundled: Path, audit: AuditLog) -> int | None:
+    store.initialize()
+    current = store.current_path
+    seed_files = list(seed_dir.rglob("*.yaml")) if seed_dir.is_dir() else []
+    source = bundled if bundled.is_file() else None
+    temporary_seed: Path | None = None
+    seed_error: int | None = None
+
+    def report_seed_error(error_count: int) -> None:
+        nonlocal seed_error
+        seed_error = max(1, error_count)
+        logger.warning("Knowledge-base seed validation failed (%d errors).", seed_error)
+        audit.append(
+            "system",
+            "kb.seed_error",
+            "knowledge-base",
+            {"error_count": seed_error},
+        )
+
+    if source is None and seed_files:
+        try:
+            errors, _ = validate_seed_dir(seed_dir, allow_incomplete=True)
+            if errors:
+                report_seed_error(len(errors))
+            else:
+                temporary_seed = store.root / ".seed-build.partial.db"
+                build_database(seed_dir, temporary_seed, allow_incomplete=True)
+                source = temporary_seed
+        except Exception:
+            report_seed_error(1)
+
+    if source is not None:
+        try:
+            seed_database_hash(source)
+        except Exception:
+            report_seed_error(1)
+            source = None
+
+    try:
+        if current is None:
+            if source is None:
+                store.create_empty()
+                return seed_error
+            destination = store.version_path(1)
+            destination.unlink(missing_ok=True)
+            with (
+                closing(connect(source)) as source_connection,
+                closing(connect(destination)) as destination_connection,
+            ):
+                source_connection.backup(destination_connection)
+                create_schema(destination_connection)
+                seed_hash = compute_seed_hash(destination_connection)
+                destination_connection.execute("UPDATE kb_versions SET version=1")
+                destination_connection.execute("UPDATE kb_versions SET seed_sha256=?", (seed_hash,))
+                if destination_connection.execute("SELECT changes()").fetchone()[0] == 0:
+                    destination_connection.execute(
+                        """INSERT INTO kb_versions
+                        (version,created_at,documents,chunks,seed_sha256) VALUES(1,?,?,?,?)""",
+                        (
+                            datetime.now(UTC).isoformat(),
+                            destination_connection.execute(
+                                "SELECT count(*) FROM documents"
+                            ).fetchone()[0],
+                            destination_connection.execute(
+                                "SELECT count(*) FROM chunks"
+                            ).fetchone()[0],
+                            seed_hash,
+                        ),
+                    )
+                destination_connection.commit()
+            store.activate(1)
+            return seed_error
+
+        current_hash = seed_database_hash(current)
+        if source is None:
+            return seed_error
+        incoming_hash = seed_database_hash(source)
+        if incoming_hash == current_hash:
+            return seed_error
+        version = int(store.current_version or 0) + 1
+        upgrade_seed_database(source, current, store.version_path(version), version)
+        store.activate(version)
+        audit.append(
+            "system",
+            "kb.seed_upgrade",
+            "knowledge-base",
+            {"from_version": version - 1, "to_version": version},
+        )
+        return seed_error
+    finally:
+        if temporary_seed:
+            temporary_seed.unlink(missing_ok=True)
+
+
 def create_app(
     web_dir: Path | None = None,
     data_dir: Path | None = None,
@@ -91,25 +193,20 @@ def create_app(
         app.state.access_logger = AccessLogger(resolved_data_dir / "logs" / "access.log")
         app.state.audit_log.append("system", "app.start", "application")
         app.state.kb_store = KBStore(resolved_data_dir)
-        kb_store = app.state.kb_store
-        kb_store.initialize()
-        if kb_store.current_path is None:
-            bundled = Path(os.environ.get("MIGRAAI_SEED_KB", ""))
-            if not bundled.is_file():
-                bundled = Path(sys.executable).resolve().parent.parent / "app" / "kb" / "kb-v1.db"
-            if bundled.is_file():
-                target = kb_store.version_path(1)
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(bundled, target)
-                kb_store.activate(1)
-            else:
-                seed_dir = Path(__file__).with_name("kb") / "seed"
-                seed_files = list(seed_dir.rglob("*.yaml")) if seed_dir.is_dir() else []
-                if seed_files:
-                    build_database(seed_dir, kb_store.version_path(1), allow_incomplete=True)
-                    kb_store.activate(1)
-                else:
-                    kb_store.create_empty()
+        configured_seed_kb = os.environ.get("MIGRAAI_SEED_KB")
+        bundled = (
+            Path(sys.executable).resolve().parent.parent / "app" / "kb" / "kb-v1.db"
+            if configured_seed_kb is None
+            else Path(configured_seed_kb)
+        )
+        seed_dir = Path(os.environ.get("MIGRAAI_SEED_DIR", Path(__file__).with_name("kb") / "seed"))
+        app.state.kb_seed_dir = seed_dir
+        app.state.kb_seed_error = _initialize_kb(
+            app.state.kb_store,
+            seed_dir,
+            bundled,
+            app.state.audit_log,
+        )
         app.state.kb_refresh_job = None
         app.state.kb_job_lock = threading.Lock()
         try:

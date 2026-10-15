@@ -87,20 +87,32 @@ def hybrid_search(
         ).fetchall()
         vector = (embedder or get_embedder()).embed([query])[0]
         total_chunks = connection.execute("SELECT count(*) FROM chunks").fetchone()[0]
-        neighbors = connection.execute(
-            "SELECT rowid,distance FROM chunks_vec WHERE embedding MATCH ? AND k = ?",
-            (json.dumps(vector), max(1, total_chunks)),
-        ).fetchall()
+        neighbor_limit = min(total_chunks, 1000)
+        neighbors = (
+            connection.execute(
+                "SELECT rowid,distance FROM chunks_vec WHERE embedding MATCH ? AND k = ?",
+                (json.dumps(vector), neighbor_limit),
+            ).fetchall()
+            if neighbor_limit
+            else []
+        )
         vector_scores: dict[int, int] = {}
-        for neighbor in neighbors:
-            row = connection.execute(
-                f"SELECT c.id FROM chunks c WHERE c.id=? AND {where}",
-                (neighbor["rowid"], *params),
-            ).fetchone()
-            if row:
-                vector_scores[int(row["id"])] = len(vector_scores) + 1
-                if len(vector_scores) == 50:
-                    break
+        candidate_ids = [int(neighbor["rowid"]) for neighbor in neighbors]
+        if candidate_ids:
+            placeholders = ",".join("?" for _ in candidate_ids)
+            matching_ids = {
+                int(row["id"])
+                for row in connection.execute(
+                    f"SELECT c.id FROM chunks c WHERE c.id IN ({placeholders}) AND {where}",
+                    (*candidate_ids, *params),
+                ).fetchall()
+            }
+            for neighbor in neighbors:
+                chunk_id = int(neighbor["rowid"])
+                if chunk_id in matching_ids:
+                    vector_scores[chunk_id] = len(vector_scores) + 1
+                    if len(vector_scores) == 50:
+                        break
         ids: dict[int, tuple[int | None, int | None]] = {}
         for rank, row in enumerate(lexical, 1):
             ids[int(row["id"])] = (rank, None)
