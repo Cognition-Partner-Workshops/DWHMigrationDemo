@@ -1,5 +1,20 @@
 objects:
 - type: dag
+  qualified_name: broken_dag
+  status: parsed
+- type: task
+  qualified_name: broken_dag.first
+  status: parsed
+- type: task
+  qualified_name: broken_dag.second
+  status: parsed
+- type: dag
+  qualified_name: broken_dag2
+  status: parsed
+- type: task
+  qualified_name: broken_dag2.third
+  status: parsed
+- type: dag
   qualified_name: cleanup
   status: parsed
 - type: task
@@ -20,9 +35,12 @@ objects:
 - type: task
   qualified_name: cleanup.vacuum
   status: parsed
-- type: module
-  qualified_name: dags.broken_dag
-  status: partial
+- type: unsupported
+  qualified_name: dags/factory.yaml
+  status: unparsed
+- type: unsupported
+  qualified_name: dags/settings.yaml
+  status: unparsed
 - type: dag
   qualified_name: etl_daily
   status: parsed
@@ -59,6 +77,9 @@ objects:
 - type: task
   qualified_name: etl_daily.wait_upstream
   status: parsed
+- type: external
+  qualified_name: landing.done
+  status: external
 - type: dag
   qualified_name: maintenance
   status: parsed
@@ -83,30 +104,18 @@ objects:
 - type: task
   qualified_name: maintenance.vacuum
   status: parsed
-- type: dag
-  qualified_name: nightly_batch
-  status: parsed
-- type: task
-  qualified_name: nightly_batch.cleanup
-  status: parsed
-- type: task
-  qualified_name: nightly_batch.load_mart
-  status: parsed
-- type: task
-  qualified_name: nightly_batch.notify
-  status: parsed
-- type: task
-  qualified_name: nightly_batch.publish
-  status: parsed
-- type: task
-  qualified_name: nightly_batch.rebuild_idx
-  status: parsed
-- type: task
-  qualified_name: nightly_batch.stage_extract
-  status: parsed
-- type: task
-  qualified_name: nightly_batch.stage_verify
-  status: parsed
+- type: external
+  qualified_name: mart.customers
+  status: external
+- type: external
+  qualified_name: mart.daily
+  status: external
+- type: external
+  qualified_name: mart.orders
+  status: external
+- type: external
+  qualified_name: reconcile
+  status: external
 - type: dag
   qualified_name: reporting
   status: parsed
@@ -128,7 +137,44 @@ objects:
 - type: task
   qualified_name: reporting.publish
   status: parsed
+- type: external
+  qualified_name: rpt.product
+  status: external
+- type: external
+  qualified_name: rpt.region
+  status: external
+- type: external
+  qualified_name: scripts/extract_products.sh
+  status: external
+- type: external
+  qualified_name: scripts/purge.sh
+  status: external
+- type: external
+  qualified_name: sql/sql/ext_customers.sql
+  status: external
+- type: external
+  qualified_name: sql/sql/load_orders.sql
+  status: external
+- type: external
+  qualified_name: sql/sql/summary.sql
+  status: external
+- type: external
+  qualified_name: src.orders
+  status: external
+- type: external
+  qualified_name: stg.customers
+  status: external
+- type: external
+  qualified_name: stg.orders
+  status: external
+- type: external
+  qualified_name: stg.tmp_load
+  status: external
 edges:
+- from: broken_dag.first
+  to: broken_dag.second
+  kind: etl_runs
+  external: false
 - from: cleanup.drop_old
   to: cleanup.purge_logs
   kind: etl_runs
@@ -269,52 +315,20 @@ edges:
   to: maintenance.stats
   kind: etl_runs
   external: false
+- from: maintenance.reindex
+  to: mart.orders
+  kind: etl_writes
+  external: true
 - from: maintenance.stats
   to: maintenance.archive
   kind: etl_runs
   external: false
-- from: maintenance.vacuum
-  to: maintenance.reindex
-  kind: etl_runs
-  external: false
-- from: nightly_batch.cleanup
-  to: nightly_batch.notify
-  kind: etl_runs
-  external: false
-- from: nightly_batch.load_mart
-  to: mart.nightly
-  kind: etl_writes
-  external: true
-- from: nightly_batch.load_mart
-  to: nightly_batch.rebuild_idx
-  kind: etl_runs
-  external: false
-- from: nightly_batch.load_mart
-  to: stg.nightly
+- from: maintenance.stats
+  to: mart.orders
   kind: etl_reads
   external: true
-- from: nightly_batch.publish
-  to: nightly_batch.cleanup
-  kind: etl_runs
-  external: false
-- from: nightly_batch.rebuild_idx
-  to: nightly_batch.publish
-  kind: etl_runs
-  external: false
-- from: nightly_batch.rebuild_idx
-  to: scripts/reindex.sh
-  kind: etl_runs
-  external: true
-- from: nightly_batch.stage_extract
-  to: nightly_batch.stage_verify
-  kind: etl_runs
-  external: false
-- from: nightly_batch.stage_extract
-  to: scripts/stage.sh
-  kind: etl_runs
-  external: true
-- from: nightly_batch.stage_verify
-  to: nightly_batch.load_mart
+- from: maintenance.vacuum
+  to: maintenance.reindex
   kind: etl_runs
   external: false
 - from: reporting.agg.by_product

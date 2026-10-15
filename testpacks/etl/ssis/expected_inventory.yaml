@@ -1,4 +1,34 @@
 objects:
+- type: external
+  qualified_name: MART_CUSTOMER
+  status: external
+- type: external
+  qualified_name: MART_ORDER_FACT
+  status: external
+- type: external
+  qualified_name: ODS_ORDERS
+  status: external
+- type: external
+  qualified_name: STG_CUSTOMERS
+  status: external
+- type: external
+  qualified_name: STG_ORDERS
+  status: external
+- type: external
+  qualified_name: STG_PAYMENTS
+  status: external
+- type: external
+  qualified_name: dbo.ODS_CUSTOMERS
+  status: external
+- type: external
+  qualified_name: dbo.STG_CUSTOMERS
+  status: external
+- type: external
+  qualified_name: dbo.STG_ORDERS
+  status: external
+- type: external
+  qualified_name: dbo.STG_PAYMENTS
+  status: external
 - type: package
   qualified_name: load_customers
   status: parsed
@@ -125,6 +155,9 @@ objects:
 - type: task
   qualified_name: recon_payments.recon_finish
   status: parsed
+- type: external
+  qualified_name: ref.SEGMENTS
+  status: external
 edges:
 - from: load_customers.df_customers
   to: load_customers.merge_mart

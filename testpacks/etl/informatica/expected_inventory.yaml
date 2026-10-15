@@ -1,4 +1,34 @@
 objects:
+- type: external
+  qualified_name: MART.CUSTOMER
+  status: external
+- type: external
+  qualified_name: MART_CUSTOMER
+  status: external
+- type: external
+  qualified_name: MART_DATE
+  status: external
+- type: external
+  qualified_name: MART_ORDER_FACT
+  status: external
+- type: external
+  qualified_name: MART_PAYMENT_SUMMARY
+  status: external
+- type: external
+  qualified_name: MART_PRODUCT
+  status: external
+- type: external
+  qualified_name: MART_STOCK_SNAPSHOT
+  status: external
+- type: external
+  qualified_name: ODS.CUSTOMERS
+  status: external
+- type: external
+  qualified_name: ODS.PRODUCTS
+  status: external
+- type: external
+  qualified_name: RETAIL_CUSTOMER.MART_CUSTOMER
+  status: external
 - type: transformation
   qualified_name: RETAIL_CUSTOMER.lkp_segments
   status: parsed
@@ -38,6 +68,9 @@ objects:
 - type: transformation
   qualified_name: RETAIL_CUSTOMER.sp_audit
   status: parsed
+- type: external
+  qualified_name: RETAIL_ORDERS.MART_ORDER_FACT
+  status: external
 - type: mapping
   qualified_name: RETAIL_ORDERS.m_order_enrich
   status: parsed
@@ -173,6 +206,60 @@ objects:
 - type: workflow
   qualified_name: SHARED.wf_shared_housekeeping
   status: parsed
+- type: external
+  qualified_name: STG_CUSTOMER_DEDUP
+  status: external
+- type: external
+  qualified_name: etl.CUSTOMER_AUDIT
+  status: external
+- type: external
+  qualified_name: inv.INV_STOCK
+  status: external
+- type: external
+  qualified_name: ods.ODS_CUSTOMERS
+  status: external
+- type: external
+  qualified_name: ods.ODS_ORDERS
+  status: external
+- type: external
+  qualified_name: ods.ODS_ORDER_ITEMS
+  status: external
+- type: external
+  qualified_name: ods.ODS_PAYMENTS
+  status: external
+- type: external
+  qualified_name: ods.ODS_PRODUCTS
+  status: external
+- type: external
+  qualified_name: ref.CATEGORIES
+  status: external
+- type: external
+  qualified_name: ref.DATE_DIM
+  status: external
+- type: external
+  qualified_name: ref.ORDER_STATUS
+  status: external
+- type: external
+  qualified_name: ref.SEGMENTS
+  status: external
+- type: external
+  qualified_name: ref.STORE_LOCATIONS
+  status: external
+- type: external
+  qualified_name: scripts/archive_orders.sh
+  status: external
+- type: external
+  qualified_name: scripts/audit.sql
+  status: external
+- type: external
+  qualified_name: scripts/audit_init.sh
+  status: external
+- type: external
+  qualified_name: scripts/precheck_customers.sh
+  status: external
+- type: external
+  qualified_name: src_dates
+  status: external
 edges:
 - from: RETAIL_CUSTOMER.lkp_segments
   to: ref.SEGMENTS

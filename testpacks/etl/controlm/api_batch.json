@@ -140,5 +140,8 @@
   "eventsToWaitFor": [
    "reports_done"
   ]
+ },
+ "definitions": {
+  "note": "control-m automation api export"
  }
 }

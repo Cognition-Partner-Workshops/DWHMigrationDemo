@@ -1,4 +1,10 @@
 objects:
+- type: external
+  qualified_name: ctl.job_log
+  status: external
+- type: external
+  qualified_name: ctl.sp_rebuild
+  status: external
 - type: module
   qualified_name: etl.broken
   status: partial
@@ -131,6 +137,36 @@ objects:
 - type: function
   qualified_name: etl.support.util.summarize
   status: parsed
+- type: external
+  qualified_name: mart.cust_summary
+  status: external
+- type: external
+  qualified_name: mart.customers
+  status: external
+- type: external
+  qualified_name: mart.dim_dates
+  status: external
+- type: external
+  qualified_name: mart.orders
+  status: external
+- type: external
+  qualified_name: src.customers
+  status: external
+- type: external
+  qualified_name: src.payments
+  status: external
+- type: external
+  qualified_name: src.products
+  status: external
+- type: external
+  qualified_name: stg.customers
+  status: external
+- type: external
+  qualified_name: stg.orders
+  status: external
+- type: external
+  qualified_name: vendor.reconcile.finish
+  status: external
 edges:
 - from: etl.broken.callproc_demo
   to: ctl.sp_rebuild

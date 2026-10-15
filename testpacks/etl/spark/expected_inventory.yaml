@@ -1,7 +1,52 @@
 objects:
-- type: spark_submit
+- type: external
+  qualified_name: /data/avro/in
+  status: external
+- type: external
+  qualified_name: /data/dq/report
+  status: external
+- type: external
+  qualified_name: /data/events/in
+  status: external
+- type: external
+  qualified_name: /data/events/out
+  status: external
+- type: external
+  qualified_name: /data/export/orders
+  status: external
+- type: external
+  qualified_name: /data/generic/out
+  status: external
+- type: external
+  qualified_name: /data/json/out
+  status: external
+- type: external
+  qualified_name: /data/landing/*.json
+  status: external
+- type: external
+  qualified_name: /data/landing/in.csv
+  status: external
+- type: external
+  qualified_name: /data/landing/in.orc
+  status: external
+- type: external
+  qualified_name: /data/orc/out
+  status: external
+- type: external
+  qualified_name: /data/stg/text
+  status: external
+- type: external
+  qualified_name: /data/text/in
+  status: external
+- type: unsupported
+  qualified_name: conf/misc.json
+  status: unparsed
+- type: unsupported
   qualified_name: conf/submit_orders.json
-  status: parsed
+  status: unparsed
+- type: external
+  qualified_name: dwh.customer_dt
+  status: external
 - type: module
   qualified_name: jobs.helpers
   status: parsed
@@ -131,15 +176,43 @@ objects:
 - type: function
   qualified_name: jobs.transform.write_orders
   status: parsed
+- type: external
+  qualified_name: mart.:name
+  status: external
+- type: external
+  qualified_name: mart.customers
+  status: external
+- type: external
+  qualified_name: mart.daily_totals
+  status: external
+- type: external
+  qualified_name: mart.orders
+  status: external
+- type: external
+  qualified_name: src.accounts
+  status: external
+- type: external
+  qualified_name: src.customers
+  status: external
+- type: external
+  qualified_name: src.orders
+  status: external
+- type: external
+  qualified_name: src.ref_codes
+  status: external
+- type: external
+  qualified_name: stg.:name
+  status: external
+- type: external
+  qualified_name: stg.events
+  status: external
+- type: external
+  qualified_name: stg.orders
+  status: external
+- type: external
+  qualified_name: stg.ref_codes_out
+  status: external
 edges:
-- from: conf/submit_orders.json
-  to: com.acme.etl.TransformJob
-  kind: etl_runs
-  external: true
-- from: conf/submit_orders.json
-  to: jobs/transform.py
-  kind: etl_runs
-  external: true
 - from: jobs.helpers.count_table
   to: mart.orders
   kind: etl_reads
@@ -240,6 +313,26 @@ edges:
   to: /data/stg/text
   kind: etl_writes
   external: true
+- from: jobs.quality.check_dupes
+  to: mart.orders
+  kind: etl_reads
+  external: true
+- from: jobs.quality.check_freshness
+  to: mart.orders
+  kind: etl_reads
+  external: true
+- from: jobs.quality.check_nulls
+  to: mart.orders
+  kind: etl_reads
+  external: true
+- from: jobs.quality.check_referential
+  to: mart.customers
+  kind: etl_reads
+  external: true
+- from: jobs.quality.check_referential
+  to: mart.orders
+  kind: etl_reads
+  external: true
 - from: jobs.quality.run_all
   to: jobs.quality.check_dupes
   kind: calls
@@ -256,6 +349,10 @@ edges:
   to: jobs.quality.check_referential
   kind: calls
   external: false
+- from: jobs.quality.write_report
+  to: /data/dq/report
+  kind: etl_writes
+  external: true
 - from: jobs.transform.aggregate
   to: mart.daily_totals
   kind: etl_writes

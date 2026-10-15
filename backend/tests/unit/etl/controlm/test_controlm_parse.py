@@ -61,6 +61,7 @@ def test_xml_variables_and_bad_cmdline() -> None:
 
 
 JSON = b"""{
+"definitions": {},
 "F1": {"Type": "Folder"},
 "extract": {"Type": "Job:Command", "ParentFolder": "F1",
   "Command": "sh scripts/extract.sh", "eventsToAdd": ["extract_done"],

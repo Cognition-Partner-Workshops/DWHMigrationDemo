@@ -17,6 +17,9 @@ objects:
 - type: job
   qualified_name: FIN_CLOSE.signoff
   status: parsed
+- type: external
+  qualified_name: MART_ORDER_FACT
+  status: external
 - type: calendar
   qualified_name: MONTH_END
   status: parsed
@@ -119,12 +122,72 @@ objects:
 - type: condition
   qualified_name: gl_closed
   status: parsed
+- type: external
+  qualified_name: jobs/after.sh
+  status: external
+- type: external
+  qualified_name: jobs/backup_db.sh
+  status: external
+- type: external
+  qualified_name: jobs/close_ap.sh
+  status: external
+- type: external
+  qualified_name: jobs/close_ar.sh
+  status: external
+- type: external
+  qualified_name: jobs/close_gl.sh
+  status: external
+- type: external
+  qualified_name: jobs/extract_customers.sh
+  status: external
+- type: external
+  qualified_name: jobs/extract_orders.sh
+  status: external
+- type: external
+  qualified_name: jobs/extract_payments.sh
+  status: external
+- type: external
+  qualified_name: jobs/extract_products.sh
+  status: external
+- type: external
+  qualified_name: jobs/fin_reports.sh
+  status: external
+- type: external
+  qualified_name: jobs/load_marts.sh
+  status: external
+- type: external
+  qualified_name: jobs/load_products.sh
+  status: external
+- type: external
+  qualified_name: jobs/notify.sh
+  status: external
+- type: external
+  qualified_name: jobs/post_reports.sh
+  status: external
+- type: external
+  qualified_name: jobs/recon_payments.sh
+  status: external
+- type: external
+  qualified_name: jobs/signoff.sh
+  status: external
+- type: external
+  qualified_name: jobs/sync_crm.sh
+  status: external
+- type: external
+  qualified_name: jobs/transform_orders.sh
+  status: external
+- type: external
+  qualified_name: jobs/validate_gl.sh
+  status: external
 - type: condition
   qualified_name: load_marts_done
   status: parsed
 - type: condition
   qualified_name: load_products_done
   status: parsed
+- type: external
+  qualified_name: recon_orders.sql
+  status: external
 - type: condition
   qualified_name: recon_orders_done
   status: parsed
@@ -134,9 +197,15 @@ objects:
 - type: condition
   qualified_name: reports_done
   status: parsed
+- type: external
+  qualified_name: sql/recon_products.sql
+  status: external
 - type: condition
   qualified_name: transform_done
   status: parsed
+- type: external
+  qualified_name: upstream_ready
+  status: external
 edges:
 - from: FIN_CLOSE.close_ap
   to: ap_closed
@@ -271,9 +340,9 @@ edges:
   kind: etl_reads
   external: false
 - from: NightlyLoad.run_sql_recon
-  to: audit_counts
+  to: NightlyLoad.audit_counts
   kind: etl_reads
-  external: true
+  external: false
 - from: NightlyLoad.run_sql_recon
   to: sql/recon_products.sql
   kind: etl_runs

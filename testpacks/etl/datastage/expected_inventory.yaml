@@ -32,6 +32,12 @@ objects:
 - type: stage
   qualified_name: dsx_products_agg.tx_filter
   status: parsed
+- type: external
+  qualified_name: dw.customers
+  status: external
+- type: external
+  qualified_name: dw.inventory
+  status: external
 - type: job
   qualified_name: dw_orders_load
   status: parsed
@@ -47,6 +53,39 @@ objects:
 - type: stage
   qualified_name: dw_orders_load.tx_enrich
   status: parsed
+- type: external
+  qualified_name: etl.audit_log
+  status: external
+- type: external
+  qualified_name: etl.rejects
+  status: external
+- type: external
+  qualified_name: fin.payments
+  status: external
+- type: external
+  qualified_name: inv.order_items
+  status: external
+- type: external
+  qualified_name: mart.category_agg
+  status: external
+- type: external
+  qualified_name: mart.customer_dim
+  status: external
+- type: external
+  qualified_name: mart.inventory_snap
+  status: external
+- type: external
+  qualified_name: mart.order_fact
+  status: external
+- type: external
+  qualified_name: mart.payment_fact
+  status: external
+- type: external
+  qualified_name: mart.product_catalog
+  status: external
+- type: external
+  qualified_name: mart.returns_fact
+  status: external
 - type: sequence
   qualified_name: monthly_seq
   status: parsed
@@ -89,6 +128,18 @@ objects:
 - type: stage
   qualified_name: nightly_seq.run_payments
   status: parsed
+- type: external
+  qualified_name: ods.customers
+  status: external
+- type: external
+  qualified_name: ods.orders
+  status: external
+- type: external
+  qualified_name: ods.products
+  status: external
+- type: external
+  qualified_name: ods.returns
+  status: external
 - type: job
   qualified_name: px_customers
   status: parsed
@@ -119,6 +170,15 @@ objects:
 - type: stage
   qualified_name: recovered_job.good_tgt
   status: parsed
+- type: external
+  qualified_name: scripts/compress_export.sh
+  status: external
+- type: external
+  qualified_name: scripts/monthly_report.sh
+  status: external
+- type: external
+  qualified_name: scripts/weekly_export.sh
+  status: external
 - type: job
   qualified_name: server_payments
   status: parsed
