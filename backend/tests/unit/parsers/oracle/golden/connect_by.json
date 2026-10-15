@@ -1,0 +1,225 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 103
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "expr": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 8,
+            "end_line": 1,
+            "end_col": 23
+          },
+          "name": "connect_by_root",
+          "args": {
+            "expr": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 24,
+                "end_line": 1,
+                "end_col": 35
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 24,
+                  "end_line": 1,
+                  "end_col": 35
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 24,
+                      "end_line": 1,
+                      "end_col": 35
+                    },
+                    "value": "employee_id",
+                    "quoted": false
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 41,
+          "end_line": 1,
+          "end_col": 43
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 41,
+            "end_line": 1,
+            "end_col": 53
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 41,
+                "end_line": 1,
+                "end_col": 43
+              },
+              "value": "oe",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 44,
+                "end_line": 1,
+                "end_col": 53
+              },
+              "value": "employees",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ],
+    "hierarchical": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "connect_by",
+      "args": {
+        "condition": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "op": "=",
+          "left": {
+            "kind": "dialect_expr",
+            "span": {
+              "start_line": 1,
+              "start_col": 73,
+              "end_line": 1,
+              "end_col": 78
+            },
+            "name": "prior",
+            "args": {
+              "expr": {
+                "kind": "column_ref",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 79,
+                  "end_line": 1,
+                  "end_col": 90
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 79,
+                    "end_line": 1,
+                    "end_col": 90
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 79,
+                        "end_line": 1,
+                        "end_col": 90
+                      },
+                      "value": "employee_id",
+                      "quoted": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "right": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 93,
+              "end_line": 1,
+              "end_col": 103
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 93,
+                "end_line": 1,
+                "end_col": 103
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 93,
+                    "end_line": 1,
+                    "end_col": 103
+                  },
+                  "value": "manager_id",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        },
+        "nocycle": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "type": "boolean",
+          "value": "true"
+        }
+      }
+    },
+    "bulk_collect": false
+  }
+}

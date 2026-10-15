@@ -1,0 +1,168 @@
+{
+  "kind": "create_view",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 111
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 26,
+      "end_line": 1,
+      "end_col": 38
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 26,
+          "end_line": 1,
+          "end_col": 28
+        },
+        "value": "oe",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 29,
+          "end_line": 1,
+          "end_col": 38
+        },
+        "value": "mv_orders",
+        "quoted": false
+      }
+    ]
+  },
+  "query": {
+    "kind": "query",
+    "span": {
+      "start_line": 1,
+      "start_col": 81,
+      "end_line": 1,
+      "end_col": 87
+    },
+    "body": {
+      "kind": "select",
+      "span": {
+        "start_line": 1,
+        "start_col": 81,
+        "end_line": 1,
+        "end_col": 87
+      },
+      "distinct": false,
+      "projections": [
+        {
+          "kind": "select_item",
+          "span": {
+            "start_line": 1,
+            "start_col": 88,
+            "end_line": 1,
+            "end_col": 96
+          },
+          "expr": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 88,
+              "end_line": 1,
+              "end_col": 96
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 88,
+                "end_line": 1,
+                "end_col": 96
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 88,
+                    "end_line": 1,
+                    "end_col": 96
+                  },
+                  "value": "order_id",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from_": [
+        {
+          "kind": "table_ref",
+          "span": {
+            "start_line": 1,
+            "start_col": 102,
+            "end_line": 1,
+            "end_col": 104
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 102,
+              "end_line": 1,
+              "end_col": 111
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 102,
+                  "end_line": 1,
+                  "end_col": 104
+                },
+                "value": "oe",
+                "quoted": false
+              },
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 105,
+                  "end_line": 1,
+                  "end_col": 111
+                },
+                "value": "orders",
+                "quoted": false
+              }
+            ]
+          }
+        }
+      ],
+      "bulk_collect": false
+    }
+  },
+  "materialized": true,
+  "replace": false,
+  "secure": false,
+  "options": {
+    "build": "immediate",
+    "refresh": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "refresh",
+      "args": {
+        "method": "fast",
+        "mode": "commit"
+      }
+    }
+  }
+}

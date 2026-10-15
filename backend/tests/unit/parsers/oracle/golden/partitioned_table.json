@@ -1,0 +1,165 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 96
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 22
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 16
+        },
+        "value": "oe",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 17,
+          "end_line": 1,
+          "end_col": 22
+        },
+        "value": "sales",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 26
+        },
+        "value": "id",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 27,
+          "end_line": 1,
+          "end_col": 33
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 27,
+            "end_line": 1,
+            "end_col": 33
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 27,
+                "end_line": 1,
+                "end_col": 33
+              },
+              "value": "NUMBER",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "temporary": false,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false,
+  "options": {
+    "partition_by": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "partition_by",
+      "args": {
+        "method": "range",
+        "columns": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 55,
+              "end_line": 1,
+              "end_col": 57
+            },
+            "value": "id",
+            "quoted": false
+          }
+        ],
+        "partitions": [
+          {
+            "kind": "dialect_expr",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "name": "partition",
+            "args": {
+              "name": {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 70,
+                  "end_line": 1,
+                  "end_col": 73
+                },
+                "value": "old",
+                "quoted": false
+              },
+              "values": [
+                {
+                  "kind": "literal",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 92,
+                    "end_line": 1,
+                    "end_col": 94
+                  },
+                  "type": "number",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
