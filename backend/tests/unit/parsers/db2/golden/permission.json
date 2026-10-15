@@ -1,0 +1,189 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 115
+  },
+  "name": "create_permission",
+  "args": {
+    "object_type": "row_permission",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 19,
+        "end_line": 1,
+        "end_col": 38
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 19,
+            "end_line": 1,
+            "end_col": 23
+          },
+          "value": "BANK",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 24,
+            "end_line": 1,
+            "end_col": 38
+          },
+          "value": "ACCOUNT_FILTER",
+          "quoted": false
+        }
+      ]
+    },
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 42,
+        "end_line": 1,
+        "end_col": 55
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 42,
+            "end_line": 1,
+            "end_col": 46
+          },
+          "value": "BANK",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 47,
+            "end_line": 1,
+            "end_col": 55
+          },
+          "value": "ACCOUNTS",
+          "quoted": false
+        }
+      ]
+    },
+    "correlation": "A",
+    "where": {
+      "kind": "binary",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "op": ">",
+      "left": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 76,
+          "end_line": 1,
+          "end_col": 80
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 76,
+            "end_line": 1,
+            "end_col": 80
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 76,
+                "end_line": 1,
+                "end_col": 77
+              },
+              "value": "A",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 78,
+                "end_line": 1,
+                "end_col": 80
+              },
+              "value": "ID",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "right": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 83,
+          "end_line": 1,
+          "end_col": 84
+        },
+        "type": "number",
+        "value": "0"
+      }
+    },
+    "enabled": true
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 42,
+          "end_line": 1,
+          "end_col": 55
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 42,
+              "end_line": 1,
+              "end_col": 46
+            },
+            "value": "BANK",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 47,
+              "end_line": 1,
+              "end_col": 55
+            },
+            "value": "ACCOUNTS",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "grant_on"
+    }
+  ]
+}

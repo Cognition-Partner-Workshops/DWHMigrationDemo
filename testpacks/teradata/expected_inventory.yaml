@@ -1,0 +1,104 @@
+objects:
+  - {type: grant, qualified_name: "EXECUTE PROCEDURE on sales.add_payment", status: parsed}
+  - {type: grant, qualified_name: "ROLE on operator", status: parsed}
+  - {type: grant, qualified_name: "ROLE on reader", status: parsed}
+  - {type: grant, qualified_name: "SELECT on sales.account_payments", status: parsed}
+  - {type: grant, qualified_name: "SELECT on sales.audit_log", status: parsed}
+  - {type: grant, qualified_name: "SELECT on sales.customer_accounts", status: parsed}
+  - {type: grant, qualified_name: "SELECT, INSERT on sales.payment", status: parsed}
+  - {type: user, qualified_name: "analyst", status: parsed}
+  - {type: role, qualified_name: "auditor", status: parsed}
+  - {type: script, qualified_name: "load_script.sql", status: parsed}
+  - {type: user, qualified_name: "loader", status: parsed}
+  - {type: role, qualified_name: "operator", status: parsed}
+  - {type: role, qualified_name: "reader", status: parsed}
+  - {type: table, qualified_name: "sales.account", status: parsed}
+  - {type: view, qualified_name: "sales.account_payments", status: parsed}
+  - {type: table, qualified_name: "sales.account_snapshot", status: parsed}
+  - {type: procedure, qualified_name: "sales.add_payment", status: parsed}
+  - {type: table, qualified_name: "sales.audit_log", status: parsed}
+  - {type: table, qualified_name: "sales.branch", status: parsed}
+  - {type: procedure, qualified_name: "sales.capture_snapshot", status: parsed}
+  - {type: table, qualified_name: "sales.card", status: parsed}
+  - {type: view, qualified_name: "sales.card_activity", status: parsed}
+  - {type: table, qualified_name: "sales.card_txn", status: parsed}
+  - {type: table, qualified_name: "sales.customer", status: parsed}
+  - {type: view, qualified_name: "sales.customer_accounts", status: parsed}
+  - {type: synonym, qualified_name: "sales.customer_alias", status: parsed}
+  - {type: external, qualified_name: "sales.customer_archive", status: external}
+  - {type: view, qualified_name: "sales.customer_external_rate", status: parsed}
+  - {type: view, qualified_name: "sales.customer_loans", status: parsed}
+  - {type: view, qualified_name: "sales.customer_risk", status: parsed}
+  - {type: table, qualified_name: "sales.customer_segment", status: parsed}
+  - {type: view, qualified_name: "sales.daily_account_balances", status: parsed}
+  - {type: table, qualified_name: "sales.daily_balance", status: parsed}
+  - {type: table, qualified_name: "sales.employee", status: parsed}
+  - {type: table, qualified_name: "sales.external_rate", status: parsed}
+  - {type: hash_index, qualified_name: "sales.hix_account", status: parsed}
+  - {type: hash_index, qualified_name: "sales.hix_card", status: parsed}
+  - {type: index, qualified_name: "sales.ix_account_customer", status: parsed}
+  - {type: index, qualified_name: "sales.ix_customer_status", status: parsed}
+  - {type: join_index, qualified_name: "sales.jix_order", status: parsed}
+  - {type: table, qualified_name: "sales.loan", status: parsed}
+  - {type: table, qualified_name: "sales.loan_payment", status: parsed}
+  - {type: view, qualified_name: "sales.order_detail", status: parsed}
+  - {type: table, qualified_name: "sales.order_header", status: parsed}
+  - {type: table, qualified_name: "sales.order_line", status: parsed}
+  - {type: table, qualified_name: "sales.payment", status: parsed}
+  - {type: procedure, qualified_name: "sales.post_transfer", status: parsed}
+  - {type: table, qualified_name: "sales.product", status: parsed}
+  - {type: table, qualified_name: "sales.recovered_after_error", status: parsed}
+  - {type: table, qualified_name: "sales.recovered_table", status: parsed}
+  - {type: macro, qualified_name: "sales.refresh_daily", status: parsed}
+  - {type: procedure, qualified_name: "sales.repair_payment", status: partial}
+  - {type: table, qualified_name: "sales.risk_score", status: parsed}
+  - {type: table, qualified_name: "sales.transfer", status: parsed}
+  - {type: view, qualified_name: "sales.transfer_activity", status: parsed}
+  - {type: view, qualified_name: "sales.unuploaded_reference", status: parsed}
+  - {type: procedure, qualified_name: "sales.update_balance", status: parsed}
+edges:
+  - {from: "EXECUTE PROCEDURE on sales.add_payment", to: "sales.add_payment", kind: grant_on, external: false}
+  - {from: "ROLE on operator", to: "operator", kind: grant_on, external: false}
+  - {from: "ROLE on reader", to: "reader", kind: grant_on, external: false}
+  - {from: "SELECT on sales.account_payments", to: "sales.account_payments", kind: grant_on, external: false}
+  - {from: "SELECT on sales.audit_log", to: "sales.audit_log", kind: grant_on, external: false}
+  - {from: "SELECT on sales.customer_accounts", to: "sales.customer_accounts", kind: grant_on, external: false}
+  - {from: "SELECT, INSERT on sales.payment", to: "sales.payment", kind: grant_on, external: false}
+  - {from: "load_script.sql", to: "sales.customer", kind: reads, external: false}
+  - {from: "sales.account", to: "sales.customer", kind: foreign_key, external: false}
+  - {from: "sales.account_payments", to: "sales.account", kind: reads, external: false}
+  - {from: "sales.account_payments", to: "sales.payment", kind: reads, external: false}
+  - {from: "sales.add_payment", to: "sales.audit_log", kind: writes, external: false}
+  - {from: "sales.add_payment", to: "sales.payment", kind: writes, external: false}
+  - {from: "sales.capture_snapshot", to: "sales.account", kind: reads, external: false}
+  - {from: "sales.capture_snapshot", to: "sales.account_snapshot", kind: writes, external: false}
+  - {from: "sales.card_activity", to: "sales.card", kind: reads, external: false}
+  - {from: "sales.card_activity", to: "sales.card_txn", kind: reads, external: false}
+  - {from: "sales.customer_accounts", to: "sales.account", kind: reads, external: false}
+  - {from: "sales.customer_accounts", to: "sales.customer", kind: reads, external: false}
+  - {from: "sales.customer_alias", to: "sales.customer", kind: synonym_for, external: false}
+  - {from: "sales.customer_external_rate", to: "sales.customer", kind: reads, external: false}
+  - {from: "sales.customer_external_rate", to: "sales.external_rate", kind: reads, external: false}
+  - {from: "sales.customer_loans", to: "sales.customer", kind: reads, external: false}
+  - {from: "sales.customer_loans", to: "sales.loan", kind: reads, external: false}
+  - {from: "sales.customer_risk", to: "sales.customer", kind: reads, external: false}
+  - {from: "sales.customer_risk", to: "sales.customer_segment", kind: reads, external: false}
+  - {from: "sales.customer_risk", to: "sales.risk_score", kind: reads, external: false}
+  - {from: "sales.daily_account_balances", to: "sales.daily_balance", kind: reads, external: false}
+  - {from: "sales.hix_account", to: "sales.account", kind: index_on, external: false}
+  - {from: "sales.hix_card", to: "sales.card", kind: index_on, external: false}
+  - {from: "sales.ix_account_customer", to: "sales.account", kind: index_on, external: false}
+  - {from: "sales.ix_customer_status", to: "sales.customer", kind: index_on, external: false}
+  - {from: "sales.jix_order", to: "sales.order_header", kind: reads, external: false}
+  - {from: "sales.jix_order", to: "sales.order_line", kind: reads, external: false}
+  - {from: "sales.order_detail", to: "sales.order_header", kind: reads, external: false}
+  - {from: "sales.order_detail", to: "sales.order_line", kind: reads, external: false}
+  - {from: "sales.order_detail", to: "sales.product", kind: reads, external: false}
+  - {from: "sales.post_transfer", to: "sales.audit_log", kind: writes, external: false}
+  - {from: "sales.post_transfer", to: "sales.transfer", kind: writes, external: false}
+  - {from: "sales.refresh_daily", to: "sales.account", kind: reads, external: false}
+  - {from: "sales.refresh_daily", to: "sales.daily_balance", kind: writes, external: false}
+  - {from: "sales.repair_payment", to: "sales.audit_log", kind: writes, external: false}
+  - {from: "sales.transfer_activity", to: "sales.transfer", kind: reads, external: false}
+  - {from: "sales.unuploaded_reference", to: "sales.customer_archive", kind: reads, external: true}
+  - {from: "sales.update_balance", to: "sales.account", kind: writes, external: false}

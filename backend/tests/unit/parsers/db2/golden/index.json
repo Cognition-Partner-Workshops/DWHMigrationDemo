@@ -1,0 +1,167 @@
+{
+  "kind": "create_index",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 110
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 30
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 18
+        },
+        "value": "BANK",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 19,
+          "end_line": 1,
+          "end_col": 30
+        },
+        "value": "ACCOUNT_IDX",
+        "quoted": false
+      }
+    ]
+  },
+  "table": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 34,
+      "end_line": 1,
+      "end_col": 47
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 38
+        },
+        "value": "BANK",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 39,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "value": "ACCOUNTS",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 49,
+        "end_line": 1,
+        "end_col": 51
+      },
+      "value": "ID",
+      "quoted": false
+    },
+    {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 57,
+        "end_line": 1,
+        "end_col": 61
+      },
+      "value": "NAME",
+      "quoted": false
+    }
+  ],
+  "unique": false,
+  "options": {
+    "columns": [
+      {
+        "kind": "dialect_expr",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": "index_column",
+        "args": {
+          "name": {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 49,
+              "end_line": 1,
+              "end_col": 51
+            },
+            "value": "ID",
+            "quoted": false
+          },
+          "order": "asc"
+        }
+      },
+      {
+        "kind": "dialect_expr",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": "index_column",
+        "args": {
+          "name": {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 57,
+              "end_line": 1,
+              "end_col": 61
+            },
+            "value": "NAME",
+            "quoted": false
+          },
+          "order": "desc"
+        }
+      }
+    ],
+    "include": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 77,
+          "end_line": 1,
+          "end_col": 81
+        },
+        "value": "NAME",
+        "quoted": false
+      }
+    ],
+    "cluster": true,
+    "allow_reverse_scans": true
+  }
+}

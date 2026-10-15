@@ -1,0 +1,31 @@
+{
+  "kind": "use",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 15
+  },
+  "database": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 10,
+      "end_line": 1,
+      "end_col": 15
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 10,
+          "end_line": 1,
+          "end_col": 15
+        },
+        "value": "sales",
+        "quoted": false
+      }
+    ]
+  }
+}

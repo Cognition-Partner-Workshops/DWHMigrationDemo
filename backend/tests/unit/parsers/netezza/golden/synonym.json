@@ -1,0 +1,76 @@
+{
+  "kind": "create_synonym",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 58
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 16,
+      "end_line": 1,
+      "end_col": 35
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 25
+        },
+        "value": "LOGISTICS",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 26,
+          "end_line": 1,
+          "end_col": 35
+        },
+        "value": "SHIPMENTS",
+        "quoted": false
+      }
+    ]
+  },
+  "target": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 40,
+      "end_line": 1,
+      "end_col": 58
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 40,
+          "end_line": 1,
+          "end_col": 49
+        },
+        "value": "LOGISTICS",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 50,
+          "end_line": 1,
+          "end_col": 58
+        },
+        "value": "SHIPMENT",
+        "quoted": false
+      }
+    ]
+  },
+  "public": false
+}

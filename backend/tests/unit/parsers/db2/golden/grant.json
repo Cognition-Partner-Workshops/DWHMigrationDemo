@@ -1,0 +1,94 @@
+{
+  "kind": "grant",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 89
+  },
+  "privileges": [
+    "SELECT",
+    "UPDATE"
+  ],
+  "object_kind": "table",
+  "object_name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 31,
+      "end_line": 1,
+      "end_col": 44
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 31,
+          "end_line": 1,
+          "end_col": 35
+        },
+        "value": "BANK",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 36,
+          "end_line": 1,
+          "end_col": 44
+        },
+        "value": "ACCOUNTS",
+        "quoted": false
+      }
+    ]
+  },
+  "grantees": [
+    {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 53,
+        "end_line": 1,
+        "end_col": 56
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 53,
+            "end_line": 1,
+            "end_col": 56
+          },
+          "value": "APP",
+          "quoted": false
+        }
+      ]
+    },
+    {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 63,
+        "end_line": 1,
+        "end_col": 71
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 63,
+            "end_line": 1,
+            "end_col": 71
+          },
+          "value": "REPORTER",
+          "quoted": false
+        }
+      ]
+    }
+  ],
+  "with_grant_option": true
+}

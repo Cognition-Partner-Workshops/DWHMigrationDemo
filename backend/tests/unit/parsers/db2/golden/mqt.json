@@ -1,0 +1,152 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 105
+  },
+  "name": "create_mqt",
+  "args": {
+    "refresh": "deferred",
+    "object_type": "materialized_query_table",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 14,
+        "end_line": 1,
+        "end_col": 30
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 14,
+            "end_line": 1,
+            "end_col": 18
+          },
+          "value": "BANK",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 19,
+            "end_line": 1,
+            "end_col": 30
+          },
+          "value": "ACCOUNT_MQT",
+          "quoted": false
+        }
+      ]
+    },
+    "query": {
+      "kind": "query",
+      "span": {
+        "start_line": 1,
+        "start_col": 35,
+        "end_line": 1,
+        "end_col": 41
+      },
+      "body": {
+        "kind": "select",
+        "span": {
+          "start_line": 1,
+          "start_col": 35,
+          "end_line": 1,
+          "end_col": 41
+        },
+        "distinct": false,
+        "projections": [
+          {
+            "kind": "select_item",
+            "span": {
+              "start_line": 1,
+              "start_col": 42,
+              "end_line": 1,
+              "end_col": 44
+            },
+            "expr": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 42,
+                "end_line": 1,
+                "end_col": 44
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 42,
+                  "end_line": 1,
+                  "end_col": 44
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 42,
+                      "end_line": 1,
+                      "end_col": 44
+                    },
+                    "value": "ID",
+                    "quoted": false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "from_": [
+          {
+            "kind": "table_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 50,
+              "end_line": 1,
+              "end_col": 54
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 50,
+                "end_line": 1,
+                "end_col": 63
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 50,
+                    "end_line": 1,
+                    "end_col": 54
+                  },
+                  "value": "BANK",
+                  "quoted": false
+                },
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 55,
+                    "end_line": 1,
+                    "end_col": 63
+                  },
+                  "value": "ACCOUNTS",
+                  "quoted": false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

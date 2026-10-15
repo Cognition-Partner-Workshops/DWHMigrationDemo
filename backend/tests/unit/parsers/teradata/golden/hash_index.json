@@ -1,0 +1,137 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 56
+  },
+  "name": "create_hash_index",
+  "args": {
+    "object_type": "hash_index",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 19,
+        "end_line": 1,
+        "end_col": 35
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 19,
+            "end_line": 1,
+            "end_col": 24
+          },
+          "value": "sales",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 25,
+            "end_line": 1,
+            "end_col": 35
+          },
+          "value": "order_hash",
+          "quoted": false
+        }
+      ]
+    },
+    "table": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 44,
+        "end_line": 1,
+        "end_col": 56
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 44,
+            "end_line": 1,
+            "end_col": 49
+          },
+          "value": "sales",
+          "quoted": false
+        },
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 50,
+            "end_line": 1,
+            "end_col": 56
+          },
+          "value": "orders",
+          "quoted": false
+        }
+      ]
+    },
+    "columns": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 37,
+          "end_line": 1,
+          "end_col": 39
+        },
+        "value": "id",
+        "quoted": false
+      }
+    ]
+  },
+  "references": [
+    {
+      "kind": "ref_hint",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "qualified_name",
+        "span": {
+          "start_line": 1,
+          "start_col": 44,
+          "end_line": 1,
+          "end_col": 56
+        },
+        "parts": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 44,
+              "end_line": 1,
+              "end_col": 49
+            },
+            "value": "sales",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 50,
+              "end_line": 1,
+              "end_col": 56
+            },
+            "value": "orders",
+            "quoted": false
+          }
+        ]
+      },
+      "ref_kind": "index_on"
+    }
+  ]
+}

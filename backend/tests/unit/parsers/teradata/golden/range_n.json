@@ -1,0 +1,167 @@
+{
+  "kind": "query",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 63
+  },
+  "body": {
+    "kind": "select",
+    "span": {
+      "start_line": 1,
+      "start_col": 1,
+      "end_line": 1,
+      "end_col": 7
+    },
+    "distinct": false,
+    "projections": [
+      {
+        "kind": "select_item",
+        "span": {
+          "start_line": 1,
+          "start_col": 8,
+          "end_line": 1,
+          "end_col": 15
+        },
+        "expr": {
+          "kind": "dialect_expr",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "name": "range_n",
+          "args": {
+            "expr": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 16,
+                "end_line": 1,
+                "end_col": 18
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 16,
+                  "end_line": 1,
+                  "end_col": 18
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 16,
+                      "end_line": 1,
+                      "end_col": 18
+                    },
+                    "value": "id",
+                    "quoted": false
+                  }
+                ]
+              }
+            },
+            "ranges": [
+              {
+                "kind": "dialect_expr",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 1,
+                  "end_line": 1,
+                  "end_col": 1
+                },
+                "name": "range",
+                "args": {
+                  "start": {
+                    "kind": "literal",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 27,
+                      "end_line": 1,
+                      "end_col": 28
+                    },
+                    "type": "number",
+                    "value": "1"
+                  },
+                  "end": {
+                    "kind": "literal",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 33,
+                      "end_line": 1,
+                      "end_col": 36
+                    },
+                    "type": "number",
+                    "value": "100"
+                  },
+                  "each": {
+                    "kind": "literal",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 42,
+                      "end_line": 1,
+                      "end_col": 44
+                    },
+                    "type": "number",
+                    "value": "10"
+                  }
+                }
+              }
+            ],
+            "no_range": false,
+            "or_unknown": false,
+            "unknown": false
+          }
+        }
+      }
+    ],
+    "from_": [
+      {
+        "kind": "table_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 51,
+          "end_line": 1,
+          "end_col": 56
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 51,
+            "end_line": 1,
+            "end_col": 63
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 51,
+                "end_line": 1,
+                "end_col": 56
+              },
+              "value": "sales",
+              "quoted": false
+            },
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 57,
+                "end_line": 1,
+                "end_col": 63
+              },
+              "value": "orders",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

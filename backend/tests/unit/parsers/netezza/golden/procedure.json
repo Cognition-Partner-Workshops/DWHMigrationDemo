@@ -1,0 +1,162 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 135
+  },
+  "routine_kind": "procedure",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 18,
+      "end_line": 1,
+      "end_col": 32
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 18,
+          "end_line": 1,
+          "end_col": 27
+        },
+        "value": "LOGISTICS",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 28,
+          "end_line": 1,
+          "end_col": 32
+        },
+        "value": "PING",
+        "quoted": false
+      }
+    ]
+  },
+  "params": [
+    {
+      "kind": "routine_param",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "value": "$1",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 33,
+          "end_line": 1,
+          "end_col": 40
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 33,
+            "end_line": 1,
+            "end_col": 40
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 33,
+                "end_line": 1,
+                "end_col": 40
+              },
+              "value": "INTEGER",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "returns": {
+    "kind": "data_type",
+    "span": {
+      "start_line": 1,
+      "start_col": 50,
+      "end_line": 1,
+      "end_col": 57
+    },
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 50,
+        "end_line": 1,
+        "end_col": 57
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 50,
+            "end_line": 1,
+            "end_col": 57
+          },
+          "value": "INTEGER",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "language": "NZPLSQL",
+  "body": {
+    "kind": "block",
+    "span": {
+      "start_line": 1,
+      "start_col": 106,
+      "end_line": 1,
+      "end_col": 111
+    },
+    "statements": [
+      {
+        "kind": "return",
+        "span": {
+          "start_line": 1,
+          "start_col": 112,
+          "end_line": 1,
+          "end_col": 120
+        },
+        "expr": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 119,
+            "end_line": 1,
+            "end_col": 120
+          },
+          "type": "number",
+          "value": "1"
+        }
+      }
+    ]
+  },
+  "options": {
+    "execute_as": "owner"
+  }
+}

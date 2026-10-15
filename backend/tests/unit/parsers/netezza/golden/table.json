@@ -1,0 +1,215 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 101
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 14,
+      "end_line": 1,
+      "end_col": 32
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 14,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "LOGISTICS",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 24,
+          "end_line": 1,
+          "end_col": 32
+        },
+        "value": "SHIPMENT",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 34,
+          "end_line": 1,
+          "end_col": 36
+        },
+        "value": "ID",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 37,
+          "end_line": 1,
+          "end_col": 40
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 37,
+            "end_line": 1,
+            "end_col": 40
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 37,
+                "end_line": 1,
+                "end_col": 40
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 42,
+          "end_line": 1,
+          "end_col": 48
+        },
+        "value": "STATUS",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 49,
+          "end_line": 1,
+          "end_col": 60
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 49,
+            "end_line": 1,
+            "end_col": 56
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 49,
+                "end_line": 1,
+                "end_col": 56
+              },
+              "value": "VARCHAR",
+              "quoted": false
+            }
+          ]
+        },
+        "params": [
+          {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 57,
+              "end_line": 1,
+              "end_col": 59
+            },
+            "type": "number",
+            "value": "20"
+          }
+        ]
+      }
+    }
+  ],
+  "temporary": false,
+  "external": false,
+  "replace": false,
+  "if_not_exists": false,
+  "options": {
+    "distribution": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "distribute_on",
+      "args": {
+        "columns": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 77,
+              "end_line": 1,
+              "end_col": 79
+            },
+            "value": "ID",
+            "quoted": false
+          }
+        ]
+      }
+    },
+    "organize_on": {
+      "kind": "dialect_expr",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": "organize_on",
+      "args": {
+        "columns": [
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 94,
+              "end_line": 1,
+              "end_col": 100
+            },
+            "value": "STATUS",
+            "quoted": false
+          }
+        ]
+      }
+    }
+  }
+}

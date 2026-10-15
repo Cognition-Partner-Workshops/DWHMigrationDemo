@@ -1,0 +1,127 @@
+{
+  "kind": "create_table",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 96
+  },
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 23,
+      "end_line": 1,
+      "end_col": 43
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 23,
+          "end_line": 1,
+          "end_col": 32
+        },
+        "value": "LOGISTICS",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 33,
+          "end_line": 1,
+          "end_col": 43
+        },
+        "value": "LOAD_STAGE",
+        "quoted": false
+      }
+    ]
+  },
+  "columns": [
+    {
+      "kind": "column_def",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 45,
+          "end_line": 1,
+          "end_col": 47
+        },
+        "value": "ID",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 48,
+          "end_line": 1,
+          "end_col": 51
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 48,
+            "end_line": 1,
+            "end_col": 51
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 48,
+                "end_line": 1,
+                "end_col": 51
+              },
+              "value": "INT",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "temporary": false,
+  "external": true,
+  "replace": false,
+  "if_not_exists": false,
+  "options": {
+    "using": {
+      "dataobject": [
+        {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 80,
+            "end_line": 1,
+            "end_col": 88
+          },
+          "type": "string",
+          "value": "/x.csv"
+        }
+      ],
+      "delimiter": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 95,
+          "end_line": 1,
+          "end_col": 98
+        },
+        "type": "string",
+        "value": "|"
+      }
+    }
+  }
+}
