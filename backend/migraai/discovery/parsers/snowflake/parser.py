@@ -413,6 +413,41 @@ class Parser(ParserBase):
             return ast.Literal("string", token.value, span=self._token_span(token))
         return self.parse_expr(70)
 
+    def _parse_options(self) -> dict[str, Any]:
+        if not self.at(TokenKind.PUNCT, "("):
+            return super()._parse_options()
+        self.advance()
+        values = self.parse_comma_list(lambda: self.parse_expr(80))
+        self.expect(TokenKind.PUNCT, ")")
+        return {
+            key: values[index] if index < len(values) else None
+            for index, key in enumerate(("start", "increment"))
+        }
+
+    def parse_for(self) -> ast.ForLoop:
+        self.expect_keyword("FOR")
+        variable = self.parse_identifier()
+        self.expect_keyword("IN")
+        if self.at_keyword("SELECT") or self.at_keyword("WITH"):
+            iterable: ast.Node = self.parse_query()
+        else:
+            reverse = bool(self.accept_keyword("REVERSE"))
+            start = self.parse_expr(51)
+            if self.accept_keyword("TO"):
+                end = self.parse_expr(51)
+                iterable = ast.Range(start, end, reverse=reverse)
+            elif self.accept(TokenKind.OPERATOR, ".."):
+                end = self.parse_expr(51)
+                iterable = ast.Range(start, end, reverse=reverse)
+            else:
+                iterable = start
+        if not (self.accept_keyword("DO") or self.accept_keyword("LOOP")):
+            raise ParseError("Expected DO or LOOP.", self.peek())
+        body = self._parse_statement_sequence({"END"})
+        self.expect_keyword("END")
+        self.accept_keyword("FOR") or self.accept_keyword("LOOP")
+        return ast.ForLoop(variable, iterable, body)
+
     def _parse_copy_into(self) -> ast.DialectStatement:
         start = self.expect_keyword("COPY")
         self.expect_keyword("INTO")
@@ -443,7 +478,7 @@ class Parser(ParserBase):
             if self.accept_keyword("FILES"):
                 self.accept(TokenKind.OPERATOR, "=")
                 properties["files"] = self._parse_property_value()
-            elif self.accept_keyword("PATTERN", "ON_ERROR", "PURGE"):
+            elif self.accept_keyword("PATTERN", "ON_ERROR", "PURGE", "HEADER"):
                 key = self.tokens[self.index - 1].text.casefold()
                 self.accept(TokenKind.OPERATOR, "=")
                 properties[key] = self._parse_property_value()
@@ -929,6 +964,18 @@ class Parser(ParserBase):
                 args["on_kind"] = on_kind
                 args["on"] = on
                 references.append(ast.RefHint(on, "reads"))
+            self._parse_key_value_properties(args["properties"])
+        elif kind == "tag":
+            if self.accept_keyword("ALLOWED_VALUES"):
+                self.accept(TokenKind.OPERATOR, "=")
+                if self.at(TokenKind.PUNCT, "("):
+                    args["properties"]["allowed_values"] = self._parse_property_value()
+                else:
+                    values = [self._parse_property_value()]
+                    while self.accept(TokenKind.PUNCT, ","):
+                        values.append(self._parse_property_value())
+                    args["properties"]["allowed_values"] = values
+            self._parse_key_value_properties(args["properties"])
         elif kind == "pipe":
             if self.accept_keyword("AUTO_INGEST"):
                 self.accept(TokenKind.OPERATOR, "=")
@@ -960,6 +1007,7 @@ class Parser(ParserBase):
     def _parse_task_clauses(self, args: dict[str, Any], references: list[ast.RefHint]) -> None:
         properties = args["properties"]
         if self.accept_keyword("WAREHOUSE"):
+            self.accept(TokenKind.OPERATOR, "=")
             properties["warehouse"] = self.parse_qualified_name()
         if self.accept_keyword("SCHEDULE"):
             self.accept(TokenKind.OPERATOR, "=")

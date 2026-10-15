@@ -5,6 +5,7 @@ objects:
   - {type: database, qualified_name: analytics, status: parsed}
   - {type: table, qualified_name: data_watermarks, status: parsed}
   - {type: table, qualified_name: daily_rollup, status: parsed}
+  - {type: table, qualified_name: post_unsupported, status: parsed}
   - {type: table, qualified_name: dim_channels, status: parsed}
   - {type: table, qualified_name: dim_currency, status: parsed}
   - {type: table, qualified_name: dim_customers, status: parsed}
@@ -27,7 +28,7 @@ objects:
   - {type: table, qualified_name: raw_events, status: parsed}
   - {type: table, qualified_name: raw_inventory, status: parsed}
   - {type: table, qualified_name: raw_order_lines, status: parsed}
-  - {type: table, qualified_name: raw_orders, status: parsed}
+  - {type: external_table, qualified_name: raw_orders, status: parsed}
   - {type: table, qualified_name: raw_payments, status: parsed}
   - {type: table, qualified_name: raw_products, status: parsed}
   - {type: table, qualified_name: raw_promotions, status: parsed}
@@ -50,8 +51,10 @@ objects:
   - {type: table, qualified_name: stage_products, status: parsed}
   - {type: table, qualified_name: stage_returns, status: parsed}
   - {type: table, qualified_name: stage_shipments, status: parsed}
+  - {type: database, qualified_name: staging, status: parsed}
   - {type: function, qualified_name: normalize, status: parsed}
   - {type: view, qualified_name: v_customer_orders, status: parsed}
+  - {type: view, qualified_name: v_event_tags, status: parsed}
   - {type: view, qualified_name: v_external_legacy, status: parsed}
   - {type: view, qualified_name: v_normalized_customer, status: parsed}
   - {type: script, qualified_name: 90_loads.sql, status: parsed}
@@ -70,3 +73,5 @@ edges:
   - {from: v_external_legacy, to: legacy_archive, kind: reads, external: true}
   - {from: v_normalized_customer, to: normalize, kind: calls, external: false}
   - {from: v_normalized_customer, to: raw_customers, kind: reads, external: false}
+  - {from: v_event_tags, to: raw_events, kind: reads, external: false}
+  - {from: 90_loads.sql, to: fact_sales, kind: writes, external: false}

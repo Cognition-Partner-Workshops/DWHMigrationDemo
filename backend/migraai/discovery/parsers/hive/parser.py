@@ -1054,9 +1054,10 @@ class Parser(ParserBase):
                             else None
                         )
                         partitions.append({"spec": spec, "location": location})
-                        if not self.accept(TokenKind.PUNCT, ","):
+                        if self.accept(TokenKind.PUNCT, ","):
+                            self.expect_keyword("PARTITION")
+                        elif not self.accept_keyword("PARTITION"):
                             break
-                        self.expect_keyword("PARTITION")
                     actions.append(
                         ast.DialectStatement(
                             "add_partition",

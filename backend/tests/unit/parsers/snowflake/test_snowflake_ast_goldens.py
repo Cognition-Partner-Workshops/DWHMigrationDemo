@@ -31,6 +31,17 @@ STATEMENTS = [
     ("revoke", "REVOKE SELECT ON TABLE t FROM USER analyst"),
     ("copy", "COPY INTO t FROM @st"),
     ("routine", "CREATE FUNCTION f(x INT) RETURNS INT LANGUAGE SQL AS $$SELECT x$$"),
+    (
+        "scripting_procedure",
+        "CREATE PROCEDURE p(x NUMBER) RETURNS STRING LANGUAGE SQL AS $$ "
+        "DECLARE c NUMBER DEFAULT 0; BEGIN LET n NUMBER := :x + 1; "
+        "FOR i IN 1 TO n DO c := c + i; END FOR; IF (c > 10) THEN RETURN 'large'; "
+        "ELSE RETURN 'small'; END IF; EXCEPTION WHEN OTHER THEN RAISE; END; $$",
+    ),
+    (
+        "javascript_function",
+        "CREATE FUNCTION js(x FLOAT) RETURNS FLOAT LANGUAGE JAVASCRIPT AS $$ return x * 2; $$",
+    ),
     ("use_schema", "USE SCHEMA db.sch"),
 ]
 

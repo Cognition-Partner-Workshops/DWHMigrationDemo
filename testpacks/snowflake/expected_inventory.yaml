@@ -7,12 +7,17 @@ objects:
   - {type: view, qualified_name: analytics.curated.v_external_legacy, status: parsed}
   - {type: view, qualified_name: analytics.curated.v_inventory_risk, status: parsed}
   - {type: view, qualified_name: analytics.curated.v_monthly_revenue, status: parsed}
+  - {type: view, qualified_name: analytics.curated.v_event_items, status: parsed}
+  - {type: materialized_view, qualified_name: analytics.curated.mv_monthly_revenue, status: parsed}
   - {type: database, qualified_name: analytics, status: parsed}
   - {type: schema, qualified_name: analytics.curated, status: parsed}
   - {type: schema, qualified_name: analytics.raw, status: parsed}
+  - {type: schema, qualified_name: analytics.security, status: parsed}
   - {type: function, qualified_name: analytics.curated.fn_tax, status: parsed}
   - {type: procedure, qualified_name: analytics.curated.p_refresh, status: parsed}
+  - {type: procedure, qualified_name: analytics.curated.p_transform_js, status: parsed}
   - {type: task, qualified_name: analytics.curated.task_orders, status: parsed}
+  - {type: task, qualified_name: analytics.curated.task_rebuild, status: parsed}
   - {type: task, qualified_name: analytics.curated.task_stage, status: parsed}
   - {type: table, qualified_name: analytics.raw.addresses, status: parsed}
   - {type: table, qualified_name: analytics.raw.currencies, status: parsed}
@@ -82,3 +87,9 @@ edges:
   - {from: 90_loads.sql, to: analytics.raw.orders, kind: reads, external: false}
   - {from: 90_loads.sql, to: analytics.raw.orders, kind: writes, external: false}
   - {from: 90_loads.sql, to: analytics.raw.stage_ingest, kind: reads, external: false}
+  - {from: analytics.curated.mv_monthly_revenue, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: analytics.curated.p_refresh, to: analytics.curated.agg_daily_sales, kind: writes, external: false}
+  - {from: analytics.curated.p_refresh, to: analytics.raw.orders, kind: reads, external: false}
+  - {from: analytics.curated.task_rebuild, to: analytics.curated.p_refresh, kind: calls, external: false}
+  - {from: analytics.curated.task_rebuild, to: analytics.curated.task_orders, kind: schedules, external: false}
+  - {from: analytics.curated.v_event_items, to: analytics.raw.events, kind: reads, external: false}

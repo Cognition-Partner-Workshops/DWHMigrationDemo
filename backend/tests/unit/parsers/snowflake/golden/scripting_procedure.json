@@ -1,0 +1,599 @@
+{
+  "kind": "create_routine",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 264
+  },
+  "routine_kind": "procedure",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 18,
+      "end_line": 1,
+      "end_col": 19
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 18,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "p",
+        "quoted": false
+      }
+    ]
+  },
+  "params": [
+    {
+      "kind": "routine_param",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "name": {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 20,
+          "end_line": 1,
+          "end_col": 21
+        },
+        "value": "x",
+        "quoted": false
+      },
+      "type": {
+        "kind": "data_type",
+        "span": {
+          "start_line": 1,
+          "start_col": 22,
+          "end_line": 1,
+          "end_col": 28
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 22,
+            "end_line": 1,
+            "end_col": 28
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 22,
+                "end_line": 1,
+                "end_col": 28
+              },
+              "value": "NUMBER",
+              "quoted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "returns": {
+    "kind": "data_type",
+    "span": {
+      "start_line": 1,
+      "start_col": 38,
+      "end_line": 1,
+      "end_col": 44
+    },
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 38,
+        "end_line": 1,
+        "end_col": 44
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 38,
+            "end_line": 1,
+            "end_col": 44
+          },
+          "value": "STRING",
+          "quoted": false
+        }
+      ]
+    }
+  },
+  "language": "sql",
+  "body": {
+    "kind": "block",
+    "span": {
+      "start_line": 1,
+      "start_col": 64,
+      "end_line": 1,
+      "end_col": 260
+    },
+    "declarations": [
+      {
+        "kind": "declare",
+        "span": {
+          "start_line": 1,
+          "start_col": 63,
+          "end_line": 1,
+          "end_col": 63
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 72,
+            "end_line": 1,
+            "end_col": 73
+          },
+          "value": "c",
+          "quoted": false
+        },
+        "type": {
+          "kind": "data_type",
+          "span": {
+            "start_line": 1,
+            "start_col": 74,
+            "end_line": 1,
+            "end_col": 80
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 74,
+              "end_line": 1,
+              "end_col": 80
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 74,
+                  "end_line": 1,
+                  "end_col": 80
+                },
+                "value": "NUMBER",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "default": {
+          "kind": "literal",
+          "span": {
+            "start_line": 1,
+            "start_col": 89,
+            "end_line": 1,
+            "end_col": 90
+          },
+          "type": "number",
+          "value": "0"
+        }
+      }
+    ],
+    "statements": [
+      {
+        "kind": "declare",
+        "span": {
+          "start_line": 1,
+          "start_col": 98,
+          "end_line": 1,
+          "end_col": 120
+        },
+        "name": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 102,
+            "end_line": 1,
+            "end_col": 103
+          },
+          "value": "n",
+          "quoted": false
+        },
+        "type": {
+          "kind": "data_type",
+          "span": {
+            "start_line": 1,
+            "start_col": 104,
+            "end_line": 1,
+            "end_col": 110
+          },
+          "name": {
+            "kind": "qualified_name",
+            "span": {
+              "start_line": 1,
+              "start_col": 104,
+              "end_line": 1,
+              "end_col": 110
+            },
+            "parts": [
+              {
+                "kind": "identifier",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 104,
+                  "end_line": 1,
+                  "end_col": 110
+                },
+                "value": "NUMBER",
+                "quoted": false
+              }
+            ]
+          }
+        },
+        "default": {
+          "kind": "binary",
+          "span": {
+            "start_line": 1,
+            "start_col": 63,
+            "end_line": 1,
+            "end_col": 63
+          },
+          "op": "+",
+          "left": {
+            "kind": "variable",
+            "span": {
+              "start_line": 1,
+              "start_col": 114,
+              "end_line": 1,
+              "end_col": 116
+            },
+            "name": "x"
+          },
+          "right": {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 119,
+              "end_line": 1,
+              "end_col": 120
+            },
+            "type": "number",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "kind": "for_loop",
+        "span": {
+          "start_line": 1,
+          "start_col": 122,
+          "end_line": 1,
+          "end_col": 160
+        },
+        "var": {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 126,
+            "end_line": 1,
+            "end_col": 127
+          },
+          "value": "i",
+          "quoted": false
+        },
+        "iterable": {
+          "kind": "range",
+          "span": {
+            "start_line": 1,
+            "start_col": 63,
+            "end_line": 1,
+            "end_col": 63
+          },
+          "start": {
+            "kind": "literal",
+            "span": {
+              "start_line": 1,
+              "start_col": 131,
+              "end_line": 1,
+              "end_col": 132
+            },
+            "type": "number",
+            "value": "1"
+          },
+          "end": {
+            "kind": "column_ref",
+            "span": {
+              "start_line": 1,
+              "start_col": 136,
+              "end_line": 1,
+              "end_col": 137
+            },
+            "name": {
+              "kind": "qualified_name",
+              "span": {
+                "start_line": 1,
+                "start_col": 136,
+                "end_line": 1,
+                "end_col": 137
+              },
+              "parts": [
+                {
+                  "kind": "identifier",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 136,
+                    "end_line": 1,
+                    "end_col": 137
+                  },
+                  "value": "n",
+                  "quoted": false
+                }
+              ]
+            }
+          },
+          "reverse": false
+        },
+        "statements": [
+          {
+            "kind": "assign",
+            "span": {
+              "start_line": 1,
+              "start_col": 141,
+              "end_line": 1,
+              "end_col": 151
+            },
+            "target": {
+              "kind": "column_ref",
+              "span": {
+                "start_line": 1,
+                "start_col": 141,
+                "end_line": 1,
+                "end_col": 142
+              },
+              "name": {
+                "kind": "qualified_name",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 141,
+                  "end_line": 1,
+                  "end_col": 142
+                },
+                "parts": [
+                  {
+                    "kind": "identifier",
+                    "span": {
+                      "start_line": 1,
+                      "start_col": 141,
+                      "end_line": 1,
+                      "end_col": 142
+                    },
+                    "value": "c",
+                    "quoted": false
+                  }
+                ]
+              }
+            },
+            "value": {
+              "kind": "binary",
+              "span": {
+                "start_line": 1,
+                "start_col": 63,
+                "end_line": 1,
+                "end_col": 63
+              },
+              "op": "+",
+              "left": {
+                "kind": "column_ref",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 146,
+                  "end_line": 1,
+                  "end_col": 147
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 146,
+                    "end_line": 1,
+                    "end_col": 147
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 146,
+                        "end_line": 1,
+                        "end_col": 147
+                      },
+                      "value": "c",
+                      "quoted": false
+                    }
+                  ]
+                }
+              },
+              "right": {
+                "kind": "column_ref",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 150,
+                  "end_line": 1,
+                  "end_col": 151
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 150,
+                    "end_line": 1,
+                    "end_col": 151
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 150,
+                        "end_line": 1,
+                        "end_col": 151
+                      },
+                      "value": "i",
+                      "quoted": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "kind": "if",
+        "span": {
+          "start_line": 1,
+          "start_col": 162,
+          "end_line": 1,
+          "end_col": 222
+        },
+        "branches": [
+          [
+            {
+              "kind": "binary",
+              "span": {
+                "start_line": 1,
+                "start_col": 63,
+                "end_line": 1,
+                "end_col": 63
+              },
+              "op": ">",
+              "left": {
+                "kind": "column_ref",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 166,
+                  "end_line": 1,
+                  "end_col": 167
+                },
+                "name": {
+                  "kind": "qualified_name",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 166,
+                    "end_line": 1,
+                    "end_col": 167
+                  },
+                  "parts": [
+                    {
+                      "kind": "identifier",
+                      "span": {
+                        "start_line": 1,
+                        "start_col": 166,
+                        "end_line": 1,
+                        "end_col": 167
+                      },
+                      "value": "c",
+                      "quoted": false
+                    }
+                  ]
+                }
+              },
+              "right": {
+                "kind": "literal",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 170,
+                  "end_line": 1,
+                  "end_col": 172
+                },
+                "type": "number",
+                "value": "10"
+              }
+            },
+            [
+              {
+                "kind": "return",
+                "span": {
+                  "start_line": 1,
+                  "start_col": 179,
+                  "end_line": 1,
+                  "end_col": 200
+                },
+                "expr": {
+                  "kind": "literal",
+                  "span": {
+                    "start_line": 1,
+                    "start_col": 193,
+                    "end_line": 1,
+                    "end_col": 200
+                  },
+                  "type": "string",
+                  "value": "large"
+                }
+              }
+            ]
+          ]
+        ],
+        "else_": [
+          {
+            "kind": "return",
+            "span": {
+              "start_line": 1,
+              "start_col": 200,
+              "end_line": 1,
+              "end_col": 221
+            },
+            "expr": {
+              "kind": "literal",
+              "span": {
+                "start_line": 1,
+                "start_col": 214,
+                "end_line": 1,
+                "end_col": 221
+              },
+              "type": "string",
+              "value": "small"
+            }
+          }
+        ]
+      }
+    ],
+    "exception_handlers": [
+      {
+        "kind": "exception_handler",
+        "span": {
+          "start_line": 1,
+          "start_col": 63,
+          "end_line": 1,
+          "end_col": 63
+        },
+        "conditions": [
+          "OTHER"
+        ],
+        "statements": [
+          {
+            "kind": "raise",
+            "span": {
+              "start_line": 1,
+              "start_col": 250,
+              "end_line": 1,
+              "end_col": 255
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options": {
+    "replace": false,
+    "secure": false,
+    "temporary": false
+  }
+}

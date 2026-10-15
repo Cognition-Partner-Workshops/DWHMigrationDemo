@@ -22,6 +22,71 @@ def test_snowflake_table_columns_constraints_and_options() -> None:
     assert table.constraints[0].constraint_kind == "primary_key"
 
 
+def test_snowflake_identity_temporary_transient_and_cluster_options() -> None:
+    identity = _parse(
+        "CREATE TEMPORARY TABLE temp_t (id NUMBER IDENTITY(1,1), label STRING DEFAULT 'x')"
+    )
+    assert isinstance(identity, ast.CreateTable) and identity.temporary
+    assert identity.columns[0].identity.args["start"].value == "1"
+    assert identity.columns[0].identity.args["increment"].value == "1"
+    transient = _parse("CREATE TRANSIENT TABLE transient_t (id NUMBER) CLUSTER BY (id)")
+    assert isinstance(transient, ast.CreateTable)
+    assert transient.options["transient"] and transient.options["cluster_by"]
+
+
+def test_snowflake_routine_language_bodies_are_strings() -> None:
+    javascript = _parse(
+        "CREATE FUNCTION js(x FLOAT) RETURNS FLOAT LANGUAGE JAVASCRIPT AS $$return x * 2;$$"
+    )
+    python = _parse(
+        "CREATE FUNCTION py(x INT) RETURNS INT LANGUAGE PYTHON "
+        "RUNTIME_VERSION = '3.11' HANDLER = 'f' AS $$def f(x):\n  return x$$"
+    )
+    assert isinstance(javascript, ast.CreateRoutine)
+    assert javascript.language == "javascript" and isinstance(javascript.body, str)
+    assert isinstance(python, ast.CreateRoutine)
+    assert python.language == "python" and isinstance(python.body, str)
+
+
+def test_snowflake_scripting_procedure_constructs_are_typed() -> None:
+    routine = _parse(
+        "CREATE PROCEDURE p(x NUMBER) RETURNS STRING LANGUAGE SQL AS $$ "
+        "DECLARE c NUMBER DEFAULT 0; e EXCEPTION (-20001, 'bad'); BEGIN "
+        "LET n NUMBER := :x + 1; FOR i IN 1 TO n DO c := c + i; END FOR; "
+        "IF (c > 10) THEN RETURN 'large'; ELSE RETURN 'small'; END IF; "
+        "EXCEPTION WHEN STATEMENT_ERROR OR EXPRESSION_ERROR THEN RETURN SQLERRM; "
+        "WHEN OTHER THEN RAISE; END; $$"
+    )
+    assert isinstance(routine, ast.CreateRoutine) and isinstance(routine.body, ast.Block)
+    block = routine.body
+    assert [decl.name.value for decl in block.declarations] == ["c", "e"]
+    assert isinstance(block.declarations[1], ast.Declare)
+    assert block.declarations[1].type.name.parts[-1].value == "EXCEPTION"
+    let_declare = next(node for node in block.statements if isinstance(node, ast.Declare))
+    assert let_declare.name.value == "n"
+    loop = next(node for node in block.statements if isinstance(node, ast.ForLoop))
+    assert isinstance(loop.iterable, ast.Range)
+    assert any(isinstance(node, ast.Assign) for node in ast.walk(loop))
+    assert any(isinstance(node, ast.If) for node in block.statements)
+    assert len(block.exception_handlers) == 2
+    assert block.exception_handlers[0].conditions == ["STATEMENT_ERROR", "EXPRESSION_ERROR"]
+
+
+def test_snowflake_tags_and_shares() -> None:
+    tag = _parse("CREATE TAG sensitivity ALLOWED_VALUES 'public','restricted'")
+    assert isinstance(tag, ast.DialectStatement) and tag.name == "create_tag"
+    assert [value.value for value in tag.args["properties"]["allowed_values"]] == [
+        "public",
+        "restricted",
+    ]
+    share = _parse("CREATE SHARE partner_share")
+    assert isinstance(share, ast.DialectStatement) and share.name == "create_share"
+    grant = _parse("GRANT USAGE ON DATABASE analytics TO SHARE partner_share")
+    assert isinstance(grant, ast.Grant) and grant.grantee_kinds == ["share"]
+    alter = _parse("ALTER SHARE partner_share ADD ACCOUNTS = org1.account1")
+    assert isinstance(alter, ast.Alter) and alter.actions[0].name == "add_accounts"
+
+
 def test_snowflake_structured_types_and_inline_policy_options() -> None:
     table = _parse(
         "CREATE TABLE typed (arr ARRAY(NUMBER), obj OBJECT(a INT, b STRING), "

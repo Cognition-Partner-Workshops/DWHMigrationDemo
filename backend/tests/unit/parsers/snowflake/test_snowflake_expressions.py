@@ -38,6 +38,12 @@ def test_snowflake_identifier_function_resolves_literal_and_marks_dynamic() -> N
     table = result.statements[0].body.from_[0]
     assert isinstance(table, ast.TableRef)
     assert [part.value for part in table.name.parts] == ["db", "sch", "orders"]
+    insert = Parser().parse(
+        "INSERT INTO IDENTIFIER('db.sch.orders') SELECT id FROM source", "insert.sql"
+    )
+    assert not insert.issues, insert.issues
+    assert isinstance(insert.statements[0], ast.Insert)
+    assert [part.value for part in insert.statements[0].target.parts] == ["db", "sch", "orders"]
     dynamic = Parser().parse("SELECT * FROM IDENTIFIER(:table_name)", "dynamic.sql")
     assert dynamic.statements
     assert any(issue.code == "snowflake.dynamic_identifier" for issue in dynamic.issues)
@@ -69,3 +75,11 @@ def test_snowflake_temporal_table_refs_and_stage_tables() -> None:
     left, right = result.statements[0].body.from_[0].left, result.statements[0].body.from_[0].right
     assert isinstance(left, ast.TableRef) and left.temporal.name == "temporal"
     assert isinstance(right, ast.TableRef) and right.hints == ["stage"]
+
+
+def test_snowflake_before_time_travel_mode() -> None:
+    result = Parser().parse("SELECT * FROM t BEFORE(STATEMENT => '8e5d0ca9')", "before.sql")
+    assert not result.issues, result.issues
+    table = result.statements[0].body.from_[0]
+    assert isinstance(table, ast.TableRef)
+    assert table.temporal is not None and table.temporal.args["mode"] == "before"

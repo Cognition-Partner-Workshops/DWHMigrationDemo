@@ -21,6 +21,9 @@ def test_snowflake_reference_hints_and_nested_query_references() -> None:
     )
     refs = extract_references(task, Parser)
     assert {ref.ref_kind for ref in refs} >= {"schedules", "reads", "writes"}
+    assert [ref.name.parts[-1].value for ref in refs if ref.ref_kind == "schedules"] == [
+        "prior_task"
+    ]
     assert any(ref.name.parts[-1].value == "source" for ref in refs)
 
 
