@@ -12,3 +12,15 @@ All endpoints are local to `127.0.0.1`. Except for health and launch-token excha
 | `POST /api/session/confirm` | Accepts `{"source":"teradata","target":"databricks"}` and returns `{"session_id":"…","source":"teradata","target":"databricks"}`. Unknown IDs or identical source/target return `422`. |
 
 Authentication failures return `401`, CSRF failures `403`, and invalid Host headers `400`. Upload, conversion, planning, and download endpoints are not implemented in Phase 1; see [Phase-Gate 0 §10](phase-gate-0-plan.md#10-api-specification-summary).
+
+## Phase 2 knowledge base
+
+| Method and path | Behavior |
+|---|---|
+| `GET /api/kb/status` | Returns the active KB version, creation time, document/chunk counts, last refresh summary, current refresh progress (or `null`), and rollback versions. |
+| `POST /api/kb/refresh` | Starts a background refresh and returns `202`; returns `409` if a refresh is already running. |
+| `DELETE /api/kb/refresh` | Requests cancellation of the active refresh; returns `409` if none is running. |
+| `POST /api/kb/rollback` | Activates the previous retained version; returns `409` if none is available or a refresh is running. |
+| `GET /api/kb/search?q=…&source=…&target=…&section=…&k=8` | Returns hybrid BM25/vector results with chunk text and source metadata. |
+
+All KB endpoints use the same session-cookie, CSRF, and local Host protections described above.

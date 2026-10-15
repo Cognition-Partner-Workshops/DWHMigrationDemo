@@ -1,0 +1,16 @@
+platform: teradata
+allowed_hosts:
+  - docs.example.test
+seeds:
+  - url: http://docs.example.test/guide/one
+    path_prefix: /guide/
+    topic: one
+  - url: https://elsewhere.example.test/guide/two
+    path_prefix: /guide/
+    topic: two
+  - url: https://docs.example.test/guide/three
+    path_prefix: /guide/
+    topic: three
+  - url: https://docs.example.test/guide/four
+    path_prefix: /guide/
+    topic: four

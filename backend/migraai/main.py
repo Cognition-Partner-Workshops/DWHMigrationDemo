@@ -4,6 +4,9 @@ import atexit
 import ctypes
 import logging
 import os
+import shutil
+import sys
+import threading
 import time
 from collections.abc import Callable
 from contextlib import asynccontextmanager
@@ -13,7 +16,7 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, Response
 
-from migraai.api import auth, health, platforms, session, settings
+from migraai.api import auth, health, kb, platforms, session, settings
 from migraai.core.audit import AuditLog
 from migraai.core.config import get_data_root
 from migraai.core.logging import AccessLogger
@@ -21,6 +24,8 @@ from migraai.core.secrets import get_protector
 from migraai.core.security import AuthState, security_middleware
 from migraai.core.settings_store import SettingsStore
 from migraai.core.storage import wipe_sessions
+from migraai.kb.build import build_database
+from migraai.kb.store import KBStore
 
 logger = logging.getLogger(__name__)
 _console_handlers: list[Any] = []
@@ -85,6 +90,28 @@ def create_app(
         app.state.audit_log = AuditLog(resolved_data_dir / "logs" / "audit.jsonl")
         app.state.access_logger = AccessLogger(resolved_data_dir / "logs" / "access.log")
         app.state.audit_log.append("system", "app.start", "application")
+        app.state.kb_store = KBStore(resolved_data_dir)
+        kb_store = app.state.kb_store
+        kb_store.initialize()
+        if kb_store.current_path is None:
+            bundled = Path(os.environ.get("MIGRAAI_SEED_KB", ""))
+            if not bundled.is_file():
+                bundled = Path(sys.executable).resolve().parent.parent / "app" / "kb" / "kb-v1.db"
+            if bundled.is_file():
+                target = kb_store.version_path(1)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(bundled, target)
+                kb_store.activate(1)
+            else:
+                seed_dir = Path(__file__).with_name("kb") / "seed"
+                seed_files = list(seed_dir.rglob("*.yaml")) if seed_dir.is_dir() else []
+                if seed_files:
+                    build_database(seed_dir, kb_store.version_path(1), allow_incomplete=True)
+                    kb_store.activate(1)
+                else:
+                    kb_store.create_empty()
+        app.state.kb_refresh_job = None
+        app.state.kb_job_lock = threading.Lock()
         try:
             yield
         finally:
@@ -132,6 +159,7 @@ def create_app(
     app.include_router(platforms.router)
     app.include_router(settings.router)
     app.include_router(session.router)
+    app.include_router(kb.router)
 
     spa_fallback = _serve_spa(resolved_web_dir)
 
