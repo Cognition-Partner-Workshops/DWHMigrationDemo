@@ -1,0 +1,79 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 94
+  },
+  "name": "create_external_data_source",
+  "args": {
+    "object_type": "external_data_source",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 29,
+        "end_line": 1,
+        "end_col": 33
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 29,
+            "end_line": 1,
+            "end_col": 33
+          },
+          "value": "lake",
+          "quoted": false
+        }
+      ]
+    },
+    "options": {
+      "type": {
+        "kind": "column_ref",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "name": {
+          "kind": "qualified_name",
+          "span": {
+            "start_line": 1,
+            "start_col": 47,
+            "end_line": 1,
+            "end_col": 53
+          },
+          "parts": [
+            {
+              "kind": "identifier",
+              "span": {
+                "start_line": 1,
+                "start_col": 47,
+                "end_line": 1,
+                "end_col": 53
+              },
+              "value": "HADOOP",
+              "quoted": false
+            }
+          ]
+        }
+      },
+      "location": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 93,
+          "end_line": 1,
+          "end_col": 120
+        },
+        "type": "string",
+        "value": "https://example.test/data"
+      }
+    }
+  }
+}

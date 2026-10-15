@@ -1,0 +1,76 @@
+{
+  "kind": "rename",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 34
+  },
+  "object_kind": "object",
+  "name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 16,
+      "end_line": 1,
+      "end_col": 23
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 16,
+          "end_line": 1,
+          "end_col": 19
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 20,
+          "end_line": 1,
+          "end_col": 23
+        },
+        "value": "old",
+        "quoted": false
+      }
+    ]
+  },
+  "new_name": {
+    "kind": "qualified_name",
+    "span": {
+      "start_line": 1,
+      "start_col": 27,
+      "end_line": 1,
+      "end_col": 34
+    },
+    "parts": [
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 27,
+          "end_line": 1,
+          "end_col": 30
+        },
+        "value": "dbo",
+        "quoted": false
+      },
+      {
+        "kind": "identifier",
+        "span": {
+          "start_line": 1,
+          "start_col": 31,
+          "end_line": 1,
+          "end_col": 34
+        },
+        "value": "new",
+        "quoted": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 1,
+    "start_col": 1,
+    "end_line": 1,
+    "end_col": 62
+  },
+  "name": "create_master_key",
+  "args": {
+    "object_type": "master_key",
+    "name": {
+      "kind": "qualified_name",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "parts": [
+        {
+          "kind": "identifier",
+          "span": {
+            "start_line": 1,
+            "start_col": 1,
+            "end_line": 1,
+            "end_col": 1
+          },
+          "value": "master_key",
+          "quoted": false
+        }
+      ]
+    },
+    "options": {
+      "password": {
+        "kind": "literal",
+        "span": {
+          "start_line": 1,
+          "start_col": 1,
+          "end_line": 1,
+          "end_col": 1
+        },
+        "type": "string",
+        "value": "***"
+      }
+    }
+  }
+}
