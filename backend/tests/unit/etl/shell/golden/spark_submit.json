@@ -182,7 +182,18 @@
               "end_line": 1,
               "end_col": 1
             },
-            "value": "j/app.py",
+            "value": "j/app",
+            "quoted": false
+          },
+          {
+            "kind": "identifier",
+            "span": {
+              "start_line": 1,
+              "start_col": 1,
+              "end_line": 1,
+              "end_col": 1
+            },
+            "value": "py",
             "quoted": false
           }
         ]

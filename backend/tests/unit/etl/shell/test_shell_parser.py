@@ -257,3 +257,27 @@ bcp t in f -P hunter2
         [e.text for e in result.embedded_sql]
     )
     assert "s3cretpw" not in payload and "hunter2" not in payload
+
+
+def test_pipeline_local_refs_resolve_internal() -> None:
+    from migraai.discovery.pipeline import discover_files
+
+    files = {
+        "jobs/run_all.sh": (
+            b"main() {\n  bash jobs/stage.sh\n  finish_up\n}\nfinish_up() {\n  echo done\n}\nmain\n"
+        ),
+        "jobs/stage.sh": b"stage() {\n  echo staging\n}\nstage\n",
+    }
+    objects, edges = discover_files(files, "ansi")
+    local = {o.qualified_name.casefold() for o in objects if o.status != "external"}
+    edge_map = {(e.source, e.target, e.kind): e for e in edges}
+    calls = edge_map.get(("jobs/run_all.sh::main", "jobs/run_all.sh::finish_up", "calls"))
+    assert calls is not None and calls.external is False
+    runs = edge_map.get(("jobs/run_all.sh::main", "jobs/stage.sh", "etl_runs"))
+    assert runs is not None and runs.external is False
+    dupes = [
+        o.qualified_name
+        for o in objects
+        if o.status == "external" and o.qualified_name.casefold() in local
+    ]
+    assert not dupes

@@ -38,6 +38,12 @@ objects:
 - type: external
   qualified_name: /data/text/in
   status: external
+- type: scala_object
+  qualified_name: com.acme.etl.Reconcile
+  status: parsed
+- type: function
+  qualified_name: com.acme.etl.Reconcile.main
+  status: parsed
 - type: unsupported
   qualified_name: conf/misc.json
   status: unparsed
@@ -189,6 +195,12 @@ objects:
   qualified_name: mart.orders
   status: external
 - type: external
+  qualified_name: mart.payment_fact
+  status: external
+- type: external
+  qualified_name: mart.payment_recon_delta
+  status: external
+- type: external
   qualified_name: src.accounts
   status: external
 - type: external
@@ -210,9 +222,24 @@ objects:
   qualified_name: stg.orders
   status: external
 - type: external
+  qualified_name: stg.payments_stage
+  status: external
+- type: external
   qualified_name: stg.ref_codes_out
   status: external
 edges:
+- from: com.acme.etl.Reconcile.main
+  to: mart.payment_fact
+  kind: etl_reads
+  external: true
+- from: com.acme.etl.Reconcile.main
+  to: mart.payment_recon_delta
+  kind: etl_writes
+  external: true
+- from: com.acme.etl.Reconcile.main
+  to: stg.payments_stage
+  kind: etl_reads
+  external: true
 - from: jobs.helpers.count_table
   to: mart.orders
   kind: etl_reads

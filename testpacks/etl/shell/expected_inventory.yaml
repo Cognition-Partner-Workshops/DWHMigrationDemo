@@ -89,69 +89,39 @@ objects:
 - type: script
   qualified_name: jobs/run_all.sh
   status: parsed
-- type: external
-  qualified_name: jobs/run_all.sh::finish_up
-  status: external
 - type: function
   qualified_name: jobs/run_all.sh::finish_up
   status: parsed
-- type: external
-  qualified_name: jobs/run_all.sh::main
-  status: external
 - type: function
   qualified_name: jobs/run_all.sh::main
   status: parsed
-- type: external
-  qualified_name: jobs/run_all.sh::prepare_extract
-  status: external
 - type: function
   qualified_name: jobs/run_all.sh::prepare_extract
   status: parsed
-- type: external
-  qualified_name: jobs/run_all.sh::run_extract
-  status: external
 - type: function
   qualified_name: jobs/run_all.sh::run_extract
   status: parsed
-- type: external
-  qualified_name: jobs/run_all.sh::run_load
-  status: external
 - type: function
   qualified_name: jobs/run_all.sh::run_load
   status: parsed
 - type: script
   qualified_name: lib/common.sh
   status: parsed
-- type: external
-  qualified_name: lib/common.sh::archive_file
-  status: external
 - type: function
   qualified_name: lib/common.sh::archive_file
   status: parsed
-- type: external
-  qualified_name: lib/common.sh::check_file
-  status: external
 - type: function
   qualified_name: lib/common.sh::check_file
   status: parsed
 - type: function
   qualified_name: lib/common.sh::cleanup_tmp
   status: parsed
-- type: external
-  qualified_name: lib/common.sh::fail
-  status: external
 - type: function
   qualified_name: lib/common.sh::fail
   status: parsed
-- type: external
-  qualified_name: lib/common.sh::log_msg
-  status: external
 - type: function
   qualified_name: lib/common.sh::log_msg
   status: parsed
-- type: external
-  qualified_name: lib/common.sh::notify_done
-  status: external
 - type: function
   qualified_name: lib/common.sh::notify_done
   status: parsed
@@ -279,7 +249,7 @@ edges:
 - from: jobs/run_all.sh
   to: jobs/run_all.sh::main
   kind: calls
-  external: true
+  external: false
 - from: jobs/run_all.sh::finish_up
   to: com.acme.etl.Reconcile
   kind: etl_runs
@@ -295,47 +265,47 @@ edges:
 - from: jobs/run_all.sh::main
   to: jobs/run_all.sh::finish_up
   kind: calls
-  external: true
+  external: false
 - from: jobs/run_all.sh::main
   to: jobs/run_all.sh::prepare_extract
   kind: calls
-  external: true
+  external: false
 - from: jobs/run_all.sh::main
   to: jobs/run_all.sh::run_extract
   kind: calls
-  external: true
+  external: false
 - from: jobs/run_all.sh::main
   to: jobs/run_all.sh::run_load
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::archive_file
   to: lib/common.sh::check_file
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::archive_file
   to: lib/common.sh::log_msg
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::check_file
   to: lib/common.sh::fail
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::cleanup_tmp
   to: lib/common.sh::log_msg
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::fail
   to: lib/common.sh::log_msg
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::notify_done
   to: lib/common.sh::archive_file
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::notify_done
   to: lib/common.sh::log_msg
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::report_status
   to: ctl.job_log
   kind: etl_reads
@@ -343,15 +313,15 @@ edges:
 - from: lib/common.sh::run_sql_file
   to: lib/common.sh::check_file
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::run_sql_file
   to: lib/common.sh::notify_done
   kind: calls
-  external: true
+  external: false
 - from: lib/common.sh::wait_for_lock
   to: lib/common.sh::log_msg
   kind: calls
-  external: true
+  external: false
 - from: load/final.sh::export_marts
   to: /data/orders.dat
   kind: etl_writes

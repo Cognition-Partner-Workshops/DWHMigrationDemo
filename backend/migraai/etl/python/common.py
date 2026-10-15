@@ -55,6 +55,18 @@ def qname(text: str, *, split: bool = True) -> ast.QualifiedName:
     return ast.QualifiedName(parts=parts)
 
 
+def ref_name(target: str) -> ast.QualifiedName:
+    """Qualified name for a local-style ETL reference target.
+
+    The resolver keys objects by ``qualified_name.split(".")``, so a reference
+    to ``jobs/run_all.sh::main`` must carry exactly the parts
+    ``["jobs/run_all", "sh::main"]`` — a raw split on every dot would mis-key it.
+    """
+    return ast.QualifiedName(
+        parts=[ast.Identifier(value=part) for part in target.split(".") if part != ""]
+    )
+
+
 def span(
     start_line: int,
     end_line: int | None = None,
@@ -329,7 +341,12 @@ class EtlBuilder:
         *,
         split: bool = True,
     ) -> ast.RefHint:
-        qualified = name if isinstance(name, ast.QualifiedName) else qname(name, split=split)
+        if isinstance(name, ast.QualifiedName):
+            qualified = name
+        elif "/" in name or "::" in name:
+            qualified = ref_name(name)
+        else:
+            qualified = qname(name, split=split)
         return ast.RefHint(name=qualified, ref_kind=ref_kind, span=span)
 
     def add(
