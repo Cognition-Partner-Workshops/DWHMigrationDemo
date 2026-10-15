@@ -1,0 +1,318 @@
+source: hive
+target: clickhouse
+architecture_overview:
+- text: HiveServer2 runs a Thrift-based Hive service (TCP or HTTP) with a Jetty web UI in one process.
+  url: https://hive.apache.org/docs/latest/user/hiveserver2-overview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse Cloud SharedMergeTree is a cloud-native replacement for ReplicatedMergeTree.
+  url: https://clickhouse.com/docs/products/cloud/features/infrastructure/shared-merge-tree
+  accessed: '2026-10-15'
+  confidence: high
+- text: A MergeTree primary key sets the sort order within each table part.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Hive owns managed-table data (dropped with the table) but not external-table data.
+    url: https://hive.apache.org/docs/latest/language/managed-vs--external-tables/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: MergeTree primary keys index 8192-row granules rather than individual rows.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Hive executes queries using Apache Tez or MapReduce.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse Cloud idles and resumes compute automatically.
+    url: https://clickhouse.com/docs/products/cloud/reference/architecture
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Hive storage based authorization relies on HDFS permissions and works at database, table and partition level.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse uses RBAC-based access control.
+    url: https://clickhouse.com/docs/concepts/features/security/access-rights
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Hive global ORDER BY needs a single reducer for the final sort.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse primary indexes turn scans into fast binary searches with logarithmic runtime.
+    url: https://clickhouse.com/docs/get-started/about/why-clickhouse-is-so-fast
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Extract Hive DDL, partitions and HPL/SQL scripts from the metastore and edge nodes, compact ACID tables, then copy ORC/Parquet files from HDFS to cloud object storage and load or register them in ClickHouse. Rewrite HiveQL-specific clauses (SORT BY, DISTRIBUTE BY, LATERAL VIEW, multi-insert), replace Oozie/scheduled queries with ClickHouse orchestration, map Ranger/SQL-standard grants to ClickHouse security, and validate partition-by-partition.
+object_mapping:
+- source_object: Managed (ACID/ORC) table
+  target_object: MergeTree / SharedMergeTree table
+  notes: ''
+  claim:
+    text: MergeTree primary key defines sort order in each part.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW
+  target_object: View
+  notes: ''
+  claim:
+    text: ClickHouse supports normal views.
+    url: https://clickhouse.com/docs/reference/statements/create/view
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Refreshable or incremental materialized view
+  notes: ''
+  claim:
+    text: ClickHouse supports materialized and refreshable materialized views.
+    url: https://clickhouse.com/docs/reference/statements/create/view
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: HPL/SQL procedure
+  target_object: Lambda UDF plus external orchestration
+  notes: ''
+  claim:
+    text: ClickHouse UDFs are lambda expressions.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Scheduled query (Hive 4) / Oozie workflow
+  target_object: Refreshable materialized view
+  notes: ''
+  claim:
+    text: Refreshable materialized views recompute on a schedule.
+    url: https://clickhouse.com/docs/reference/statements/create/view
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: ACID table delta files
+  target_object: ReplacingMergeTree upsert target
+  notes: ''
+  claim:
+    text: ReplacingMergeTree deduplicates by sorting key.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: LOAD DATA / INSERT OVERWRITE
+  target_object: INSERT INTO ... SELECT FROM s3()
+  notes: ''
+  claim:
+    text: The s3 table function reads files in S3.
+    url: https://clickhouse.com/docs/reference/functions/table-functions/s3
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE on HDFS
+  target_object: s3 / iceberg table function
+  notes: ''
+  claim:
+    text: The iceberg table function queries Iceberg tables.
+    url: https://clickhouse.com/docs/reference/functions/table-functions/iceberg
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ARRAY/MAP/STRUCT column
+  target_object: JSON column
+  notes: ''
+  claim:
+    text: JSON type stores JSON documents in a column.
+    url: https://clickhouse.com/docs/reference/data-types/newjson
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Hive SORT BY orders rows only within each reducer, so output may be only partially ordered.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive LATERAL VIEW applies a UDTF such as explode() to each input row.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-lateralview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: HiveQL SELECT has non-standard CLUSTER BY, DISTRIBUTE BY and SORT BY clauses.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse ALTER TABLE ... UPDATE is a mutation, a heavy operation not designed for frequent use.
+  url: https://clickhouse.com/docs/reference/statements/alter/update
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse provides a lightweight DELETE statement.
+  url: https://clickhouse.com/docs/reference/statements/delete
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse Decimal precision ranges from 1 to 76, default 10.
+  url: https://clickhouse.com/docs/reference/data-types/decimal
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse String values have arbitrary length and can contain any bytes.
+  url: https://clickhouse.com/docs/reference/data-types/string
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse columns are non-nullable unless declared Nullable(T).
+  url: https://clickhouse.com/docs/reference/data-types/nullable
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse supports QUALIFY.
+  url: https://clickhouse.com/docs/reference/statements/select/qualify
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Hive LOAD DATA moves files into a table or partition without transformation.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive EXPORT writes table or partition data plus metadata to an output location.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-importexport/
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse s3 table function reads and writes files in S3-compatible storage.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/s3
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse iceberg table function queries Apache Iceberg tables.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/iceberg
+  accessed: '2026-10-15'
+  confidence: high
+- text: The ClickHouse Hive engine runs SELECT queries on HDFS Hive tables.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/hive
+  accessed: '2026-10-15'
+  confidence: high
+- text: The ClickHouse hdfs table function creates a table from HDFS files.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/hdfs
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: HPL/SQL provides procedural SQL for Hive from Hive 2.0.0.
+  url: https://hive.apache.org/docs/latest/language/hplsql/
+  accessed: '2026-10-15'
+  applies_to: Hive 2.0+
+  confidence: high
+- text: Hive 4.0 added scheduled queries executed by HiveServer2.
+  url: https://hive.apache.org/docs/latest/language/scheduled-queries/
+  accessed: '2026-10-15'
+  applies_to: Hive 4.0+
+  confidence: high
+- text: ClickHouse incremental materialized views move computation from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse views can be normal, materialized or refreshable materialized.
+  url: https://clickhouse.com/docs/reference/statements/create/view
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Hive SQL standard based authorization grants privileges to users and roles for HiveServer2 clients.
+  url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive storage based authorization does not provide column- or row-level control.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse supports row policies.
+  url: https://clickhouse.com/docs/reference/statements/create/row-policy
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse Cloud documents database user management.
+  url: https://clickhouse.com/docs/products/cloud/guides/security/cloud-access-management/manage-database-users
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: hive_uniontype
+  claim:
+    text: Hive UNIONTYPE is effectively pass-through only and fails in JOIN, WHERE or GROUP BY.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_sort_distribute_by
+  claim:
+    text: Hive SORT BY / DISTRIBUTE BY control per-reducer ordering and row distribution.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_no_explicit_txn
+  claim:
+    text: Hive has no BEGIN/COMMIT/ROLLBACK; every statement auto-commits.
+    url: https://hive.apache.org/docs/latest/user/hive-transactions/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_hplsql
+  claim:
+    text: Hive stored procedures are written in HPL/SQL.
+    url: https://hive.apache.org/docs/latest/language/hplsql/
+    accessed: '2026-10-15'
+    confidence: high
+- id: ch_heavy_updates
+  claim:
+    text: ClickHouse UPDATE runs as an asynchronous mutation intended for infrequent use.
+    url: https://clickhouse.com/docs/reference/statements/alter/update
+    accessed: '2026-10-15'
+    confidence: high
+- id: ch_limited_txn
+  claim:
+    text: ClickHouse multi-statement transactions are experimental; single INSERTs are atomic.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: hive_uniontype
+  claim:
+    text: ClickHouse JSON type stores JSON documents in one column.
+    url: https://clickhouse.com/docs/reference/data-types/newjson
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_sort_distribute_by
+  claim:
+    text: MergeTree ORDER BY / primary key controls sort order within parts.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_no_explicit_txn
+  claim:
+    text: A ClickHouse INSERT succeeds or fails as a whole.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_hplsql
+  claim:
+    text: ClickHouse UDFs are created from lambda expressions.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: high
+    notes: Dialect rewrites (Hive specifics to ClickHouse)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the ClickHouse model
+  governance:
+    level: high
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: medium
+    notes: Feature gaps between Hive and ClickHouse need redesign
+  operational:
+    level: high
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: ReplacingMergeTree removes duplicate rows sharing the sorting key.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse projections provide alternative data layouts for queries.
+  url: https://clickhouse.com/docs/concepts/features/projections/projections
+  accessed: '2026-10-15'
+  confidence: high
+- text: Incremental materialized views precompute results at insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: '2026-10-15'
+  confidence: high

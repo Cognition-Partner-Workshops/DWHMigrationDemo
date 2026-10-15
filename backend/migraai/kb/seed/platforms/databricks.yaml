@@ -1,0 +1,126 @@
+id: databricks
+name: Databricks Data Intelligence Platform
+roles:
+- target
+versions_covered: Databricks SQL (serverless/pro/classic warehouses) and Databricks Runtime 13.3 LTS–17.x, Unity Catalog
+summary: Databricks is a lakehouse platform built on Apache Spark in which tables default to Delta Lake (Parquet files plus a transaction log) governed by Unity Catalog. SQL runs on serverless, pro or classic SQL warehouses or on Spark clusters. Ingestion and ELT use Auto Loader, COPY INTO, Lakeflow Connect, Lakeflow Spark Declarative Pipelines and Lakeflow Jobs.
+facets:
+  architecture:
+  - text: Delta Lake extends Parquet data files with a file-based transaction log for ACID transactions and scalable metadata handling.
+    url: https://docs.databricks.com/aws/en/delta/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Unity Catalog objects use a three-level namespace, catalog.schema.object.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks includes Apache Spark and Structured Streaming as core engines.
+    url: https://docs.databricks.com/aws/en/introduction/
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: Delta Lake is the default format for all tables on Databricks.
+    url: https://docs.databricks.com/aws/en/delta/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Unity Catalog managed tables are the default and recommended table type for Delta Lake and Iceberg.
+    url: https://docs.databricks.com/aws/en/tables/managed
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Liquid clustering replaces table partitioning and ZORDER, and clustering keys can change without rewriting data.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: A SQL warehouse is a compute resource for querying and exploring data.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks SQL warehouses come in serverless, pro and classic types.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Every Unity Catalog securable has an owner who holds all privileges on it and can grant privileges to others.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Row filters and column masks are Unity Catalog controls that restrict visible rows and column values at query time.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Unity Catalog attribute-based access control (ABAC) determines access by evaluating attributes such as tags.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Predictive optimization automatically runs OPTIMIZE, VACUUM and ANALYZE on Unity Catalog managed tables.
+    url: https://docs.databricks.com/aws/en/optimizations/predictive-optimization
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks recommends liquid clustering over custom partitioning for all tables.
+    url: https://docs.databricks.com/aws/en/tables/partitions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The disk cache keeps copies of remote Parquet/Delta data locally so later reads are faster.
+    url: https://docs.databricks.com/aws/en/optimizations/disk-cache
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: ANSI mode (spark.sql.ansi.enabled) is on by default in Databricks Runtime 17.0 and above.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-ansi-compliance
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 17.0+
+    confidence: high
+  - text: Databricks identifiers are case-insensitive and delimited identifiers use backticks.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-identifiers
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A Databricks SQL script is a compound statement block, BEGIN ... END.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+    accessed: '2026-10-15'
+    confidence: high
+  - text: QUALIFY filters window function results and requires at least one window function.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-qualify
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: Spark Declarative Pipelines (Lakeflow) is a declarative framework for batch and streaming pipelines in SQL and Python.
+    url: https://docs.databricks.com/aws/en/ldp/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Lakeflow Jobs orchestrates multiple tasks as part of larger, schedulable workflows.
+    url: https://docs.databricks.com/aws/en/jobs/
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: Auto Loader incrementally processes new files as they arrive in cloud storage.
+    url: https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: COPY INTO is retryable and idempotent; files already loaded are skipped.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/delta-copy-into
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks shares data with other organisations through an open sharing protocol that works across platforms.
+    url: https://docs.databricks.com/aws/en/opensharing
+    accessed: '2026-10-15'
+    confidence: high
+unsupported_features:
+- text: Primary key, foreign key and unique constraints are informational only; NOT NULL and CHECK are enforced.
+  url: https://docs.databricks.com/aws/en/tables/constraints
+  accessed: '2026-10-15'
+  confidence: high
+- text: Delta time travel should rely only on the past 7 days by default; table history is not a long-term backup.
+  url: https://docs.databricks.com/aws/en/tables/history
+  accessed: '2026-10-15'
+  confidence: high
+- text: Delta CLONE creates deep clones (data and metadata) or shallow clones (metadata only referencing source files).
+  url: https://docs.databricks.com/aws/en/tables/operations/clone
+  accessed: '2026-10-15'
+  confidence: high
+- text: VARIANT requires Databricks Runtime 15.3+ and is not supported in Iceberg v2 tables.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/data-types/variant-type
+  accessed: '2026-10-15'
+  applies_to: Databricks Runtime 15.3+
+  confidence: high

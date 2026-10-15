@@ -1,0 +1,31 @@
+platform: snowflake
+allowed_hosts:
+- docs.snowflake.com
+seeds:
+- url: https://docs.snowflake.com/en/sql-reference/intro-summary-data-types
+  path_prefix: /en/sql-reference/
+  topic: sql-data-types
+- url: https://docs.snowflake.com/en/sql-reference/functions-all
+  path_prefix: /en/sql-reference/functions/
+  topic: sql-functions
+- url: https://docs.snowflake.com/en/sql-reference/sql-ddl-summary
+  path_prefix: /en/sql-reference/sql/
+  topic: ddl
+- url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+  path_prefix: /en/user-guide/
+  topic: security-access-control
+- url: https://docs.snowflake.com/en/user-guide/data-load-overview
+  path_prefix: /en/user-guide/
+  topic: data-loading
+- url: https://docs.snowflake.com/en/user-guide/data-unload-overview
+  path_prefix: /en/user-guide/
+  topic: data-unloading
+- url: https://docs.snowflake.com/en/developer-guide/snowflake-scripting/index
+  path_prefix: /en/developer-guide/snowflake-scripting/
+  topic: procedural-sql
+- url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  path_prefix: /en/user-guide/
+  topic: architecture
+- url: https://docs.snowflake.com/en/migrations/README
+  path_prefix: /en/migrations/
+  topic: migration-guides

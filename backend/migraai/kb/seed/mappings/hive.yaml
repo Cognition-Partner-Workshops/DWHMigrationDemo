@@ -1,0 +1,388 @@
+platform: hive
+types:
+- native: TINYINT
+  canonical: int8
+  notes: ''
+  claim:
+    text: Hive TINYINT is a 1-byte signed integer (-128 to 127).
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: SMALLINT
+  canonical: int16
+  notes: ''
+  claim:
+    text: Hive SMALLINT is a 2-byte signed integer.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: INT / INTEGER
+  canonical: int32
+  notes: INTEGER is a synonym from Hive 2.2.0.
+  claim:
+    text: Hive INT/INTEGER is a 4-byte signed integer.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: BIGINT
+  canonical: int64
+  notes: ''
+  claim:
+    text: Hive BIGINT is an 8-byte signed integer.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: FLOAT
+  canonical: float32
+  notes: ''
+  claim:
+    text: Hive FLOAT is a 4-byte single-precision floating point number.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: DOUBLE / DOUBLE PRECISION
+  canonical: float64
+  notes: DOUBLE PRECISION alias from Hive 2.2.0.
+  claim:
+    text: Hive DOUBLE is an 8-byte double-precision floating point number.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECIMAL(p,s) / NUMERIC
+  canonical: decimal
+  notes: Default is DECIMAL(10,0) when precision and scale are omitted.
+  claim:
+    text: Hive DECIMAL supports up to 38 digits of precision; without arguments it defaults to DECIMAL(10,0).
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRING
+  canonical: string
+  notes: ''
+  claim:
+    text: STRING is Hive's unbounded string type.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR(n)
+  canonical: varchar
+  notes: Values longer than n are silently truncated.
+  claim:
+    text: Hive VARCHAR takes a length of 1 to 65535 and silently truncates longer values.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: CHAR(n)
+  canonical: char
+  notes: ''
+  claim:
+    text: Hive CHAR is fixed-length, space-padded and has a maximum length of 255.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: BOOLEAN
+  canonical: boolean
+  notes: ''
+  claim:
+    text: BOOLEAN is a Hive primitive type.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: BINARY
+  canonical: varbinary
+  notes: Unbounded byte array.
+  claim:
+    text: BINARY is available as a Hive type starting with Hive 0.8.0.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP
+  canonical: timestamp
+  notes: Timezone-less; up to nanosecond precision.
+  claim:
+    text: Hive TIMESTAMP values are time-zone-less offsets from the UNIX epoch with optional nanosecond precision.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE
+  canonical: date
+  notes: ''
+  claim:
+    text: Hive DATE holds year/month/day with no time of day, ranging 0000-01-01 to 9999-12-31.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTERVAL
+  canonical: interval
+  notes: Year-to-month and day-to-second intervals.
+  claim:
+    text: Hive supports year-to-month and day-to-second INTERVAL literals from Hive 1.2.0.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    applies_to: Hive 1.2+
+    confidence: high
+- native: ARRAY<T>
+  canonical: array
+  notes: ''
+  claim:
+    text: Hive ARRAY<data_type> is a complex type.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: MAP<K,V>
+  canonical: map
+  notes: Keys must be primitive types.
+  claim:
+    text: Hive MAP keys must be a primitive type.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRUCT<...>
+  canonical: struct
+  notes: ''
+  claim:
+    text: Hive STRUCT is a complex type of named fields with optional comments.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- native: UNIONTYPE<...>
+  canonical: other
+  notes: No equivalent on most targets; flatten or convert to STRUCT/JSON.
+  claim:
+    text: Hive UNIONTYPE support is incomplete and the type is effectively pass-through only.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: nvl(x, d)
+  canonical: COALESCE(x, d)
+  notes: ''
+  claim:
+    text: Hive nvl(value, default_value) returns the default when the value is null.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: if(c, a, b)
+  canonical: CASE WHEN c THEN a ELSE b END
+  notes: ''
+  claim:
+    text: Hive if(testCondition, valueTrue, valueFalseOrNull) is a conditional function.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: COALESCE(a, b, ...)
+  canonical: COALESCE(a, b, ...)
+  notes: ''
+  claim:
+    text: Hive supports COALESCE over any number of arguments.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: nullif(a, b)
+  canonical: NULLIF(a, b)
+  notes: ''
+  claim:
+    text: Hive provides nullif(a, b).
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: date_add(d, n)
+  canonical: d + n * INTERVAL '1' DAY
+  notes: ''
+  claim:
+    text: Hive date_add(startdate, days) adds a number of days.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: datediff(e, s)
+  canonical: CAST(e AS DATE) - CAST(s AS DATE)
+  notes: Result is a day count; ANSI date subtraction yields an interval on some engines.
+  claim:
+    text: Hive datediff(enddate, startdate) returns the number of days from startdate to enddate.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: add_months(d, n)
+  canonical: d + n * INTERVAL '1' MONTH
+  notes: Hive clamps to the last day of the month.
+  claim:
+    text: Hive add_months('2009-08-31', 1) returns '2009-09-30' (end-of-month clamping).
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: trunc(d, 'MM')
+  canonical: CAST(EXTRACT(YEAR FROM d) || '-' || EXTRACT(MONTH FROM d) || '-01' AS DATE)
+  notes: Targets usually offer DATE_TRUNC.
+  claim:
+    text: Hive trunc(date, format) truncates a date to MONTH/MON/MM or YEAR/YYYY/YY.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: to_date(ts)
+  canonical: CAST(ts AS DATE)
+  notes: ''
+  claim:
+    text: Hive to_date(timestamp) returns the date part of a timestamp.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: current_timestamp
+  canonical: CURRENT_TIMESTAMP
+  notes: ''
+  claim:
+    text: Hive current_timestamp returns the same value for all calls within a query (from Hive 1.2.0).
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: current_date
+  canonical: CURRENT_DATE
+  notes: ''
+  claim:
+    text: Hive current_date returns the date at query start; all calls in a query return the same value.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: from_unixtime(n)
+  canonical: TIMESTAMP '1970-01-01 00:00:00' + n * INTERVAL '1' SECOND
+  notes: Hive returns a formatted string, not a timestamp.
+  claim:
+    text: Hive from_unixtime(unixtime[, pattern]) converts epoch seconds to a formatted string.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: unix_timestamp(s)
+  canonical: EXTRACT(EPOCH FROM CAST(s AS TIMESTAMP))
+  notes: EXTRACT(EPOCH ...) is a common extension, not core ANSI.
+  claim:
+    text: Hive unix_timestamp(date) converts a date string to epoch seconds and returns null when conversion fails.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: date_format(ts, p)
+  canonical: CAST(ts AS VARCHAR)
+  notes: No ANSI formatting function; map to the target's TO_CHAR/FORMAT with converted Java patterns.
+  claim:
+    text: Hive date_format(ts, pattern) formats a date with a Java date-format pattern.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: year(d)
+  canonical: EXTRACT(YEAR FROM d)
+  notes: ''
+  claim:
+    text: Hive year(date) returns the year part of a date or timestamp string.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: concat_ws(sep, a, b)
+  canonical: a || sep || b
+  notes: concat_ws also accepts an array<string>.
+  claim:
+    text: Hive concat_ws(SEP, A, B...) concatenates strings with a separator and also accepts an array of strings.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: length(s)
+  canonical: CHAR_LENGTH(s)
+  notes: ''
+  claim:
+    text: Hive length(string) returns string length; octet_length returns UTF-8 bytes.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: instr(s, sub)
+  canonical: POSITION(sub IN s)
+  notes: ''
+  claim:
+    text: Hive provides instr(str, substr).
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: locate(sub, s[, pos])
+  canonical: POSITION(sub IN s)
+  notes: Optional start position has no ANSI form.
+  claim:
+    text: Hive locate(substr, str[, pos]) finds a substring with an optional start position.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: regexp_extract(s, p, i)
+  canonical: SUBSTRING(s SIMILAR p ESCAPE '#')
+  notes: Java regex semantics; map to the target's REGEXP_SUBSTR/REGEXP_EXTRACT.
+  claim:
+    text: Hive regexp_extract(subject, pattern, index) returns the capture group selected by index.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: regexp_replace(s, p, r)
+  canonical: REGEXP_REPLACE(s, p, r)
+  notes: Not core ANSI; widely available on targets.
+  claim:
+    text: Hive regexp_replace(INITIAL_STRING, PATTERN, REPLACEMENT) replaces all regex matches.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: get_json_object(j, path)
+  canonical: JSON_VALUE(j, path)
+  notes: ''
+  claim:
+    text: Hive get_json_object(json_string, path) extracts a JSON value using a JSONPath expression.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: size(arr)
+  canonical: CARDINALITY(arr)
+  notes: Also works on maps in Hive.
+  claim:
+    text: Hive size() returns the number of elements in a map or array.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: substring_index(s, d, n)
+  canonical: SUBSTRING(s FROM 1 FOR POSITION(d IN s) - 1)
+  notes: Only equivalent for n = 1; general case needs SPLIT_PART-style functions.
+  claim:
+    text: Hive substring_index(A, delim, count) returns the substring before count occurrences of delim, matching case-sensitively.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: md5(x)
+  canonical: MD5(x)
+  notes: Not ANSI; widely available.
+  claim:
+    text: Hive md5 returns a 32-hex-digit MD5 checksum of a string or binary.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: sha2(x, 256)
+  canonical: SHA2(x, 256)
+  notes: Not ANSI; target names vary (SHA256, SHA2).
+  claim:
+    text: Hive sha2(string/binary, bits) computes SHA-2 hashes.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: bround(x, d)
+  canonical: ROUND(x, d)
+  notes: Hive bround uses banker's (HALF_EVEN) rounding; ANSI ROUND does not.
+  claim:
+    text: Hive bround uses banker's rounding, so bround(2.5) = 2.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: percentile(col, p)
+  canonical: PERCENTILE_DISC(p) WITHIN GROUP (ORDER BY col)
+  notes: Hive exact percentile works on integer columns only.
+  claim:
+    text: Hive percentile(col, p) computes an exact percentile only for integer columns; PERCENTILE_APPROX handles non-integral input.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high
+- native: mask(s)
+  canonical: REGEXP_REPLACE(s, ...)
+  notes: No ANSI equivalent; use target masking policies.
+  claim:
+    text: Hive mask(str) replaces upper-case letters with X, lower-case with x and digits with n.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+    accessed: '2026-10-15'
+    confidence: high

@@ -1,0 +1,306 @@
+source: hive
+target: redshift
+architecture_overview:
+- text: HiveServer2 runs a Thrift-based Hive service (TCP or HTTP) with a Jetty web UI in one process.
+  url: https://hive.apache.org/docs/latest/user/hiveserver2-overview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: A Redshift leader node coordinates compute nodes and handles client communication.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift Serverless provisions data warehouse capacity automatically.
+  url: https://docs.aws.amazon.com/redshift/latest/mgmt/serverless-whatis.html
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Hive owns managed-table data (dropped with the table) but not external-table data.
+    url: https://hive.apache.org/docs/latest/language/managed-vs--external-tables/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift recommends DISTSTYLE AUTO so automatic table optimization chooses distribution.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Hive executes queries using Apache Tez or MapReduce.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift Concurrency Scaling adds cluster capacity automatically as demand rises.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Hive storage based authorization relies on HDFS permissions and works at database, table and partition level.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift row-level security policies restrict access to specific rows.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: A Hive global ORDER BY needs a single reducer for the final sort.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Concurrency Scaling supports thousands of concurrent users and queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Extract Hive DDL, partitions and HPL/SQL scripts from the metastore and edge nodes, compact ACID tables, then copy ORC/Parquet files from HDFS to cloud object storage and load or register them in Amazon Redshift. Rewrite HiveQL-specific clauses (SORT BY, DISTRIBUTE BY, LATERAL VIEW, multi-insert), replace Oozie/scheduled queries with Amazon Redshift orchestration, map Ranger/SQL-standard grants to Amazon Redshift security, and validate partition-by-partition.
+object_mapping:
+- source_object: Managed (ACID/ORC) table
+  target_object: Table (DISTSTYLE/SORTKEY, ENCODE AUTO)
+  notes: ''
+  claim:
+    text: Redshift CREATE TABLE supports IDENTITY columns and ENCODE AUTO.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW
+  target_object: View / materialized view
+  notes: ''
+  claim:
+    text: Redshift materialized views can be queried like tables.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: Redshift materialized views store a precomputed result set.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: HPL/SQL procedure
+  target_object: Stored procedure (PL/pgSQL)
+  notes: ''
+  claim:
+    text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: Scheduled query (Hive 4) / Oozie workflow
+  target_object: Scheduled query / external orchestrator
+  notes: ''
+  claim:
+    text: Redshift procedural logic is written as PL/pgSQL stored procedures.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ACID table delta files
+  target_object: Materialized view refresh / incremental load
+  notes: ''
+  claim:
+    text: Redshift materialized views speed predictable, repeated queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: LOAD DATA / INSERT OVERWRITE
+  target_object: COPY from S3
+  notes: ''
+  claim:
+    text: Redshift COPY loads data files into a table.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE on HDFS
+  target_object: Redshift Spectrum external table
+  notes: ''
+  claim:
+    text: Redshift external tables can be defined in Redshift, AWS Glue, Athena or an Apache Hive metastore.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c-spectrum-external-tables.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: ARRAY/MAP/STRUCT column
+  target_object: SUPER column
+  notes: ''
+  claim:
+    text: SUPER and PartiQL handle semi-structured data in Redshift.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Hive SORT BY orders rows only within each reducer, so output may be only partially ordered.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive LATERAL VIEW applies a UDTF such as explode() to each input row.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-lateralview/
+  accessed: '2026-10-15'
+  confidence: high
+- text: HiveQL SELECT has non-standard CLUSTER BY, DISTRIBUTE BY and SORT BY clauses.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift unique, primary and foreign keys are informational and not enforced.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift QUALIFY filters results of previously computed window functions.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift uses the SUPER type and PartiQL for semi-structured data.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift stored procedures use PL/pgSQL.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Hive LOAD DATA moves files into a table or partition without transformation.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive EXPORT writes table or partition data plus metadata to an output location.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-importexport/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift COPY loads tables from files in Amazon S3, an EMR cluster or a remote host.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift UNLOAD writes query results to text, JSON or Parquet files on S3.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: A Redshift external schema can reference a database in an Apache Hive metastore such as on Amazon EMR.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_SCHEMA.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift Spectrum queries S3 files without loading them into Redshift tables.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c-using-spectrum.html
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: HPL/SQL provides procedural SQL for Hive from Hive 2.0.0.
+  url: https://hive.apache.org/docs/latest/language/hplsql/
+  accessed: '2026-10-15'
+  applies_to: Hive 2.0+
+  confidence: high
+- text: Hive 4.0 added scheduled queries executed by HiveServer2.
+  url: https://hive.apache.org/docs/latest/language/scheduled-queries/
+  accessed: '2026-10-15'
+  applies_to: Hive 4.0+
+  confidence: high
+- text: Redshift procedural logic is written in PL/pgSQL stored procedures.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: AWS SCT converts database schemas, including data warehouse schemas, between engines.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Hive SQL standard based authorization grants privileges to users and roles for HiveServer2 clients.
+  url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Hive storage based authorization does not provide column- or row-level control.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift supports dynamic data masking.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_ddm.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift manages privileges with GRANT.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: hive_uniontype
+  claim:
+    text: Hive UNIONTYPE is effectively pass-through only and fails in JOIN, WHERE or GROUP BY.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_sort_distribute_by
+  claim:
+    text: Hive SORT BY / DISTRIBUTE BY control per-reducer ordering and row distribution.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_no_explicit_txn
+  claim:
+    text: Hive has no BEGIN/COMMIT/ROLLBACK; every statement auto-commits.
+    url: https://hive.apache.org/docs/latest/user/hive-transactions/
+    accessed: '2026-10-15'
+    confidence: high
+- id: hive_hplsql
+  claim:
+    text: Hive stored procedures are written in HPL/SQL.
+    url: https://hive.apache.org/docs/latest/language/hplsql/
+    accessed: '2026-10-15'
+    confidence: high
+- id: rs_no_arrays
+  claim:
+    text: Redshift does not support PostgreSQL array and JSON column types.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-datatypes.html
+    accessed: '2026-10-15'
+    confidence: high
+- id: rs_no_partitioning
+  claim:
+    text: Redshift does not support range and list table partitioning.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: hive_uniontype
+  claim:
+    text: Redshift SUPER stores schemaless arrays and structures.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_sort_distribute_by
+  claim:
+    text: Redshift distribution styles determine how rows are spread across nodes.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_no_explicit_txn
+  claim:
+    text: Redshift stored procedures can encapsulate multi-statement logic in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: hive_hplsql
+  claim:
+    text: HPL/SQL or Snowflake procedures can be rewritten as PL/pgSQL stored procedures.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Dialect rewrites (Hive specifics to Amazon Redshift)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the Amazon Redshift model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: medium
+    notes: Feature gaps between Hive and Amazon Redshift need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: DISTSTYLE AUTO lets Redshift choose distribution through automatic table optimization.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift materialized views return precomputed results without reading base tables.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+  accessed: '2026-10-15'
+  confidence: high

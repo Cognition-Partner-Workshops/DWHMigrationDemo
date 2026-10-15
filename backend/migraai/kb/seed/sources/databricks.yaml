@@ -1,0 +1,31 @@
+platform: databricks
+allowed_hosts:
+- docs.databricks.com
+seeds:
+- url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-datatypes
+  path_prefix: /aws/en/sql/language-manual/data-types/
+  topic: sql-data-types
+- url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-functions-builtin
+  path_prefix: /aws/en/sql/language-manual/functions/
+  topic: sql-functions
+- url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using
+  path_prefix: /aws/en/sql/language-manual/
+  topic: ddl
+- url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-ansi-compliance
+  path_prefix: /aws/en/sql/language-manual/
+  topic: sql-reference
+- url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/
+  path_prefix: /aws/en/data-governance/
+  topic: security-access-control
+- url: https://docs.databricks.com/aws/en/ingestion/
+  path_prefix: /aws/en/ingestion/
+  topic: data-loading
+- url: https://docs.databricks.com/aws/en/delta/
+  path_prefix: /aws/en/delta/
+  topic: storage-table-format
+- url: https://docs.databricks.com/aws/en/compute/sql-warehouse/
+  path_prefix: /aws/en/compute/
+  topic: compute
+- url: https://docs.databricks.com/aws/en/migration/
+  path_prefix: /aws/en/migration/
+  topic: migration-guides

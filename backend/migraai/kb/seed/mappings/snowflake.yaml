@@ -1,0 +1,411 @@
+platform: snowflake
+types:
+- native: NUMBER(p,s) / DECIMAL / NUMERIC
+  canonical: decimal
+  notes: Default NUMBER(38,0).
+  claim:
+    text: Snowflake NUMBER holds up to 38 digits and defaults to NUMBER(38,0); DECIMAL and NUMERIC are synonyms.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-numeric
+    accessed: '2026-10-15'
+    confidence: high
+- native: INT / INTEGER / BIGINT / SMALLINT / TINYINT / BYTEINT
+  canonical: decimal
+  notes: All integer names are NUMBER(38,0); map canonical int8..int64 to these names when Snowflake is the target.
+  claim:
+    text: Snowflake integer type names are synonyms of NUMBER whose precision and scale cannot be specified, always NUMBER(38,0).
+    url: https://docs.snowflake.com/en/sql-reference/data-types-numeric
+    accessed: '2026-10-15'
+    confidence: high
+- native: FLOAT / FLOAT4 / FLOAT8 / DOUBLE / REAL
+  canonical: float64
+  notes: float32 widens to 64-bit.
+  claim:
+    text: Snowflake treats FLOAT, FLOAT4 and FLOAT8 all as 64-bit IEEE 754 double-precision.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-numeric
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR(n)
+  canonical: varchar
+  notes: Default length 16777216 characters.
+  claim:
+    text: Snowflake VARCHAR defaults to a maximum length of 16777216 when no length is given.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-text
+    accessed: '2026-10-15'
+    confidence: high
+- native: STRING / TEXT
+  canonical: string
+  notes: Synonyms of VARCHAR.
+  claim:
+    text: STRING, TEXT, NVARCHAR and VARCHAR2 are synonyms of VARCHAR in Snowflake.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-text
+    accessed: '2026-10-15'
+    confidence: high
+- native: CHAR(n) / CHARACTER / NCHAR
+  canonical: char
+  notes: Default CHAR(1).
+  claim:
+    text: Snowflake CHAR is a synonym of VARCHAR that defaults to length 1.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-text
+    accessed: '2026-10-15'
+    confidence: high
+- native: BINARY / VARBINARY
+  canonical: varbinary
+  notes: Canonical binary also maps here.
+  claim:
+    text: Snowflake BINARY holds a sequence of 8-bit bytes.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-text
+    accessed: '2026-10-15'
+    confidence: high
+- native: BOOLEAN
+  canonical: boolean
+  notes: ''
+  claim:
+    text: Snowflake BOOLEAN holds TRUE, FALSE, or NULL for unknown.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-logical
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE
+  canonical: date
+  notes: ''
+  claim:
+    text: DATE is a Snowflake date/time type.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIME
+  canonical: time
+  notes: Precision 0-9, default 9.
+  claim:
+    text: Snowflake TIME stores wallclock time between 00:00:00 and 23:59:59.999999999.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP_NTZ / DATETIME
+  canonical: timestamp
+  notes: ''
+  claim:
+    text: TIMESTAMP_NTZ stores wallclock time and ignores time zones; DATETIME is its synonym.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP_TZ
+  canonical: timestamp_tz
+  notes: ''
+  claim:
+    text: TIMESTAMP_TZ stores UTC values together with a time zone offset.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+    accessed: '2026-10-15'
+    confidence: high
+- native: TIMESTAMP_LTZ
+  canonical: timestamp_tz
+  notes: Offset is not stored; values render in the session time zone.
+  claim:
+    text: TIMESTAMP_LTZ stores UTC values and performs operations in the session time zone.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+    accessed: '2026-10-15'
+    confidence: high
+- native: INTERVAL YEAR TO MONTH / DAY TO SECOND
+  canonical: interval
+  notes: ''
+  claim:
+    text: Snowflake supports interval qualifiers such as YEAR TO MONTH and DAY TO SECOND with precision 1 to 9.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+    accessed: '2026-10-15'
+    confidence: medium
+- native: VARIANT
+  canonical: json
+  notes: Semi-structured; up to 128 MB.
+  claim:
+    text: A Snowflake VARIANT can store a value of any other type.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+    accessed: '2026-10-15'
+    confidence: high
+- native: ARRAY / ARRAY(type)
+  canonical: array
+  notes: ''
+  claim:
+    text: Snowflake structured types are ARRAY, OBJECT and MAP.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-structured
+    accessed: '2026-10-15'
+    confidence: high
+- native: OBJECT / OBJECT(field type, ...)
+  canonical: struct
+  notes: Semi-structured OBJECT also used for json.
+  claim:
+    text: Iceberg list, struct and map types correspond to Snowflake structured ARRAY, structured OBJECT and MAP.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-structured
+    accessed: '2026-10-15'
+    confidence: high
+- native: MAP(key, value)
+  canonical: map
+  notes: ''
+  claim:
+    text: A Snowflake MAP can associate, for example, a VARCHAR key with a DOUBLE value.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-structured
+    accessed: '2026-10-15'
+    confidence: high
+- native: GEOGRAPHY
+  canonical: geography
+  notes: ''
+  claim:
+    text: Snowflake GEOGRAPHY follows WGS 84 (SRID 4326) and models Earth as a sphere.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-geospatial
+    accessed: '2026-10-15'
+    confidence: high
+- native: GEOMETRY
+  canonical: geometry
+  notes: ''
+  claim:
+    text: Snowflake GEOMETRY represents features in a planar coordinate system.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-geospatial
+    accessed: '2026-10-15'
+    confidence: high
+- native: VARCHAR (for uuid / xml / period)
+  canonical: other
+  notes: No native UUID, XML or PERIOD types; store as VARCHAR. BLOB/CLOB are unsupported (use BINARY/VARCHAR).
+  claim:
+    text: Snowflake does not support BLOB or CLOB; BINARY and VARCHAR are the documented replacements.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-unsupported
+    accessed: '2026-10-15'
+    confidence: high
+functions:
+- native: IFF(c, a, b)
+  canonical: CASE WHEN c THEN a ELSE b END
+  notes: ''
+  claim:
+    text: IFF returns one of two values depending on a Boolean condition.
+    url: https://docs.snowflake.com/en/sql-reference/functions/iff
+    accessed: '2026-10-15'
+    confidence: high
+- native: NVL(a, b) / IFNULL
+  canonical: COALESCE(a, b)
+  notes: ''
+  claim:
+    text: NVL returns expr2 when expr1 is NULL; IFNULL is an alias.
+    url: https://docs.snowflake.com/en/sql-reference/functions/nvl
+    accessed: '2026-10-15'
+    confidence: high
+- native: NVL2(a, b, c)
+  canonical: CASE WHEN a IS NOT NULL THEN b ELSE c END
+  notes: ''
+  claim:
+    text: NVL2 returns expr2 when expr1 is not NULL and expr3 otherwise.
+    url: https://docs.snowflake.com/en/sql-reference/functions/nvl2
+    accessed: '2026-10-15'
+    confidence: high
+- native: DECODE(x, s1, r1, ..., d)
+  canonical: CASE WHEN x = s1 THEN r1 ... ELSE d END
+  notes: DECODE matches NULL to NULL, unlike simple CASE.
+  claim:
+    text: DECODE compares an expression to each search value in order and returns the matching result.
+    url: https://docs.snowflake.com/en/sql-reference/functions/decode
+    accessed: '2026-10-15'
+    confidence: high
+- native: ZEROIFNULL(x)
+  canonical: COALESCE(x, 0)
+  notes: ''
+  claim:
+    text: ZEROIFNULL returns 0 when its argument is null.
+    url: https://docs.snowflake.com/en/sql-reference/functions/zeroifnull
+    accessed: '2026-10-15'
+    confidence: high
+- native: DIV0(a, b)
+  canonical: CASE WHEN b = 0 THEN 0 ELSE a / b END
+  notes: ''
+  claim:
+    text: DIV0 divides but returns 0 when the divisor is 0 instead of raising an error.
+    url: https://docs.snowflake.com/en/sql-reference/functions/div0
+    accessed: '2026-10-15'
+    confidence: high
+- native: EQUAL_NULL(a, b)
+  canonical: a IS NOT DISTINCT FROM b
+  notes: ''
+  claim:
+    text: EQUAL_NULL is a NULL-safe equality comparison.
+    url: https://docs.snowflake.com/en/sql-reference/functions/equal_null
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATEADD(part, n, d)
+  canonical: d + n * INTERVAL '1' <part>
+  notes: ''
+  claim:
+    text: DATEADD adds a value for a date or time part; TIMEADD and TIMESTAMPADD are aliases.
+    url: https://docs.snowflake.com/en/sql-reference/functions/dateadd
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATEDIFF(part, a, b)
+  canonical: EXTRACT(<part> FROM b - a)
+  notes: Snowflake counts part boundaries crossed; ANSI subtraction measures elapsed time.
+  claim:
+    text: DATEDIFF calculates the difference between two date/time expressions for a requested part.
+    url: https://docs.snowflake.com/en/sql-reference/functions/datediff
+    accessed: '2026-10-15'
+    confidence: high
+- native: DATE_TRUNC(part, d)
+  canonical: DATE_TRUNC(part, d)
+  notes: Not core ANSI; most targets support it.
+  claim:
+    text: DATE_TRUNC truncates a DATE, TIME or TIMESTAMP to a given precision.
+    url: https://docs.snowflake.com/en/sql-reference/functions/date_trunc
+    accessed: '2026-10-15'
+    confidence: high
+- native: LAST_DAY(d)
+  canonical: DATE_TRUNC('MONTH', d) + INTERVAL '1' MONTH - INTERVAL '1' DAY
+  notes: ''
+  claim:
+    text: LAST_DAY returns the last day of a date part, commonly the month.
+    url: https://docs.snowflake.com/en/sql-reference/functions/last_day
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_CHAR(x, fmt) / TO_VARCHAR
+  canonical: CAST(x AS VARCHAR)
+  notes: Format models need target-specific conversion.
+  claim:
+    text: TO_CHAR and TO_VARCHAR are synonyms that convert an expression to a string.
+    url: https://docs.snowflake.com/en/sql-reference/functions/to_char
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_DATE(s, fmt)
+  canonical: CAST(s AS DATE)
+  notes: ''
+  claim:
+    text: TO_DATE (alias DATE) converts strings and timestamps to dates.
+    url: https://docs.snowflake.com/en/sql-reference/functions/to_date
+    accessed: '2026-10-15'
+    confidence: high
+- native: TO_TIMESTAMP_NTZ(s)
+  canonical: CAST(s AS TIMESTAMP)
+  notes: ''
+  claim:
+    text: TO_TIMESTAMP_* functions convert an expression to the corresponding timestamp type.
+    url: https://docs.snowflake.com/en/sql-reference/functions/to_timestamp
+    accessed: '2026-10-15'
+    confidence: high
+- native: TRY_CAST(s AS t)
+  canonical: CAST(s AS t)
+  notes: ANSI has no error-tolerant cast; target TRY_CAST/SAFE_CAST variants differ.
+  claim:
+    text: Snowflake TRY_CAST only works for string inputs.
+    url: https://docs.snowflake.com/en/sql-reference/functions/try_cast
+    accessed: '2026-10-15'
+    confidence: high
+- native: CONVERT_TIMEZONE(tz, ts)
+  canonical: ts AT TIME ZONE tz
+  notes: ''
+  claim:
+    text: CONVERT_TIMEZONE converts a timestamp to another time zone.
+    url: https://docs.snowflake.com/en/sql-reference/functions/convert_timezone
+    accessed: '2026-10-15'
+    confidence: high
+- native: CURRENT_TIMESTAMP / GETDATE / SYSTIMESTAMP
+  canonical: CURRENT_TIMESTAMP
+  notes: ''
+  claim:
+    text: Snowflake CURRENT_TIMESTAMP has the aliases LOCALTIMESTAMP, GETDATE and SYSTIMESTAMP.
+    url: https://docs.snowflake.com/en/sql-reference/functions/current_timestamp
+    accessed: '2026-10-15'
+    confidence: high
+- native: SPLIT_PART(s, d, n)
+  canonical: SPLIT_PART(s, d, n)
+  notes: Not core ANSI.
+  claim:
+    text: SPLIT_PART splits a string on a delimiter and returns the requested part.
+    url: https://docs.snowflake.com/en/sql-reference/functions/split_part
+    accessed: '2026-10-15'
+    confidence: high
+- native: CHARINDEX(sub, s[, pos])
+  canonical: POSITION(sub IN s)
+  notes: ''
+  claim:
+    text: CHARINDEX returns the 1-based position of the first occurrence of one string in another.
+    url: https://docs.snowflake.com/en/sql-reference/functions/charindex
+    accessed: '2026-10-15'
+    confidence: high
+- native: REGEXP_SUBSTR(s, p)
+  canonical: SUBSTRING(s SIMILAR p ESCAPE '#')
+  notes: Regex flavours differ; map to target REGEXP_EXTRACT/REGEXP_SUBSTR.
+  claim:
+    text: REGEXP_SUBSTR returns the substring matching a regular expression.
+    url: https://docs.snowflake.com/en/sql-reference/functions/regexp_substr
+    accessed: '2026-10-15'
+    confidence: high
+- native: REGEXP_REPLACE(s, p, r)
+  canonical: REGEXP_REPLACE(s, p, r)
+  notes: ''
+  claim:
+    text: REGEXP_REPLACE removes or replaces occurrences of a pattern.
+    url: https://docs.snowflake.com/en/sql-reference/functions/regexp_replace
+    accessed: '2026-10-15'
+    confidence: high
+- native: s ILIKE p
+  canonical: UPPER(s) LIKE UPPER(p)
+  notes: ''
+  claim:
+    text: ILIKE is a case-insensitive pattern match.
+    url: https://docs.snowflake.com/en/sql-reference/functions/ilike
+    accessed: '2026-10-15'
+    confidence: high
+- native: STARTSWITH(a, b)
+  canonical: a LIKE b || '%'
+  notes: Escape wildcards in b.
+  claim:
+    text: STARTSWITH returns true if expr1 starts with expr2.
+    url: https://docs.snowflake.com/en/sql-reference/functions/startswith
+    accessed: '2026-10-15'
+    confidence: high
+- native: CONTAINS(a, b)
+  canonical: POSITION(b IN a) > 0
+  notes: ''
+  claim:
+    text: CONTAINS returns true if expr1 contains expr2.
+    url: https://docs.snowflake.com/en/sql-reference/functions/contains
+    accessed: '2026-10-15'
+    confidence: high
+- native: LISTAGG(x, d) WITHIN GROUP (ORDER BY o)
+  canonical: LISTAGG(x, d) WITHIN GROUP (ORDER BY o)
+  notes: SQL:2016 LISTAGG.
+  claim:
+    text: LISTAGG returns input values concatenated with a delimiter.
+    url: https://docs.snowflake.com/en/sql-reference/functions/listagg
+    accessed: '2026-10-15'
+    confidence: high
+- native: ARRAY_AGG(x)
+  canonical: ARRAY_AGG(x)
+  notes: ''
+  claim:
+    text: ARRAY_AGG pivots input values into an array.
+    url: https://docs.snowflake.com/en/sql-reference/functions/array_agg
+    accessed: '2026-10-15'
+    confidence: high
+- native: ARRAY_SIZE(a)
+  canonical: CARDINALITY(a)
+  notes: ''
+  claim:
+    text: ARRAY_SIZE returns the size of an array.
+    url: https://docs.snowflake.com/en/sql-reference/functions/array_size
+    accessed: '2026-10-15'
+    confidence: high
+- native: MEDIAN(x)
+  canonical: PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY x)
+  notes: ''
+  claim:
+    text: MEDIAN determines the median of a set of values.
+    url: https://docs.snowflake.com/en/sql-reference/functions/median
+    accessed: '2026-10-15'
+    confidence: high
+- native: APPROX_COUNT_DISTINCT(x)
+  canonical: COUNT(DISTINCT x)
+  notes: Approximate (HyperLogLog) vs exact.
+  claim:
+    text: APPROX_COUNT_DISTINCT uses HyperLogLog to approximate distinct cardinality.
+    url: https://docs.snowflake.com/en/sql-reference/functions/approx_count_distinct
+    accessed: '2026-10-15'
+    confidence: high
+- native: PARSE_JSON(s)
+  canonical: JSON_QUERY(s, '$')
+  notes: Produces VARIANT.
+  claim:
+    text: PARSE_JSON interprets a string as JSON and produces a VARIANT.
+    url: https://docs.snowflake.com/en/sql-reference/functions/parse_json
+    accessed: '2026-10-15'
+    confidence: high

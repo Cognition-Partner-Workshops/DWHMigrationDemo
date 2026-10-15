@@ -1,0 +1,147 @@
+id: hive
+name: Apache Hive
+roles:
+- source
+versions_covered: Apache Hive 3.x / 4.x on Hadoop
+summary: Apache Hive is a SQL data warehouse layer on Apache Hadoop that projects table structure onto files in HDFS or other distributed storage. Queries run through HiveServer2 on Tez (MapReduce is deprecated in 4.0), with table metadata held in the Hive Metastore. Hive supports ACID tables on ORC and, from 4.0, native Iceberg tables.
+facets:
+  architecture:
+  - text: Hive is built on top of Apache Hadoop and provides SQL access to large datasets in distributed storage.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: HiveServer2 is a single process that runs a Thrift-based Hive service (TCP or HTTP) plus a Jetty web server for its web UI.
+    url: https://hive.apache.org/docs/latest/user/hiveserver2-overview/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The Hive Metastore persists object definitions to a relational database through the DataNucleus ORM layer.
+    url: https://hive.apache.org/docs/latest/admin/adminmanual-metastore-3-0-administration/
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: Hive has no single mandatory storage format; it ships connectors for CSV/TSV text, Parquet, ORC and other formats.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ORC files store row data in stripes with a default stripe size of 250 MB, plus a footer holding column-level count, min, max and sum.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-orc/
+    accessed: '2026-10-15'
+    applies_to: Hive 0.11+
+    confidence: high
+  - text: Hive assumes it owns the data of managed tables (dropping the table deletes the data) but not the data of external tables.
+    url: https://hive.apache.org/docs/latest/language/managed-vs--external-tables/
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Hive executes queries using Apache Tez or MapReduce.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Hive 4.0 deprecated Hive on MapReduce and removed Hive on Spark.
+    url: https://hive.apache.org/docs/latest/overview-of-major-changes/
+    accessed: '2026-10-15'
+    applies_to: Hive 4.0+
+    confidence: high
+  - text: Hive LLAP, together with YARN and Slider, is used for sub-second query retrieval.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: SQL standard based authorization controls access for users who connect through HiveServer2 (SQL, JDBC/ODBC); privileges can be granted to users and roles.
+    url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Storage based authorization in the Metastore uses HDFS permissions as the source of truth and controls access at database, table and partition level, not columns or rows.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-authorization/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Hive 4.0 HiveServer2 supports SAML 2.0/JWT authentication and can run Kerberos and LDAP authentication in parallel.
+    url: https://hive.apache.org/docs/latest/overview-of-major-changes/
+    accessed: '2026-10-15'
+    applies_to: Hive 4.0+
+    confidence: high
+  scalability:
+  - text: Hive scales out by dynamically adding machines to the Hadoop cluster.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A global ORDER BY needs a single reducer to sort the final output, which can be slow for large outputs; SORT BY sorts per reducer.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Bucketed tables allow more efficient sampling and enable optimisations such as map-side joins.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-ddl-bucketedtables/
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: HiveQL covers standard SQL including many SQL:2003, SQL:2011 and SQL:2016 analytic features.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: HiveQL SELECT supports the non-standard CLUSTER BY, DISTRIBUTE BY and SORT BY clauses.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: LATERAL VIEW applies a table-generating function such as explode() to each input row.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-lateralview/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Hive supports multi-table inserts, writing several INSERT OVERWRITE targets from one FROM clause.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: HPL/SQL implements procedural SQL for Hive and is available from Hive 2.0.0.
+    url: https://hive.apache.org/docs/latest/language/hplsql/
+    accessed: '2026-10-15'
+    applies_to: Hive 2.0+
+    confidence: high
+  - text: Hive 4.0 added scheduled queries, which are stored in the metastore and polled and executed by HiveServer2.
+    url: https://hive.apache.org/docs/latest/language/scheduled-queries/
+    accessed: '2026-10-15'
+    applies_to: Hive 4.0+
+    confidence: high
+  - text: HCatalog is a table and storage management layer that lets Pig and MapReduce read and write Hive tables.
+    url: https://hive.apache.org/docs/latest/introduction-to-apache-hive/
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: LOAD DATA moves files into a table or partition without transformation; OVERWRITE replaces the existing contents.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: EXPORT writes table or partition data together with its metadata to a location that IMPORT can load on another Hadoop or Hive instance.
+    url: https://hive.apache.org/docs/latest/language/languagemanual-importexport/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Hive replication uses metastore events and EXPORT/IMPORT to copy metadata and data changes between clusters, but needs an external orchestration service.
+    url: https://hive.apache.org/docs/latest/admin/replication/
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The Hive Streaming API (V2 from Hive 3.0) continuously commits streamed data into ACID tables for clients such as NiFi, Flume and Storm.
+    url: https://hive.apache.org/docs/latest/user/streaming-data-ingest-v2/
+    accessed: '2026-10-15'
+    applies_to: Hive 3.0+
+    confidence: high
+unsupported_features:
+- text: Hive does not support explicit BEGIN, COMMIT or ROLLBACK; every statement auto-commits.
+  url: https://hive.apache.org/docs/latest/user/hive-transactions/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Full ACID (update/delete) tables require ORC and the table property transactional=true; external tables cannot be ACID tables.
+  url: https://hive.apache.org/docs/latest/user/hive-transactions/
+  accessed: '2026-10-15'
+  confidence: high
+- text: 'UNIONTYPE is effectively pass-through only: queries that use UNIONTYPE fields in JOIN, WHERE or GROUP BY fail.'
+  url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Indexes were removed in Hive 3.0; materialized views with automatic rewriting are the suggested replacement.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-indexing/
+  accessed: '2026-10-15'
+  applies_to: Hive 3.0+
+  confidence: high
+- text: Hive SORT BY only orders rows within each reducer, so with multiple reducers the final output is only partially ordered.
+  url: https://hive.apache.org/docs/latest/language/languagemanual-sortby/
+  accessed: '2026-10-15'
+  confidence: high

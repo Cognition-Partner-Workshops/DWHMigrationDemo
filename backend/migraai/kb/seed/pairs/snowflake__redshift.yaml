@@ -1,0 +1,309 @@
+source: snowflake
+target: redshift
+architecture_overview:
+- text: Snowflake combines shared-disk and shared-nothing designs in a hybrid architecture.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: '2026-10-15'
+  confidence: high
+- text: A Redshift leader node coordinates compute nodes and handles client communication.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_high_level_system_architecture.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift Serverless provisions data warehouse capacity automatically.
+  url: https://docs.aws.amazon.com/redshift/latest/mgmt/serverless-whatis.html
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Snowflake automatically divides table data into 50-500 MB (uncompressed) micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift recommends DISTSTYLE AUTO so automatic table optimization chooses distribution.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Snowflake warehouses bill per second with a 60-second minimum each time they start.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift Concurrency Scaling adds cluster capacity automatically as demand rises.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Snowflake assigns privileges to roles, which are granted to users (RBAC), alongside object ownership (DAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Redshift row-level security policies restrict access to specific rows.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/t_rls.html
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Snowflake multi-cluster warehouses start extra clusters automatically, up to a configured maximum, for concurrency.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Concurrency Scaling supports thousands of concurrent users and queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Inventory Snowflake objects with GET_DDL and ACCOUNT_USAGE, convert DDL and SQL with an automated translator, then move data by unloading to Parquet in object storage (or using a native connector/federation where available). Rebuild tasks, streams and pipes as Amazon Redshift orchestration and incremental-load constructs, re-create roles, masking and row policies, and validate with row counts and checksums before cutover.
+object_mapping:
+- source_object: TABLE (permanent/transient)
+  target_object: Table (DISTSTYLE/SORTKEY, ENCODE AUTO)
+  notes: ''
+  claim:
+    text: Redshift CREATE TABLE supports IDENTITY columns and ENCODE AUTO.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW / SECURE VIEW
+  target_object: View / materialized view
+  notes: ''
+  claim:
+    text: Redshift materialized views can be queried like tables.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: Redshift materialized views store a precomputed result set.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: STORED PROCEDURE (Snowflake Scripting/JavaScript/Python)
+  target_object: Stored procedure (PL/pgSQL)
+  notes: ''
+  claim:
+    text: Redshift stored procedures are written in PL/pgSQL.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: TASK / task graph
+  target_object: Scheduled query / external orchestrator
+  notes: ''
+  claim:
+    text: Redshift procedural logic is written as PL/pgSQL stored procedures.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: STREAM
+  target_object: Materialized view refresh / incremental load
+  notes: ''
+  claim:
+    text: Redshift materialized views speed predictable, repeated queries.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: PIPE (Snowpipe) / COPY INTO
+  target_object: COPY from S3
+  notes: ''
+  claim:
+    text: Redshift COPY loads data files into a table.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE / STAGE
+  target_object: Redshift Spectrum external table
+  notes: ''
+  claim:
+    text: Redshift external tables can be defined in Redshift, AWS Glue, Athena or an Apache Hive metastore.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c-spectrum-external-tables.html
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VARIANT column
+  target_object: SUPER column
+  notes: ''
+  claim:
+    text: SUPER and PartiQL handle semi-structured data in Redshift.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Snowflake stores and resolves unquoted identifiers in uppercase.
+  url: https://docs.snowflake.com/en/sql-reference/identifiers-syntax
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake TIMESTAMP_LTZ stores UTC and operates in the session time zone, while TIMESTAMP_NTZ ignores time zones.
+  url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake FLATTEN explodes compound values into multiple rows.
+  url: https://docs.snowflake.com/en/sql-reference/functions/flatten
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift unique, primary and foreign keys are informational and not enforced.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift QUALIFY filters results of previously computed window functions.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift uses the SUPER type and PartiQL for semi-structured data.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift stored procedures use PL/pgSQL.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift VARCHAR supports UTF-8 multibyte characters up to a maximum length.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Snowflake supports bulk unloading of table or query data to files.
+  url: https://docs.snowflake.com/en/user-guide/data-unload-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: COPY INTO <location> unloads table or query data to files and supports PARTITION BY.
+  url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-location
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift COPY loads tables from files in Amazon S3, an EMR cluster or a remote host.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift UNLOAD writes query results to text, JSON or Parquet files on S3.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Snowflake tasks run on schedules or events and can be chained into task graphs.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake streams provide change data capture (CDC) on tables.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowpipe loads files continuously on Snowflake-managed serverless compute.
+  url: https://docs.snowflake.com/en/user-guide/data-load-snowpipe-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift procedural logic is written in PL/pgSQL stored procedures.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/stored-procedure-overview.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: AWS SCT converts database schemas, including data warehouse schemas, between engines.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: AWS SCT can connect to a Snowflake data warehouse as a source.
+  url: https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Source.Snowflake.html
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Snowflake Dynamic Data Masking applies masking policies to columns at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake network policies allow or block requests based on their origin.
+  url: https://docs.snowflake.com/en/user-guide/network-policies
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift supports dynamic data masking.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_ddm.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift manages privileges with GRANT.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: sf_variant
+  claim:
+    text: Snowflake VARIANT can hold a value of any type, including OBJECT and ARRAY, up to 128 MB.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_time_travel
+  claim:
+    text: Snowflake Time Travel retention can be set up to 90 days on Enterprise Edition or higher.
+    url: https://docs.snowflake.com/en/user-guide/data-time-travel
+    accessed: '2026-10-15'
+    applies_to: Enterprise Edition+
+    confidence: high
+- id: sf_streams_tasks
+  claim:
+    text: Snowflake streams record change data capture information for tables.
+    url: https://docs.snowflake.com/en/user-guide/streams-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_data_sharing
+  claim:
+    text: Snowflake Secure Data Sharing shares selected database objects with other Snowflake accounts.
+    url: https://docs.snowflake.com/en/user-guide/data-sharing-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: rs_no_arrays
+  claim:
+    text: Redshift does not support PostgreSQL array and JSON column types.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-datatypes.html
+    accessed: '2026-10-15'
+    confidence: high
+- id: rs_no_partitioning
+  claim:
+    text: Redshift does not support range and list table partitioning.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/c_unsupported-postgresql-features.html
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: sf_variant
+  claim:
+    text: Redshift SUPER stores schemaless arrays and structures.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_time_travel
+  claim:
+    text: Redshift UNLOAD can write query results as Apache Parquet files on Amazon S3.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_streams_tasks
+  claim:
+    text: Redshift materialized views hold precomputed results over base tables.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_data_sharing
+  claim:
+    text: Redshift data sharing gives secure, read-only access to live data without copying it.
+    url: https://docs.aws.amazon.com/redshift/latest/dg/datashare-overview.html
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Dialect rewrites (Snowflake specifics to Amazon Redshift)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the Amazon Redshift model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: medium
+    notes: Feature gaps between Snowflake and Amazon Redshift need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: DISTSTYLE AUTO lets Redshift choose distribution through automatic table optimization.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html
+  accessed: '2026-10-15'
+  confidence: high
+- text: Redshift materialized views return precomputed results without reading base tables.
+  url: https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-overview.html
+  accessed: '2026-10-15'
+  confidence: high

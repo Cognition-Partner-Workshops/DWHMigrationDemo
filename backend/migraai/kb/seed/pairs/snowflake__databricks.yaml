@@ -1,0 +1,333 @@
+source: snowflake
+target: databricks
+architecture_overview:
+- text: Snowflake combines shared-disk and shared-nothing designs in a hybrid architecture.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: '2026-10-15'
+  confidence: high
+- text: 'Databricks tables are Delta Lake: Parquet files plus a transaction log providing ACID transactions.'
+  url: https://docs.databricks.com/aws/en/delta/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Unity Catalog uses a three-level catalog.schema.object namespace.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks Lakehouse Federation can run federated queries on Snowflake data.
+  url: https://docs.databricks.com/aws/en/query-federation/snowflake
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Snowflake automatically divides table data into 50-500 MB (uncompressed) micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks liquid clustering replaces partitioning and ZORDER and can change keys without rewriting data.
+    url: https://docs.databricks.com/aws/en/tables/clustering
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Snowflake warehouses bill per second with a 60-second minimum each time they start.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Databricks SQL warehouses are serverless, pro or classic.
+    url: https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Snowflake assigns privileges to roles, which are granted to users (RBAC), alongside object ownership (DAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Unity Catalog row filters and column masks restrict visible rows and values at query time.
+    url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Snowflake multi-cluster warehouses start extra clusters automatically, up to a configured maximum, for concurrency.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Predictive optimization runs OPTIMIZE, VACUUM and ANALYZE automatically on Unity Catalog managed tables.
+    url: https://docs.databricks.com/aws/en/optimizations/predictive-optimization
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Inventory Snowflake objects with GET_DDL and ACCOUNT_USAGE, convert DDL and SQL with an automated translator, then move data by unloading to Parquet in object storage (or using a native connector/federation where available). Rebuild tasks, streams and pipes as Databricks orchestration and incremental-load constructs, re-create roles, masking and row policies, and validate with row counts and checksums before cutover.
+object_mapping:
+- source_object: TABLE (permanent/transient)
+  target_object: Unity Catalog managed Delta table
+  notes: ''
+  claim:
+    text: Unity Catalog managed tables are the default, recommended table type.
+    url: https://docs.databricks.com/aws/en/tables/managed
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW / SECURE VIEW
+  target_object: View
+  notes: ''
+  claim:
+    text: A Databricks view stores only its query text in the metastore.
+    url: https://docs.databricks.com/aws/en/views/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Materialized view
+  notes: ''
+  claim:
+    text: Databricks materialized views cache results and refresh on a schedule or automatically.
+    url: https://docs.databricks.com/aws/en/ldp/dbsql/materialized
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: STORED PROCEDURE (Snowflake Scripting/JavaScript/Python)
+  target_object: SQL procedure / SQL script
+  notes: ''
+  claim:
+    text: CREATE PROCEDURE is available on Databricks Runtime 17.0+ with Unity Catalog.
+    url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-procedure
+    accessed: '2026-10-15'
+    applies_to: Databricks Runtime 17.0+
+    confidence: high
+- source_object: TASK / task graph
+  target_object: Lakeflow Job
+  notes: ''
+  claim:
+    text: Lakeflow Jobs schedule and orchestrate tasks.
+    url: https://docs.databricks.com/aws/en/jobs/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: STREAM
+  target_object: Delta change data feed
+  notes: ''
+  claim:
+    text: Change data feed records row-level changes with metadata.
+    url: https://docs.databricks.com/aws/en/tables/features/change-data-feed
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: PIPE (Snowpipe) / COPY INTO
+  target_object: Auto Loader / COPY INTO
+  notes: ''
+  claim:
+    text: Auto Loader processes new files incrementally.
+    url: https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE / STAGE
+  target_object: Unity Catalog external table
+  notes: ''
+  claim:
+    text: A Unity Catalog external table needs a registered external location; dropping it keeps the data.
+    url: https://docs.databricks.com/aws/en/tables/external
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VARIANT column
+  target_object: VARIANT column
+  notes: ''
+  claim:
+    text: VARIANT stores semi-structured data.
+    url: https://docs.databricks.com/aws/en/tables/features/variant
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Snowflake stores and resolves unquoted identifiers in uppercase.
+  url: https://docs.snowflake.com/en/sql-reference/identifiers-syntax
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake TIMESTAMP_LTZ stores UTC and operates in the session time zone, while TIMESTAMP_NTZ ignores time zones.
+  url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake FLATTEN explodes compound values into multiple rows.
+  url: https://docs.snowflake.com/en/sql-reference/functions/flatten
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks identifiers are case-insensitive; delimited identifiers use backticks.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-identifiers
+  accessed: '2026-10-15'
+  confidence: high
+- text: ANSI mode is enabled by default from Databricks Runtime 17.0.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-ansi-compliance
+  accessed: '2026-10-15'
+  applies_to: Databricks Runtime 17.0+
+  confidence: high
+- text: Databricks SQL scripts are BEGIN ... END compound statements.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks provides iff(), matching Snowflake IFF.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/functions/iff
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks zeroifnull (Runtime 16.0+) matches Snowflake ZEROIFNULL.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/functions/zeroifnull
+  accessed: '2026-10-15'
+  applies_to: Databricks Runtime 16.0+
+  confidence: high
+- text: Databricks parse_json returns VARIANT, like Snowflake PARSE_JSON (Runtime 15.3+).
+  url: https://docs.databricks.com/aws/en/sql/language-manual/functions/parse_json
+  accessed: '2026-10-15'
+  applies_to: Databricks Runtime 15.3+
+  confidence: high
+data_movement:
+- text: Snowflake supports bulk unloading of table or query data to files.
+  url: https://docs.snowflake.com/en/user-guide/data-unload-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: COPY INTO <location> unloads table or query data to files and supports PARTITION BY.
+  url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-location
+  accessed: '2026-10-15'
+  confidence: high
+- text: Auto Loader incrementally processes new files as they land in cloud storage.
+  url: https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks COPY INTO is idempotent and skips already-loaded files.
+  url: https://docs.databricks.com/aws/en/sql/language-manual/delta-copy-into
+  accessed: '2026-10-15'
+  confidence: high
+- text: Lakehouse Federation to Snowflake needs connection objects in the Unity Catalog metastore.
+  url: https://docs.databricks.com/aws/en/query-federation/snowflake
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Snowflake tasks run on schedules or events and can be chained into task graphs.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake streams provide change data capture (CDC) on tables.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowpipe loads files continuously on Snowflake-managed serverless compute.
+  url: https://docs.snowflake.com/en/user-guide/data-load-snowpipe-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Lakeflow Spark Declarative Pipelines build batch and streaming pipelines in SQL and Python.
+  url: https://docs.databricks.com/aws/en/ldp/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Lakeflow Jobs orchestrates and schedules multi-task workflows.
+  url: https://docs.databricks.com/aws/en/jobs/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks integrates natively with dbt so existing dbt projects need little refactoring.
+  url: https://docs.databricks.com/aws/en/migration/etl
+  accessed: '2026-10-15'
+  confidence: high
+- text: Databricks provides an agentic code converter for SQL conversion.
+  url: https://docs.databricks.com/aws/en/migration/warehouse-to-lakehouse
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Snowflake Dynamic Data Masking applies masking policies to columns at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake network policies allow or block requests based on their origin.
+  url: https://docs.snowflake.com/en/user-guide/network-policies
+  accessed: '2026-10-15'
+  confidence: high
+- text: Every Unity Catalog securable has an owner with all privileges, including granting.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/
+  accessed: '2026-10-15'
+  confidence: high
+- text: Unity Catalog supports attribute-based access control driven by tags.
+  url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: sf_variant
+  claim:
+    text: Snowflake VARIANT can hold a value of any type, including OBJECT and ARRAY, up to 128 MB.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_time_travel
+  claim:
+    text: Snowflake Time Travel retention can be set up to 90 days on Enterprise Edition or higher.
+    url: https://docs.snowflake.com/en/user-guide/data-time-travel
+    accessed: '2026-10-15'
+    applies_to: Enterprise Edition+
+    confidence: high
+- id: sf_streams_tasks
+  claim:
+    text: Snowflake streams record change data capture information for tables.
+    url: https://docs.snowflake.com/en/user-guide/streams-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_data_sharing
+  claim:
+    text: Snowflake Secure Data Sharing shares selected database objects with other Snowflake accounts.
+    url: https://docs.snowflake.com/en/user-guide/data-sharing-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: dbx_informational_constraints
+  claim:
+    text: Databricks primary, foreign and unique key constraints are informational only.
+    url: https://docs.databricks.com/aws/en/tables/constraints
+    accessed: '2026-10-15'
+    confidence: high
+- id: dbx_time_travel_window
+  claim:
+    text: Databricks advises relying on only the last 7 days of Delta time travel by default.
+    url: https://docs.databricks.com/aws/en/tables/history
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: sf_variant
+  claim:
+    text: Databricks VARIANT stores semi-structured data.
+    url: https://docs.databricks.com/aws/en/tables/features/variant
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_time_travel
+  claim:
+    text: Delta deep clones copy data and metadata for an independent snapshot.
+    url: https://docs.databricks.com/aws/en/tables/operations/clone
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_streams_tasks
+  claim:
+    text: Delta change data feed tracks row-level changes between table versions.
+    url: https://docs.databricks.com/aws/en/tables/features/change-data-feed
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_data_sharing
+  claim:
+    text: Databricks offers an open protocol for secure sharing with any platform.
+    url: https://docs.databricks.com/aws/en/opensharing
+    accessed: '2026-10-15'
+    confidence: high
+risks:
+  sql:
+    level: medium
+    notes: Dialect rewrites (Snowflake specifics to Databricks)
+  data:
+    level: low
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the Databricks model
+  governance:
+    level: medium
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: low
+    notes: Feature gaps between Snowflake and Databricks need redesign
+  operational:
+    level: medium
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: Databricks recommends liquid clustering for all new tables, including streaming tables and materialized views.
+  url: https://docs.databricks.com/aws/en/tables/clustering
+  accessed: '2026-10-15'
+  confidence: high
+- text: Unity Catalog managed tables tune file sizes automatically.
+  url: https://docs.databricks.com/aws/en/tables/tune-file-size
+  accessed: '2026-10-15'
+  confidence: high
+- text: The Databricks disk cache speeds repeated reads of Parquet and Delta data.
+  url: https://docs.databricks.com/aws/en/optimizations/disk-cache
+  accessed: '2026-10-15'
+  confidence: high

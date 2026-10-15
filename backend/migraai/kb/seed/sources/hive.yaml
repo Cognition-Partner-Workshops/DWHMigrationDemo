@@ -1,0 +1,32 @@
+platform: hive
+allowed_hosts:
+- hive.apache.org
+- cwiki.apache.org
+seeds:
+- url: https://hive.apache.org/docs/latest/language/languagemanual-types/
+  path_prefix: /docs/latest/language/
+  topic: sql-data-types
+- url: https://hive.apache.org/docs/latest/language/languagemanual-udf/
+  path_prefix: /docs/latest/language/
+  topic: sql-functions
+- url: https://hive.apache.org/docs/latest/language/languagemanual-ddl/
+  path_prefix: /docs/latest/language/
+  topic: ddl
+- url: https://hive.apache.org/docs/latest/language/languagemanual-dml/
+  path_prefix: /docs/latest/language/
+  topic: dml-data-loading
+- url: https://hive.apache.org/docs/latest/language/languagemanual-select/
+  path_prefix: /docs/latest/language/
+  topic: sql-reference
+- url: https://hive.apache.org/docs/latest/language/sql-standard-based-hive-authorization/
+  path_prefix: /docs/latest/language/
+  topic: security-access-control
+- url: https://hive.apache.org/docs/latest/user/hive-transactions/
+  path_prefix: /docs/latest/user/
+  topic: transactions-acid
+- url: https://hive.apache.org/docs/latest/admin/replication/
+  path_prefix: /docs/latest/admin/
+  topic: data-movement-replication
+- url: https://hive.apache.org/docs/latest/user/hive-iceberg-integration/
+  path_prefix: /docs/latest/user/
+  topic: table-formats

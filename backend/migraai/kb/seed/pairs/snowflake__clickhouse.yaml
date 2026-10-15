@@ -1,0 +1,325 @@
+source: snowflake
+target: clickhouse
+architecture_overview:
+- text: Snowflake combines shared-disk and shared-nothing designs in a hybrid architecture.
+  url: https://docs.snowflake.com/en/user-guide/intro-key-concepts
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse Cloud SharedMergeTree is a cloud-native replacement for ReplicatedMergeTree.
+  url: https://clickhouse.com/docs/products/cloud/features/infrastructure/shared-merge-tree
+  accessed: '2026-10-15'
+  confidence: high
+- text: A MergeTree primary key sets the sort order within each table part.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake compute is provided through warehouses sized in doubling steps.
+  url: https://clickhouse.com/docs/get-started/migrate/snowflake/overview
+  accessed: '2026-10-15'
+  confidence: high
+major_differences:
+  storage:
+  - text: Snowflake automatically divides table data into 50-500 MB (uncompressed) micro-partitions.
+    url: https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions
+    accessed: '2026-10-15'
+    confidence: high
+  - text: MergeTree primary keys index 8192-row granules rather than individual rows.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: Snowflake warehouses bill per second with a 60-second minimum each time they start.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse Cloud idles and resumes compute automatically.
+    url: https://clickhouse.com/docs/products/cloud/reference/architecture
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: Snowflake assigns privileges to roles, which are granted to users (RBAC), alongside object ownership (DAC).
+    url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse uses RBAC-based access control.
+    url: https://clickhouse.com/docs/concepts/features/security/access-rights
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: Snowflake multi-cluster warehouses start extra clusters automatically, up to a configured maximum, for concurrency.
+    url: https://docs.snowflake.com/en/user-guide/warehouses-multicluster
+    accessed: '2026-10-15'
+    confidence: high
+  - text: ClickHouse primary indexes turn scans into fast binary searches with logarithmic runtime.
+    url: https://clickhouse.com/docs/get-started/about/why-clickhouse-is-so-fast
+    accessed: '2026-10-15'
+    confidence: high
+recommended_strategy: Inventory Snowflake objects with GET_DDL and ACCOUNT_USAGE, convert DDL and SQL with an automated translator, then move data by unloading to Parquet in object storage (or using a native connector/federation where available). Rebuild tasks, streams and pipes as ClickHouse orchestration and incremental-load constructs, re-create roles, masking and row policies, and validate with row counts and checksums before cutover.
+object_mapping:
+- source_object: TABLE (permanent/transient)
+  target_object: MergeTree / SharedMergeTree table
+  notes: ''
+  claim:
+    text: MergeTree primary key defines sort order in each part.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VIEW / SECURE VIEW
+  target_object: View
+  notes: ''
+  claim:
+    text: ClickHouse supports normal views.
+    url: https://clickhouse.com/docs/reference/statements/create/view
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: MATERIALIZED VIEW
+  target_object: Refreshable or incremental materialized view
+  notes: ''
+  claim:
+    text: ClickHouse supports materialized and refreshable materialized views.
+    url: https://clickhouse.com/docs/reference/statements/create/view
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: STORED PROCEDURE (Snowflake Scripting/JavaScript/Python)
+  target_object: Lambda UDF plus external orchestration
+  notes: ''
+  claim:
+    text: ClickHouse UDFs are lambda expressions.
+    url: https://clickhouse.com/docs/reference/statements/create/function
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: TASK / task graph
+  target_object: Refreshable materialized view
+  notes: ''
+  claim:
+    text: Refreshable materialized views recompute on a schedule.
+    url: https://clickhouse.com/docs/reference/statements/create/view
+    accessed: '2026-10-15'
+    confidence: medium
+- source_object: STREAM
+  target_object: ReplacingMergeTree upsert target
+  notes: ''
+  claim:
+    text: ReplacingMergeTree deduplicates by sorting key.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: PIPE (Snowpipe) / COPY INTO
+  target_object: INSERT INTO ... SELECT FROM s3()
+  notes: ''
+  claim:
+    text: The s3 table function reads files in S3.
+    url: https://clickhouse.com/docs/reference/functions/table-functions/s3
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: EXTERNAL TABLE / STAGE
+  target_object: s3 / iceberg table function
+  notes: ''
+  claim:
+    text: The iceberg table function queries Iceberg tables.
+    url: https://clickhouse.com/docs/reference/functions/table-functions/iceberg
+    accessed: '2026-10-15'
+    confidence: high
+- source_object: VARIANT column
+  target_object: JSON column
+  notes: ''
+  claim:
+    text: JSON type stores JSON documents in a column.
+    url: https://clickhouse.com/docs/reference/data-types/newjson
+    accessed: '2026-10-15'
+    confidence: high
+sql_dialect_differences:
+- text: Snowflake stores and resolves unquoted identifiers in uppercase.
+  url: https://docs.snowflake.com/en/sql-reference/identifiers-syntax
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake TIMESTAMP_LTZ stores UTC and operates in the session time zone, while TIMESTAMP_NTZ ignores time zones.
+  url: https://docs.snowflake.com/en/sql-reference/data-types-datetime
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake FLATTEN explodes compound values into multiple rows.
+  url: https://docs.snowflake.com/en/sql-reference/functions/flatten
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse ALTER TABLE ... UPDATE is a mutation, a heavy operation not designed for frequent use.
+  url: https://clickhouse.com/docs/reference/statements/alter/update
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse provides a lightweight DELETE statement.
+  url: https://clickhouse.com/docs/reference/statements/delete
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse Decimal precision ranges from 1 to 76, default 10.
+  url: https://clickhouse.com/docs/reference/data-types/decimal
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse String values have arbitrary length and can contain any bytes.
+  url: https://clickhouse.com/docs/reference/data-types/string
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse columns are non-nullable unless declared Nullable(T).
+  url: https://clickhouse.com/docs/reference/data-types/nullable
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse supports QUALIFY.
+  url: https://clickhouse.com/docs/reference/statements/select/qualify
+  accessed: '2026-10-15'
+  confidence: high
+data_movement:
+- text: Snowflake supports bulk unloading of table or query data to files.
+  url: https://docs.snowflake.com/en/user-guide/data-unload-overview
+  accessed: '2026-10-15'
+  confidence: high
+- text: COPY INTO <location> unloads table or query data to files and supports PARTITION BY.
+  url: https://docs.snowflake.com/en/sql-reference/sql/copy-into-location
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse s3 table function reads and writes files in S3-compatible storage.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/s3
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse iceberg table function queries Apache Iceberg tables.
+  url: https://clickhouse.com/docs/reference/functions/table-functions/iceberg
+  accessed: '2026-10-15'
+  confidence: high
+- text: The ClickHouse Snowflake migration guide uses Snowflake COPY INTO to S3 and ClickHouse INSERT INTO SELECT.
+  url: https://clickhouse.com/docs/get-started/migrate/snowflake/migration-guide
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse recommends Parquet as the intermediate format because it preserves type information.
+  url: https://clickhouse.com/docs/get-started/migrate/snowflake/migration-guide
+  accessed: '2026-10-15'
+  confidence: high
+etl_migration:
+- text: Snowflake tasks run on schedules or events and can be chained into task graphs.
+  url: https://docs.snowflake.com/en/user-guide/tasks-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake streams provide change data capture (CDC) on tables.
+  url: https://docs.snowflake.com/en/user-guide/streams-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowpipe loads files continuously on Snowflake-managed serverless compute.
+  url: https://docs.snowflake.com/en/user-guide/data-load-snowpipe-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse incremental materialized views move computation from query time to insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse views can be normal, materialized or refreshable materialized.
+  url: https://clickhouse.com/docs/reference/statements/create/view
+  accessed: '2026-10-15'
+  confidence: high
+security_migration:
+- text: Snowflake Dynamic Data Masking applies masking policies to columns at query time.
+  url: https://docs.snowflake.com/en/user-guide/security-column-ddm-intro
+  accessed: '2026-10-15'
+  confidence: high
+- text: Snowflake network policies allow or block requests based on their origin.
+  url: https://docs.snowflake.com/en/user-guide/network-policies
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse supports row policies.
+  url: https://clickhouse.com/docs/reference/statements/create/row-policy
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse Cloud documents database user management.
+  url: https://clickhouse.com/docs/products/cloud/guides/security/cloud-access-management/manage-database-users
+  accessed: '2026-10-15'
+  confidence: high
+unsupported_features:
+- id: sf_variant
+  claim:
+    text: Snowflake VARIANT can hold a value of any type, including OBJECT and ARRAY, up to 128 MB.
+    url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_time_travel
+  claim:
+    text: Snowflake Time Travel retention can be set up to 90 days on Enterprise Edition or higher.
+    url: https://docs.snowflake.com/en/user-guide/data-time-travel
+    accessed: '2026-10-15'
+    applies_to: Enterprise Edition+
+    confidence: high
+- id: sf_streams_tasks
+  claim:
+    text: Snowflake streams record change data capture information for tables.
+    url: https://docs.snowflake.com/en/user-guide/streams-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: sf_data_sharing
+  claim:
+    text: Snowflake Secure Data Sharing shares selected database objects with other Snowflake accounts.
+    url: https://docs.snowflake.com/en/user-guide/data-sharing-intro
+    accessed: '2026-10-15'
+    confidence: high
+- id: ch_heavy_updates
+  claim:
+    text: ClickHouse UPDATE runs as an asynchronous mutation intended for infrequent use.
+    url: https://clickhouse.com/docs/reference/statements/alter/update
+    accessed: '2026-10-15'
+    confidence: high
+- id: ch_limited_txn
+  claim:
+    text: ClickHouse multi-statement transactions are experimental; single INSERTs are atomic.
+    url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+    accessed: '2026-10-15'
+    confidence: high
+workarounds:
+- for: sf_variant
+  claim:
+    text: ClickHouse JSON type stores JSON documents in one column.
+    url: https://clickhouse.com/docs/reference/data-types/newjson
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_time_travel
+  claim:
+    text: ClickHouse provides an s3 table function for data in S3-compatible storage.
+    url: https://clickhouse.com/docs/reference/functions/table-functions/s3
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_streams_tasks
+  claim:
+    text: ReplacingMergeTree deduplicates rows by sorting key during merges.
+    url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+    accessed: '2026-10-15'
+    confidence: high
+- for: sf_data_sharing
+  claim:
+    text: ClickHouse Cloud provides a shared catalog and shared database engine.
+    url: https://clickhouse.com/docs/products/cloud/features/infrastructure/shared-catalog
+    accessed: '2026-10-15'
+    confidence: medium
+risks:
+  sql:
+    level: high
+    notes: Dialect rewrites (Snowflake specifics to ClickHouse)
+  data:
+    level: medium
+    notes: Type and precision mapping, semi-structured data and timestamp semantics
+  security:
+    level: medium
+    notes: Re-creating roles, grants and fine-grained policies in the ClickHouse model
+  governance:
+    level: high
+    notes: Lineage, tags and catalog ownership must be rebuilt
+  platform:
+    level: medium
+    notes: Feature gaps between Snowflake and ClickHouse need redesign
+  operational:
+    level: high
+    notes: Re-platforming orchestration, monitoring and cost controls
+optimization_hints:
+- text: ReplacingMergeTree removes duplicate rows sharing the sorting key.
+  url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/replacingmergetree
+  accessed: '2026-10-15'
+  confidence: high
+- text: ClickHouse projections provide alternative data layouts for queries.
+  url: https://clickhouse.com/docs/concepts/features/projections/projections
+  accessed: '2026-10-15'
+  confidence: high
+- text: Incremental materialized views precompute results at insert time.
+  url: https://clickhouse.com/docs/concepts/features/materialized-views/incremental-materialized-view
+  accessed: '2026-10-15'
+  confidence: high

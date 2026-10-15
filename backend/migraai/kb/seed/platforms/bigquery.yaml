@@ -1,0 +1,120 @@
+id: bigquery
+name: Google BigQuery
+roles:
+- target
+versions_covered: BigQuery (GoogleSQL dialect; on-demand and Editions capacity pricing)
+summary: BigQuery is a fully managed, serverless data warehouse on Google Cloud that separates compute from columnar storage. Queries are written in GoogleSQL and run on slots billed either on-demand by bytes processed or through Editions capacity reservations. Data is organised into projects and datasets, with IAM, policy tags and row-level access policies for security.
+facets:
+  architecture:
+  - text: BigQuery is a fully managed, serverless data warehouse.
+    url: https://docs.cloud.google.com/bigquery/docs/introduction
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery separates its compute and storage layers.
+    url: https://docs.cloud.google.com/bigquery/docs/introduction
+    accessed: '2026-10-15'
+    confidence: high
+  storage:
+  - text: BigQuery stores table data in columnar format.
+    url: https://docs.cloud.google.com/bigquery/docs/storage_overview
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Datasets live inside a project and set the storage location of their tables and views.
+    url: https://docs.cloud.google.com/bigquery/docs/datasets-intro
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery tables can be partitioned by ingestion time, time-unit column or integer range.
+    url: https://docs.cloud.google.com/bigquery/docs/partitioned-tables
+    accessed: '2026-10-15'
+    confidence: high
+  compute:
+  - text: A BigQuery slot is a virtual compute unit used to execute SQL queries.
+    url: https://docs.cloud.google.com/bigquery/docs/slots
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery offers on-demand billing by bytes processed and capacity-based billing.
+    url: https://docs.cloud.google.com/bigquery/docs/reservations-intro
+    accessed: '2026-10-15'
+    confidence: high
+  security:
+  - text: BigQuery access is managed with IAM roles and permissions.
+    url: https://docs.cloud.google.com/bigquery/docs/access-control
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Column-level access control in BigQuery uses policy tags.
+    url: https://docs.cloud.google.com/bigquery/docs/column-level-security-intro
+    accessed: '2026-10-15'
+    confidence: high
+  - text: A BigQuery table can have multiple row-level access policies.
+    url: https://docs.cloud.google.com/bigquery/docs/row-level-security-intro
+    accessed: '2026-10-15'
+    confidence: high
+  - text: VPC Service Controls perimeters restrict access to BigQuery resources.
+    url: https://docs.cloud.google.com/bigquery/docs/vpc-sc
+    accessed: '2026-10-15'
+    confidence: high
+  scalability:
+  - text: BigQuery Editions reservations can autoscale slot capacity.
+    url: https://docs.cloud.google.com/bigquery/docs/editions-intro
+    accessed: '2026-10-15'
+    confidence: high
+  - text: Clustered tables sort data by clustering columns and organise it into blocks.
+    url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+    accessed: '2026-10-15'
+    confidence: high
+  sql_dialect:
+  - text: Quoted identifiers in GoogleSQL are enclosed in backticks.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/lexical
+    accessed: '2026-10-15'
+    confidence: high
+  - text: GoogleSQL procedural language supports DECLARE for variables.
+    url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery supports multi-statement transactions.
+    url: https://docs.cloud.google.com/bigquery/docs/transactions
+    accessed: '2026-10-15'
+    confidence: high
+  etl_tooling:
+  - text: The BigQuery Data Transfer Service automates scheduled data movement into BigQuery.
+    url: https://docs.cloud.google.com/bigquery/docs/dts-introduction
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery scheduled queries run SQL on a recurring basis.
+    url: https://docs.cloud.google.com/bigquery/docs/scheduling-queries
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery supports SQL stored procedures.
+    url: https://docs.cloud.google.com/bigquery/docs/procedures
+    accessed: '2026-10-15'
+    confidence: high
+  data_movement:
+  - text: BigQuery batch loading supports formats including Avro, Parquet and ORC.
+    url: https://docs.cloud.google.com/bigquery/docs/batch-loading-data
+    accessed: '2026-10-15'
+    confidence: high
+  - text: BigQuery can export up to 1 GB of data to a single file; larger exports need multiple files.
+    url: https://docs.cloud.google.com/bigquery/docs/exporting-data
+    accessed: '2026-10-15'
+    confidence: high
+  - text: The Storage Write API ingests data into BigQuery over gRPC.
+    url: https://docs.cloud.google.com/bigquery/docs/write-api-grpc
+    accessed: '2026-10-15'
+    confidence: high
+unsupported_features:
+- text: BigQuery arrays cannot contain arrays directly.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+  accessed: '2026-10-15'
+  confidence: high
+- text: BigQuery primary and foreign keys are declared NOT ENFORCED.
+  url: https://docs.cloud.google.com/bigquery/docs/primary-foreign-keys
+  accessed: '2026-10-15'
+  confidence: high
+- text: Time travel covers the past seven days by default, configurable up to a maximum of seven days.
+  url: https://docs.cloud.google.com/bigquery/docs/time-travel
+  accessed: '2026-10-15'
+  confidence: high
+- text: STRING and BYTES are separate types and cannot be used interchangeably.
+  url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+  accessed: '2026-10-15'
+  confidence: high
