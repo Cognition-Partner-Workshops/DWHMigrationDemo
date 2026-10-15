@@ -146,7 +146,7 @@ edges:
   kind: etl_runs
   external: false
 - from: cleanup.purge_logs
-  to: dags/scripts/purge.sh
+  to: scripts/purge.sh
   kind: etl_runs
   external: true
 - from: cleanup.vacuum
@@ -186,13 +186,13 @@ edges:
   kind: etl_writes
   external: true
 - from: etl_daily.ext_products
-  to: dags/scripts/extract_products.sh
-  kind: etl_runs
-  external: true
-- from: etl_daily.ext_products
   to: etl_daily.stg_done
   kind: etl_runs
   external: false
+- from: etl_daily.ext_products
+  to: scripts/extract_products.sh
+  kind: etl_runs
+  external: true
 - from: etl_daily.load_customers
   to: etl_daily.build_summary
   kind: etl_runs
@@ -298,21 +298,21 @@ edges:
   kind: etl_runs
   external: false
 - from: nightly_batch.rebuild_idx
-  to: dags/scripts/reindex.sh
-  kind: etl_runs
-  external: true
-- from: nightly_batch.rebuild_idx
   to: nightly_batch.publish
   kind: etl_runs
   external: false
-- from: nightly_batch.stage_extract
-  to: dags/scripts/stage.sh
+- from: nightly_batch.rebuild_idx
+  to: scripts/reindex.sh
   kind: etl_runs
   external: true
 - from: nightly_batch.stage_extract
   to: nightly_batch.stage_verify
   kind: etl_runs
   external: false
+- from: nightly_batch.stage_extract
+  to: scripts/stage.sh
+  kind: etl_runs
+  external: true
 - from: nightly_batch.stage_verify
   to: nightly_batch.load_mart
   kind: etl_runs

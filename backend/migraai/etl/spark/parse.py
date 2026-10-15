@@ -239,10 +239,20 @@ def _parse_json(text: str, rel_path: str, builder: EtlBuilder) -> None:
     if not isinstance(payload, dict) or not (_SUBMIT_KEYS & payload.keys()):
         builder.issue("warning", "unrecognized_json", "JSON is not a Spark submit config.")
         return
-    _spark_submit_object(payload, rel_path, builder)
+    _spark_submit_object(payload, rel_path, builder, text)
 
 
-def _spark_submit_object(payload: dict[str, Any], rel_path: str, builder: EtlBuilder) -> None:
+def _key_line(text: str, key: str) -> int:
+    needle = f'"{key}"'
+    for index, line in enumerate(text.split("\n"), 1):
+        if needle in line:
+            return index
+    return 1
+
+
+def _spark_submit_object(
+    payload: dict[str, Any], rel_path: str, builder: EtlBuilder, text: str
+) -> None:
     refs: list[ast.RefHint] = []
     args: dict[str, Any] = {}
     file_value = (
@@ -251,11 +261,13 @@ def _spark_submit_object(payload: dict[str, Any], rel_path: str, builder: EtlBui
     class_name = payload.get("className") or payload.get("main_class") or payload.get("mainClass")
     if isinstance(file_value, str) and file_value:
         normalized = normalize_path(file_value, rel_path)
-        args["file"] = ast.Literal(type="string", value=normalized)
-        refs.append(builder.ref(normalized, "etl_runs", span(1), split=False))
+        file_line = _key_line(text, "file")
+        args["file"] = ast.Literal(type="string", value=normalized, span=span(file_line))
+        refs.append(builder.ref(normalized, "etl_runs", span(file_line), split=False))
     if isinstance(class_name, str) and class_name:
+        class_line = _key_line(text, "className")
         args["className"] = qname(class_name)
-        refs.append(builder.ref(class_name, "etl_runs", span(1)))
+        refs.append(builder.ref(class_name, "etl_runs", span(class_line)))
     for key in ("args", "jars", "pyFiles", "files", "archives"):
         value = payload.get(key)
         if isinstance(value, list):

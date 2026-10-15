@@ -286,9 +286,12 @@ class ShellParser:
 
     def _assign_node(self, token: ShToken, exported: bool = False) -> ast.Assign:
         name, _, _ = token.value.partition("=")
-        # find the value portion inside the token parts (after first '=')
-        value_parts = self._value_parts(token)
-        value_node = _parts_word(value_parts, token.line)
+        if _SECRET_NAME_RE.search(name):
+            value_node = ast.Literal(type="string", value="****", span=span(token.line))
+        else:
+            # find the value portion inside the token parts (after first '=')
+            value_parts = self._value_parts(token)
+            value_node = _parts_word(value_parts, token.line)
         return ast.Assign(
             target=ast.Variable(name=name, span=span(token.line, token.line)),
             value=value_node,
@@ -499,6 +502,7 @@ class ShellParser:
             if self.at_op("}"):
                 self.advance()
             else:
+                self._resync_function_body()
                 return self._unterminated(start, "function", "}")
         elif self.at_op("("):
             self.advance()
@@ -506,6 +510,7 @@ class ShellParser:
             if self.at_op(")"):
                 self.advance()
             else:
+                self._resync_function_body()
                 return self._unterminated(start, "function", ")")
         else:
             self.issues.append(
@@ -604,8 +609,32 @@ class ShellParser:
             if self.peek().kind is ShKind.HEREDOC:
                 self.advance()
                 continue
+            if self.peek().kind is ShKind.OP and self.peek().value == "{":
+                # a `{` may start a group after e.g. `coproc name { …; }`
+                continue
             break
         return statements
+
+    def _resync_function_body(self) -> None:
+        """After a syntax error inside a function body, resync at the closing
+        ``}`` at column 1, or at the next col-1 ``name()``/``function name``
+        definition, whichever comes first."""
+        while self.peek().kind is not ShKind.EOF:
+            token = self.peek()
+            if token.kind is ShKind.OP and token.value == "}" and token.col == 1:
+                return
+            if token.kind is ShKind.WORD and token.col == 1:
+                if token.value.casefold() == "function":
+                    return
+                if (
+                    _FUNC_NAME_RE.match(token.value)
+                    and self.peek(1).kind is ShKind.OP
+                    and self.peek(1).value == "("
+                    and self.peek(2).kind is ShKind.OP
+                    and self.peek(2).value == ")"
+                ):
+                    return
+            self.advance()
 
     def _unterminated(self, start: ShToken, construct: str, closer: str) -> ast.Unparsed:
         self.issues.append(
@@ -659,8 +688,11 @@ _SECRET_FLAG_TOOLS = {
     "hive",
     "snowsql",
     "mysql",
+    "mysqldump",
+    "mysqladmin",
 }
 _SECRET_FLAGS = {"-p", "-pw", "-w", "--password", "--passwd"}
+_SECRET_NAME_RE = re.compile(r"password|passwd|pwd|secret|token|api_key", re.IGNORECASE)
 # -P is only a secret flag for bcp/sqlcmd-style tools
 _SECRET_FLAGS_P = {"bcp", "sqlcmd"}
 
@@ -669,11 +701,22 @@ def _mask_secret_flags(program: ast.Node, args: list[ast.Node]) -> list[ast.Node
     if not isinstance(program, ast.Literal):
         return args
     base = posixpath.basename(program.value).casefold()
-    if base not in _SECRET_FLAG_TOOLS:
+    flags: set[str] = set()
+    if base in _SECRET_FLAG_TOOLS:
+        flags |= _SECRET_FLAGS
+        if base in _SECRET_FLAGS_P:
+            flags.add("-P")
+    # generic long flags whose name looks secret (`--password`, `--api-token`…)
+    masked_generic = [
+        isinstance(a, ast.Literal)
+        and a.value.startswith("--")
+        and _SECRET_NAME_RE.search(a.value.split("=", 1)[0][2:])
+        and "=" not in a.value
+        for a in args
+    ]
+    if not flags and not any(masked_generic):
         return args
-    flags = set(_SECRET_FLAGS)
-    if base in _SECRET_FLAGS_P:
-        flags.add("-P")
+    flags |= {a.value for a, hit in zip(args, masked_generic, strict=False) if hit}
     masked: list[ast.Node] = []
     hide_next = False
     for arg in args:
@@ -687,6 +730,22 @@ def _mask_secret_flags(program: ast.Node, args: list[ast.Node]) -> list[ast.Node
             hide_next = False
             continue
         hide_next = isinstance(arg, ast.Literal) and arg.value in flags
+        if (
+            base in _SECRET_FLAG_TOOLS
+            and isinstance(arg, ast.Literal)
+            and arg.type == "string"
+            and arg.value
+        ):
+            value = arg.value
+            if base.startswith("mysql") and re.match(r"-p\S+", value):
+                masked.append(ast.Literal(type="string", value="-p****", span=arg.span))
+                continue
+            cleaned = redact(value)
+            if base == "db2":
+                cleaned = re.sub(r"(?i)(\busing\s+)\S+", r"\1****", cleaned)
+            if cleaned != value:
+                masked.append(ast.Literal(type="string", value=cleaned, span=arg.span))
+                continue
         masked.append(arg)
     return masked
 

@@ -66,12 +66,12 @@ def test_normalize_path() -> None:
     assert normalize_path("x.sh", rel) == "bin/x.sh"
     assert normalize_path("/abs/x.sh", rel) == "/abs/x.sh"
     assert normalize_path("$ETL_HOME/x.sh", rel, {"ETL_HOME": "/opt"}) == "/opt/x.sh"
-    assert normalize_path("${ETL_HOME}/x.sh", rel, {"ETL_HOME": "sub"}) == "bin/sub/x.sh"
+    assert normalize_path("${ETL_HOME}/x.sh", rel, {"ETL_HOME": "sub"}) == "sub/x.sh"
     assert normalize_path("$UNRESOLVED/x.sh", rel) == "x.sh"
     assert normalize_path("$(dirname $0)/x.sh", rel) == "bin/x.sh"
     assert normalize_path('$(dirname "$0")/x.sh', rel) == "bin/x.sh"
     assert normalize_path("${0%/*}/x.sh", rel) == "bin/x.sh"
-    assert normalize_path("%%CTM_DIR/x.sh", rel, {"CTM_DIR": "jobs"}) == "bin/jobs/x.sh"
+    assert normalize_path("%%CTM_DIR/x.sh", rel, {"CTM_DIR": "jobs"}) == "jobs/x.sh"
     assert normalize_path("../other/x.sh", rel) == "other/x.sh"
 
 

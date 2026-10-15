@@ -231,9 +231,9 @@ python3 etl/run.py
     assert ("etl_writes", "dwh.t") in refs
     assert ("etl_runs", "com.a.M") in refs
     assert ("etl_runs", "bin/app.py") in refs
-    assert ("etl_runs", "bin/sub/step.sh") in refs
-    assert ("etl_runs", "bin/lib/vars.sh") in refs
-    assert ("etl_runs", "bin/etl/run.py") in refs
+    assert ("etl_runs", "sub/step.sh") in refs
+    assert ("etl_runs", "lib/vars.sh") in refs
+    assert ("etl_runs", "etl/run.py") in refs
     sqls = {(e.dialect_hint, e.text.strip()[:6]) for e in result.embedded_sql}
     assert ("netezza", "SELECT") in sqls
     assert ("db2", "SELECT") in sqls
@@ -245,7 +245,7 @@ python3 etl/run.py
 def test_variable_substitution_in_paths() -> None:
     result = _run("DIR=jobs\nsh $DIR/run.sh\n")
     script = result.objects[0]
-    assert ("etl_runs", "bin/jobs/run.sh") in names(script)
+    assert ("etl_runs", "jobs/run.sh") in names(script)
 
 
 def test_secrets_never_appear() -> None:

@@ -641,23 +641,36 @@ def _parse_yaml(text: str, rel_path: str, builder: EtlBuilder) -> None:
             "YAML file is not a dag-factory DAG definition.",
         )
         return
+    lines = text.split("\n")
+
+    def _key_line(key: str, start: int) -> int:
+        for index in range(start, len(lines)):
+            if lines[index].lstrip().startswith(f"{key}:"):
+                return index + 1
+        return start + 1
+
+    search_from = 0
     for dag_id, spec in payload.items():
         if not isinstance(spec, dict) or "tasks" not in spec:
             continue
-        dag = _Dag(dag_id=str(dag_id), line=1, end_line=1)
+        dag_line = _key_line(str(dag_id), search_from)
+        search_from = dag_line - 1
+        dag = _Dag(dag_id=str(dag_id), line=dag_line, end_line=dag_line)
         tasks_spec = spec.get("tasks") or {}
         local: dict[str, _Task] = {}
         for task_id, task_spec in tasks_spec.items():
             if not isinstance(task_spec, dict):
                 task_spec = {}
             operator = str(task_spec.get("operator", "EmptyOperator"))
+            task_line = _key_line(str(task_id), search_from)
+            search_from = task_line - 1
             task = _Task(
                 task_id=str(task_id),
                 qualified=f"{dag_id}.{task_id}",
                 node=None,
                 operator=operator,
-                line=1,
-                end_line=1,
+                line=task_line,
+                end_line=task_line,
                 args={},
             )
             if operator not in _KNOWN_OPERATORS and not operator.endswith(("Operator", "Sensor")):
@@ -665,7 +678,7 @@ def _parse_yaml(text: str, rel_path: str, builder: EtlBuilder) -> None:
                     "info",
                     "unknown_operator",
                     f"Unknown operator {operator!r}; treating as a task.",
-                    span(1),
+                    span(task_line),
                 )
             _yaml_task_extras(task, task_spec, builder)
             dag.tasks.append(task)
@@ -677,7 +690,9 @@ def _parse_yaml(text: str, rel_path: str, builder: EtlBuilder) -> None:
                 upstream = local.get(str(dep))
                 downstream = local.get(str(task_id))
                 if upstream is not None and downstream is not None:
-                    upstream.hints.append(builder.ref(downstream.qualified, "etl_runs", span(1)))
+                    upstream.hints.append(
+                        builder.ref(downstream.qualified, "etl_runs", span(downstream.line))
+                    )
         for task in dag.tasks:
             node = ast.DialectStatement(
                 name="airflow.task",
@@ -686,9 +701,9 @@ def _parse_yaml(text: str, rel_path: str, builder: EtlBuilder) -> None:
                     "operator": ast.Identifier(value=task.operator),
                 },
                 references=task.hints,
-                span=span(1),
+                span=span(task.line),
             )
-            builder.add("task", task.qualified, node, 1, 1)
+            builder.add("task", task.qualified, node, task.line, task.line)
         dag_node = ast.DialectStatement(
             name="airflow.dag",
             args={
@@ -697,9 +712,9 @@ def _parse_yaml(text: str, rel_path: str, builder: EtlBuilder) -> None:
                 "tasks": [ast.Identifier(value=task.task_id) for task in dag.tasks],
             },
             references=[],
-            span=span(1),
+            span=span(dag.line),
         )
-        builder.add("dag", dag.dag_id, dag_node, 1, 1)
+        builder.add("dag", dag.dag_id, dag_node, dag.line, dag.line)
 
 
 def _yaml_task_extras(task: _Task, spec: dict[str, Any], builder: EtlBuilder) -> None:
@@ -717,7 +732,7 @@ def _yaml_task_extras(task: _Task, spec: dict[str, Any], builder: EtlBuilder) ->
             if not isinstance(item, str):
                 continue
             if item.lower().endswith((".sql", ".hql")):
-                task.hints.append(builder.ref(item, "etl_runs", span(1), split=False))
+                task.hints.append(builder.ref(item, "etl_runs", span(task.line), split=False))
             else:
                 builder.embed(task.qualified, item, key, hint)
     bash = spec.get("bash_command")
@@ -737,7 +752,7 @@ def _yaml_task_extras(task: _Task, spec: dict[str, Any], builder: EtlBuilder) ->
                     builder.ref(
                         invocation.name,
                         invocation.ref_kind or "etl_runs",
-                        span(1),
+                        span(task.line),
                         split=invocation.split,
                     )
                 )

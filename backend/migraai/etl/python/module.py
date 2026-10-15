@@ -8,6 +8,7 @@ references and ``EmbeddedSql`` entries. Spark installs extra call handlers.
 from __future__ import annotations
 
 import ast as pyast
+import re
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -24,6 +25,8 @@ from migraai.etl.python.pyconvert import (
     convert_statement,
     resolve_string,
 )
+
+_SECRET_NAME_RE = re.compile(r"password|passwd|pwd|secret|token|api_key", re.IGNORECASE)
 
 THIRD_PARTY_TOP = frozenset(
     {
@@ -131,6 +134,8 @@ class ModuleAnalyzer:
             return
         for target in stmt.targets:
             if isinstance(target, pyast.Name):
+                if _SECRET_NAME_RE.search(target.id):
+                    value = "****"
                 scope.constants[target.id] = value
 
     def _resolve_import_base(self, stmt: pyast.ImportFrom) -> str:

@@ -416,19 +416,31 @@ def _bcp(
     if len(positional) < 2:
         return
     table, direction = positional[0], positional[1].casefold()
+
+    def _data_file(index: int, ref_kind: str) -> None:
+        if len(positional) > index:
+            invocations.append(
+                Invocation(
+                    "ref",
+                    ref_kind,
+                    normalize_path(positional[index], rel_path, variables),
+                    False,
+                    line=line,
+                    span=command.span,
+                )
+            )
+
     if direction == "in":
         invocations.append(Invocation("ref", "etl_writes", table, line=line, span=command.span))
+        _data_file(2, "etl_reads")
     elif direction == "out":
         invocations.append(Invocation("ref", "etl_reads", table, line=line, span=command.span))
+        _data_file(2, "etl_writes")
     elif direction == "queryout":
         query_arg = next((a for a in args if a.lower().startswith("select")), None)
         if query_arg:
             invocations.append(_sql(query_arg, "sqlserver", "bcp", line, command.span))
-        if len(positional) > 2:
-            invocations.append(_path(positional[2], rel_path, variables, line, command.span))
-        return
-    if len(positional) > 2:
-        invocations.append(_path(positional[2], rel_path, variables, line, command.span))
+        _data_file(2, "etl_writes")
 
 
 def _db2(

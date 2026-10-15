@@ -54,6 +54,9 @@ objects:
   qualified_name: jobs/broken.sh::broken_fn
   status: partial
 - type: function
+  qualified_name: jobs/broken.sh::good_after
+  status: parsed
+- type: function
   qualified_name: jobs/broken.sh::good_before
   status: parsed
 - type: script
@@ -186,11 +189,11 @@ edges:
   kind: etl_runs
   external: true
 - from: jobs/run_all.sh::finish_up
-  to: jobs/jobs/notify.py
+  to: jobs/notify.py
   kind: etl_runs
   external: true
 - from: jobs/run_all.sh::finish_up
-  to: jobs/jobs/reconcile.jar
+  to: jobs/reconcile.jar
   kind: etl_runs
   external: true
 - from: jobs/run_all.sh::main
@@ -255,7 +258,7 @@ edges:
   external: false
 - from: load/final.sh::export_marts
   to: /data/orders.dat
-  kind: etl_runs
+  kind: etl_writes
   external: true
 - from: load/final.sh::export_marts
   to: mart.orders
@@ -270,7 +273,7 @@ edges:
   kind: etl_reads
   external: true
 - from: load/final.sh::load_facts
-  to: load/load/facts.hql
+  to: load/facts.hql
   kind: etl_runs
   external: true
 - from: load/final.sh::load_orders

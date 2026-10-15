@@ -9,6 +9,7 @@ supported construct.
 from __future__ import annotations
 
 import ast as pyast
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -29,6 +30,8 @@ SECRET_KEYWORDS = frozenset(
         "credentials",
     }
 )
+
+_SECRET_VALUE_RE = re.compile(r"password|passwd|pwd|secret|token|api_key", re.IGNORECASE)
 
 _BIN_OPS = {
     pyast.Add: "+",
@@ -202,7 +205,11 @@ def _convert(node: pyast.expr, ctx: ConvertContext) -> ast.Node:
                 fields=[
                     ast.StructField(
                         name=ast.Identifier(value=key.value),
-                        value=convert_expr(value, ctx),
+                        value=(
+                            ast.Literal(type="string", value="****", span=_pyspan(value))
+                            if key.value.casefold() in SECRET_KEYWORDS
+                            else convert_expr(value, ctx)
+                        ),
                         span=_pyspan(value),
                     )
                     for key, value in zip(node.keys, node.values, strict=True)
@@ -318,6 +325,12 @@ def _convert_call(node: pyast.Call, ctx: ConvertContext) -> ast.Node:
                 span=_pyspan(keyword.value),
             )
         )
+    # key/value setters: `conf.set("...password...", "x")`, `.option(k, v)`
+    if len(args) >= 2 and isinstance(args[0], ast.Literal) and isinstance(args[0].value, str):
+        if _SECRET_VALUE_RE.search(args[0].value):
+            for index in range(1, len(args)):
+                if isinstance(args[index], ast.Literal) and args[index].type == "string":
+                    args[index] = ast.Literal(type="string", value="****", span=args[index].span)
     dotted = _dotted(node.func)
     if dotted is not None:
         from migraai.etl.python.common import qname
@@ -340,6 +353,11 @@ def convert_statement(node: pyast.stmt, ctx: ConvertContext) -> ast.Node:
         )
     if isinstance(node, pyast.Assign):
         value = convert_expr(node.value, ctx)
+        if any(
+            isinstance(t, pyast.Name) and _SECRET_VALUE_RE.search(t.id)
+            for t in node.targets
+        ):
+            value = ast.Literal(type="string", value="****", span=_pyspan(node.value))
         targets = [convert_expr(target, ctx) for target in node.targets]
         result: ast.Node = ast.Assign(target=targets[0], value=value, span=sp)
         for target in targets[1:]:

@@ -1,0 +1,34 @@
+{
+  "kind": "dialect_statement",
+  "span": {
+    "start_line": 5,
+    "start_col": 1,
+    "end_line": 6,
+    "end_col": 1
+  },
+  "name": "airflow.task",
+  "args": {
+    "task_id": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "ext",
+      "quoted": false
+    },
+    "operator": {
+      "kind": "identifier",
+      "span": {
+        "start_line": 1,
+        "start_col": 1,
+        "end_line": 1,
+        "end_col": 1
+      },
+      "value": "@task:task",
+      "quoted": false
+    }
+  }
+}

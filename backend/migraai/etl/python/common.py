@@ -142,6 +142,9 @@ def normalize_path(path: str, rel_path: str, variables: dict[str, str] | None = 
     if anchored:
         # $(dirname $0)/${0%/*} already resolved relative to the file's dir
         return posixpath.normpath(path)
+    if "/" in path and not path.startswith(("./", "../")):
+        # design §6: a relative path with a directory component is pack-root relative
+        return posixpath.normpath(path)
     base = file_dir or "."
     return posixpath.normpath(posixpath.join(base, path))
 

@@ -135,7 +135,7 @@ def test_json_livy_submit() -> None:
     )
     (obj,) = result.objects
     assert obj.type == "spark_submit"
-    assert ("etl_runs", "conf/jobs/etl.py") in names(obj)
+    assert ("etl_runs", "jobs/etl.py") in names(obj)
     assert ("etl_runs", "com.acme.etl.Main") in names(obj)
 
 

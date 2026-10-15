@@ -137,7 +137,7 @@ edges:
   kind: etl_runs
   external: true
 - from: conf/submit_orders.json
-  to: conf/jobs/transform.py
+  to: jobs/transform.py
   kind: etl_runs
   external: true
 - from: jobs.helpers.count_table
