@@ -46,6 +46,8 @@ const EMPTY_SETTINGS: SettingsResponse = {
 };
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
+// Enable when a later phase produces real converted output.
+const downloadAvailable = false;
 const ALLOWED_EXTENSIONS = new Set([
   ".sql",
   ".ddl",
@@ -438,7 +440,11 @@ export default function App() {
     setFiles((current) =>
       current.map((row) =>
         row.status === "Accepted"
-          ? { ...row, status: "Preview complete", message: "Preview only; no conversion was run." }
+          ? {
+              ...row,
+              status: "Preview complete",
+              message: "Preview complete — no conversion was run.",
+            }
           : row,
       ),
     );
@@ -461,10 +467,6 @@ export default function App() {
     setHealth((current) =>
       current ? { ...current, devin_configured: updated.devin_pat.configured } : current,
     );
-  }
-
-  function downloadPreview() {
-    setNotice("ZIP packaging is planned for a later phase; no output file was created.");
   }
 
   function acceptDrop(event: DragEvent<HTMLDivElement>) {
@@ -664,7 +666,7 @@ export default function App() {
         <section aria-labelledby="convert-heading" className="panel convert-panel">
           <div className="panel-heading convert-heading">
             <SectionTitle
-              description="Upload files, convert using AI, and download results"
+              description="1. Browse or drop files · 2. Upload Files · 3. Convert Items"
               headingId="convert-heading"
               number="4"
               title="Convert Objects"
@@ -674,6 +676,7 @@ export default function App() {
                 className="button upload-button"
                 disabled={!canUpload}
                 onClick={uploadFiles}
+                title={canUpload ? undefined : "Confirm source and target, then add files"}
                 type="button"
               >
                 <span aria-hidden="true">⇧</span> Upload Files
@@ -682,14 +685,21 @@ export default function App() {
                 className="button primary"
                 disabled={!hasUploaded || converted}
                 onClick={previewConversion}
+                title={
+                  !hasUploaded
+                    ? "Upload files first"
+                    : converted
+                      ? "Preview already complete"
+                      : undefined
+                }
                 type="button"
               >
                 <span aria-hidden="true">⚙</span> Convert Items
               </button>
               <button
                 className="button download-button"
-                disabled={!converted}
-                onClick={downloadPreview}
+                disabled={!downloadAvailable}
+                title="Available once conversion is implemented in a later phase"
                 type="button"
               >
                 <span aria-hidden="true">⇩</span> Download Converted Files

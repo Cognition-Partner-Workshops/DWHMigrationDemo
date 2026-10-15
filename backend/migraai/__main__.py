@@ -50,7 +50,10 @@ def main() -> None:
             args=(server, launch_url),
             daemon=True,
         ).start()
-    server.run()
+    try:
+        server.run()
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":

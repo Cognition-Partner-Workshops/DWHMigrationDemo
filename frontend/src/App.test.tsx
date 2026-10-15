@@ -89,6 +89,15 @@ describe("MigraAI foundation UI", () => {
     const upload = await screen.findByRole("button", { name: /upload files/i });
     const convert = screen.getByRole("button", { name: /convert items/i });
     const download = screen.getByRole("button", { name: /download converted files/i });
+    expect(
+      screen.getByText("1. Browse or drop files · 2. Upload Files · 3. Convert Items"),
+    ).toBeInTheDocument();
+    expect(upload).toHaveAttribute("title", "Confirm source and target, then add files");
+    expect(convert).toHaveAttribute("title", "Upload files first");
+    expect(download).toHaveAttribute(
+      "title",
+      "Available once conversion is implemented in a later phase",
+    );
     expect(upload).toBeDisabled();
     expect(convert).toBeDisabled();
     expect(download).toBeDisabled();
@@ -106,8 +115,10 @@ describe("MigraAI foundation UI", () => {
     expect(convert).toBeEnabled();
     expect(download).toBeDisabled();
     await user.click(convert);
-    expect(download).toBeEnabled();
-    expect(await screen.findByText(/no conversion was run/i)).toBeInTheDocument();
+    expect(download).toBeDisabled();
+    expect(
+      await screen.findByText("Preview complete — no conversion was run."),
+    ).toBeInTheDocument();
   });
 
   it("shows the PAT as masked settings metadata, not as an input value", async () => {
