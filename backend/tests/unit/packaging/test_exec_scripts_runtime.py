@@ -32,6 +32,37 @@ if [ -n "$FAKE_FAIL_AT" ] && [ "$c" -ge "$FAKE_FAIL_AT" ]; then exit 7; fi
 exit 0
 """
 
+# On Windows an extensionless shell script can't be exec'd; the fake CLI is a
+# .cmd wrapper around this Python helper (python is on PATH in CI).
+FAKE_PY = """import os
+import sys
+
+prog = sys.argv[1]
+args = sys.argv[2:]
+count_path = os.environ["FAKE_COUNT"]
+try:
+    c = int(open(count_path).read().strip() or "0")
+except OSError:
+    c = 0
+c += 1
+open(count_path, "w").write(str(c))
+with open(os.environ["FAKE_LOG"], "a") as fh:
+    fh.write(prog)
+    for a in args:
+        fh.write("\\x1f" + a)
+    fh.write("\\n")
+if os.environ.get("FAKE_READ_STDIN") == "1":
+    first = sys.stdin.buffer.readline()
+    open(os.environ["FAKE_STDIN_LOG"], "wb").write(first)
+fail = os.environ.get("FAKE_FAIL_AT")
+if fail and c >= int(fail):
+    sys.exit(7)
+"""
+
+FAKE_CMD = """@echo off
+python "%~dp0fake_cli.py" %~n0 %*
+"""
+
 BASH = shutil.which("bash")
 NEEDS_BASH = pytest.mark.skipif(
     BASH is None or sys.platform == "win32", reason="bash unavailable or WSL stub on Windows"
@@ -55,9 +86,13 @@ def run_dir(tmp_path: Path, target: str, pkg=None) -> tuple[Path, Path, object]:
 def fake_bin(tmp_path: Path, cli: str) -> Path:
     bin_dir = tmp_path / "fakebin"
     bin_dir.mkdir(exist_ok=True)
-    fake = bin_dir / cli
-    fake.write_text(FAKE_SH)
-    fake.chmod(0o755)
+    if sys.platform == "win32":
+        (bin_dir / "fake_cli.py").write_text(FAKE_PY)
+        (bin_dir / f"{cli}.cmd").write_text(FAKE_CMD)
+    else:
+        fake = bin_dir / cli
+        fake.write_text(FAKE_SH)
+        fake.chmod(0o755)
     return bin_dir
 
 

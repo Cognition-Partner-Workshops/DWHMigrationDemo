@@ -98,7 +98,10 @@ for ($i = 0; $i -lt $plan.Count; $i++) {
         $n = '{0:d3}' -f ($i + 1)
         Write-Output ('Applying [{0}] {1}' -f $n, $p)
         @@PS_INVOKE@@
-        $rc = $LASTEXITCODE
+        $rc = 1
+        if (Test-Path -Path variable:LASTEXITCODE) {
+            $rc = $LASTEXITCODE
+        }
         if ($rc -ne 0) {
             [Console]::Error.WriteLine("FAILED: $p (exit $rc)")
             exit $rc
