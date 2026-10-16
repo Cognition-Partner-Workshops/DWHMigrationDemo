@@ -79,7 +79,12 @@ class ConversionJob(threading.Thread):
             batch.index: {
                 "status": "queued",
                 "objects": [str(self._value(item, "id", "")) for item in batch.objects],
-                "voters": {voter: "queued" for voter in ("A", "B", "C")},
+                "voters": {
+                    "A": "queued",
+                    "B": "queued",
+                    "C": "queued",
+                    "escalation": "not_needed",
+                },
                 "escalated": False,
             }
             for batch in self.batches
@@ -160,12 +165,20 @@ class ConversionJob(threading.Thread):
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
+            batches = {
+                index: {
+                    **batch,
+                    "objects": list(batch["objects"]),
+                    "voters": dict(batch["voters"]),
+                }
+                for index, batch in self.batch_status.items()
+            }
             return {
                 "run_id": self.run_id,
                 "state": self.state,
                 "progress": {
                     "elapsed_s": round(time.monotonic() - self.started_at, 1),
-                    "batches": self.batch_status,
+                    "batches": batches,
                 },
                 "counts": dict(self.counts),
                 "overall_confidence": overall_score(
@@ -176,6 +189,31 @@ class ConversionJob(threading.Thread):
                 "batch_count": len(self.batches),
                 "reason": self.reason,
             }
+
+    def _update_session_status(
+        self,
+        batch_index: int,
+        role: str,
+        status: str,
+        session_id: str | None = None,
+    ) -> None:
+        with self.lock:
+            batch = self.batch_status[batch_index]
+            if batch["voters"].get(role) == status:
+                return
+            batch["voters"][role] = status
+            if role == "escalation" and status not in {"queued", "not_needed"}:
+                batch["escalated"] = True
+            event_data = {
+                "batch_index": batch_index,
+                "object_ids": list(batch["objects"]),
+                "voter": role,
+                "state": status,
+                "session_id": session_id,
+                "voters": dict(batch["voters"]),
+                "escalated": batch["escalated"],
+            }
+        self._publish("convert.batch", event_data)
 
     def event_stream(self) -> Iterator[str]:
         while True:
@@ -218,7 +256,7 @@ class ConversionJob(threading.Thread):
         workflow_results = result.get("results", {})
         outcome_by_voter = result.get("voter_outcomes", {})
         inventory = self.session["inventory"]
-        with inventory.lock, inventory.connection:
+        with self.lock, inventory.lock, inventory.connection:
             for voter, outcome in outcome_by_voter.items():
                 for object_id, candidates in result.get("candidates", {}).items():
                     candidate = candidates.get(voter)
@@ -364,7 +402,7 @@ class ConversionJob(threading.Thread):
 
     def _save_failed_batch(self, batch: Any, error: str | None = None) -> None:
         inventory = self.session["inventory"]
-        with inventory.lock, inventory.connection:
+        with self.lock, inventory.lock, inventory.connection:
             for item in batch.objects:
                 object_id = str(self._value(item, "id", ""))
                 inventory.connection.execute(
@@ -413,6 +451,7 @@ class ConversionJob(threading.Thread):
                         cancel=self.cancel_event,
                         session_semaphore=semaphore,
                         client_factory=self.client_factory,
+                        session_status_callback=self._update_session_status,
                         workflow=workflow,
                         run_id=self.run_id,
                     )
