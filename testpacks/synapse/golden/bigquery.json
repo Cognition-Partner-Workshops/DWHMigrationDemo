@@ -685,6 +685,30 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-synapse-to-bigquery-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-bigquery-converted/converted/01_dimensions-converted.sql": "4954274c27c736cabdd1808d9d54e74930f5af1135bf2853676cc13b3d1f7060",
+    "migraai-synapse-to-bigquery-converted/converted/02_facts-converted.sql": "8111762bf491dbce55a47875e7fb2b804516ab26409753c98aba3c8601468717",
+    "migraai-synapse-to-bigquery-converted/converted/03_staging-converted.sql": "9e9ffa4f6abc130a15494436290d1d02b1e2af86c1e2d881fe8cb310478a3752",
+    "migraai-synapse-to-bigquery-converted/converted/04_external_objects-converted.sql": "5766173735513e2f0944a4a50d1e50f523496633336029c4c480f0fc66aa2059",
+    "migraai-synapse-to-bigquery-converted/execution/bigquery/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-bigquery-converted/execution/bigquery/README.md": "0775488b6afc85b532f28565c85de97003f646b5b7d6c2406c0f62ef8ea8262d",
+    "migraai-synapse-to-bigquery-converted/execution/bigquery/order.txt": "6e56616df201d3ed8fca15dfb9faccf871de422a0ae2f4b60c0ef2eb20dd88b4",
+    "migraai-synapse-to-bigquery-converted/execution/bigquery/run.ps1": "da568fd05be4f13664000d05e1619999dfd0987763f7469cc09f8c19399fbee1",
+    "migraai-synapse-to-bigquery-converted/execution/bigquery/run.sh": "a73a41bbe6b244b59f64e2d1ef114a33ed7792be4db93f6490292508090e15c2",
+    "migraai-synapse-to-bigquery-converted/manifest.json": "2665da60ae490bb6209600476a8cc750e5baf8529609d482eefd17e2acea36ff",
+    "migraai-synapse-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-bigquery-converted/mapping/csv/data_types.csv": "75b164cab963ff88e2cbc12b57c9ad4ca5a153d16a979c86f226968bdc49c827",
+    "migraai-synapse-to-bigquery-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-synapse-to-bigquery-converted/mapping/csv/objects.csv": "16868c4842af4f7e48856991ed5a4041caea675d06695c979da163e605931fdb",
+    "migraai-synapse-to-bigquery-converted/mapping/csv/security.csv": "5b4c6affb1ca4394c42a76b976bc7f5a2555b4624556a716c36d6dedee43020e",
+    "migraai-synapse-to-bigquery-converted/mapping/csv/syntax.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-synapse-to-bigquery-converted/mapping/mapping-workbook.xlsx": "42584c18dd8843fa67be83f30a170c31decf6491ecc650b37de431694716be7f",
+    "migraai-synapse-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-bigquery-converted/report/session-report.md": "2b24dec5f55a2a216aeb3f232455d6e612a2774828f78ed2772444f5a404f624",
+    "migraai-synapse-to-bigquery-converted/report/session-report.pdf": "62ef9e3b2d9c05928b76efe6dd3ddd0940c748ac2c2320d9af6152a75528dc8a"
+  },
   "inventory": {
     "external": 1,
     "objects": 53

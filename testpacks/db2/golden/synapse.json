@@ -607,6 +607,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-db2-to-synapse-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-synapse-converted/converted/load_script-converted.sql": "6d789ae8c3a38583322ac49799b566b16a2a7357001c0b3961e82a520d2fe444",
+    "migraai-db2-to-synapse-converted/converted/maintenance-converted.sql": "8656786e13e459559abfdf9cebcfa307feda52717aaf910da7f8c33bb4cfaadb",
+    "migraai-db2-to-synapse-converted/converted/recovery-converted.sql": "129566b4ca45b81a73d051094f1a5aa4535efe711d8afd5b0c21ab163fcf9874",
+    "migraai-db2-to-synapse-converted/converted/routines-converted.sql": "b6d4b8a19d1194e2ae773f0055e338b102f8d554c4bd51cfcbc84828db5342f3",
+    "migraai-db2-to-synapse-converted/converted/security-converted.sql": "884e6d6df01fbf1e3fe959a3d992d900ea38de3c4917322f8003079f30af44d8",
+    "migraai-db2-to-synapse-converted/converted/tables-converted.sql": "b168c30be0ed4ee8038b1e42275be8b0b46c28c6e573d8c66961b239940b405e",
+    "migraai-db2-to-synapse-converted/converted/views-converted.sql": "16f8eb0f7a67a3140ae33926882b32135b43f5594a8da959ac5a1da3f0df43d0",
+    "migraai-db2-to-synapse-converted/execution/synapse/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-synapse-converted/execution/synapse/README.md": "dd949b2bc656c5112d8302bf36b39829bdda749c173997451b3396cfd6d28126",
+    "migraai-db2-to-synapse-converted/execution/synapse/order.txt": "f722f1549ce0a3b0cd734e1c0ff0902cdd9ecd5d6f04c2ff7962c0567df24258",
+    "migraai-db2-to-synapse-converted/execution/synapse/run.ps1": "9efb51091f44e86128a9ba1c4006f118610958e499d282b7d4650585d0158e0f",
+    "migraai-db2-to-synapse-converted/execution/synapse/run.sh": "727e5b2629d607d345a5f557bd5596d581c46e6ed7268466bd0acc56fbfae8e6",
+    "migraai-db2-to-synapse-converted/manifest.json": "aac373927e9c0d27e679954831b2ab88b32ac2a2c4db4d76b0fcdb6e520bc65a",
+    "migraai-db2-to-synapse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-synapse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-synapse-converted/mapping/csv/data_types.csv": "1eb56da8733e4aa6e5efce59ead947f7b99f6efab0752e51287e4d79d8d03781",
+    "migraai-db2-to-synapse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-db2-to-synapse-converted/mapping/csv/objects.csv": "5b51b31d7161ec6d5eab3e40bb82aa2b6a5a1fadfeefce16c7d1fb80a18ab9a4",
+    "migraai-db2-to-synapse-converted/mapping/csv/security.csv": "0122e801ee40dc733806e798ca30d6659eb984eebad228397f0ae204715863b7",
+    "migraai-db2-to-synapse-converted/mapping/csv/syntax.csv": "d41cb4a58f1501841946cb8c382ee9c430fa0bd0cded9c069f2ca557bf37fa89",
+    "migraai-db2-to-synapse-converted/mapping/mapping-workbook.xlsx": "2a577f9ec915355e7b75fb6b1d31b09048b7685bac303c1b1812ab83a56e2923",
+    "migraai-db2-to-synapse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-synapse-converted/report/session-report.md": "c09f332bb26fe0be34f66f4359a2488ffe850ab06669324b9c8f5b0c70181124",
+    "migraai-db2-to-synapse-converted/report/session-report.pdf": "64053a4ef4e37d6b9d2c13b0009f8c6ad6b75081d5706325335be52f463756eb"
+  },
   "inventory": {
     "external": 1,
     "objects": 47

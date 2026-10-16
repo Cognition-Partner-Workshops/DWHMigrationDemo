@@ -197,6 +197,7 @@ def _golden_result(
 ) -> dict[str, Any]:
     with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
         names = sorted(archive.namelist())
+        entries_sha256 = {name: hashlib.sha256(archive.read(name)).hexdigest() for name in names}
         manifest = json.loads(archive.read(f"{package.package_name}-converted/manifest.json"))
     status_counts = Counter(item.status for item in package.objects)
     return {
@@ -233,9 +234,25 @@ def _golden_result(
             ],
         },
         "zip_entries": names,
+        "entries_sha256": entries_sha256,
         "manifest_counts": manifest["counts"],
         "zip_sha256": hashlib.sha256(archive_bytes).hexdigest(),
     }
+
+
+def _save_failure_artifacts(
+    source: str,
+    target: str,
+    archive_bytes: bytes,
+    rendered: str,
+) -> None:
+    artifact_dir = Path(
+        os.environ.get("MIGRAAI_GOLDEN_FAILURE_DIR", Path.cwd() / "golden-failure-artifacts")
+    )
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"{source}-to-{target}"
+    (artifact_dir / f"{stem}.zip").write_bytes(archive_bytes)
+    (artifact_dir / f"{stem}.json").write_text(rendered, encoding="utf-8", newline="\n")
 
 
 @pytest.mark.parametrize(("source", "target"), PAIR_PARAMS)
@@ -285,6 +302,14 @@ def test_mock_conversion_matches_golden(
     assert expected_path.is_file(), f"Missing golden file: {expected_path}"
     expected = expected_path.read_text(encoding="utf-8")
     if expected != rendered:
+        _save_failure_artifacts(source, target, first_zip, rendered)
+        expected_entries = json.loads(expected).get("entries_sha256", {})
+        actual_entries = actual["entries_sha256"]
+        differing_entries = sorted(
+            name
+            for name in expected_entries.keys() | actual_entries.keys()
+            if expected_entries.get(name) != actual_entries.get(name)
+        )
         diff = difflib.unified_diff(
             expected.splitlines(),
             rendered.splitlines(),
@@ -292,4 +317,9 @@ def test_mock_conversion_matches_golden(
             tofile="actual",
             lineterm="",
         )
-        pytest.fail("Golden mismatch:\n" + "\n".join(diff))
+        changed_entries = (
+            f"\nDiffering ZIP entry SHA-256: {', '.join(differing_entries)}"
+            if differing_entries
+            else ""
+        )
+        pytest.fail("Golden mismatch:\n" + "\n".join(diff) + changed_entries)

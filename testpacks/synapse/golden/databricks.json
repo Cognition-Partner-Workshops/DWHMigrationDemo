@@ -685,6 +685,30 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-synapse-to-databricks-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-databricks-converted/converted/01_dimensions-converted.sql": "c604cdd284ea3e611ae754743b9ddef12cb99307a6280006b35e15a0cf0f8b7e",
+    "migraai-synapse-to-databricks-converted/converted/02_facts-converted.sql": "b2dd1428d9e111c63ba3b7ed9f7a799cdc647a1038bf31d3b410d112e884b9be",
+    "migraai-synapse-to-databricks-converted/converted/03_staging-converted.sql": "9601bf2b4147bb7cf0bf5961239c579347c266ee48a8e325f711532c6304e6ae",
+    "migraai-synapse-to-databricks-converted/converted/04_external_objects-converted.sql": "b7d99f71b3245d590e247749e476f38e995cb388d52441c514a30b7f3c1f6cd3",
+    "migraai-synapse-to-databricks-converted/execution/databricks/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-databricks-converted/execution/databricks/README.md": "177590af926b560f57a3efaf2094112a25968a64852a3a620edb34c39d63ce22",
+    "migraai-synapse-to-databricks-converted/execution/databricks/order.txt": "aaf7fe2c4fc54a1f0c9d22c1239ff1b902542ccb3d93830839c723ed2326a5de",
+    "migraai-synapse-to-databricks-converted/execution/databricks/run.ps1": "b799c5a2d49119e97f121af5f8a78e7b0ed3433d1105c6286dd62b2dea90d4c3",
+    "migraai-synapse-to-databricks-converted/execution/databricks/run.sh": "e48d72d7e6cf5d44a8aa6db3d54f8987eaf34d8c91c09b62b724e8c73de8c25a",
+    "migraai-synapse-to-databricks-converted/manifest.json": "3f5143fd618f2a157a6a9a4a52ad90b3da524731900a57abff3891ebf42911a8",
+    "migraai-synapse-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-databricks-converted/mapping/csv/data_types.csv": "4717596360bc685ab9bf61c310c35ecdae338ecc1b03c98c0fbee218055281dd",
+    "migraai-synapse-to-databricks-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-synapse-to-databricks-converted/mapping/csv/objects.csv": "793ccf045acdeebeee5bc63ed02ade585881503fe86fc19650a14a81a147884c",
+    "migraai-synapse-to-databricks-converted/mapping/csv/security.csv": "5b4c6affb1ca4394c42a76b976bc7f5a2555b4624556a716c36d6dedee43020e",
+    "migraai-synapse-to-databricks-converted/mapping/csv/syntax.csv": "6d071519293ba1e5d97e223a021ee86dbe284ce2609736673eec7399fd939799",
+    "migraai-synapse-to-databricks-converted/mapping/mapping-workbook.xlsx": "88cfe16e6a1c068176989b3ef5f8fe330df0559827288fb5c5f6376f05007ca7",
+    "migraai-synapse-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-databricks-converted/report/session-report.md": "e6a4095e8cf9c015beae0000127590431867bf04605b159d64c4b82fd0dbcf4f",
+    "migraai-synapse-to-databricks-converted/report/session-report.pdf": "3636047f51db64df91ebcf225ec3d59d54c7e6dd278fd571813d07df362f71dd"
+  },
   "inventory": {
     "external": 1,
     "objects": 53

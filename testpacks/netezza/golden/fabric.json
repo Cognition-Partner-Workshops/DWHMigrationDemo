@@ -633,6 +633,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-netezza-to-fabric-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-fabric-converted/converted/load_script-converted.sql": "023c8644b2b61d7dae533749c793fdf4c93768d935364e75505449accb3d2c02",
+    "migraai-netezza-to-fabric-converted/converted/maintenance-converted.sql": "98048129cb084f7b6979169bbd569d075386e90a2aea50b899cce373d3f65590",
+    "migraai-netezza-to-fabric-converted/converted/recovery-converted.sql": "a7818daad8595369f82b00ede5f2a00fad7d2ebe439b3ec805f39d7ba2501c9b",
+    "migraai-netezza-to-fabric-converted/converted/routines-converted.sql": "89ad29d36e0dc267555cc33edcae99d0421ae82cc8462253632cd4470f266842",
+    "migraai-netezza-to-fabric-converted/converted/security-converted.sql": "37354313eeb34bf9065d98305b42c42759c3500199ca8121aa787956d7cad176",
+    "migraai-netezza-to-fabric-converted/converted/tables-converted.sql": "2ae7531cc69808447d6fef7f11c366bba56b13eb7995e7ee7b991f49bc1abc05",
+    "migraai-netezza-to-fabric-converted/converted/views-converted.sql": "3e1c61eceb08824f776d554a33c67bf1fe2e052d87ca246637d81bf506051ea6",
+    "migraai-netezza-to-fabric-converted/execution/fabric/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-fabric-converted/execution/fabric/README.md": "d11db792d93ef24fe522643574bb5ec3379bd2753fc2e7af29b1edae664c1eb0",
+    "migraai-netezza-to-fabric-converted/execution/fabric/order.txt": "0260c9795d950070c946a0d58e6eb20bfb7e318bc4e513fff16c478988159181",
+    "migraai-netezza-to-fabric-converted/execution/fabric/run.ps1": "645382f804e9aee30dc9e93e0813405a289bb535509c37d281e9175a55f309ac",
+    "migraai-netezza-to-fabric-converted/execution/fabric/run.sh": "31ad897d0f249f7ba867ccb3c665c17afcd7f184c251f737ecdcf954b484fc32",
+    "migraai-netezza-to-fabric-converted/manifest.json": "bdf54621617266d5333f90e1c868b10f7827d4a7d6f526bc1ac08d9bd4c1807d",
+    "migraai-netezza-to-fabric-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-fabric-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-fabric-converted/mapping/csv/data_types.csv": "16f2b2ff83d7441140b94b3facb122994fde204b3281fe9692baab6d1b163f49",
+    "migraai-netezza-to-fabric-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-netezza-to-fabric-converted/mapping/csv/objects.csv": "7d2e4c2f692f6df9fdd76a20087e0f61f844f188167f35d940f3f92bd8869e64",
+    "migraai-netezza-to-fabric-converted/mapping/csv/security.csv": "450d7a9da670cd4d45a76076e774c41adf7869afff1904b3362a317ad5504653",
+    "migraai-netezza-to-fabric-converted/mapping/csv/syntax.csv": "e082b57d72cd19cd9fe7fd567b4c404b73ce2a4d28041c2657775420df5ee144",
+    "migraai-netezza-to-fabric-converted/mapping/mapping-workbook.xlsx": "81b53a689500330245d7af16399b7d154cc886282a8ea0f2b5a2e29061c6e870",
+    "migraai-netezza-to-fabric-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-fabric-converted/report/session-report.md": "9c5c52294bbe1a0d2bc1251ed30e2474eeadb9fa694129c9b7ed25a58ff42a4b",
+    "migraai-netezza-to-fabric-converted/report/session-report.pdf": "ae94b53731987e85bdf3238ffee2773fd5be6da8229a07c91e0190efa480eb4e"
+  },
   "inventory": {
     "external": 1,
     "objects": 49

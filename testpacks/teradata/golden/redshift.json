@@ -737,6 +737,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-teradata-to-redshift-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-redshift-converted/converted/indexes-converted.sql": "e0a3ebe4d8b3e16a3eed2660c3ee1fe7b503c323e9ae9181086cf0930a830a5f",
+    "migraai-teradata-to-redshift-converted/converted/load_script-converted.sql": "dc12cacb12f966d72d171986241369968ad13dbc8c088fe2e63ebb63ab82c5d1",
+    "migraai-teradata-to-redshift-converted/converted/maintenance-converted.sql": "dd200d00cb8047785d6d26043985b1e0c112cccce82c8207d8d0036652fa66a8",
+    "migraai-teradata-to-redshift-converted/converted/routines-converted.sql": "003380d9690fcc60626d4837c4db02146b57f961df7614e46515c8228b95463e",
+    "migraai-teradata-to-redshift-converted/converted/security-converted.sql": "fea19f52ae68cfe8c1119172e3c2ae637f9512dbb5b7b844a05a17093aa2c853",
+    "migraai-teradata-to-redshift-converted/converted/tables-converted.sql": "771fb58e2ef86beabcc9826ec1bffc0efaa5029b6b4a2553f1915afe80b4bb53",
+    "migraai-teradata-to-redshift-converted/converted/views-converted.sql": "7fc2591dbddea0d17a1586e68966107b81264974fa564e8ac9af8402c2d97a3a",
+    "migraai-teradata-to-redshift-converted/execution/redshift/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-redshift-converted/execution/redshift/README.md": "d7f0cbce352ad683a17f85372e9f1442156a714f5db2bcc35d67bfa8082edf46",
+    "migraai-teradata-to-redshift-converted/execution/redshift/order.txt": "854c5427dbd78ccd517383ecfc75cc0949b264293f3e9dbf1188cfe70254d453",
+    "migraai-teradata-to-redshift-converted/execution/redshift/run.ps1": "0477092a517d36bea41875b2710c4be917a6b8b1b5ca8f52b7e959564e831897",
+    "migraai-teradata-to-redshift-converted/execution/redshift/run.sh": "2776655041d190214ca09b181a3a2abb573342362bcc5b26a39311ace6a05659",
+    "migraai-teradata-to-redshift-converted/manifest.json": "875721ef977e4357c2baf74cf20a18f2ebd159c83b082eed2370330a5115cf6f",
+    "migraai-teradata-to-redshift-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-redshift-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-redshift-converted/mapping/csv/data_types.csv": "e69a51141b0ab65e4de9579afd613453da864320dcd255aa81694dc7cf66801b",
+    "migraai-teradata-to-redshift-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-teradata-to-redshift-converted/mapping/csv/objects.csv": "8a22fbeb2703e516669ccb4f5228eb3422c3cc4c5ba259f02139b7c76283af72",
+    "migraai-teradata-to-redshift-converted/mapping/csv/security.csv": "2d03c1d913ab37d10fcf8ee49fec6c56a50eaabbc72b63f1e0da2fefcae8159a",
+    "migraai-teradata-to-redshift-converted/mapping/csv/syntax.csv": "82598bbc5588f9076a1a9b9695503b433cf41b3265500ce001e525fbd08512e7",
+    "migraai-teradata-to-redshift-converted/mapping/mapping-workbook.xlsx": "71b909c7c693c34bcd777f61fbd5a895c9cd3edd33e5c30dc0a9fd57b8bc12ac",
+    "migraai-teradata-to-redshift-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-redshift-converted/report/session-report.md": "d236c54f6934f1c9d28f38ba4c9e313a792d5cc295cbefe622fe53649e6da32f",
+    "migraai-teradata-to-redshift-converted/report/session-report.pdf": "bb94203e15d9f69848236715505256e0a20b8f93cdac33d811758e4cc5b4f2a6"
+  },
   "inventory": {
     "external": 1,
     "objects": 57

@@ -659,6 +659,30 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-sqlserver-to-synapse-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-synapse-converted/converted/01_reference_data-converted.sql": "f858ffbde4e404d10d6b1f713820f242349c22c5453dac60a0b4cceac2d1dee2",
+    "migraai-sqlserver-to-synapse-converted/converted/02_sales_data-converted.sql": "682681e41aa80a671b812b022f3d6f06040475265923f6204e10af7ae1839ea9",
+    "migraai-sqlserver-to-synapse-converted/converted/03_operations-converted.sql": "53b7cd868255ba620cf934b28abd153800cda2f17e60c4e5b4de630bcbab64e5",
+    "migraai-sqlserver-to-synapse-converted/converted/04_objects_and_recovery-converted.sql": "a9065c14aad2c4f8628d0a522160bfc6c8f0081b847cac468c3be5f217e92561",
+    "migraai-sqlserver-to-synapse-converted/execution/synapse/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-synapse-converted/execution/synapse/README.md": "5aa8f380d1bd7e0268abc9e7f837a09dd1def829e41eb5c469a9edd6a0cfe21b",
+    "migraai-sqlserver-to-synapse-converted/execution/synapse/order.txt": "9a9a5f413698e1d2892f811354af46aef853b47a53ed3485b2ccc3451cec373a",
+    "migraai-sqlserver-to-synapse-converted/execution/synapse/run.ps1": "8d07573c87c4d2b2e75cb83e407a0d250f8e44ec30b0aeee13a854ce5b886f09",
+    "migraai-sqlserver-to-synapse-converted/execution/synapse/run.sh": "2efe93004fb43fb81c0ca1c51db097bdb432c033a163ad4aa976974f49a973da",
+    "migraai-sqlserver-to-synapse-converted/manifest.json": "763ed625eac1d928acd14c0002d5ccc7babc8a6ad95c7fb890133e01b0ca5f89",
+    "migraai-sqlserver-to-synapse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-synapse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-synapse-converted/mapping/csv/data_types.csv": "d31753dcc4de8d8bd0be2151a1384e0bbb7c039680c5ce11718fcfb3e3c1db8a",
+    "migraai-sqlserver-to-synapse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-sqlserver-to-synapse-converted/mapping/csv/objects.csv": "20cac546c0094d8b9ce63968b31b7b4c2f1f8d4f7a443028e50f6c45e3aa6470",
+    "migraai-sqlserver-to-synapse-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-sqlserver-to-synapse-converted/mapping/csv/syntax.csv": "8407bc624f4c5bcb48fe2c54bd1f97b9b3d00c940954788bd3f198d15d1f94dd",
+    "migraai-sqlserver-to-synapse-converted/mapping/mapping-workbook.xlsx": "d4049291be60b58f2cfe2101e42eb760801e5240c1152de3ca86eb2dc1d974b3",
+    "migraai-sqlserver-to-synapse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-synapse-converted/report/session-report.md": "26f91a31ae6167311885a7c2d69fdc7e70375aa893565f04111f150c7548fa2d",
+    "migraai-sqlserver-to-synapse-converted/report/session-report.pdf": "27ca0d18da62eed5178b2ffc5515052fa539aefd32d4ec5b579ca9d8c22c8305"
+  },
   "inventory": {
     "external": 1,
     "objects": 51

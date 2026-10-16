@@ -607,6 +607,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-db2-to-databricks-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-databricks-converted/converted/load_script-converted.sql": "01ea3f0a1e024763da910f2f075e6291fe4c2c5c7d3632b89dbfc0643f9ecd27",
+    "migraai-db2-to-databricks-converted/converted/maintenance-converted.sql": "d09552813e419236b1f930e001f3103f84ac9b2d2f9ef122f951847793183205",
+    "migraai-db2-to-databricks-converted/converted/recovery-converted.sql": "c06f187491f065b8759792f0500279d3bbfe0dcd015e46942db5772e17c35527",
+    "migraai-db2-to-databricks-converted/converted/routines-converted.sql": "22c15218e8a78ae37d358be564fca822ddd7e28fc9ee3567746a5010cf71f820",
+    "migraai-db2-to-databricks-converted/converted/security-converted.sql": "2342176ff15a40c5db3c87596c2ef04e4ba6fefe36a34789288e8164236539e8",
+    "migraai-db2-to-databricks-converted/converted/tables-converted.sql": "7a1ace456c4c6b034de47b94555ff25d7a402764c46a82ab6c4c6df99b6ace50",
+    "migraai-db2-to-databricks-converted/converted/views-converted.sql": "b48b26b287c1785c302acc99674d24f56bc1a48d285cdf4303c77a7446246bd6",
+    "migraai-db2-to-databricks-converted/execution/databricks/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-databricks-converted/execution/databricks/README.md": "a016153ad65b84d6b5b115e5e9dcc1dc44423ee340941a1b0ca47a09067730c7",
+    "migraai-db2-to-databricks-converted/execution/databricks/order.txt": "2c78f1cc46267cea023671378c2369dc8994467b30a5a3de7fc0e1ea2ef24c3d",
+    "migraai-db2-to-databricks-converted/execution/databricks/run.ps1": "5868f20196a49791aeee70decec3d731551a0f1d293d65c5550f524eed87e67f",
+    "migraai-db2-to-databricks-converted/execution/databricks/run.sh": "c65ecd5e9d6588120cb7ed41959b19dff7ff07f46ba296ea1d2781efbc928e4c",
+    "migraai-db2-to-databricks-converted/manifest.json": "c7154e3b9bd55783975358bef32e4cb73239980195d8d89fc32769cdd0c1f014",
+    "migraai-db2-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-databricks-converted/mapping/csv/data_types.csv": "29f5edb4d62ef86666651bce46ad45006539ca5af1151c43e90164969e32f797",
+    "migraai-db2-to-databricks-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-db2-to-databricks-converted/mapping/csv/objects.csv": "adc3ea992439c849914afbfdf3967047b67c6d259854b26f40c751e7d4c8ae68",
+    "migraai-db2-to-databricks-converted/mapping/csv/security.csv": "9f82382a78119cb7dc33b32bd0f33427d188dde4eb2e770baa0cfb22b4aebb2a",
+    "migraai-db2-to-databricks-converted/mapping/csv/syntax.csv": "f735bce95d986069cd7cdc8a3e48e5e5c90abff537c72c83e03e6920b89f3a1b",
+    "migraai-db2-to-databricks-converted/mapping/mapping-workbook.xlsx": "e128387c52510dabdb6a4937534bd750c8a45addb2adde39b5ed321f908bf47b",
+    "migraai-db2-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-databricks-converted/report/session-report.md": "90feeb32de28ab3ed39034bef0df962a067a0b173fbfff1dbdbc017166de8e94",
+    "migraai-db2-to-databricks-converted/report/session-report.pdf": "f246fca412ac0dac8ef7cc910c8b46b14655f7c8eb5b2bab59c1aeca90b318e4"
+  },
   "inventory": {
     "external": 1,
     "objects": 47

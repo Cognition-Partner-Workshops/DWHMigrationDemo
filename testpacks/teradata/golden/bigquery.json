@@ -737,6 +737,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-teradata-to-bigquery-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/converted/indexes-converted.sql": "d0fc00d90ae406c438c0709285b18438e912e89a4571b7494383815521975acf",
+    "migraai-teradata-to-bigquery-converted/converted/load_script-converted.sql": "c7503ecdbf0797197371360f7938e214b820763b27220f42eccc4b4a1afa462d",
+    "migraai-teradata-to-bigquery-converted/converted/maintenance-converted.sql": "ae75886f0a1a4c23aa19a413c6304661e6181734cc0589b5cb60cd05a2b4c10c",
+    "migraai-teradata-to-bigquery-converted/converted/routines-converted.sql": "2bce7b6d33234e1033c2b8f6623a3cb799778da8d0f663b369dc92c316d78baa",
+    "migraai-teradata-to-bigquery-converted/converted/security-converted.sql": "c1efc3cb4cd811df2c4305270b04b3346f76869e4f02ae64f77afaecacf59888",
+    "migraai-teradata-to-bigquery-converted/converted/tables-converted.sql": "bb49150b1ad99e4c5dddca06dbde2459569c5b795da63875caec1406bc392163",
+    "migraai-teradata-to-bigquery-converted/converted/views-converted.sql": "086610f86e326797ddfdfcb0b6377239bfd330b98f6608c43d32bc493484417f",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/README.md": "00d9a97a6141fd42d61de8df5aaf1fff4149196971d222e10c47fb20fa142d48",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/order.txt": "25f25277a8a3ba9d0d5c31447665fa5e11f91235968ff1cfffd25cb2e5d1df93",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/run.ps1": "2e60e088731973a98dc84d9ccae99514b1d2634f4cc3e5f861309aa6aaaed495",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/run.sh": "deedda575cb961269219eaa3c2167ab7ed7c1252d6b3a0d20034b6cb1a3da02c",
+    "migraai-teradata-to-bigquery-converted/manifest.json": "af4616e8084ffe6d6595bc3da117424db15e802fc4bc0be3926251c508b0a441",
+    "migraai-teradata-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/data_types.csv": "411e2b5ac6d0f191d0905622809bf2d962b149b0bbe507db0ebb532170b3b7b1",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/objects.csv": "fc4346e70d2f55033dcd340a0826ad19679918db27a7b2d003b5491513bea4e7",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/security.csv": "2d03c1d913ab37d10fcf8ee49fec6c56a50eaabbc72b63f1e0da2fefcae8159a",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/syntax.csv": "4d0e8324e5044b271ba18d7505054066220417ed20e1951673fc612294a35a95",
+    "migraai-teradata-to-bigquery-converted/mapping/mapping-workbook.xlsx": "adeb86f97cc306c43bf1f318cb79bf5ebd7772ba8b102df748296422fe67af05",
+    "migraai-teradata-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/report/session-report.md": "c39925c3940e13f470946246a726efcc447864e080a668e89b783226fe4e1876",
+    "migraai-teradata-to-bigquery-converted/report/session-report.pdf": "d10a28e093879463ce82751b79981e6b1d390a116afbf9a45239e8c56996773b"
+  },
   "inventory": {
     "external": 1,
     "objects": 57

@@ -737,6 +737,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-teradata-to-databricks-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-databricks-converted/converted/indexes-converted.sql": "3fc0a68634e0d47d9d33e0dfdaa43736282d6aab623ba60ca26dc1cb532db35e",
+    "migraai-teradata-to-databricks-converted/converted/load_script-converted.sql": "3975c67f5a06770a828f71f284bcd356b92807e4cf29e3ec444d1320d67096a8",
+    "migraai-teradata-to-databricks-converted/converted/maintenance-converted.sql": "88d4858c8ba015f5b9a3ea53d250419c3e093bf7463a84a84f6430bab1ee5e20",
+    "migraai-teradata-to-databricks-converted/converted/routines-converted.sql": "8f3e1efa16373d9367f270e9c127ad7ca33ae8fe54949aeb14b5fcac49923dc2",
+    "migraai-teradata-to-databricks-converted/converted/security-converted.sql": "af20b08f35957608517d0cecff4ca9d0bb4c25de6cecc18668fd85f29f442767",
+    "migraai-teradata-to-databricks-converted/converted/tables-converted.sql": "4beca56dee638338f531904335761bf2fc346f3b16030350df6544af2478419e",
+    "migraai-teradata-to-databricks-converted/converted/views-converted.sql": "759c2c4ce8cc493ba4a7e0fb0276a88b21ad588cb0993822c34c9490453a640e",
+    "migraai-teradata-to-databricks-converted/execution/databricks/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-databricks-converted/execution/databricks/README.md": "760986a74d645de1b6a830535148e44016b2f59ab8be2f79493b5e2a181939c3",
+    "migraai-teradata-to-databricks-converted/execution/databricks/order.txt": "7e2621541335c4ead1a37ec0d2679abc04417c6404225a96748551ca1428a20e",
+    "migraai-teradata-to-databricks-converted/execution/databricks/run.ps1": "5bb3c3dcdb31ccce9ef8db5bccb65b9291a6a03ac64d70c2e02f1e0077ecddcb",
+    "migraai-teradata-to-databricks-converted/execution/databricks/run.sh": "735167b374258e676d677544b3d43426ff22a365376ee45c1a3f697d101d2a7b",
+    "migraai-teradata-to-databricks-converted/manifest.json": "38a063527ffdf667df58d04640e3c12706bde4cea93a731031573ff8ad806349",
+    "migraai-teradata-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-databricks-converted/mapping/csv/data_types.csv": "2885da027435404bebd658bc5c378fd0a1a0b925015b02c0676cef42183ab855",
+    "migraai-teradata-to-databricks-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-teradata-to-databricks-converted/mapping/csv/objects.csv": "7eb532874b08716c9148415cdb43c7cd87ee63c7be1af8846f0a9ee284b2f4dd",
+    "migraai-teradata-to-databricks-converted/mapping/csv/security.csv": "2d03c1d913ab37d10fcf8ee49fec6c56a50eaabbc72b63f1e0da2fefcae8159a",
+    "migraai-teradata-to-databricks-converted/mapping/csv/syntax.csv": "21fa7e61733f9ad17c80d32175924a9f75198bae389a134a83e969c6c1991a78",
+    "migraai-teradata-to-databricks-converted/mapping/mapping-workbook.xlsx": "4c67e3675bd95457c728a563cd0c871cb752270d54f5b1c8a3a50a2ccb6563f2",
+    "migraai-teradata-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-databricks-converted/report/session-report.md": "b7b625f5341e35467df636c5e354685bfc26e49baeeb247a49c7bbd858623172",
+    "migraai-teradata-to-databricks-converted/report/session-report.pdf": "15825857f728b75aae88381b104e3cbd48b7eb7a3dc65f971174af66d0f85016"
+  },
   "inventory": {
     "external": 1,
     "objects": 57

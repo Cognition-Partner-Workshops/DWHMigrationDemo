@@ -685,6 +685,30 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-synapse-to-redshift-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-redshift-converted/converted/01_dimensions-converted.sql": "6a8e66fbd02754fe50f327154e9aaf354ba8fecb57c8df989416061db01dcee6",
+    "migraai-synapse-to-redshift-converted/converted/02_facts-converted.sql": "0d222cd59f558a872ad07ad808e1cc0a458f2f81063bba29d00636cf33b0ea2d",
+    "migraai-synapse-to-redshift-converted/converted/03_staging-converted.sql": "4f05c35d552800d9e10ed5642d9d20fbe5e3755ae95b09309fb4c58afac07381",
+    "migraai-synapse-to-redshift-converted/converted/04_external_objects-converted.sql": "d093d0d9b5fa71c8fb7d5f9c0401d9e2592750d3221c7fe7588287d09d98d79f",
+    "migraai-synapse-to-redshift-converted/execution/redshift/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-redshift-converted/execution/redshift/README.md": "3e3b2361748e07259e43368b32c8f573f414559327a9c24815d919ae87b06a58",
+    "migraai-synapse-to-redshift-converted/execution/redshift/order.txt": "ab8850aaf313afed536a22981882636d770cc41c4c6ee09268898bf6ce977cd6",
+    "migraai-synapse-to-redshift-converted/execution/redshift/run.ps1": "ecc6f78a795b70544eb1b7e0d51f2253519c170b215354aea342bda9bf7331a0",
+    "migraai-synapse-to-redshift-converted/execution/redshift/run.sh": "313ab8d3fe2cfb526fc61a431a2911744a867a2cf82e8166a3d6522ef59a557b",
+    "migraai-synapse-to-redshift-converted/manifest.json": "c021b235e6b81325c15ccfcef364585f4049755d5c6ef14d50262e4bc65a5966",
+    "migraai-synapse-to-redshift-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-redshift-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-redshift-converted/mapping/csv/data_types.csv": "0181077b5cd04c5c5c35ee46cd5555d1134745bd69d72046b45c8b741a5eeab1",
+    "migraai-synapse-to-redshift-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-synapse-to-redshift-converted/mapping/csv/objects.csv": "68cdee410cdd5653dbc45de730885b7d76c9ce4832eebf315b7bb0d893f8a32c",
+    "migraai-synapse-to-redshift-converted/mapping/csv/security.csv": "5b4c6affb1ca4394c42a76b976bc7f5a2555b4624556a716c36d6dedee43020e",
+    "migraai-synapse-to-redshift-converted/mapping/csv/syntax.csv": "9776f7b5abc15de98be1097892095a110b45d52d2afaac55f581d1d51cf0d259",
+    "migraai-synapse-to-redshift-converted/mapping/mapping-workbook.xlsx": "40be00d3bf88ddd5babce6910ec2917e11c4a3f66e4f338d677c2729076c033e",
+    "migraai-synapse-to-redshift-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-redshift-converted/report/session-report.md": "1d741751f6727f869cb1cffdba27eaf9b3b165f62ae659a28db134f47def8ac1",
+    "migraai-synapse-to-redshift-converted/report/session-report.pdf": "b64e243c67ae1e108eb08fd5dad263131fc428ca58aaa3f79337f532ec6b317d"
+  },
   "inventory": {
     "external": 1,
     "objects": 53

@@ -685,6 +685,30 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-synapse-to-clickhouse-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-clickhouse-converted/converted/01_dimensions-converted.sql": "38b0e10a5c2fb526275d3433fc1e3c9e01f4821259282603db5e0a5f1e75299e",
+    "migraai-synapse-to-clickhouse-converted/converted/02_facts-converted.sql": "236b82f579da6ea1b48fc69b679f7e534ac52753ae819a401f83d4309ea2a765",
+    "migraai-synapse-to-clickhouse-converted/converted/03_staging-converted.sql": "a063346f7332b534652ce422040078ea4565f049b1c5ee49265ba6b330bb4b41",
+    "migraai-synapse-to-clickhouse-converted/converted/04_external_objects-converted.sql": "31957881f5ede5eb18b9fea4c5b497ec13a7492bbe77170d7ea14d5d78349be9",
+    "migraai-synapse-to-clickhouse-converted/execution/clickhouse/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-clickhouse-converted/execution/clickhouse/README.md": "6f2516a77045264e4d9d9f5d1cad9bbfaad7fe8ea871e506c6216df1b2850950",
+    "migraai-synapse-to-clickhouse-converted/execution/clickhouse/order.txt": "6b6b7d9fc0a483cee891dd3822e2088ce480fdeb77f05ea18441344f6c1f0712",
+    "migraai-synapse-to-clickhouse-converted/execution/clickhouse/run.ps1": "c26238630e1e9f94bed974765d09434c44174d4c058d0f9c3effaf1e5b8b5226",
+    "migraai-synapse-to-clickhouse-converted/execution/clickhouse/run.sh": "bd7b93b7da5d5cb384ff5bbd4361c4b713aa7f726e9636362374fa406a90cfac",
+    "migraai-synapse-to-clickhouse-converted/manifest.json": "6f101c04e03b20b7fe0ef0c0a42406ed8f3dc91c47d572b4b04f63905ffeb29d",
+    "migraai-synapse-to-clickhouse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-clickhouse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-clickhouse-converted/mapping/csv/data_types.csv": "271e1450c15d6c5b4affd85cd3387b26b7e11618c2b15806bba198913e1089dd",
+    "migraai-synapse-to-clickhouse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-synapse-to-clickhouse-converted/mapping/csv/objects.csv": "0f72bdb29c9de956cbb1f6388f411f8276d1e9f27e08a3171755d486e54afcb4",
+    "migraai-synapse-to-clickhouse-converted/mapping/csv/security.csv": "5b4c6affb1ca4394c42a76b976bc7f5a2555b4624556a716c36d6dedee43020e",
+    "migraai-synapse-to-clickhouse-converted/mapping/csv/syntax.csv": "f2267deb7225c6671a17b935eef1a3d5fee579ed6b95bec9005745dd91c813f6",
+    "migraai-synapse-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "b7edb923ada0676811902773e52a76d095392452505e62a03b3de3846876ba32",
+    "migraai-synapse-to-clickhouse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-clickhouse-converted/report/session-report.md": "a22898fe75f90ed9f57c7852b29c80466e7ae38c7d2a138e242b0326b72c4fea",
+    "migraai-synapse-to-clickhouse-converted/report/session-report.pdf": "06be7a1462461c0ea2e7d4114554db88deab7dd7e580c00a2d0cf84796f48cef"
+  },
   "inventory": {
     "external": 1,
     "objects": 53

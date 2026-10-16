@@ -698,6 +698,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-snowflake-to-synapse-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-synapse-converted/converted/00_foundation-converted.sql": "d75d3f0c80d0aaddacd0157be7b747f600e7a24ce30751168384a27467065df3",
+    "migraai-snowflake-to-synapse-converted/converted/10_sources-converted.sql": "4953e8b70c6e20572c8bd8f159054be55f68e18b0220c0aac30fe700258066e2",
+    "migraai-snowflake-to-synapse-converted/converted/20_curated-converted.sql": "a0952e852efc9e5f46f405cb87607869ba4fc85131a487366db7f39f3b1c228b",
+    "migraai-snowflake-to-synapse-converted/converted/30_security-converted.sql": "880a521241e73ab1b47060c2dfed0a899db5040b8461bb219f539290d5b28cc1",
+    "migraai-snowflake-to-synapse-converted/converted/40_pipelines-converted.sql": "4e06dc9e0e200536ec2aa717d1b3c3373e2dc317431d078f823b2650a452ef00",
+    "migraai-snowflake-to-synapse-converted/converted/60_grants-converted.sql": "56eb6f3384aaef61dbae8dfc426e97a8104fd06ce3bfabcdb26c09694eed1e88",
+    "migraai-snowflake-to-synapse-converted/converted/90_loads-converted.sql": "cea319bc1d47184714d02617d769e519d42c6dcbd1d66d7473fd687941f5da1c",
+    "migraai-snowflake-to-synapse-converted/execution/synapse/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-synapse-converted/execution/synapse/README.md": "1a3ceb4e974a5d0018750b68a5c6332fac0ca5a8b374f44be7a3448b73d2b43a",
+    "migraai-snowflake-to-synapse-converted/execution/synapse/order.txt": "0a82cd32fdc642d7cf14e45111dd1c168d0345f75ae2963138fe37c1c1edc7ff",
+    "migraai-snowflake-to-synapse-converted/execution/synapse/run.ps1": "4b26ec7cd31507eacfc87a38f058178ae9cde3b4a1fd418d9015d11b144c1e62",
+    "migraai-snowflake-to-synapse-converted/execution/synapse/run.sh": "ac3b720770d0404254e050a256f74b3d5a47c51bfd6d48e525fc55fd775ab6d0",
+    "migraai-snowflake-to-synapse-converted/manifest.json": "38ceb086da89b9633421ee2616f8edd2c250e79bcf55742001af80c99e40c535",
+    "migraai-snowflake-to-synapse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-synapse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-synapse-converted/mapping/csv/data_types.csv": "58c496a89f0d7157300ca344c03615bf360b4a979dde67e8a0374b313466cde9",
+    "migraai-snowflake-to-synapse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-snowflake-to-synapse-converted/mapping/csv/objects.csv": "f91015d6edab4ecebe1bff7f44b2fc9a6e9ec0eccaeea1c597f3220da4e23199",
+    "migraai-snowflake-to-synapse-converted/mapping/csv/security.csv": "339f8d9d56ca284f415891719f65fb34081efc8298ae2dd63b13b40ccc8d4573",
+    "migraai-snowflake-to-synapse-converted/mapping/csv/syntax.csv": "02eb40c8f2fa2e243ce9659b491bcb795572fc5e7b4774115dd7e0a5200f6e18",
+    "migraai-snowflake-to-synapse-converted/mapping/mapping-workbook.xlsx": "59000343c83b926d72a2d49f11f7b87ef648d6010f3b28f6cc5cfeea1bcf0cc1",
+    "migraai-snowflake-to-synapse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-synapse-converted/report/session-report.md": "6a1e7aa45700873d8752f1d59db65e351cbe6a3ddd22f8b91de032ca0399e427",
+    "migraai-snowflake-to-synapse-converted/report/session-report.pdf": "7f7c91e115ab63699fd1f041ed0203fa884c73e41d7b51e3e8216c9d9ae177f9"
+  },
   "inventory": {
     "external": 1,
     "objects": 54

@@ -685,6 +685,30 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-synapse-to-fabric-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-fabric-converted/converted/01_dimensions-converted.sql": "00ddb409ed6de69cbc231f87f5cf4a84df2948b64623ea5ffc1927ca46c45140",
+    "migraai-synapse-to-fabric-converted/converted/02_facts-converted.sql": "bac1b94ab650cf26d60597a6f727265a822650a180e7d2cb9ef5576f9fcc3a22",
+    "migraai-synapse-to-fabric-converted/converted/03_staging-converted.sql": "c5c4c7080c9e4cf77b488b8425a3be464db44eb37a7fe01c79c947649758388e",
+    "migraai-synapse-to-fabric-converted/converted/04_external_objects-converted.sql": "da55b1645fde854bf7434858528d0941f1e9893e6fe3229eb2e66bb348f849a5",
+    "migraai-synapse-to-fabric-converted/execution/fabric/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-fabric-converted/execution/fabric/README.md": "da56cda4b4d27dc71924e9c4b56c223bca6ee1d697b0c19a9bcb3f09f85ee4e2",
+    "migraai-synapse-to-fabric-converted/execution/fabric/order.txt": "64fa326431df53bb266f0ff930d3e317c024cc6801aaedf935da71d6d68d92da",
+    "migraai-synapse-to-fabric-converted/execution/fabric/run.ps1": "361f0bf78a229398fead717992c36bcb39ddd3e3589e43ef1f6ede0e297d21bf",
+    "migraai-synapse-to-fabric-converted/execution/fabric/run.sh": "e56663a450297a1712030c670c2896f9b739d8751fd42cfbc3159c5a32f7b9f8",
+    "migraai-synapse-to-fabric-converted/manifest.json": "0b8d1aff1d314ed1914069638d70e868768538d010bc9cab1f89b7cbe2c4ba41",
+    "migraai-synapse-to-fabric-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-fabric-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-fabric-converted/mapping/csv/data_types.csv": "53c2b0761e811b1dff774c4a1fd84072634e24578d48cc9f83f28a263e3d1ecf",
+    "migraai-synapse-to-fabric-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-synapse-to-fabric-converted/mapping/csv/objects.csv": "4b47dd0611fa8c7ddc7ad2d74a71831329c988346add9d53c9f1eb788ebc100f",
+    "migraai-synapse-to-fabric-converted/mapping/csv/security.csv": "5b4c6affb1ca4394c42a76b976bc7f5a2555b4624556a716c36d6dedee43020e",
+    "migraai-synapse-to-fabric-converted/mapping/csv/syntax.csv": "7710242b2316db4337fa8246eb9bee0f0bd63ae464acd44312a10545c0f6cf24",
+    "migraai-synapse-to-fabric-converted/mapping/mapping-workbook.xlsx": "90ff651e2c5ef41aa9367b4ba5ba5f6f1fa47c518325dbda4ce857d944fd9782",
+    "migraai-synapse-to-fabric-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-synapse-to-fabric-converted/report/session-report.md": "042deebed035e000c84aa222b6d75c187ac37e3b4fa3600f5a97e4b71c97d4b4",
+    "migraai-synapse-to-fabric-converted/report/session-report.pdf": "b3f56cc1c5c681a345362f46d90f45ebbf2f86a1b4dc60533fd86e209902cc56"
+  },
   "inventory": {
     "external": 1,
     "objects": 53

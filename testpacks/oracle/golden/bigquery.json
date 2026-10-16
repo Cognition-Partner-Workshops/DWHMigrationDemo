@@ -776,6 +776,30 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-oracle-to-bigquery-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-bigquery-converted/converted/01_reference-converted.sql": "0f3dabfda1d9dd868992c246a44e031aca1965ec7083a6c562529405c3628ee8",
+    "migraai-oracle-to-bigquery-converted/converted/02_transactions-converted.sql": "16c1562e8d7f987e910e716d36fe5311b36f71ba203192850a1c09c8c86f8729",
+    "migraai-oracle-to-bigquery-converted/converted/03_operations-converted.sql": "766207b2946aef45a8504b08b3aab56e2600dd775fcb1790ed3a3e85767cf477",
+    "migraai-oracle-to-bigquery-converted/converted/04_programs_and_recovery-converted.sql": "becaf5c2329dcc896b1e34311957b27423b964894bd036194fa56f57b6b92bda",
+    "migraai-oracle-to-bigquery-converted/execution/bigquery/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-bigquery-converted/execution/bigquery/README.md": "49059f5c03d77346a37802fc38a389c1262e9db1bb9fa4890887645fd50a9a26",
+    "migraai-oracle-to-bigquery-converted/execution/bigquery/order.txt": "db520fec1c23a275979d60cbed0bf21c27c9ec4e159f6b1285875b76855ffac7",
+    "migraai-oracle-to-bigquery-converted/execution/bigquery/run.ps1": "8227e80194f54b852cf57cfe5b50b932fb88bac28497b4a4afe10b279d2e532e",
+    "migraai-oracle-to-bigquery-converted/execution/bigquery/run.sh": "dfb4b0585fcecf4bc5075978acdf51667622f800943164a04bf2c14ba0c08749",
+    "migraai-oracle-to-bigquery-converted/manifest.json": "cca0119c37d07ca3c5f9e90ae5b8732f9976ff702c651bbd0fd2b5c1c1d43ddc",
+    "migraai-oracle-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-bigquery-converted/mapping/csv/data_types.csv": "42a5fed82808ffe3689031e1059e8b0ca243cd2498a1e0dd84c5df6ffdcbd102",
+    "migraai-oracle-to-bigquery-converted/mapping/csv/functions.csv": "5385e93bdfec9e91acd0bf79c7e0d35d141252f9beb43ddd3c417173b53d72fc",
+    "migraai-oracle-to-bigquery-converted/mapping/csv/objects.csv": "8e4fef37aef4bff4a47ef2774948e61264d3592c53641b6e4019a8fee5de93af",
+    "migraai-oracle-to-bigquery-converted/mapping/csv/security.csv": "03b3f879c1b107a36b5ab1ab5fedd141494cff120aff5114dac1378e2bd2a784",
+    "migraai-oracle-to-bigquery-converted/mapping/csv/syntax.csv": "afebee805ecd5d0fa2333ce4cb883395ffc1f4817e0a042b5efac5c3e951bd53",
+    "migraai-oracle-to-bigquery-converted/mapping/mapping-workbook.xlsx": "1d556b92ae6df953be1d61dba5eae46c31b2761ac44ca7bc53464a29e63416d0",
+    "migraai-oracle-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-bigquery-converted/report/session-report.md": "ff038abf8bc33d67f50e7fb4626a542afcb8c070304a05b1088faa158c84c970",
+    "migraai-oracle-to-bigquery-converted/report/session-report.pdf": "ad2ffaa14fba5511d86a1ddf5d5789286056dc5509c56674b3d104c4b61c9767"
+  },
   "inventory": {
     "external": 2,
     "objects": 61

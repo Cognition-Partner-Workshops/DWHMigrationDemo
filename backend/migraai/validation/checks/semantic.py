@@ -146,7 +146,7 @@ def validate(obj: ObjectUnderTest, ctx: ValidationContext) -> list[Finding]:
         obj.source_qualified_name,
     )
     self_name = normalize_name(self_target)
-    parsed_files: list[list[exp.Expression]] = []
+    parsed_files: list[list[exp.Expression | None]] = []
 
     for file in obj.files:
         if file.language.casefold() != "sql":
@@ -164,6 +164,8 @@ def validate(obj: ObjectUnderTest, ctx: ValidationContext) -> list[Finding]:
     unknown_tables: list[tuple[str, int | None]] = []
     for statements in parsed_files:
         for statement in statements:
+            if statement is None:
+                continue
             cte_names = {cte.alias_or_name.casefold() for cte in statement.find_all(exp.CTE)}
             table_aliases: dict[str, str] = {}
             for table in statement.find_all(exp.Table):

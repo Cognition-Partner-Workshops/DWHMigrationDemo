@@ -633,6 +633,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-netezza-to-databricks-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/converted/load_script-converted.sql": "e0c129b259a0e47b0bb583ec8b0a303428b23b415053a631b0448f47792efd8b",
+    "migraai-netezza-to-databricks-converted/converted/maintenance-converted.sql": "b2ac5eb00f6ddbef9f46f8229148426a738dd768b383bafbd1dfa773a37ede1b",
+    "migraai-netezza-to-databricks-converted/converted/recovery-converted.sql": "29af6fef4bcf05b8e3ae0e494ffb0c1a48788570b1c4feb1220d14a0afddd6a3",
+    "migraai-netezza-to-databricks-converted/converted/routines-converted.sql": "4e07a0f4569808cb559fe618ad6c570a676a66d42ca1f91dce191f792c0c0e10",
+    "migraai-netezza-to-databricks-converted/converted/security-converted.sql": "d142a626f32fe512ebd8da830177d855ea78ab485c471e08e9e0f9d2a9645138",
+    "migraai-netezza-to-databricks-converted/converted/tables-converted.sql": "05ca4257dcd1400a3e926c27d2ad5c247fd01fea1fc9b389e20a696dd9242b84",
+    "migraai-netezza-to-databricks-converted/converted/views-converted.sql": "f1ed3caa895edf849bf8f5e3a16f320e110fb038cde0d451b8155595004b1045",
+    "migraai-netezza-to-databricks-converted/execution/databricks/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/execution/databricks/README.md": "3e1ad7fe276d1371ff7a25e87b73caf46b22e91f48bc165edbe66c7a75d2988e",
+    "migraai-netezza-to-databricks-converted/execution/databricks/order.txt": "1103194d045ddfec5665bef7dbbb58097a25a5e3f487f8651cdb23fa8f5fb9e0",
+    "migraai-netezza-to-databricks-converted/execution/databricks/run.ps1": "c8bec05e639b254aa9b11a08c8aa51af5d8b7ebfe9a09ccadbf093937ffbd5e3",
+    "migraai-netezza-to-databricks-converted/execution/databricks/run.sh": "33a660b514949ae06411bf9335fc873af66b6d03f4400e8b92e9e09ec1491b47",
+    "migraai-netezza-to-databricks-converted/manifest.json": "507d3e7116e69fcd5ac9a24711a43614f6eeb60729e338f7790e686e297461af",
+    "migraai-netezza-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/mapping/csv/data_types.csv": "03a2f174e7f31375f416066ba0bbd57c2e8d2c0e08054b0e234c24cdec7a26a8",
+    "migraai-netezza-to-databricks-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-netezza-to-databricks-converted/mapping/csv/objects.csv": "ab2bc62939d61f89edf4453ed46b7c4162fb780e469ed0f9a2c6036afef94cc8",
+    "migraai-netezza-to-databricks-converted/mapping/csv/security.csv": "c27e9ee9a4264bd4a8f0fa209d9e8309636e6d39de9947fe91eba80798b33bb2",
+    "migraai-netezza-to-databricks-converted/mapping/csv/syntax.csv": "d4b72ed910e4994e56a41090c238b149b0a64eeabb17ac6b20a406c7dfd81d55",
+    "migraai-netezza-to-databricks-converted/mapping/mapping-workbook.xlsx": "4e8b2f7c67ffa10140209fc4a825f6e88ff033db545b713ac4d87451c3370a6a",
+    "migraai-netezza-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/report/session-report.md": "78c97b4f89134080c1488e5178c1a90b734c38148858c2161eb3cb2dcb186f4b",
+    "migraai-netezza-to-databricks-converted/report/session-report.pdf": "3e0604947b6dfbf87b75bfac8dc6663548d2bb08a04f0369a0eeb595bdee1540"
+  },
   "inventory": {
     "external": 1,
     "objects": 49

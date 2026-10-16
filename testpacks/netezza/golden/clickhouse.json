@@ -633,6 +633,33 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-netezza-to-clickhouse-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-clickhouse-converted/converted/load_script-converted.sql": "db643f48ade71f998354dca671ae6a9b7e365cadcf564a07f660da060f04570c",
+    "migraai-netezza-to-clickhouse-converted/converted/maintenance-converted.sql": "928cb8540db2d373f35eae099ef196e2fc625bfce416c16a80ea9b9c6582b9ac",
+    "migraai-netezza-to-clickhouse-converted/converted/recovery-converted.sql": "a6c6716eea367a976e468420eed622e7bbaf6b1124dfd42d4f6e21ca0b0be534",
+    "migraai-netezza-to-clickhouse-converted/converted/routines-converted.sql": "d3e67a9daf186bd6af5ab628401f6b54679030ed7ef715123f64e932a3e2cdfc",
+    "migraai-netezza-to-clickhouse-converted/converted/security-converted.sql": "d0291c26c92a26d6b408b03d58f55039a41ebe6e88aa7906a824f3992a57dbd8",
+    "migraai-netezza-to-clickhouse-converted/converted/tables-converted.sql": "9aaa021725178c9753f48025e6f54b3f89f09c2a98f5f0711816ed7884a6253c",
+    "migraai-netezza-to-clickhouse-converted/converted/views-converted.sql": "c7a4e7727d18c5b7cd8560e1988b8c2164980f0c9d4954b7196d0b165b89392a",
+    "migraai-netezza-to-clickhouse-converted/execution/clickhouse/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-clickhouse-converted/execution/clickhouse/README.md": "d043c74e9a7faee9ad73fe4fe133d38f04d8f9229c944e07756f663bf9e4b394",
+    "migraai-netezza-to-clickhouse-converted/execution/clickhouse/order.txt": "b206bb4c53ab30681c5db489f730640f865f83fce992b862649d5ac25809b6c3",
+    "migraai-netezza-to-clickhouse-converted/execution/clickhouse/run.ps1": "8bf1cf4dca4bbbdbbf4462f12a8a55e8e1ed0d75f4ca82fc1899884568c38bf6",
+    "migraai-netezza-to-clickhouse-converted/execution/clickhouse/run.sh": "7ab0cfb7ac875d2d419208bd5a6ec8bea04fdad3aef05d55ec6ab04ea2152be5",
+    "migraai-netezza-to-clickhouse-converted/manifest.json": "35c125dd16f52ee72a5c5637365eb407470f78ac2e91aa91ff2b75daecaa91b3",
+    "migraai-netezza-to-clickhouse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-clickhouse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-clickhouse-converted/mapping/csv/data_types.csv": "e633d6e92847cdc973f0c6385c2da6b1a67c2b6603448cc62a448898e5cb24fc",
+    "migraai-netezza-to-clickhouse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-netezza-to-clickhouse-converted/mapping/csv/objects.csv": "8a54741656a33ac6f1e07be090e3b11d73ea11b851d9758a0c5d958b74db8d42",
+    "migraai-netezza-to-clickhouse-converted/mapping/csv/security.csv": "2b835b412a30e13ab9f0bce01fdbc86b281fd2e07645e79ec0b40a3412bb4f25",
+    "migraai-netezza-to-clickhouse-converted/mapping/csv/syntax.csv": "b9d67cb1a952cdc645e02dd7a155e28a240259d9da97a10406506f30a2fb1994",
+    "migraai-netezza-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "ceaff5b46f064823d16944ef892a20aa1b50264fc2dda4cef10b71ac0e1d91ed",
+    "migraai-netezza-to-clickhouse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-clickhouse-converted/report/session-report.md": "d0ffac6fff515bed6a2fd15b0e5e41fdef4a1c4ad3af6446e307c1bab4695997",
+    "migraai-netezza-to-clickhouse-converted/report/session-report.pdf": "a6e806eeb69a4d94fe62c5cede1812b44e819f84c8f450b3a309e964c97f3981"
+  },
   "inventory": {
     "external": 1,
     "objects": 49

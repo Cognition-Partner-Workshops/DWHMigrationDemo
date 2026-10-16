@@ -776,6 +776,30 @@
       "failed": 0
     }
   },
+  "entries_sha256": {
+    "migraai-hive-to-bigquery-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-hive-to-bigquery-converted/converted/00_foundation-converted.sql": "b3305a98223f184c76e51ea8a5f19f316ef8e39669f6c26711ede17520edfd49",
+    "migraai-hive-to-bigquery-converted/converted/10_views-converted.sql": "2846bb0198554c27f99cd73f23f2ae12b72c36bfcb50b159f044d5b02c54d84f",
+    "migraai-hive-to-bigquery-converted/converted/20_curated-converted.sql": "63fc0976f29f1a0526a9d646e49c946c3e48a6175189efcfbd40cbf35acd13db",
+    "migraai-hive-to-bigquery-converted/converted/90_loads-converted.sql": "7a9133eda9990a4ff1b628b190d9c2941cf23fe704dff0e82bcf9e3647bbe3af",
+    "migraai-hive-to-bigquery-converted/execution/bigquery/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-hive-to-bigquery-converted/execution/bigquery/README.md": "b0254729dfd870cce643d7ebd40110ae7816da6cf77e01f91c425b635965657d",
+    "migraai-hive-to-bigquery-converted/execution/bigquery/order.txt": "ad02e09310fcbd6f3af4917ffe2a1907c0108f9feaa57e0e1c453321742248f5",
+    "migraai-hive-to-bigquery-converted/execution/bigquery/run.ps1": "962d0177d55f9bcb753b3fd0b5cc8a2b728b2f058eb4f31bfa280ffb387727a2",
+    "migraai-hive-to-bigquery-converted/execution/bigquery/run.sh": "4d7b92a29b53cfe6a087691ca0da6593f096790cdd32959655e434328366350e",
+    "migraai-hive-to-bigquery-converted/manifest.json": "480ec0d4aee9261b7858cbf6c69faa7822eb4e2a2d27746a60d33db91a7981dc",
+    "migraai-hive-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-hive-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-hive-to-bigquery-converted/mapping/csv/data_types.csv": "55e40b9b033bfe8806f30eb8ff69f8bc0ad29fa274bb705a654c133c57a566d7",
+    "migraai-hive-to-bigquery-converted/mapping/csv/functions.csv": "abd40b37f21ba64c7e1d75231f2627640dcc86e962bc30692c6ffad872386d87",
+    "migraai-hive-to-bigquery-converted/mapping/csv/objects.csv": "34b168172f0185ea627baad2ddf90b6dab7f422ae5c19a6c4f4edae3ed77ef1b",
+    "migraai-hive-to-bigquery-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-hive-to-bigquery-converted/mapping/csv/syntax.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-hive-to-bigquery-converted/mapping/mapping-workbook.xlsx": "4e3a825bc4252654fa5d45420c78c3594824d97284a1859e145a9a25d198a477",
+    "migraai-hive-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-hive-to-bigquery-converted/report/session-report.md": "65ac3b99f989ae497d44fb7c5c110e9cfb994a1116ca14711793307f02188d63",
+    "migraai-hive-to-bigquery-converted/report/session-report.pdf": "2f48c588aa7d9bd6d1a38e48e86ff20a217b9e6f09e88709faf74ff23386efd1"
+  },
   "inventory": {
     "external": 1,
     "objects": 60

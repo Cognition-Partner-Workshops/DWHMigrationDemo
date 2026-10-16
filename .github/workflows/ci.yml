@@ -44,6 +44,8 @@ jobs:
         working-directory: backend
       - name: Run the conversion matrix in pair shards
         shell: bash
+        env:
+          MIGRAAI_GOLDEN_FAILURE_DIR: ${{ runner.temp }}/golden-failure-artifacts
         run: |
           set -e
           for source in teradata oracle sqlserver snowflake synapse db2 hive netezza; do
@@ -52,6 +54,12 @@ jobs:
             done
           done
         working-directory: backend
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: golden-failure-output
+          path: ${{ runner.temp }}/golden-failure-artifacts/
+          if-no-files-found: ignore
 
   frontend:
     runs-on: ubuntu-latest
