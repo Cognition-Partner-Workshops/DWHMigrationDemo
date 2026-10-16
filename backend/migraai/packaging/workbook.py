@@ -285,6 +285,7 @@ def _workbook_bytes(pkg: PackageInput, sheets: OrderedDict[str, SheetRows]) -> b
     with ZipFile(source, "r") as original, ZipFile(normalized, "w", ZIP_DEFLATED) as archive:
         for entry in original.infolist():
             info = ZipInfo(entry.filename, date_time=timestamp)
+            info.create_system = 3
             info.compress_type = ZIP_DEFLATED
             info.external_attr = 0o600 << 16
             archive.writestr(info, original.read(entry.filename))
