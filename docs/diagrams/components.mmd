@@ -1,27 +1,38 @@
 flowchart LR
-  subgraph Frontend
-    S1[1 System Selection] --- S2[2 Migration Planning]
-    S2 --- S3[3 Resources Confirmation]
-    S3 --- S4[4 Convert Objects]
-    ST[Settings: Devin PAT, org, API domain, threshold, concurrency, ACU cap]
+  subgraph Frontend[React SPA]
+    SYS[Select source and target]
+    UP[Upload files and review inventory]
+    PLAN[Review migration plan]
+    CONVERT[Convert or re-convert selected objects<br/>explicit consent before code is sent]
+    SETTINGS["Settings UI<br/>Devin PAT, organization ID, API base URL,<br/>confidence threshold, max concurrency,<br/>ACU cap per run — enforcement planned"]
+    KBUI[Knowledge-base settings<br/>status, refresh, cancel, rollback]
   end
-  subgraph Backend
-    APIR[REST + SSE API]
-    REG[Platform Registry<br/>8 sources, 7 targets, object types]
-    DISC[Discovery & Parsers<br/>SQL dialects + ETL formats]
-    MAP[Mapping Engine]
-    RULE[Rule Engine]
-    KBS[KB Service + Refresh]
-    GW[Devin Gateway<br/>rate limit, retries, cost tracking]
-    VOTE[Voting & Confidence Engine]
-    VALF[Validation Framework]
-    PACK[Packager]
-    REP[Report Generator]
-    SECM[Security: crypto, DPAPI, wipe, audit]
+  subgraph Backend[FastAPI application]
+    SESSION[POST /api/session/confirm]
+    UPAPI[POST /api/uploads<br/>GET /api/discovery/status]
+    INV[GET /api/inventory<br/>GET /api/graph]
+    PLANAPI[POST /api/plan<br/>GET /api/plan]
+    CONVAPI["POST /api/convert/estimate<br/>POST /api/convert<br/>GET /api/convert/jobs/{job_id}<br/>GET /api/convert/jobs/{job_id}/events<br/>POST /api/convert/jobs/{job_id}/cancel"]
+    SETTINGSAPI[GET/PUT /api/settings]
+    KBAPI[GET /api/kb/status<br/>POST /api/kb/refresh<br/>DELETE /api/kb/refresh<br/>POST /api/kb/rollback]
+    PACK[GET /api/download<br/>GET /api/report.md and /api/report.pdf]
+    REG[Platform registry]
+    DISC[DiscoveryRunner and parsers]
+    PLANJOB[PlanJob or local draft]
+    JOB[ConversionJob and LangGraph batch workflow]
+    KBSTORE[KBStore, search, and refresh]
+    VALID[Validation checks]
+    REPORT[Package snapshot, ZIP, report builders]
+    SECURITY[AuthState, SecretProtector,<br/>EncryptedFileStore, AuditLog]
   end
-  Frontend --> APIR
-  APIR --> REG & DISC & KBS & PACK & REP & SECM
-  DISC --> MAP --> RULE
-  RULE --> GW --> VOTE --> VALF
-  VALF -->|low confidence| GW
-  VALF --> PACK --> REP
+  SYS --> SESSION
+  UP --> UPAPI --> DISC --> INV
+  PLAN --> PLANAPI --> PLANJOB
+  CONVERT --> CONVAPI --> JOB
+  SETTINGS --> SETTINGSAPI
+  KBUI --> KBAPI --> KBSTORE
+  SESSION --> REG
+  UPAPI --> SECURITY
+  JOB --> KBSTORE
+  JOB --> VALID
+  CONVAPI --> PACK --> REPORT

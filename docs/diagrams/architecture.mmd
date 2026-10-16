@@ -1,23 +1,45 @@
+%%{init: {"themeVariables": {"fontSize": "18px"}, "flowchart": {"nodeSpacing": 42, "rankSpacing": 58}}}%%
 flowchart TB
-  U[Enterprise user] --> B[Browser: Edge/Chrome<br/>MigraAI SPA]
-  B -->|HTTP 127.0.0.1 + launch token| API[FastAPI backend]
-  subgraph Local laptop
-    API --> SEC[Session & Security Manager]
-    API --> FM[File Manager<br/>encrypted temp storage]
-    API --> JO[Job Orchestrator]
-    API --> PL[Planning Service]
-    API --> RP[Report & PDF Service]
-    JO --> LG[LangGraph multi-agent workflow]
-    LG --> KB[(KB: SQLite FTS5 + sqlite-vec)]
-    LG --> RE[Rule & Mapping Engine + SQLGlot]
-    LG --> VAL[Validation Framework]
-    LG --> PK[Packaging Agent]
-    SEC --> AUD[(Audit log)]
-    PL --> KB
-    LG --> DG[Devin Gateway]
+  USER[Enterprise user] --> BROWSER[Browser: React SPA]
+  BROWSER -->|loopback HTTP and one-time launch token| API[FastAPI + Uvicorn<br/>127.0.0.1:ephemeral port]
+
+  subgraph LocalApp[Local MigraAI process]
+    direction TB
+    subgraph ApiLayer[API layer]
+      direction LR
+      API --> AUTH[AuthState and security middleware<br/>launch token, session cookie, CSRF]
+      API --> SESSION[Session API and in-memory inventory]
+    end
+    subgraph ServiceLayer[Services and workflows]
+      direction TB
+      DISC[Upload API and DiscoveryRunner]
+      PLAN[Planning API<br/>local draft or PlanJob]
+      CONV[ConversionJob]
+      PACK[Package snapshot, ZIP, and report builders]
+      DISC --> STORE[Encrypted upload files<br/>temporary session directory]
+      CONV --> WF[LangGraph batch workflow<br/>context, vote, consensus, validation, score]
+      WF --> KB[(Versioned SQLite knowledge base<br/>FTS5 and sqlite-vec)]
+      WF --> VALID[SQL and object validation checks]
+      WF --> CLIENT[Devin session client<br/>create, poll, cancel]
+      WF -->|low-confidence objects in a batch| ESC[One escalation session for that batch]
+      PACK --> ZIP[Converted ZIP]
+      PACK --> REPORT[Session reports]
+    end
+    API --> DISC
+    API --> PLAN
+    API --> CONV
+    API --> PACK
+    API --> DATA[(Default: %LOCALAPPDATA%\MigraAI<br/>MIGRAAI_DATA_DIR can override<br/>app.db, kb/, logs/, sessions/ wiped at start/exit)]
   end
-  DG -->|HTTPS: 3 voter sessions per object| DV[(Devin cloud API)]
-  DG -->|HTTPS: 1 escalation session per low-confidence object| DV
-  KB -. one-click refresh .-> DOCS[Vendor docs / public sources]
-  PK --> ZIP[name-converted.zip + report.md/pdf]
-  ZIP --> B
+
+  subgraph External[Internet services, outbound HTTPS]
+    direction TB
+    DV[(Devin API)]
+    DOCS[Vendor documentation sites]
+  end
+  CLIENT -->|conversion source context after explicit consent| DV
+  ESC -->|batch escalation after consent| DV
+  PLAN -->|"plan prompt with aggregate inventory counts only,<br/>when Devin planning is configured"| DV
+  KB -. optional KB refresh .-> DOCS
+  ZIP --> BROWSER
+  REPORT --> BROWSER

@@ -1,24 +1,26 @@
 flowchart TB
-  IN[Uploaded assets] --> DISC[Discovery Agent<br/>type detection, parsing, inventory]
-  DISC --> SECA[Security Agent<br/>users, roles, grants, RLS/CLS]
-  DISC --> PLAN[Planning Agent<br/>strategy, phases, risks, effort]
-  DISC --> MAPA[Mapping Agent<br/>object + type + function mappings]
-  MAPA --> SR{Source Router}
-  SR --> SAG[Source Agent: Teradata / Oracle / SQL Server / Snowflake / Synapse / Db2 / Hive / Netezza<br/>dialect knowledge, construct extraction]
-  SAG --> TR{Target Router}
-  TR --> TAG[Target Agent: Databricks / Redshift / Snowflake / Fabric / BigQuery / Synapse / ClickHouse<br/>idioms, constraints, prompt pack]
-  TAG --> CTX[Context builder: KB retrieval + rules + dependencies]
-  CTX --> V1[Devin voter A]
-  CTX --> V2[Devin voter B]
-  CTX --> V3[Devin voter C]
-  V1 & V2 & V3 --> CON[Consensus Engine]
-  CON --> CS[Confidence Scoring]
-  CS --> VALA[Validation Agent: 7 checks]
-  VALA --> TH{Confidence >= threshold?}
-  TH -- Yes --> PKG[Packaging Agent]
-  TH -- No --> ESC[Devin escalation session<br/>adjudicate + rewrite]
-  ESC --> VALA2[Re-validate + re-score]
-  VALA2 --> PKG
-  SECA --> PKG
-  PLAN --> PKG
-  PKG --> OUT[Converted ZIP, Mapping Workbook, Execution Scripts, Report MD/PDF]
+  FILES[Local source files] --> UP[POST /api/uploads]
+  UP --> DISC[DiscoveryRunner<br/>detect, parse, inventory, dependencies]
+  DISC --> EST[POST /api/convert/estimate]
+  EST --> CONSENT{User explicitly consents<br/>to send selected code to Devin?}
+  CONSENT -- No --> STOP[No conversion sessions are started]
+  CONSENT -- Yes --> START[POST /api/convert<br/>consent=true, optional object_ids]
+  START --> BATCH[Plan dependency-aware batches]
+  BATCH --> CONTEXT[Build context for all objects in this batch<br/>KB retrieval, mappings, rules, dependencies]
+  CONTEXT --> A[Voter A session]
+  CONTEXT --> B[Voter B session]
+  CONTEXT --> C[Voter C session]
+  A & B & C --> OBJECTS[Collect candidates per object]
+  OBJECTS --> VOTE[Consensus, validation checks,<br/>confidence score per object]
+  VOTE --> LOW{Any object below threshold<br/>or needing escalation?}
+  LOW -- No --> FINAL[Finalize each object<br/>converted, expert_review, or failed]
+  LOW -- Yes --> ESC[One escalation session for the batch's<br/>low-confidence objects]
+  ESC --> RECHECK[Re-validate and re-score<br/>each revised object]
+  RECHECK --> FINAL
+  FINAL --> MORE{More batches?}
+  MORE -- Yes --> BATCH
+  MORE -- No --> DONE[Conversion job results]
+  BATCH -. user may cancel active job .-> CANCEL["POST /api/convert/jobs/{job_id}/cancel"]
+  CANCEL --> DONE
+  DONE --> SELECTED[Optional selected re-convert:<br/>POST /api/convert with object_ids<br/>new job merges into the base run in memory]
+  DONE --> DOWNLOAD[GET /api/download<br/>GET /api/report.md or /api/report.pdf]

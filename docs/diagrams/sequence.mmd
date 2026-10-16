@@ -1,46 +1,74 @@
 sequenceDiagram
   actor User
-  participant UI
+  participant UI as React UI
   participant API as FastAPI
-  participant DA as Discovery Agent
-  participant PA as Planning/Mapping Agents
-  participant KB
-  participant GW as Devin Gateway
-  participant DV as Devin cloud
-  participant VA as Validation Agent
-  participant PK as Packaging Agent
-  User->>UI: Select source + target, Confirm
+  participant DISC as DiscoveryRunner
+  participant JOB as ConversionJob
+  participant WF as LangGraph batch workflow
+  participant KB as Local KB
+  participant DV as Devin API
+  participant PKG as Package and report builders
+
+  User->>UI: Select source and target
   UI->>API: POST /api/session/confirm
-  API->>PA: Generate plan (A–U) + resource catalog
-  PA->>KB: Retrieve rules, mappings, docs
-  API-->>UI: Plan + resources
-  User->>UI: Upload ZIP / files
-  UI->>API: POST /api/uploads (stream, encrypt)
-  API->>DA: Detect types, parse, inventory, dependency graph
-  User->>UI: Convert
-  UI->>API: POST /api/convert
-  loop each selected object (bounded concurrency)
-    API->>KB: Context for object + pair
-    par Voter A
-      GW->>DV: create session (object + context, JSON schema)
-    and Voter B
-      GW->>DV: create session
-    and Voter C
-      GW->>DV: create session
+  API->>API: Create local session and start local draft or PlanJob
+  opt Devin planning is configured
+    API->>DV: Send planning prompt and optional inventory summary
+    DV-->>API: Planning result
+  end
+  API-->>UI: Session ID and plan status
+  User->>UI: Upload source files
+  UI->>API: POST /api/uploads
+  API->>DISC: Store encrypted files and queue local discovery
+  DISC-->>API: Inventory and dependency graph
+  API-->>UI: Upload and discovery status
+  UI->>API: POST /api/convert/estimate
+  API-->>UI: Object count, batches, session estimate
+  UI-->>User: Show consent dialog before code is sent
+  User->>UI: Explicitly consent to send code to Devin
+  UI->>API: POST /api/convert {consent: true, object_ids?: [...]}
+  API->>API: Require consent and create ConversionJob
+  API->>JOB: Start conversion
+  UI->>API: GET /api/convert/jobs/{job_id}/events
+  Note over UI,JOB: Cancellation is available during any active batch
+  loop Each dependency-aware batch of objects
+    JOB->>WF: Run the whole batch
+    WF->>KB: Retrieve relevant context for batch objects
+    par Voter A for this batch
+      WF->>DV: Create session with batch context
+    and Voter B for this batch
+      WF->>DV: Create session with batch context
+    and Voter C for this batch
+      WF->>DV: Create session with batch context
     end
-    GW->>DV: poll until exit, read structured_output
-    GW->>VA: 3 candidates
-    VA->>VA: Normalise (SQLGlot), compare, 7 validations, score
-    alt confidence >= threshold
-      VA->>PK: consensus result
-    else confidence < threshold
-      GW->>DV: escalation session (3 candidates + findings)
-      DV-->>GW: revised result
-      VA->>VA: re-validate, re-score, keep best
-      VA->>PK: best result (+ expert-review flag if still low)
+    DV-->>WF: Structured candidates from three sessions
+    WF->>WF: Consensus, validate, score each object
+    alt One or more objects need escalation
+      WF->>DV: One escalation session for those objects in the batch
+      DV-->>WF: Revised candidates
+      WF->>WF: Re-validate and re-score
+    else No escalation needed
+      WF->>WF: Keep the selected consensus candidates
+    end
+    WF-->>JOB: Final per-object results for this batch
+    API-->>UI: SSE convert.batch progress event
+    opt User cancels while a batch is active
+      UI->>API: POST /api/convert/jobs/{job_id}/cancel
+      API->>JOB: Cancel sessions and finalize unresolved objects
     end
   end
-  PK-->>UI: progress via SSE
-  User->>UI: Download (optional ZIP name)
-  UI->>API: GET /api/download
-  API-->>User: name-converted.zip + report
+  UI->>API: GET /api/convert/jobs/{job_id}
+  API-->>UI: Final job snapshot and counts
+  opt Re-convert selected objects after the base run finishes
+    User->>UI: Select objects and confirm conversion consent
+    UI->>API: POST /api/convert {consent: true, object_ids: [...]}
+    API->>JOB: Create selected job with base run in memory
+    JOB->>JOB: Merge selected results into the base run
+  end
+  User->>UI: Download package or report
+  UI->>API: GET /api/download?name=...
+  API->>PKG: Build ZIP from completed or cancelled run
+  PKG-->>UI: Converted ZIP
+  UI->>API: GET /api/report.md or /api/report.pdf
+  API->>PKG: Build session report
+  PKG-->>UI: Markdown or PDF report
