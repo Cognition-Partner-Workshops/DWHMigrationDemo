@@ -134,6 +134,12 @@ class MockDevinClient:
         return session_id, url
 
     def get_session(self, session_id: str) -> dict[str, Any]:
+        try:
+            delay_s = float(os.environ.get("MIGRAAI_TEST_MOCK_SESSION_RESPONSE_DELAY_S", "0"))
+        except ValueError:
+            delay_s = 0
+        if delay_s > 0:
+            time.sleep(min(delay_s, 5))
         return dict(self.sessions[session_id])
 
     def terminate_session(self, session_id: str) -> None:
