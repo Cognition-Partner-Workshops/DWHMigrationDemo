@@ -24,7 +24,7 @@ Open `Settings` to configure Devin. The fields are:
 | `API base URL` | The Devin API host. |
 | `Confidence threshold` | Minimum confidence for an object to be `converted`. Default 0.85 (85%). |
 | `Max concurrent sessions` | How many Devin sessions run at the same time. Default 4. |
-| `ACU cap per run` | Saved with the settings, but not currently applied to conversion runs. See the FAQ. |
+| `ACU cap per run` | Divided across the maximum session count to set an integer per-session limit (minimum 1 ACU). See the FAQ. |
 
 You can plan, upload and explore the inventory without a Devin key. Conversion needs one.
 
@@ -156,7 +156,7 @@ The `Inventory` tab in Migration Planning lists every discovered object.
 
 If no Devin key is configured, pressing `Convert Items` shows `Devin isn't configured. Add a Devin API key in Settings to convert; nothing was sent.` Add the key in `Settings` and try again.
 
-Before you convert, the toolbar shows an estimate for the selected parsed objects, for example `120 objects · 6 batches · up to 24 sessions · no ACU cap`. Objects are grouped into batches of 20. Each batch uses three voter sessions and at most one escalation session, so the maximum is four sessions per batch. No ACU figure is estimated.
+Before you convert, the toolbar shows an estimate for the selected parsed objects, for example `120 objects · 6 batches · up to 24 sessions · ≤ 5 ACU per session (up to 120 ACUs, cap 120)`. Objects are grouped into batches of 20. Each batch uses three voter sessions and at most one escalation session, so the maximum is four sessions per batch. The ACU cap is divided across this maximum session count; each session limit is a whole number.
 
 Pressing `Convert Items` opens the consent dialog `Send code to Devin?`. It states:
 
@@ -352,7 +352,7 @@ Without a Devin key, nothing is sent and the plan is a local draft. With a key, 
 Yes. Every consent is written to the local audit log.
 
 **What does a conversion cost?**
-Each batch uses up to four Devin sessions. The Devin v1 API (legacy `apk_` keys) returns no ACU figure, so the report shows "Total ACUs: not reported by the Devin API" and `n/a` per session. When the API returns `acus_consumed` for a session, the report shows it and the total. Check usage in your Devin organization. The `ACU cap per run` setting is not applied to conversions.
+Each batch uses up to four Devin sessions. The Devin v1 API (legacy `apk_` keys) returns no ACU figure, so the report shows "Total ACUs: not reported by the Devin API" and `n/a` per session. When the API returns `acus_consumed` for a session, the report shows it and the total. Check usage in your Devin organization. When `ACU cap per run` is set, MigraAI divides it by the maximum number of sessions and applies the floored whole-number limit to each session, with a minimum of 1 ACU. If the cap is below the maximum session count, the estimate explains that the run maximum can exceed the cap.
 
 **Where is my data kept, and when is it deleted?**
 Uploads and results are kept in a temporary session folder on this machine. It is deleted when you press `Confirm` for a new session and when the app exits. Download the ZIP before you close the app.

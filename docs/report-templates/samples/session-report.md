@@ -21,7 +21,7 @@
 - Source platform: teradata
 - Target platform: snowflake
 - Confidence threshold: 85%
-- KB version: n/a
+- KB version: 1
 
 ## 3. Scope and inventory
 

@@ -38,6 +38,7 @@ function mockApi(
   conversionConfigured = devinConfigured,
   conversionObjectCount = 0,
 ) {
+  let acuCapPerRun: number | null = settingsResponse.acu_cap_per_run;
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input);
     if (path.endsWith("/api/health")) {
@@ -62,22 +63,36 @@ function mockApi(
       });
     }
     if (path.endsWith("/api/settings")) {
-      return Response.json(settingsResponse);
+      if (init?.method === "PUT") {
+        const updates = JSON.parse(String(init.body ?? "{}")) as {
+          acu_cap_per_run?: number | null;
+        };
+        acuCapPerRun = updates.acu_cap_per_run ?? null;
+        return Response.json({ ...settingsResponse, ...updates });
+      }
+      return Response.json({ ...settingsResponse, acu_cap_per_run: acuCapPerRun });
     }
     if (path.endsWith("/api/convert/estimate")) {
+      const maxSessions = conversionObjectCount > 0 ? 12 : 0;
+      const acuLimitPerSession =
+        acuCapPerRun === null || maxSessions === 0
+          ? null
+          : Math.max(1, Math.floor(acuCapPerRun / maxSessions));
       return Response.json({
         objects: conversionObjectCount,
         batches: conversionObjectCount > 0 ? 3 : 0,
         oversized_batches: 0,
         voter_sessions: conversionObjectCount > 0 ? 9 : 0,
         max_escalation_sessions: conversionObjectCount > 0 ? 3 : 0,
-        max_sessions: conversionObjectCount > 0 ? 12 : 0,
+        max_sessions: maxSessions,
         batch_size: 20,
         session_timeout_minutes: 45,
         max_concurrent_sessions: 4,
         devin_configured: conversionConfigured,
         devin_host: conversionConfigured ? "local mock" : "Devin",
-        acu_cap: null,
+        acu_cap: acuCapPerRun,
+        acu_limit_per_session: acuLimitPerSession,
+        max_acus: acuLimitPerSession === null ? null : acuLimitPerSession * maxSessions,
       });
     }
     if (path.endsWith("/api/session") && !path.endsWith("/api/session/confirm")) {
@@ -352,6 +367,36 @@ describe("MigraAI foundation UI", () => {
     await user.click(await screen.findByRole("button", { name: "Convert Items" }));
 
     expect(await screen.findByRole("dialog")).toHaveTextContent("Send code to Devin?");
+  });
+
+  it("refreshes the conversion estimate after saving Settings", async () => {
+    const user = userEvent.setup();
+    const fetchMock = mockApi(
+      true,
+      { source: "teradata", target: "snowflake", confirmed: true },
+      fallbackPlan,
+      true,
+      56,
+    );
+    render(<App />);
+
+    expect(await screen.findByText("no ACU cap")).toBeInTheDocument();
+    const estimateCalls = () =>
+      fetchMock.mock.calls.filter(
+        ([input, init]) =>
+          String(input).endsWith("/api/convert/estimate") && init?.method === "POST",
+      );
+    expect(estimateCalls()).toHaveLength(1);
+
+    await user.click(await screen.findByRole("button", { name: /open settings/i }));
+    await user.clear(screen.getByLabelText("ACU cap per run"));
+    await user.type(screen.getByLabelText("ACU cap per run"), "40");
+    await user.click(screen.getByRole("button", { name: "Save settings" }));
+
+    expect(
+      await screen.findByText(/≤ 3 ACU per session \(up to 36 ACUs, cap 40\)/),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(estimateCalls()).toHaveLength(2));
   });
 
   it("sends same-origin credentials and CSRF token on mutations", async () => {

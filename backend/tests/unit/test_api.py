@@ -221,6 +221,7 @@ def test_get_current_session_restores_pair_without_starting_another_plan_job(
     assert confirmed.status_code == 200
     assert starts == ["created", "started"]
     current_session = client.app.state.current_session
+    assert current_session["kb_version"] == client.app.state.kb_store.current_version
 
     restored = client.get("/api/session", headers=HOST_HEADER)
 

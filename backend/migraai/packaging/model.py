@@ -107,6 +107,7 @@ class PackageInput:
     sessions: tuple[SessionSummary, ...] = ()
     egress: EgressSummary | None = None
     kb_version: str | None = None
+    acu_limit_per_session: int | None = None
     notes: tuple[str, ...] = field(default_factory=tuple)
     base_run_id: str | None = None
     reconverted_object_ids: tuple[str, ...] = ()

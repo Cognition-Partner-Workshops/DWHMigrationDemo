@@ -92,6 +92,14 @@ def test_missing_acus_are_reported_as_unavailable_in_md_and_pdf() -> None:
     assert "Total ACUs: not reported by the Devin API" in _pdf_text(build_report_pdf(pkg))
 
 
+def test_kb_version_is_reported_and_missing_version_is_n_a() -> None:
+    pkg = dataclasses.replace(sample_package(), kb_version=None)
+    assert "- KB version: n/a" in build_report_md(pkg)
+
+    pkg = dataclasses.replace(pkg, kb_version="3")
+    assert "- KB version: 3" in build_report_md(pkg)
+
+
 def test_section_7_failed_and_review_items() -> None:
     md = build_report_md(sample_package())
     section = _section(md, "## 7.", "## 8.")

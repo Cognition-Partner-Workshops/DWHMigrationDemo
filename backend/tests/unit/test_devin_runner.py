@@ -22,6 +22,7 @@ def _mock_client(version: str, scenario: str, cancel: threading.Event):
         "terminates": 0,
         "attachment_body": b"",
         "create_payload": {},
+        "create_payloads": [],
     }
 
     def respond(request: httpx.Request, status: int, payload: dict) -> httpx.Response:
@@ -35,6 +36,7 @@ def _mock_client(version: str, scenario: str, cancel: threading.Event):
         if request.method == "POST" and path.endswith("/sessions"):
             state["creates"] = int(state["creates"]) + 1
             state["create_payload"] = json.loads(request.content)
+            state["create_payloads"].append(state["create_payload"])
             if scenario == "client_error":
                 return respond(request, 422, {"detail": "invalid request"})
             if scenario == "retry" and state["creates"] == 1:
@@ -175,3 +177,32 @@ def test_runner_logs_never_include_prompt_or_attachment(
     client.close()
     assert "SENSITIVE_PROMPT_TEXT" not in caplog.text
     assert "SENSITIVE_ATTACHMENT_TEXT" not in caplog.text
+
+
+@pytest.mark.parametrize("version", ["v1", "v3"])
+@pytest.mark.parametrize("scenario, expected_creates", [("success", 1), ("retry", 2)])
+def test_runner_forwards_acu_limit_on_each_create_attempt(
+    version: str,
+    scenario: str,
+    expected_creates: int,
+) -> None:
+    cancel = threading.Event()
+    client, state = _mock_client(version, scenario, cancel)
+    outcome = run_session(
+        client,
+        prompt="Convert this object.",
+        attachment_name="batch.md",
+        attachment_md="",
+        schema=SCHEMA,
+        title="Conversion",
+        tags=["migraai", "voter-A"],
+        max_acu_limit=7,
+        timeout_s=1,
+        cancel=cancel,
+        poll_initial=0,
+    )
+    client.close()
+
+    assert outcome.state == "done"
+    assert len(state["create_payloads"]) == expected_creates
+    assert all(payload["max_acu_limit"] == 7 for payload in state["create_payloads"])

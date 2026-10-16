@@ -181,6 +181,7 @@ def generate(out_dir: Path) -> dict[str, Path]:
 
             pack_dir = ROOT / "testpacks" / "teradata"
             session = golden._session_for_pack(pack_dir, "teradata", "snowflake", tmp_dir)
+            session["kb_version"] = kb_store.current_version
             try:
                 original_run_session = workflow.run_session
 

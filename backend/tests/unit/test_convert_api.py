@@ -131,6 +131,7 @@ def test_estimate_requires_pair_and_selected_objects(
 def test_selected_estimate_and_validation(client: TestClient, app, data_dir: Path) -> None:
     csrf = _launch(client)
     object_id = _add_conversion_session(app, data_dir)
+    app.state.settings_store.update(SettingsUpdate(acu_cap_per_run=40))
     headers = _csrf_headers(csrf)
 
     estimate = client.post(
@@ -142,6 +143,10 @@ def test_selected_estimate_and_validation(client: TestClient, app, data_dir: Pat
     assert estimate.status_code == 200
     assert estimate.json()["objects"] == 1
     assert estimate.json()["batches"] == 1
+    assert estimate.json()["max_sessions"] == 4
+    assert estimate.json()["acu_cap"] == 40
+    assert estimate.json()["acu_limit_per_session"] == 10
+    assert estimate.json()["max_acus"] == 40
 
     for object_ids in ([], [object_id, object_id], ["unknown-object"]):
         response = client.post(
@@ -406,6 +411,8 @@ def test_mock_conversion_run_status_results_detail_and_audit(
         "devin_configured": True,
         "devin_host": "local mock",
         "acu_cap": None,
+        "acu_limit_per_session": None,
+        "max_acus": None,
     }
     started = client.post("/api/convert", json={"consent": True}, headers=headers)
     assert started.status_code == 200
@@ -424,6 +431,10 @@ def test_mock_conversion_run_status_results_detail_and_audit(
         )
         == 1
     )
+    package = build_package_input(job, app.state.current_session, "")
+    with zipfile.ZipFile(io.BytesIO(build_zip(package, collect_parts(package)))) as archive:
+        manifest = json.loads(archive.read(f"{package.package_name}-converted/manifest.json"))
+    assert "acu_limit_per_session" not in manifest
 
     listed = client.get("/api/conversions", params={"search": "orders"}, headers=HOST_HEADER)
     assert listed.status_code == 200
@@ -449,6 +460,53 @@ def test_mock_conversion_run_status_results_detail_and_audit(
     audit_text = app.state.audit_log.path.read_text(encoding="utf-8")
     assert "convert.consent" in audit_text
     assert "private_marker_9472" not in audit_text
+
+
+def test_mock_conversion_applies_saved_acu_cap_to_sessions_and_manifest(
+    client: TestClient,
+    app,
+    data_dir: Path,
+    monkeypatch,
+) -> None:
+    csrf = _launch(client)
+    _add_conversion_session(app, data_dir)
+    monkeypatch.setenv("MIGRAAI_TEST_MOCK_DEVIN", "1")
+    app.state.settings_store.update(SettingsUpdate(acu_cap_per_run=40, confidence_threshold=1.0))
+    clients: list[MockDevinClient] = []
+    roles: list[str] = []
+
+    def client_factory(role: str) -> MockDevinClient:
+        roles.append(role)
+        mock = MockDevinClient()
+        clients.append(mock)
+        return mock
+
+    monkeypatch.setattr(
+        convert_api,
+        "build_conversion_client_factory",
+        lambda *_args: (client_factory, False, "local mock"),
+    )
+    headers = _csrf_headers(csrf)
+
+    estimate = client.post("/api/convert/estimate", json={}, headers=headers)
+    assert estimate.status_code == 200
+    assert estimate.json()["acu_cap"] == 40
+    assert estimate.json()["acu_limit_per_session"] == 10
+    assert estimate.json()["max_acus"] == 40
+
+    started = client.post("/api/convert", json={"consent": True}, headers=headers)
+    assert started.status_code == 200
+    job = app.state.convert_job
+    job.join(timeout=30)
+    assert not job.is_alive()
+
+    assert set(roles) == {"A", "B", "C", "escalation"}
+    assert clients
+    assert all(client.max_acu_limits == [10] for client in clients)
+    package = build_package_input(job, app.state.current_session, "")
+    with zipfile.ZipFile(io.BytesIO(build_zip(package, collect_parts(package)))) as archive:
+        manifest = json.loads(archive.read(f"{package.package_name}-converted/manifest.json"))
+    assert manifest["acu_limit_per_session"] == 10
 
 
 def test_replay_then_live_estimate_and_consent_audit_use_the_selected_client(

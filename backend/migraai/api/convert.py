@@ -7,7 +7,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from migraai.agents.batching import plan_batches
+from migraai.agents.batching import per_session_acu_limit, plan_batches
 from migraai.agents.job import ConversionJob
 from migraai.devin.client import (
     build_conversion_client_factory,
@@ -114,19 +114,25 @@ def _estimate(
     configured, host = devin_configuration(request)
     voter_sessions = len(batches) * 3
     max_escalation_sessions = len(batches)
+    max_sessions = voter_sessions + max_escalation_sessions
+    acu_limit_per_session = per_session_acu_limit(settings.acu_cap_per_run, max_sessions)
     return {
         "objects": len(local_objects),
         "batches": len(batches),
         "oversized_batches": sum(batch.oversized for batch in batches),
         "voter_sessions": voter_sessions,
         "max_escalation_sessions": max_escalation_sessions,
-        "max_sessions": voter_sessions + max_escalation_sessions,
+        "max_sessions": max_sessions,
         "batch_size": settings.conversion_batch_size,
         "session_timeout_minutes": settings.conversion_session_timeout_minutes,
         "max_concurrent_sessions": settings.max_concurrent_sessions,
         "devin_configured": configured,
         "devin_host": host,
-        "acu_cap": None,
+        "acu_cap": settings.acu_cap_per_run,
+        "acu_limit_per_session": acu_limit_per_session,
+        "max_acus": (
+            acu_limit_per_session * max_sessions if acu_limit_per_session is not None else None
+        ),
     }
 
 
@@ -184,6 +190,7 @@ def post_convert(
             timeout_minutes=settings.conversion_session_timeout_minutes,
             max_concurrent_sessions=settings.max_concurrent_sessions,
             confidence_threshold=settings.confidence_threshold,
+            max_acu_limit=estimate["acu_limit_per_session"],
             devin_host=devin_host,
             client_factory=client_factory,
             consent=True,

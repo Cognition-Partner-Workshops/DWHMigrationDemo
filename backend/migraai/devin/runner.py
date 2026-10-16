@@ -55,13 +55,14 @@ def _create_with_retry(
     schema: dict[str, Any],
     title: str,
     tags: list[str],
+    max_acu_limit: int | None = None,
 ) -> tuple[str, str]:
     for attempt in range(2):
         try:
             return client.create_session(
                 prompt,
                 schema=schema,
-                max_acu_limit=None,
+                max_acu_limit=max_acu_limit,
                 title=title,
                 tags=tags,
             )
@@ -85,6 +86,7 @@ def run_session(
     tags: list[str],
     timeout_s: float,
     cancel: threading.Event,
+    max_acu_limit: int | None = None,
     poll_initial: float = 5,
     poll_max: float = 30,
     on_session_started: Callable[[str], None] | None = None,
@@ -100,6 +102,7 @@ def run_session(
             client,
             session_prompt,
             schema=schema,
+            max_acu_limit=max_acu_limit,
             title=title,
             tags=tags,
         )

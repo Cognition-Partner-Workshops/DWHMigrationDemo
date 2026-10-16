@@ -229,7 +229,9 @@ export type ConvertEstimate = {
   max_concurrent_sessions: number;
   devin_configured: boolean;
   devin_host: string;
-  acu_cap: null;
+  acu_cap: number | null;
+  acu_limit_per_session: number | null;
+  max_acus: number | null;
 };
 
 export type ConversionBatch = {

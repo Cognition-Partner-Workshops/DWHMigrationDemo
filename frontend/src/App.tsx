@@ -248,6 +248,7 @@ export default function App() {
   const [session, setSession] = useState<SessionView | null>(null);
   const [uploads, setUploads] = useState<UploadRecord[]>([]);
   const [inventoryRevision, setInventoryRevision] = useState(0);
+  const [settingsRevision, setSettingsRevision] = useState(0);
   const [workspaceTab, setWorkspaceTab] = useState<"planning" | "inventory">("planning");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -390,6 +391,7 @@ export default function App() {
       body: updates,
     });
     setSettings(updated);
+    setSettingsRevision((current) => current + 1);
     const updatedHealth = await apiRequest<HealthResponse>("/api/health").catch(() => null);
     setHealth((current) =>
       updatedHealth ??
@@ -609,6 +611,7 @@ export default function App() {
           <ConvertPanel
             confirmed={sessionConfirmed}
             refreshKey={inventoryRevision}
+            settingsRevision={settingsRevision}
             source={session?.source ?? ""}
             target={session?.target ?? ""}
             uploadRoots={distinctUploadRoots(uploads)}

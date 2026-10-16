@@ -2032,6 +2032,12 @@ th {
   font-size: 10px;
 }
 
+.acu-cap-warning {
+  display: block;
+  margin: 6px 0;
+  color: #8a4b08;
+}
+
 .conversion-error {
   padding: 6px 8px;
   border: 1px solid #efc6c4;

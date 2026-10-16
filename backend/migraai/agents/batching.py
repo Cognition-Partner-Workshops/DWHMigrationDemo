@@ -1,9 +1,18 @@
 from __future__ import annotations
 
 import heapq
+import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
+
+
+def per_session_acu_limit(cap: float | None, max_sessions: int) -> int | None:
+    if cap is None:
+        return None
+    if max_sessions < 1:
+        raise ValueError("max_sessions must be at least 1")
+    return max(1, math.floor(cap / max_sessions))
 
 
 @dataclass(slots=True)

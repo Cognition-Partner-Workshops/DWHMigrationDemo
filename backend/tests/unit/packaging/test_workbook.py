@@ -59,6 +59,17 @@ def test_workbook_sheets_rows_and_summary_counts() -> None:
     assert [objects.cell(5, column).value for column in range(10, 17)] == [None] * 7
 
 
+def test_summary_contains_kb_version() -> None:
+    package = replace(sample_package(), kb_version="3")
+    workbook = _load_workbook(package)
+    summary = {
+        workbook["Summary"].cell(row, 1).value: workbook["Summary"].cell(row, 2).value
+        for row in range(2, workbook["Summary"].max_row + 1)
+    }
+
+    assert summary["KB version"] == "3"
+
+
 def test_mapping_rows_deduplicate_and_keep_distinct_notes() -> None:
     package = sample_package()
     first, second, third, fourth = package.objects
