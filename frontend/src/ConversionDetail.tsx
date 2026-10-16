@@ -34,6 +34,33 @@ function lineDiff(base: string, next: string): DiffLine[] {
   ];
 }
 
+function matchingFinalFile(
+  file: ConversionFile,
+  candidateFiles: ConversionFile[],
+  finalFiles: ConversionFile[],
+  index: number,
+): ConversionFile | null {
+  const byPath = finalFiles.find((item) => item.rel_path === file.rel_path);
+  if (byPath) {
+    return byPath;
+  }
+
+  const byFormat = file.etl_format_id
+    ? finalFiles.filter(
+        (item) => item.etl_format_id === file.etl_format_id && item.language === file.language,
+      )
+    : [];
+  const matches = byFormat.length
+    ? byFormat
+    : finalFiles.filter((item) => item.language === file.language);
+  const groupIndex = candidateFiles.slice(0, index).filter(
+    (item) =>
+      item.language === file.language &&
+      (!byFormat.length || item.etl_format_id === file.etl_format_id),
+  ).length;
+  return matches[groupIndex] ?? null;
+}
+
 function candidateFor(
   detail: ConversionDetailResponse,
   tab: string,
@@ -94,16 +121,22 @@ export function ConversionDetail({
         <p className="conversion-detail-empty">No converted files are available for this candidate.</p>
       ) : (
         <div className="conversion-files">
-          {files.map((file) => {
-            const finalFile = detail.final.files.find((item) => item.rel_path === file.rel_path);
+          {files.map((file, index) => {
+            const finalFile = matchingFinalFile(file, files, detail.final.files, index);
+            const hasNoMatchingFinal = tab !== "Final" && !finalFile;
             const lines =
-              tab === "Final"
+              tab === "Final" || !finalFile
                 ? file.content.split("\n").map((text) => ({ kind: "same" as const, text }))
-                : lineDiff(finalFile?.content ?? "", file.content);
+                : lineDiff(finalFile.content, file.content);
             return (
               <article className="conversion-file" key={`${tab}:${file.rel_path}`}>
                 <header className="conversion-file-heading">
                   <strong title={file.rel_path}>{file.rel_path}</strong>
+                  {hasNoMatchingFinal && (
+                    <small className="conversion-new-file-label">
+                      New file (no matching final file)
+                    </small>
+                  )}
                   <button className="button secondary copy-file" onClick={() => void copyFile(file)}>
                     {copied === file.rel_path ? "Copied" : "Copy"}
                   </button>

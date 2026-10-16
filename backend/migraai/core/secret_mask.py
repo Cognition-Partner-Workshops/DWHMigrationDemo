@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import re
 
-_MASKED = "***MASKED***"
+MASKED_SECRET_PLACEHOLDER = "***MASKED***"
+_MASKED = MASKED_SECRET_PLACEHOLDER
 _QUOTED_VALUE = r"""(?P<quote>['"])(?!\*\*\*MASKED\*\*\*)(?:\\.|(?!(?P=quote)).)*(?P=quote)"""
 _BARE_VALUE = r"""(?!(?:\*\*\*MASKED\*\*\*|['"]))[^\s,;)}\]]+"""
 _VALUE = rf"(?P<value>{_QUOTED_VALUE}|{_BARE_VALUE})"
@@ -58,8 +59,21 @@ def mask_secrets(text: str) -> str:
     return text
 
 
+def blank_masked_secret_placeholders(text: str) -> str:
+    quoted_placeholder = re.compile(rf"""(['"]){re.escape(MASKED_SECRET_PLACEHOLDER)}\1""")
+    text = quoted_placeholder.sub(lambda match: " " * len(match.group()), text)
+    return text.replace(MASKED_SECRET_PLACEHOLDER, " " * len(MASKED_SECRET_PLACEHOLDER))
+
+
 def contains_secret(text: str) -> bool:
     return mask_secrets(text) != text or any(pattern.search(text) for pattern in _SECRET_PATTERNS)
 
 
-__all__ = ["SecretAttachmentError", "_SECRET_PATTERNS", "contains_secret", "mask_secrets"]
+__all__ = [
+    "MASKED_SECRET_PLACEHOLDER",
+    "SecretAttachmentError",
+    "_SECRET_PATTERNS",
+    "blank_masked_secret_placeholders",
+    "contains_secret",
+    "mask_secrets",
+]

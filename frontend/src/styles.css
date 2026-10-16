@@ -2295,6 +2295,11 @@ th {
   white-space: nowrap;
 }
 
+.conversion-new-file-label {
+  color: #71819a;
+  font-size: 8px;
+}
+
 .copy-file {
   padding: 3px 7px;
   font-size: 8px;

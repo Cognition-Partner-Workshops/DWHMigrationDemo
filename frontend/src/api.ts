@@ -258,6 +258,7 @@ export type ConversionFile = {
   rel_path: string;
   language: string;
   content: string;
+  etl_format_id?: string | null;
 };
 
 export type ConversionCheck = {

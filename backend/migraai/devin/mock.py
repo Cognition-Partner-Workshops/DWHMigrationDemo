@@ -212,17 +212,6 @@ class MockDevinClient:
                 if not rel_path:
                     extension = _LANGUAGE_EXTENSIONS.get(file_language, "sql")
                     rel_path = f"{object_id}.{extension}"
-                if self.scenario.different_candidate_per_stance:
-                    path, extension = (
-                        str(rel_path).rsplit(".", 1)
-                        if "." in str(rel_path)
-                        else (str(rel_path), "")
-                    )
-                    rel_path = (
-                        f"{path}.{voter.lower()}.{extension}"
-                        if extension
-                        else f"{path}.{voter.lower()}"
-                    )
                 output_files.append(
                     {
                         "rel_path": str(rel_path),

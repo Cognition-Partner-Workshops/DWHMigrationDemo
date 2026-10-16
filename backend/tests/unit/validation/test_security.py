@@ -2,6 +2,7 @@ import pytest
 from sqlglot.errors import ParseError
 
 from migraai.validation.checks import security
+from migraai.validation.validate import validate_object
 
 
 @pytest.mark.parametrize(
@@ -23,6 +24,35 @@ def test_secret_markers_are_rejected(content, make_context, make_object) -> None
         for finding in findings
         if finding.rule_id == "security.secret_in_output"
     )
+
+
+def test_masked_secret_placeholder_is_only_a_warning_and_check_passes(
+    make_context, make_object
+) -> None:
+    findings = security.validate(
+        make_object(content="CREATE USER analyst PASSWORD = '***MASKED***'"),
+        make_context(),
+    )
+
+    assert [(finding.rule_id, finding.severity) for finding in findings] == [
+        ("security.masked_secret_placeholder", "warning")
+    ]
+    results = validate_object(
+        make_object(content="CREATE USER analyst PASSWORD = '***MASKED***'"),
+        make_context(),
+    )
+    assert next(result for result in results if result.check == "security").status == "passed"
+
+
+def test_real_password_remains_a_security_error(make_context, make_object) -> None:
+    findings = security.validate(
+        make_object(content="CREATE USER analyst PASSWORD = 'abc'"),
+        make_context(),
+    )
+
+    assert ("security.secret_in_output", "error") in {
+        (finding.rule_id, finding.severity) for finding in findings
+    }
 
 
 def test_grant_all_and_public_are_errors(make_context, make_object) -> None:

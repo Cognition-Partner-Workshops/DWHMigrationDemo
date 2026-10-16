@@ -4,7 +4,11 @@ import sqlglot
 from sqlglot import ErrorLevel, exp
 from sqlglot.errors import ParseError
 
-from migraai.core.secret_mask import _SECRET_PATTERNS
+from migraai.core.secret_mask import (
+    _SECRET_PATTERNS,
+    MASKED_SECRET_PLACEHOLDER,
+    blank_masked_secret_placeholders,
+)
 from migraai.platforms.pack import _strip_comments, evaluate_rules
 from migraai.validation.context import ObjectUnderTest, OutputFile, ValidationContext
 from migraai.validation.dialects import sqlglot_dialect
@@ -18,8 +22,9 @@ def _line(text: str, offset: int) -> int:
 
 def _secret_findings(file: OutputFile) -> list[Finding]:
     findings: list[Finding] = []
+    scanned_content = blank_masked_secret_placeholders(file.content)
     for pattern in _SECRET_PATTERNS:
-        for match in pattern.finditer(file.content):
+        for match in pattern.finditer(scanned_content):
             findings.append(
                 Finding(
                     check="security",
@@ -176,16 +181,32 @@ def _grant_findings(
 def validate(obj: ObjectUnderTest, ctx: ValidationContext) -> list[Finding]:
     findings: list[Finding] = []
     for file in obj.files:
+        safe_content = blank_masked_secret_placeholders(file.content)
         findings.extend(
             evaluate_rules(
                 ctx.pack,
-                file.content,
+                safe_content,
                 language=file.language,
                 object_type=obj.object_type.casefold(),
                 checks={"security"},
             )
         )
         findings.extend(_secret_findings(file))
+        placeholder_offset = file.content.find(MASKED_SECRET_PLACEHOLDER)
+        if placeholder_offset >= 0:
+            findings.append(
+                Finding(
+                    check="security",
+                    rule_id="security.masked_secret_placeholder",
+                    severity="warning",
+                    message=(
+                        "The source had a secret that was masked before sending. Replace the "
+                        "placeholder with a secret reference (for example a SECRET object or key "
+                        "vault) before deploying."
+                    ),
+                    line=_line(file.content, placeholder_offset),
+                )
+            )
         if file.language.casefold() == "sql":
             findings.extend(_grant_findings(file, obj, ctx))
     return findings

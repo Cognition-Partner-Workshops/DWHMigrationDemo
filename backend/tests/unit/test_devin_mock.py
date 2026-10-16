@@ -114,6 +114,10 @@ def test_mock_can_omit_object_ids_and_diverge_per_stance() -> None:
     assert candidate_a.structured_output != candidate_b.structured_output
     assert "Candidate: A" in candidate_a.structured_output["objects"][0]["files"][0]["content"]
     assert "Candidate: B" in candidate_b.structured_output["objects"][0]["files"][0]["content"]
+    assert (
+        candidate_a.structured_output["objects"][0]["files"][0]["rel_path"]
+        == candidate_b.structured_output["objects"][0]["files"][0]["rel_path"]
+    )
     assert missing_client.termination_calls == [missing.session_id]
     assert client_a.termination_calls == [candidate_a.session_id]
     assert client_b.termination_calls == [candidate_b.session_id]

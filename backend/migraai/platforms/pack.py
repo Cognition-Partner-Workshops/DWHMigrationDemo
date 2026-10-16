@@ -8,6 +8,7 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from migraai.core.secret_mask import blank_masked_secret_placeholders
 from migraai.kb.seed_models import Claim
 from migraai.validation.findings import Finding, Severity
 
@@ -320,6 +321,7 @@ def evaluate_rules(
         )
         match: re.Match[str] | None = None
         if rule.kind in {"forbid_regex", "require_regex"}:
+            match_text = blank_masked_secret_placeholders(match_text)
             if pattern is not None:
                 match = re.search(pattern, match_text)
             if rule.kind == "forbid_regex" and match is None:

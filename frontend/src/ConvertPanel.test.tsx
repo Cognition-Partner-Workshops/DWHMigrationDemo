@@ -242,6 +242,103 @@ describe("Convert Objects", () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledWith("SELECT 2;\n"));
   });
 
+  it("pairs candidate and final files by index when their paths differ", async () => {
+    const detailWithDifferentPaths: ConversionDetailResponse = {
+      ...detail,
+      final: {
+        ...detail.final,
+        files: [
+          {
+            rel_path: "security.a.sql",
+            language: "sql",
+            etl_format_id: "sql",
+            content: "-- Converted: grant\n-- Reason: preserve\nGRANT SELECT ON x TO operator;\n",
+          },
+          {
+            rel_path: "audit.a.sql",
+            language: "sql",
+            etl_format_id: "sql",
+            content: "-- Converted: audit\n-- Reason: preserve\nGRANT INSERT ON x TO operator;\n",
+          },
+          {
+            rel_path: "report.a.sql",
+            language: "sql",
+            content: "-- Converted: report\n-- Reason: preserve\nGRANT DELETE ON x TO operator;\n",
+          },
+        ],
+      },
+      candidates: {
+        ...detail.candidates,
+        B: {
+          ...detail.candidates.B!,
+          files: [
+            {
+              rel_path: "security.b.sql",
+              language: "sql",
+              etl_format_id: "sql",
+              content: "-- Converted: grant\n-- Reason: preserve\nGRANT EXECUTE ON x TO operator;\n",
+            },
+            {
+              rel_path: "audit.b.sql",
+              language: "sql",
+              etl_format_id: "sql",
+              content: "-- Converted: audit\n-- Reason: preserve\nGRANT UPDATE ON x TO operator;\n",
+            },
+            {
+              rel_path: "report.b.sql",
+              language: "sql",
+              content: "-- Converted: report\n-- Reason: preserve\nGRANT CREATE ON x TO operator;\n",
+            },
+          ],
+        },
+      },
+    };
+    const user = userEvent.setup();
+    render(<ConversionDetail detail={detailWithDifferentPaths} />);
+    await user.click(screen.getByRole("tab", { name: "B" }));
+
+    const firstDiff = screen.getByLabelText("security.b.sql B diff");
+    expect(firstDiff.querySelectorAll(".diff-removed")).toHaveLength(1);
+    expect(firstDiff.querySelectorAll(".diff-added")).toHaveLength(1);
+    expect(firstDiff).toHaveTextContent("GRANT SELECT ON x TO operator;");
+    expect(firstDiff).toHaveTextContent("GRANT EXECUTE ON x TO operator;");
+
+    const secondDiff = screen.getByLabelText("audit.b.sql B diff");
+    expect(secondDiff.querySelectorAll(".diff-removed")).toHaveLength(1);
+    expect(secondDiff.querySelectorAll(".diff-added")).toHaveLength(1);
+    expect(secondDiff).toHaveTextContent("GRANT INSERT ON x TO operator;");
+    expect(secondDiff).toHaveTextContent("GRANT UPDATE ON x TO operator;");
+
+    const languageFallbackDiff = screen.getByLabelText("report.b.sql B diff");
+    expect(languageFallbackDiff.querySelectorAll(".diff-removed")).toHaveLength(1);
+    expect(languageFallbackDiff.querySelectorAll(".diff-added")).toHaveLength(1);
+    expect(languageFallbackDiff).toHaveTextContent("GRANT DELETE ON x TO operator;");
+    expect(languageFallbackDiff).toHaveTextContent("GRANT CREATE ON x TO operator;");
+  });
+
+  it("labels candidate files that have no matching final file", async () => {
+    const detailWithNewFile: ConversionDetailResponse = {
+      ...detail,
+      final: {
+        ...detail.final,
+        files: [{ rel_path: "final.sql", language: "sql", content: "SELECT 1;\n" }],
+      },
+      candidates: {
+        ...detail.candidates,
+        B: {
+          ...detail.candidates.B!,
+          files: [{ rel_path: "new.py", language: "python", content: "print(1)\n" }],
+        },
+      },
+    };
+    const user = userEvent.setup();
+    render(<ConversionDetail detail={detailWithNewFile} />);
+    await user.click(screen.getByRole("tab", { name: "B" }));
+
+    expect(screen.getByText("New file (no matching final file)")).toBeInTheDocument();
+    expect(screen.getByLabelText("new.py B diff").querySelectorAll(".diff-added")).toHaveLength(0);
+  });
+
   it("keeps Download disabled with the packaging tooltip", async () => {
     render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
     const download = await screen.findByRole("button", { name: /Download Converted Files/ });
