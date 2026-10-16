@@ -4,6 +4,7 @@ import importlib
 import json
 import os
 import re
+import threading
 import time
 import uuid
 from pathlib import Path
@@ -673,6 +674,104 @@ def test_conversion_job_continues_after_voter_failure_and_cancels_running_sessio
     assert not cancel_job.is_alive()
     assert cancel_job.snapshot()["state"] == "cancelled"
     assert all(client.termination_calls for client in slow_clients if client.sessions)
+
+
+def test_conversion_job_publishes_live_voter_and_escalation_progress(
+    tmp_path: Path,
+) -> None:
+    source_dir = tmp_path / "source-pack"
+    source_dir.mkdir()
+    (source_dir / "orders.sql").write_text(
+        "CREATE TABLE sales.orders (order_id INTEGER);",
+        encoding="utf-8",
+    )
+    session = _inventory_session(tmp_path / "session", source_dir, "teradata")
+    clients: list[MockDevinClient] = []
+    voter_release = threading.Event()
+    escalation_release = threading.Event()
+    scenario = MockScenario()
+
+    class GatedMockClient(MockDevinClient):
+        def __init__(self, role: str) -> None:
+            super().__init__(scenario)
+            self.role = role
+
+        def get_session(self, session_id: str) -> dict[str, object]:
+            gate = (
+                voter_release
+                if self.role == "B"
+                else escalation_release
+                if self.role == "escalation"
+                else None
+            )
+            if gate is not None and not gate.wait(timeout=10):
+                raise TimeoutError("Mock session gate timed out.")
+            return super().get_session(session_id)
+
+    def client_factory(role: str) -> MockDevinClient:
+        client = GatedMockClient(role)
+        clients.append(client)
+        return client
+
+    job = ConversionJob(
+        session=session,
+        audit=None,
+        batch_size=20,
+        timeout_minutes=1,
+        confidence_threshold=2.0,
+        client_factory=client_factory,
+        pack=_target_pack("snowflake"),
+    )
+    job.start()
+    try:
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            batch = job.snapshot()["progress"]["batches"][0]
+            voter_states = batch["voters"]
+            if voter_states["A"] == "done" and any(
+                voter_states[voter] in {"running", "queued"} for voter in ("B", "C")
+            ):
+                break
+            time.sleep(0.01)
+        else:
+            pytest.fail(f"Voters did not expose partial progress: {job.snapshot()}")
+
+        voter_release.set()
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            batch = job.snapshot()["progress"]["batches"][0]
+            if batch["voters"]["escalation"] == "running":
+                break
+            time.sleep(0.01)
+        else:
+            pytest.fail(f"Escalation did not expose running progress: {job.snapshot()}")
+
+        assert {batch["voters"][voter] for voter in ("A", "B", "C")} == {"done"}
+        assert batch["escalated"] is True
+    finally:
+        voter_release.set()
+        escalation_release.set()
+        job.join(timeout=10)
+
+    assert not job.is_alive()
+    final_batch = job.snapshot()["progress"]["batches"][0]
+    assert job.snapshot()["state"] == "done"
+    assert final_batch["voters"] == {
+        "A": "done",
+        "B": "done",
+        "C": "done",
+        "escalation": "done",
+    }
+    progress_events = [
+        event["data"]
+        for event in list(job.events.queue)
+        if event is not None and event["event"] == "convert.batch" and "voter" in event["data"]
+    ]
+    assert any(event["voter"] == "A" and event["state"] == "done" for event in progress_events)
+    assert any(event["voter"] == "B" and event["state"] == "running" for event in progress_events)
+    assert any(
+        event["voter"] == "escalation" and event["state"] == "running" for event in progress_events
+    )
 
 
 def test_informatica_conversion_uses_lazy_target_format_provider(

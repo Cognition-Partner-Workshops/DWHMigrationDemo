@@ -84,14 +84,14 @@ function runningJob(overrides: Partial<ConversionJobStatus> = {}): ConversionJob
     progress: {
       elapsed_s: 2,
       batches: {
-        "0": { status: "running", objects: ["object-1"], voters: { A: "done", B: "working", C: "queued", escalation: "queued" }, escalated: false },
+        "0": { status: "running", objects: ["object-1"], voters: { A: "done", B: "running", C: "queued", escalation: "not_needed" }, escalated: false },
       },
     },
     batches: [{
       index: 0,
       status: "running",
       objects: ["object-1"],
-      voters: { A: "done", B: "working", C: "queued", escalation: "queued" },
+      voters: { A: "done", B: "running", C: "queued", escalation: "not_needed" },
       escalated: false,
       object_count: 1,
       counts: { converted: 0, escalated: 0, expert_review: 0, failed: 0 },
@@ -176,10 +176,39 @@ describe("Convert Objects", () => {
     await user.click(screen.getByRole("button", { name: "Send to Devin" }));
 
     expect(await screen.findByText("A: done")).toBeInTheDocument();
+    expect(screen.getByText("B: running")).toBeInTheDocument();
+    expect(screen.getByText("C: queued")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.getByRole("alertdialog")).toHaveTextContent("Cancel this conversion?");
     await user.click(screen.getByRole("button", { name: "Cancel conversion" }));
     await waitFor(() => expect(apiMocks.cancelConversionJob).toHaveBeenCalledWith("job-1"));
+  });
+
+  it("closes the cancellation confirmation when a job becomes terminal", async () => {
+    const user = userEvent.setup();
+    apiMocks.getConversionJob
+      .mockResolvedValueOnce(runningJob())
+      .mockResolvedValue(runningJob({ state: "done" }));
+    render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
+
+    await user.click(await screen.findByRole("button", { name: "Convert Items" }));
+    await user.click(
+      screen.getByRole("checkbox", { name: "I understand that this code leaves this computer" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Send to Devin" }));
+    await screen.findByText("A: done");
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.getByRole("alertdialog")).toHaveTextContent("Cancel this conversion?");
+
+    await waitFor(
+      () => {
+        expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Keep converting" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Cancel conversion" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Cancel" })).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
   });
 
   it("passes the status, type, failed-check and search filters to the results API", async () => {

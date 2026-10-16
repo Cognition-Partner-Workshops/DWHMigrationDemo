@@ -70,6 +70,7 @@ export function ConvertPanel({
   const [failedCheck, setFailedCheck] = useState("");
   const [search, setSearch] = useState("");
   const [listRevision, setListRevision] = useState(0);
+  const activeJobState = job?.state;
   const resultsRef = useRef<HTMLElement | null>(null);
   const detailRef = useRef<HTMLDivElement | null>(null);
 
@@ -123,6 +124,12 @@ export function ConvertPanel({
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (activeJobState && !["queued", "running"].includes(activeJobState)) {
+      setCancelConfirm(false);
+    }
+  }, [activeJobState]);
 
   useEffect(() => {
     if (!jobId) {
@@ -249,7 +256,7 @@ export function ConvertPanel({
     }
   }
 
-  const active = job !== null && !isTerminal(job.state);
+  const active = job !== null && ["queued", "running"].includes(job.state);
   const types = Array.from(new Set(rows.map((row) => row.type))).sort();
 
   function selectResult(objectId: string) {
@@ -325,7 +332,7 @@ export function ConvertPanel({
               </button>
             )}
           </div>
-          {cancelConfirm && (
+          {cancelConfirm && active && (
             <div className="cancel-confirm" role="alertdialog" aria-label="Confirm cancellation">
               <span>Cancel this conversion?</span>
               <button className="button secondary" onClick={() => setCancelConfirm(false)}>

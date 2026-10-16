@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Literal, Protocol
 
@@ -86,6 +87,7 @@ def run_session(
     cancel: threading.Event,
     poll_initial: float = 5,
     poll_max: float = 30,
+    on_session_started: Callable[[str], None] | None = None,
 ) -> SessionOutcome:
     session_id: str | None = None
     url: str | None = None
@@ -103,6 +105,12 @@ def run_session(
         )
     except Exception as error:
         return SessionOutcome(None, None, "failed", None, None, _error_description(error))
+
+    if on_session_started is not None:
+        try:
+            on_session_started(session_id)
+        except Exception as error:
+            logger.warning("Could not publish session progress (%s).", type(error).__name__)
 
     deadline = time.monotonic() + max(0, timeout_s)
     interval = max(0, poll_initial)
