@@ -10,6 +10,7 @@ from migraai.packaging.naming import (
     converted_path,
     default_package_name,
     package_name,
+    upload_root,
 )
 from migraai.packaging.sample import sample_package
 
@@ -20,6 +21,19 @@ def test_converted_path_strips_archive_segments() -> None:
         == "teradata-testpack/tables-converted.sql"
     )
     assert converted_path("input/job.dtsx", ".py", set()) == "input/job-converted.py"
+
+
+@pytest.mark.parametrize(
+    ("path", "expected"),
+    [
+        ("teradata-testpack.zip/tables.sql", "teradata-testpack.zip"),
+        ("A.ZIP/x/y.sql", "A.ZIP"),
+        ("a.zip/inner.zip/x.sql", "a.zip"),
+        ("dir/b.sql", "dir/b.sql"),
+    ],
+)
+def test_upload_root_groups_archive_members(path: str, expected: str) -> None:
+    assert upload_root(path) == expected
 
 
 def test_converted_path_resolves_collisions() -> None:

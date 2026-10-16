@@ -41,6 +41,16 @@ def package_name(
     return default_package_name(upload_paths, source, target)
 
 
+def upload_root(rel_path: str) -> str:
+    """Return the upload root represented by a relative upload path."""
+    normalized = rel_path.replace("\\", "/")
+    segments = normalized.split("/")
+    for index, segment in enumerate(segments):
+        if segment.casefold().endswith(".zip"):
+            return "/".join(segments[: index + 1])
+    return normalized
+
+
 def _relative_parts(path: str) -> list[str]:
     normalized = path.replace("\\", "/")
     posix = PurePosixPath(normalized)
@@ -151,4 +161,5 @@ __all__ = [
     "default_package_name",
     "package_name",
     "sanitize_package_name",
+    "upload_root",
 ]

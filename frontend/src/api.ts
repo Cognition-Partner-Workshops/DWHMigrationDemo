@@ -125,6 +125,17 @@ export type UploadRecord = {
   issue_count?: number;
 };
 
+export function uploadRoot(relPath: string): string {
+  const normalized = relPath.replace(/\\/g, "/");
+  const segments = normalized.split("/");
+  const zipIndex = segments.findIndex((segment) => segment.toLowerCase().endsWith(".zip"));
+  return zipIndex < 0 ? normalized : segments.slice(0, zipIndex + 1).join("/");
+}
+
+export function distinctUploadRoots(uploads: Pick<UploadRecord, "rel_path">[]): string[] {
+  return Array.from(new Set(uploads.map((upload) => uploadRoot(upload.rel_path))));
+}
+
 export type DiscoveryStatus = {
   state: string;
   files_total: number;

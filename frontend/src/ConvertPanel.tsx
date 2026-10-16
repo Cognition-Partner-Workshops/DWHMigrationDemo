@@ -51,12 +51,14 @@ export function ConvertPanel({
   target,
   refreshKey,
   uploadCount = 0,
+  uploadRoots,
 }: {
   confirmed: boolean;
   source: string;
   target: string;
   refreshKey: number;
   uploadCount?: number;
+  uploadRoots?: string[];
 }) {
   const [estimate, setEstimate] = useState<ConvertEstimate | null>(null);
   const [loadingEstimate, setLoadingEstimate] = useState(false);
@@ -268,6 +270,8 @@ export function ConvertPanel({
   const active = job !== null && ["queued", "running"].includes(job.state);
   const types = Array.from(new Set(rows.map((row) => row.type))).sort();
   const includedCount = (job?.counts.converted ?? 0) + (job?.counts.expert_review ?? 0);
+  const rootCount = uploadRoots?.length ?? uploadCount;
+  const multipleUploads = rootCount > 1;
   const downloadReady =
     job !== null && ["done", "cancelled"].includes(job.state) && includedCount > 0;
   const downloadReason = !job
@@ -279,7 +283,7 @@ export function ConvertPanel({
   async function handleDownload() {
     setError("");
     try {
-      await downloadConvertedPackage(uploadCount > 1 ? packageName : undefined);
+      await downloadConvertedPackage(multipleUploads ? packageName : undefined);
     } catch (downloadError) {
       setError(downloadError instanceof Error ? downloadError.message : "Download failed.");
     }
@@ -352,7 +356,7 @@ export function ConvertPanel({
           >
             ⇩ Download Converted Files
           </button>
-          {uploadCount > 1 && (
+          {multipleUploads && (
             <label className="package-name-field">
               Package name
               <input

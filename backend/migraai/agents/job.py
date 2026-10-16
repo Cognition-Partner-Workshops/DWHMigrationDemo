@@ -17,6 +17,8 @@ from migraai.devin.client import build_devin_client
 from migraai.platforms.pack import TargetPack, load_pack
 from migraai.voting.confidence import overall_score
 
+_TERMINAL_SESSION_STATES = {"done", "failed", "blocked", "timeout", "cancelled"}
+
 
 class ConversionJob(threading.Thread):
     def __init__(
@@ -59,6 +61,7 @@ class ConversionJob(threading.Thread):
         self.reason: str | None = None
         self.results: dict[str, Any] = {}
         self.errors: dict[str, str] = {}
+        self.started_sessions: dict[str, dict[str, Any]] = {}
         self.counts = {
             "converted": 0,
             "escalated": 0,
@@ -202,17 +205,36 @@ class ConversionJob(threading.Thread):
         session_id: str | None = None,
     ) -> None:
         with self.lock:
+            session_state = status
+            if self.cancel_event.is_set() and status not in _TERMINAL_SESSION_STATES:
+                session_state = "cancelled"
+            if session_id:
+                started = self.started_sessions.setdefault(
+                    session_id,
+                    {
+                        "role": role,
+                        "batch_index": batch_index,
+                        "state": session_state,
+                        "url": None,
+                        "acus": None,
+                    },
+                )
+                started["role"] = role
+                started["batch_index"] = batch_index
+                if not (started.get("state") == "cancelled" and session_state != "cancelled"):
+                    started["state"] = session_state
+                session_state = str(started["state"])
             batch = self.batch_status[batch_index]
-            if batch["voters"].get(role) == status:
+            if batch["voters"].get(role) == session_state:
                 return
-            batch["voters"][role] = status
-            if role == "escalation" and status not in {"queued", "not_needed"}:
+            batch["voters"][role] = session_state
+            if role == "escalation" and session_state not in {"queued", "not_needed"}:
                 batch["escalated"] = True
             event_data = {
                 "batch_index": batch_index,
                 "object_ids": list(batch["objects"]),
                 "voter": role,
-                "state": status,
+                "state": session_state,
                 "session_id": session_id,
                 "voters": dict(batch["voters"]),
                 "escalated": batch["escalated"],
@@ -233,11 +255,34 @@ class ConversionJob(threading.Thread):
 
     def cancel(self) -> None:
         self.cancel_event.set()
+        progress_events: list[dict[str, Any]] = []
         with self.lock:
             self.state = "cancelled"
             for batch in self.batch_status.values():
                 if batch["status"] == "queued":
                     batch["status"] = "cancelled"
+            for session_id, started in self.started_sessions.items():
+                if started.get("state") in _TERMINAL_SESSION_STATES:
+                    continue
+                started["state"] = "cancelled"
+                batch_index = int(started["batch_index"])
+                role = str(started["role"])
+                batch = self.batch_status[batch_index]
+                if batch["voters"].get(role) != "cancelled":
+                    batch["voters"][role] = "cancelled"
+                    progress_events.append(
+                        {
+                            "batch_index": batch_index,
+                            "object_ids": list(batch["objects"]),
+                            "voter": role,
+                            "state": "cancelled",
+                            "session_id": session_id,
+                            "voters": dict(batch["voters"]),
+                            "escalated": batch["escalated"],
+                        }
+                    )
+        for event_data in progress_events:
+            self._publish("convert.batch", event_data)
         self._audit("convert.cancel", {"completed_count": len(self.results)})
         self._publish("convert.cancel", {"run_id": self.run_id})
         self._persist_state("cancelled")
@@ -262,6 +307,12 @@ class ConversionJob(threading.Thread):
         inventory = self.session["inventory"]
         with self.lock, inventory.lock, inventory.connection:
             for voter, outcome in outcome_by_voter.items():
+                if outcome.session_id:
+                    started = self.started_sessions.get(outcome.session_id)
+                    if started is not None:
+                        started["state"] = outcome.state
+                        started["url"] = outcome.url
+                        started["acus"] = outcome.acus
                 for object_id, candidates in result.get("candidates", {}).items():
                     candidate = candidates.get(voter)
                     path = None
@@ -326,6 +377,12 @@ class ConversionJob(threading.Thread):
                     ),
                 )
                 self.results[object_id] = item
+                if (
+                    item["status"] == "failed"
+                    and item.get("reason")
+                    and object_id not in self.errors
+                ):
+                    self.errors[object_id] = str(item["reason"])
                 self.counts[item["status"]] += 1
             batch_status = self.batch_status[batch.index]
             batch_status["status"] = "done"
@@ -333,6 +390,12 @@ class ConversionJob(threading.Thread):
                 voter: outcome.state for voter, outcome in outcome_by_voter.items()
             }
             escalation = result.get("escalation_outcome")
+            if escalation is not None and escalation.session_id:
+                started = self.started_sessions.get(escalation.session_id)
+                if started is not None:
+                    started["state"] = escalation.state
+                    started["url"] = escalation.url
+                    started["acus"] = escalation.acus
             batch_status["voters"]["escalation"] = (
                 escalation.state if escalation is not None else "not_needed"
             )

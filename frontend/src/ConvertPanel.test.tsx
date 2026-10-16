@@ -404,7 +404,7 @@ describe("Convert Objects", () => {
         refreshKey={1}
         source="teradata"
         target="snowflake"
-        uploadCount={1}
+        uploadRoots={["teradata-testpack.zip"]}
       />,
     );
     expect(screen.queryByRole("textbox", { name: "Package name" })).not.toBeInTheDocument();
@@ -415,7 +415,7 @@ describe("Convert Objects", () => {
         refreshKey={1}
         source="teradata"
         target="snowflake"
-        uploadCount={2}
+        uploadRoots={["teradata-testpack.zip", "extra.sql"]}
       />,
     );
     expect(await screen.findByRole("textbox", { name: "Package name" })).toHaveValue(

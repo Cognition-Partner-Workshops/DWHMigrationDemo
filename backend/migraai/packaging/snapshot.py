@@ -29,7 +29,7 @@ from migraai.packaging.model import (
     PackageInput,
     SessionSummary,
 )
-from migraai.packaging.naming import converted_path
+from migraai.packaging.naming import converted_path, upload_root
 from migraai.packaging.naming import package_name as normalize_package_name
 from migraai.validation.dialects import sqlglot_dialect
 from migraai.validation.validate import pass_rate
@@ -277,16 +277,38 @@ def _session_summaries(
     }
     role_names = {"A": "voter_a", "B": "voter_b", "C": "voter_c", "escalation": "escalation"}
     grouped: dict[tuple[str, int, str], dict[str, Any]] = {}
+    known_session_ids = {str(row.get("session_id")) for row in sessions if row.get("session_id")}
     for row in sessions:
         if "role" not in row:
             continue
         role = role_names.get(str(row["role"]))
         if role is None:
             continue
-        batch_index = batch_for_object.get(str(row.get("object_id", "")), 0)
+        batch_index = (
+            int(row["batch_index"])
+            if row.get("batch_index") is not None
+            else batch_for_object.get(str(row.get("object_id", "")), 0)
+        )
         session_id = str(row.get("session_id") or "")
         key = (role, batch_index, session_id or str(row.get("state", "")))
         grouped.setdefault(key, row)
+    for session_id, info in getattr(job, "started_sessions", {}).items():
+        if session_id in known_session_ids or not isinstance(info, dict):
+            continue
+        role = role_names.get(str(info.get("role", "")))
+        if role is None:
+            continue
+        grouped.setdefault(
+            (role, int(info.get("batch_index", 0)), str(session_id)),
+            {
+                "role": info.get("role"),
+                "batch_index": info.get("batch_index", 0),
+                "session_id": session_id,
+                "state": info.get("state", "unknown"),
+                "url": info.get("url"),
+                "acus": info.get("acus"),
+            },
+        )
     return tuple(
         SessionSummary(
             role=role,  # type: ignore[arg-type]
@@ -300,11 +322,14 @@ def _session_summaries(
 
 
 def _upload_paths(session: dict[str, Any]) -> list[str]:
-    return [
-        str(upload.rel_path)
-        for upload in session.get("uploads", {}).values()
-        if getattr(upload, "archive_id", None) is None
-    ]
+    paths: list[str] = []
+    seen: set[str] = set()
+    for upload in session.get("uploads", {}).values():
+        root = upload_root(str(upload.rel_path))
+        if root not in seen:
+            seen.add(root)
+            paths.append(root)
+    return paths
 
 
 def build_package_input(
@@ -487,7 +512,10 @@ def build_package_input(
         consent_at=consent_at,
         objects_sent=int(consent_details.get("object_count", len(job.objects))),
         batches=len(job.batches),
-        sessions=len({row.get("session_id") for row in session_records if row.get("session_id")}),
+        sessions=len(
+            {str(row.get("session_id")) for row in session_records if row.get("session_id")}
+            | set(getattr(job, "started_sessions", {}))
+        ),
         blocked_batches=sum(record.get("action") == "convert.blocked_secret" for record in audits),
         devin_host=str(consent_details.get("devin_host") or getattr(job, "devin_host", "")),
     )

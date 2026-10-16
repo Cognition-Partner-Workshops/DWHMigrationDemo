@@ -571,6 +571,27 @@ def _revalidate(state: WorkflowState) -> dict[str, Any]:
     return {"consensus": results, "picked_validations": picked_validations, "scores": scores}
 
 
+def _failure_reason(error: str | None) -> str:
+    if not error:
+        return ""
+    return " ".join(secret_mask.mask_secrets(str(error)).split())[:200]
+
+
+def _session_failure_description(
+    outcome: SessionOutcome | None,
+    candidate: Candidate | None,
+) -> str:
+    if outcome is None:
+        return "session unknown"
+    if outcome.state == "done" and candidate is None:
+        return "returned no output for this object"
+    description = f"session {outcome.state}"
+    error = _failure_reason(outcome.error)
+    if error:
+        description += f": {error}"
+    return description
+
+
 def _finalise(state: WorkflowState) -> dict[str, Any]:
     results = {}
     for source_object in state["conversion_objects"]:
@@ -584,7 +605,7 @@ def _finalise(state: WorkflowState) -> dict[str, Any]:
             status = "converted"
         else:
             status = "expert_review"
-        results[object_id] = {
+        result = {
             "object_id": object_id,
             "source_qualified_name": source_object["source_qualified_name"],
             "status": status,
@@ -596,6 +617,22 @@ def _finalise(state: WorkflowState) -> dict[str, Any]:
             "escalated": object_id in state["to_escalate"],
             "agreement": selected["agreement"],
         }
+        if candidate is None:
+            candidates = state["candidates"].get(object_id, {})
+            outcomes = state.get("voter_outcomes", {})
+            reasons = [
+                f"{voter} "
+                f"{_session_failure_description(outcomes.get(voter), candidates.get(voter))}"
+                for voter in ("A", "B", "C")
+            ]
+            escalation = state.get("escalation_outcome")
+            if escalation is not None:
+                escalation_candidate = state.get("escalation_candidates", {}).get(object_id)
+                reasons.append(
+                    "escalation " + _session_failure_description(escalation, escalation_candidate)
+                )
+            result["reason"] = "No usable candidate: " + "; ".join(reasons)
+        results[object_id] = result
     return {"results": results}
 
 

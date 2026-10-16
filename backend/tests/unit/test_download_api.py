@@ -30,28 +30,34 @@ def _launch(client: TestClient) -> None:
     assert response.status_code == 303
 
 
-def _add_session(app, data_dir: Path) -> None:
+def _add_session(
+    app,
+    data_dir: Path,
+    rel_path: str = "orders.sql",
+    archive_id: str | None = None,
+) -> None:
     session_id = uuid.uuid4().hex
     store = EncryptedFileStore(data_dir / "sessions" / session_id, SessionCipher())
     inventory = Inventory()
     source = SOURCE_TEXT.encode()
     upload = UploadRow(
         id=uuid.uuid4().hex,
-        rel_path="orders.sql",
+        rel_path=rel_path,
         size=len(source),
-        detected_type="sql",
+        detected_type=Path(rel_path).suffix.lstrip("."),
         status="done",
         object_count=1,
         store_path=f"uploads/{uuid.uuid4().hex}",
+        archive_id=archive_id,
     )
     store.write(upload.store_path, source)
     inventory.add_upload(upload)
-    objects, edges = discover_files({"orders.sql": source}, "teradata")
+    objects, edges = discover_files({rel_path: source}, "teradata")
     inventory.replace_discovery(
         objects,
         edges,
         {upload.id: upload},
-        {"orders.sql": SOURCE_TEXT},
+        {rel_path: SOURCE_TEXT},
     )
     app.state.current_session = {
         "session_id": session_id,
@@ -148,6 +154,38 @@ def test_download_zip_name_and_audit_event_contain_counts_not_code(
     assert event["details"]["included"] == 1
     assert event["details"]["excluded"] == 0
     assert "download_private_marker_937" not in json.dumps(event)
+
+
+def test_download_archive_member_uses_archive_stem(
+    client: TestClient,
+    app,
+    data_dir: Path,
+    monkeypatch,
+) -> None:
+    _launch(client)
+    _add_session(
+        app,
+        data_dir,
+        "teradata-testpack.zip/tables.sql",
+        archive_id="test-archive",
+    )
+    monkeypatch.setenv("MIGRAAI_TEST_MOCK_DEVIN", "1")
+    started = client.post(
+        "/api/convert",
+        json={"consent": True},
+        headers={**HOST_HEADER, "X-MigraAI-CSRF": client.cookies["migraai_csrf"]},
+    )
+    assert started.status_code == 200, started.text
+    job = app.state.convert_job
+    job.join(timeout=60)
+    assert not job.is_alive()
+
+    response = client.get("/api/download", headers=HOST_HEADER)
+
+    assert response.status_code == 200, response.text
+    assert response.headers["content-disposition"] == (
+        'attachment; filename="teradata-testpack-converted.zip"'
+    )
 
 
 def test_report_routes_return_503_when_the_generator_is_missing(
