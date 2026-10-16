@@ -752,6 +752,7 @@ def test_teradata_to_snowflake_uses_real_target_pack(
             conversion_batch_size=20,
             conversion_session_timeout_minutes=45,
             max_concurrent_sessions=4,
+            acu_cap_per_run=None,
             token_kind="none",
             devin_org_id="",
             devin_api_base_url="https://api.devin.ai",
