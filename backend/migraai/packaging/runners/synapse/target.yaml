@@ -1,0 +1,34 @@
+cli: sqlcmd
+display: Azure Synapse Analytics
+base_args: []
+file_args: ["-b", "-I", "-i", "{file}"]
+install_url: https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility
+docs:
+  - title: sqlcmd utility
+    url: https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility
+  - title: sqlcmd authentication
+    url: https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-authentication
+  - title: Connect to Synapse SQL with sqlcmd
+    url: https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/get-started-connect-sqlcmd
+connection: |
+  - Set the environment variables `SQLCMDSERVER` (your `<workspace-host>` SQL endpoint) and
+    `SQLCMDDBNAME` (the SQL pool name).
+  - Authenticate with Entra ID: pass `--authentication-method ActiveDirectoryDefault`
+    (or `-G`) as a passthrough argument. Never pass `-P`/passwords on the command line.
+etl_formats:
+  synapse.sql:
+    title: Synapse SQL script (manual step)
+    steps: |
+      - Review the file, then run it manually with the same CLI the runner uses:
+        `sqlcmd -b -I -i {path}`
+    docs:
+      - title: sqlcmd utility
+        url: https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility
+  synapse.pipeline:
+    title: Synapse pipeline definition (manual step)
+    steps: |
+      - Create the pipeline in your workspace:
+        `az synapse pipeline create --workspace-name <workspace> --name <pipeline-name> --file @{path}`
+    docs:
+      - title: az synapse pipeline
+        url: https://learn.microsoft.com/en-us/cli/azure/synapse/pipeline

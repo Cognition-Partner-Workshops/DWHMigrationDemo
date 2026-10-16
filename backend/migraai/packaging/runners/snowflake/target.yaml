@@ -1,0 +1,42 @@
+cli: snow
+display: Snowflake
+base_args: ["sql"]
+file_args: ["--enable-templating", "NONE", "-f", "{file}"]
+install_url: https://docs.snowflake.com/en/developer-guide/snowflake-cli/installation/installation
+docs:
+  - title: snow sql command reference
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-cli/command-reference/sql-commands/sql
+  - title: Configuring Snowflake CLI connections
+    url: https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-connections
+connection: |
+  - Uses the **default connection** defined in the Snowflake CLI `config.toml` (or `connections.toml`).
+  - To use a different named connection, pass `-c <connection>` as a passthrough argument.
+  - Keep credentials in the connection definition; never pass passwords as CLI arguments.
+etl_formats:
+  snowflake.sql:
+    title: Snowflake SQL script (manual step)
+    steps: |
+      - Review the file, then run it manually with the same CLI the runner uses:
+        `snow sql --enable-templating NONE -f {path}`
+    docs:
+      - title: snow sql command reference
+        url: https://docs.snowflake.com/en/developer-guide/snowflake-cli/command-reference/sql-commands/sql
+  snowflake.tasks_sql:
+    title: Snowflake tasks (manual step)
+    steps: |
+      - Review the task definitions, then create them by running the file manually:
+        `snow sql --enable-templating NONE -f {path}`
+      - Tasks are created suspended. Resume child tasks first, then the root task:
+        `ALTER TASK <name> RESUME`.
+    docs:
+      - title: ALTER TASK
+        url: https://docs.snowflake.com/en/sql-reference/sql/alter-task
+      - title: snow sql command reference
+        url: https://docs.snowflake.com/en/developer-guide/snowflake-cli/command-reference/sql-commands/sql
+  snowflake.airflow_dag:
+    title: Apache Airflow DAG (manual step)
+    steps: |
+      - Copy {path} into the `DAGS_FOLDER` of your Airflow environment.
+    docs:
+      - title: Airflow DAGs
+        url: https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html
