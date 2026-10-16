@@ -1,0 +1,72 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "Callers change EXEC sales.refresh_daily[(...)] to CALL SALES.REFRESH_DAILY([...]). Teradata's empty positional argument syntax (EXEC m(,)) has no Snowflake equivalent; leave the argument out to get the default.",
+        "The current database is set in the deployment session. The naming map only gives SCHEMA.OBJECT names, so objects are schema-qualified.",
+        "CURRENT_DATE() is evaluated in the Snowflake session TIMEZONE. If day boundaries matter, set TIMEZONE to match the Teradata session/system time zone.",
+        "SALES.\"ACCOUNT\".BALANCE and SALES.DAILY_BALANCE.AMOUNT get the same NUMBER precision and scale in the converted DDL, as in the source DECIMAL columns.",
+        "The procedure is called in autocommit mode, not inside an open explicit transaction, so the INSERT is atomic like a single-request Teradata macro.",
+        "If the target security model requires caller rights, switch to EXECUTE AS CALLER and grant callers INSERT/SELECT on the two tables."
+      ],
+      "explanations": [
+        "All three candidates passed every validator check; they disagreed on EXECUTE AS (A: CALLER, B/C: OWNER), CREATE vs CREATE OR REPLACE, the return type spelling, and whether to add an EXCEPTION handler (C).",
+        "Chosen: EXECUTE AS OWNER (B/C majority). It matches the Teradata macro privilege model: the macro reads and writes referenced objects with its owner's rights, and callers only need the right to run it. EXECUTE AS CALLER (A) would also require every caller to hold INSERT on SALES.DAILY_BALANCE and SELECT on SALES.\"ACCOUNT\", which widens what callers need.",
+        "CREATE PROCEDURE (A/C majority) rather than CREATE OR REPLACE, to mirror the source CREATE MACRO, which fails if the object already exists instead of silently replacing it.",
+        "The macro body is a single INSERT ... SELECT. It is kept as is; the only changes are the :P_DAY bind reference and the naming-map names SALES.DAILY_BALANCE and SALES.\"ACCOUNT\" (ACCOUNT is a reserved word).",
+        "The optional argument P_DAY DATE DEFAULT CURRENT_DATE() keeps the Teradata call style: CALL SALES.REFRESH_DAILY(); uses today's date, and CALL SALES.REFRESH_DAILY('2025-01-31'::DATE); uses an explicit day.",
+        "RETURNS NUMBER / RETURN SQLROWCOUNT, because a Snowflake procedure must return a value. The inserted row count is the closest match for Teradata ACTIVITY_COUNT.",
+        "C's EXCEPTION WHEN OTHER THEN RAISE handler was dropped. It only re-raises, so it changes nothing: the single autocommit INSERT already rolls back on failure and the error already reaches the caller.",
+        "I re-ran the MigraAI validators (syntax, lint, semantic, rule, dependency, object_reference, security) offline against the Snowflake target pack with this batch's naming map. All checks passed with no findings."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE MACRO sales.refresh_daily(p_day DATE DEFAULT CURRENT_DATE) -> Snowflake Scripting stored procedure SALES.REFRESH_DAILY(P_DAY DATE DEFAULT CURRENT_DATE()), LANGUAGE SQL, EXECUTE AS OWNER, returning the number of rows inserted.\n-- Reason: Snowflake has no macros, so the macro becomes a SQL stored procedure. Every procedure must state EXECUTE AS; OWNER keeps the Teradata macro privilege model, where referenced objects are accessed with the macro owner's rights and callers only need the right to run it. Callers change EXEC sales.refresh_daily; to CALL SALES.REFRESH_DAILY(); and an omitted argument still means today's date.\nCREATE PROCEDURE SALES.REFRESH_DAILY(P_DAY DATE DEFAULT CURRENT_DATE())\n  RETURNS NUMBER\n  LANGUAGE SQL\n  EXECUTE AS OWNER\nAS\n$$\nBEGIN\n  -- Converted: INSERT INTO sales.daily_balance ... SELECT p_day, account_id, balance FROM sales.account -> the same INSERT ... SELECT with the argument referenced as :P_DAY and names taken from the naming map (SALES.DAILY_BALANCE, SALES.\"ACCOUNT\").\n  -- Reason: Snowflake Scripting references arguments inside SQL statements with a colon prefix, and ACCOUNT is a Snowflake reserved word, so the naming map quotes it.\n  INSERT INTO SALES.DAILY_BALANCE (BALANCE_DATE, ACCOUNT_ID, AMOUNT)\n  SELECT :P_DAY, ACCOUNT_ID, BALANCE\n  FROM SALES.\"ACCOUNT\";\n  -- Converted: The Teradata activity count reported after EXEC -> RETURN SQLROWCOUNT.\n  -- Reason: A Snowflake procedure must declare and return a value; the inserted row count is the closest equivalent of ACTIVITY_COUNT.\n  RETURN SQLROWCOUNT;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "routines/SALES.REFRESH_DAILY.sql"
+        }
+      ],
+      "object_id": "6bb55814804547ff9f2ff0f818cff60c",
+      "qualified_name": "sales.refresh_daily",
+      "self_confidence": 0.9,
+      "type": "macro",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "SALES.ADD_PAYMENT has been converted and deployed in schema SALES, under the unquoted name ADD_PAYMENT, before this file runs. Teradata does not overload procedure names, so exactly one match is expected.",
+        "Teradata grantee operator is a role, created in Snowflake as role OPERATOR. If it was a Teradata user, grant USAGE to a role and grant that role to the user, because Snowflake grants object privileges only to roles.",
+        "OPERATOR also needs USAGE on the target database and on schema SALES before it can use this privilege. Those grants are not generated here, to avoid widening privileges beyond the source grant.",
+        "SALES.ADD_PAYMENT is expected to be EXECUTE AS OWNER, so USAGE alone lets OPERATOR run it, matching Teradata. If it is EXECUTE AS CALLER, OPERATOR also needs privileges on the objects it touches.",
+        "The SHOW USER PROCEDURES \"arguments\" format 'NAME(TYPE, ...) RETURN TYPE', with [ ] around optional arguments, is a Snowflake output convention. Check it on the target account. If the list is known at deploy time, the block can be replaced with a static GRANT USAGE ON PROCEDURE SALES.ADD_PAYMENT(<types>) TO ROLE OPERATOR;",
+        "The current database is set in the deployment session; names are schema-qualified per the naming map."
+      ],
+      "explanations": [
+        "Teradata GRANT EXECUTE PROCEDURE maps to Snowflake GRANT USAGE ON PROCEDURE ... TO ROLE. USAGE is the only Snowflake privilege that allows a CALL. Snowflake also requires the procedure's argument type list and a role as grantee.",
+        "The batch does not include the converted ADD_PAYMENT argument list (its dependency signature has no columns). A static GRANT (candidate A) would rely on a guessed list (NUMBER, NUMBER, NUMBER) and would fail, or grant on the wrong overload, if the guess is wrong. So, as in B and C, the list is read at deploy time from SHOW USER PROCEDURES ... IN SCHEMA SALES with RESULT_SCAN.",
+        "I based this on C's approach (exact \"name\" = 'ADD_PAYMENT' filter, because _ is a LIKE wildcard; the block fails unless exactly one overload exists) rather than B's loop, which would grant USAGE on every matching overload and could go beyond the single source grant. The RETURN part and the square brackets marking optional arguments are removed from the \"arguments\" column.",
+        "Fixed A security.secret_in_output (line 2): the phrase 'identified by ***MASKED*** ...' in A's comment matched the IDENTIFIED BY ***MASKED*** pattern. That phrase is not used here.",
+        "Fixed A semantic.unknown_table 'SALES': SQLGlot parsed the static GRANT ON PROCEDURE SALES.ADD_PAYMENT(...) as a table named SALES. Running the GRANT through EXECUTE IMMEDIATE avoids that misparse.",
+        "Fixed C's nine spurious security.privilege_widening errors on line 7: the validator's fallback GRANT ... ON ... TO regex matched the word 'grant' inside C's exception message text. No string literal or code here contains 'grant' except the real GRANT statement, so only that statement is inspected.",
+        "Remaining finding, which cannot be fixed: one security.privilege_widening error on the real statement ('Grant USAGE to ROLE OPERATOR' ... not present in the source grants). The validator compares privilege names exactly against the source (EXECUTE PROCEDURE) and has no Teradata-to-Snowflake privilege mapping. Snowflake has no EXECUTE PROCEDURE privilege, so every valid conversion gets this error; A, B and C all did. The grant is not wider than the source: same object, same grantee, the one Snowflake privilege that is the equivalent, and no WITH GRANT OPTION. I did not hide the GRANT text from the validator to suppress it.",
+        "Remaining warning: syntax.opaque_statement, because SQLGlot cannot parse a Snowflake Scripting block. This is expected and only a warning.",
+        "I re-ran the MigraAI validators offline with the Snowflake pack and this batch's naming map and source grant, and reproduced the candidates' findings. On this file: syntax passed (opaque warning only), lint, semantic, rule and object_reference passed, and security has only the one unavoidable privilege_widening error described above. The offline harness also reported dependency.order, but only because my local object order was synthetic. The real batch had dependency passed for all candidates."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT EXECUTE PROCEDURE ON sales.add_payment TO operator -> GRANT USAGE ON PROCEDURE SALES.ADD_PAYMENT(<argument types>) TO ROLE OPERATOR, issued from an anonymous Snowflake Scripting block that reads the argument types of SALES.ADD_PAYMENT from SHOW USER PROCEDURES.\n-- Reason: Snowflake has no EXECUTE PROCEDURE privilege; USAGE on the procedure is what allows a role to CALL it, and a procedure is only addressable together with its argument type list. The batch does not carry the converted ADD_PAYMENT argument list, so it is read from the catalog at deploy time instead of being guessed. Object privileges go to roles in Snowflake, so the Teradata grantee operator becomes ROLE OPERATOR.\nEXECUTE IMMEDIATE\n$$\nDECLARE\n  v_count INTEGER DEFAULT 0;\n  v_arguments VARCHAR;\n  v_statement VARCHAR;\n  e_procedure_not_unique EXCEPTION (-20001, 'Expected exactly one procedure SALES.ADD_PAYMENT; deploy it first. No privilege was changed.');\nBEGIN\n  -- Converted: Catalog lookup of the converted procedure with SHOW USER PROCEDURES and RESULT_SCAN.\n  -- Reason: The \"arguments\" column has the form ADD_PAYMENT(NUMBER, ...) RETURN <type>; the RETURN part is removed, and so are the square brackets Snowflake shows around optional arguments. The exact \"name\" filter is needed because _ is a single-character wildcard in LIKE.\n  SHOW USER PROCEDURES LIKE 'ADD_PAYMENT' IN SCHEMA SALES;\n  SELECT COUNT(*),\n         MAX(REPLACE(REPLACE(TRIM(SPLIT_PART(\"arguments\", ' RETURN ', 1)), '[', ''), ']', ''))\n    INTO :v_count, :v_arguments\n    FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\n   WHERE \"name\" = 'ADD_PAYMENT';\n  IF (v_count <> 1) THEN\n    RAISE e_procedure_not_unique;\n  END IF;\n  -- Converted: The single source privilege EXECUTE PROCEDURE for operator -> USAGE on SALES.ADD_PAYMENT for ROLE OPERATOR, with no other privilege, grantee or WITH GRANT OPTION added.\n  -- Reason: Object names cannot be passed as USING bind values, so the catalog-derived argument list (not user input) is concatenated into the statement text.\n  v_statement := 'GRANT USAGE ON PROCEDURE SALES.' || v_arguments || ' TO ROLE OPERATOR';\n  EXECUTE IMMEDIATE :v_statement;\n  RETURN v_statement;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "security/GRANT_USAGE_PROCEDURE_SALES.ADD_PAYMENT.sql"
+        }
+      ],
+      "object_id": "1c4dffcc96684b818ad979170d49c279",
+      "qualified_name": "EXECUTE PROCEDURE on sales.add_payment",
+      "self_confidence": 0.78,
+      "type": "grant",
+      "unsupported": [
+        "security.privilege_widening cannot be cleared: the validator requires the exact source privilege name EXECUTE PROCEDURE, which does not exist in Snowflake. USAGE ON PROCEDURE is the equivalent. This needs a validator privilege mapping (EXECUTE PROCEDURE -> USAGE) or a reviewer to accept it.",
+        "The ADD_PAYMENT argument list is not in the batch, so it is resolved from the catalog at deploy time instead of being written into a static GRANT."
+      ]
+    }
+  ]
+}

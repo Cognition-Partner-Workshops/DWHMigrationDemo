@@ -1,0 +1,839 @@
+{
+  "conversion": {
+    "objects": [
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "customer_directory",
+        "type": "synonym"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.addresses",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.archive_markers",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.audit_events",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.audit_users",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.brands",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.categories",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "oe.close_order",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.currency_rates",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.customer_addresses",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.customer_notes",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.customer_seq",
+        "type": "sequence"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.customers",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.customers_name_uix",
+        "type": "index"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.data_quality",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.employees",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.event_queue",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.external_mappings",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.fraud_signals",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.import_batches",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.inventory",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.invoice_lines",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.invoices",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.legacy_sales",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.load_errors",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.loyalty_accounts",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.monthly_sales",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.mv_customer_orders",
+        "type": "materialized_view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.order_api",
+        "type": "package"
+      },
+      {
+        "checks": {
+          "dependency": "failed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.order_api",
+        "type": "package_body"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.order_history",
+        "type": "synonym"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.order_lines",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "oe.order_total",
+        "type": "function"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.orders",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.orders_audit",
+        "type": "trigger"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.orders_status_bix",
+        "type": "index"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.payments",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.price_history",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.products",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.promotions",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.reconciliations",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.recovery_survivor",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.regions",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.returns",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.risk_scores",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.sales_targets",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.shipment_lines",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.shipments",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.stage_lines",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.stage_orders",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.store_locations",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.suppliers",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.tax_rates",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.v_order_totals",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.v_reporting_orders",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe.warehouses",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "oe_reader",
+        "type": "role"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "report_user",
+        "type": "user"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "reporting_link",
+        "type": "database_link"
+      }
+    ],
+    "status_counts": {
+      "cancelled": 0,
+      "converted": 59,
+      "expert_review": 0,
+      "failed": 0
+    }
+  },
+  "entries_sha256": {
+    "migraai-oracle-to-clickhouse-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-clickhouse-converted/converted/01_reference-converted.sql": "5cd58daa115111bf7e8b44107b92dbffe9c735725a386a96eca47e93b043784a",
+    "migraai-oracle-to-clickhouse-converted/converted/02_transactions-converted.sql": "7e7ac13bd3a7084cf285c19deaf0c9c3b7f550284abc6d57f702b44f00857f12",
+    "migraai-oracle-to-clickhouse-converted/converted/03_operations-converted.sql": "fcff729a29d861a76204953ae427fade22fb8877ce0be25d7c0fb67cefa4a523",
+    "migraai-oracle-to-clickhouse-converted/converted/04_programs_and_recovery-converted.sql": "6a758dcad7d13247a3dae70167ef10ec967aad51f345ccb7dc68b6f01bb555de",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/README.md": "e69823a993a7812cb2ef66499ac168f713f648a30b4520359f202dabd9d99911",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/order.txt": "f05afdb36c732e2708528c0f74562c701de0ec0b08f5e494fc60c82de59d058e",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/run.ps1": "8f4a1df7491e5cd478d0c0c967b920f39c94931b7ad1a0a61da0b9a2d39a0003",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/run.sh": "d33090b9a0bb794a723e24451b0fe59dc574686dcef36834343543954f4002ad",
+    "migraai-oracle-to-clickhouse-converted/manifest.json": "7a7bc9de62b4530ad5d1e6138f8565eade46abaa92f398adf272ec3a811c8aa2",
+    "migraai-oracle-to-clickhouse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/data_types.csv": "bfc23aae6d2a0678d67cd3f143f8db6db754aaa0257e9913d111b9b55b187e71",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/objects.csv": "6a99c8ec86f1ebfd9c7a56fd75d6fdb6dcebad387520fffd1b065d71ff31e646",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/security.csv": "03b3f879c1b107a36b5ab1ab5fedd141494cff120aff5114dac1378e2bd2a784",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/syntax.csv": "451162f59792b9cf95dc354334aafeace5cd9ad59e7f95c5b094fb905e200b5f",
+    "migraai-oracle-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "f850cf0f44880cbf31de93a84909f42411ae9cba2049671800e205a64f80b3c2",
+    "migraai-oracle-to-clickhouse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-oracle-to-clickhouse-converted/report/session-report.md": "30fc77c6c1cb0089d28aebdf6cf699ced2292d3204443989a5833efa8053807f",
+    "migraai-oracle-to-clickhouse-converted/report/session-report.pdf": "e77e2af57dd780258ca576c62e3b0b8083189017365565549a4e565de2b8966a"
+  },
+  "inventory": {
+    "external": 2,
+    "objects": 61
+  },
+  "manifest_counts": {
+    "converted": 59,
+    "excluded": 0,
+    "external": 2,
+    "included": 59,
+    "total": 59
+  },
+  "zip_entries": [
+    "migraai-oracle-to-clickhouse-converted/converted/",
+    "migraai-oracle-to-clickhouse-converted/converted/01_reference-converted.sql",
+    "migraai-oracle-to-clickhouse-converted/converted/02_transactions-converted.sql",
+    "migraai-oracle-to-clickhouse-converted/converted/03_operations-converted.sql",
+    "migraai-oracle-to-clickhouse-converted/converted/04_programs_and_recovery-converted.sql",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/README.md",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/order.txt",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/run.ps1",
+    "migraai-oracle-to-clickhouse-converted/execution/clickhouse/run.sh",
+    "migraai-oracle-to-clickhouse-converted/manifest.json",
+    "migraai-oracle-to-clickhouse-converted/mapping/",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/data_types.csv",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/functions.csv",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/objects.csv",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/security.csv",
+    "migraai-oracle-to-clickhouse-converted/mapping/csv/syntax.csv",
+    "migraai-oracle-to-clickhouse-converted/mapping/mapping-workbook.xlsx",
+    "migraai-oracle-to-clickhouse-converted/report/",
+    "migraai-oracle-to-clickhouse-converted/report/session-report.md",
+    "migraai-oracle-to-clickhouse-converted/report/session-report.pdf"
+  ],
+  "zip_sha256": "58a89c8c0026b2c9385574d25e76029e16fcf369d1e378aa8acccd10b52799eb"
+}

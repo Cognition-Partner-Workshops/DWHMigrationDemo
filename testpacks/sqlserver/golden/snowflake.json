@@ -1,0 +1,722 @@
+{
+  "conversion": {
+    "objects": [
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "SELECT on dbo.Orders",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Address",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.ArchiveMarker",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.AuditEvent",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.AuditUser",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Brand",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Category",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.CurrencyRate",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Customer",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.CustomerAddress",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.CustomerNote",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.DataQuality",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Employee",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.EventQueue",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.ExternalMap",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.FraudSignal",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.ImportBatch",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Inventory",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Invoice",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.InvoiceLine",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.LegacyOrder",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.LoadError",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.LoyaltyAccount",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.MonthlySales",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.OrderLine",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Orders",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Payment",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.PriceHistory",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Product",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Promotion",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Reconciliation",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Region",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Returns",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.RiskScore",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.SalesTarget",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Shipment",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.ShipmentLine",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.StoreLocation",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Supplier",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.TaxRate",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.Warehouse",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.fn_sales_tax",
+        "type": "function"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.order_seq",
+        "type": "sequence"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.recovery_survivor",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.syn_customer",
+        "type": "synonym"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.trg_orders",
+        "type": "trigger"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "dbo.usp_calc_tax",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "dbo.usp_refresh_sales",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "dbo.vw_order_totals",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "failed",
+          "syntax": "passed"
+        },
+        "name": "dbo.vw_remote_orders",
+        "type": "view"
+      }
+    ],
+    "status_counts": {
+      "cancelled": 0,
+      "converted": 50,
+      "expert_review": 0,
+      "failed": 0
+    }
+  },
+  "entries_sha256": {
+    "migraai-sqlserver-to-snowflake-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-snowflake-converted/converted/01_reference_data-converted.sql": "f2547598126bb49ef0bdf011c228de638dc47ea2e77ae7167e902592eb3e5d56",
+    "migraai-sqlserver-to-snowflake-converted/converted/02_sales_data-converted.sql": "f2e49e97a787db357641ba09b3a670ac26d2fde1877f05e2865b726efb23af5c",
+    "migraai-sqlserver-to-snowflake-converted/converted/03_operations-converted.sql": "f11819e5ad388201f25e431d2b47f9b04392570dd33dee3a803145b4ab2ad7ec",
+    "migraai-sqlserver-to-snowflake-converted/converted/04_objects_and_recovery-converted.sql": "8e1663fdd49edd2a1ad3b7096b6dce01e339c61fc08d63a29494319c9f758bff",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/README.md": "f2afc5d085c8f50b2aef291b296ad0ae7d3adc2ff05843e30be7b6640ce127ad",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/order.txt": "83edf6e0bbb495d7781f97b2634cced11c3d4b4d58db467162b8bee05c48ad71",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/run.ps1": "62de926e0e11c7124997a5a6151d198fe34eda46dff7d3ea13b61fa94b9482da",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/run.sh": "ed9c69cabee77f0a391f02502601cf6a8ab745fc09343c6c5ec65cb9b789bc10",
+    "migraai-sqlserver-to-snowflake-converted/manifest.json": "da44cb12e1c4e58c84d450160c3c2eab5ab9a45d4cb41ef794c3b3c84817dc9a",
+    "migraai-sqlserver-to-snowflake-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/data_types.csv": "7e5b535677dcf8b378c87ca0d9518c1f6b37e5405e9a016acd949476769311aa",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/objects.csv": "251c40beee25c258922ebeb1639bbf131b0b76bb82360e22db95889e505ca47e",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/syntax.csv": "96effc2d2f9c9dd22004355c4b4bfb3d2fb3c01427635ddfd4e9568371244fd5",
+    "migraai-sqlserver-to-snowflake-converted/mapping/mapping-workbook.xlsx": "caeb8f9192f84d22773976cb15e0b95ac2a9cccc5888b236951bf0ee8ff1d529",
+    "migraai-sqlserver-to-snowflake-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-sqlserver-to-snowflake-converted/report/session-report.md": "010b0ec93556f7975f1137398a0202d01173f650c06ee41964e1f0de436a7909",
+    "migraai-sqlserver-to-snowflake-converted/report/session-report.pdf": "f3a1c1431cc9c810a9a43f676aee42f4e21dcc3a3f0fd4f3169b4ef5bc6b5ac3"
+  },
+  "inventory": {
+    "external": 1,
+    "objects": 51
+  },
+  "manifest_counts": {
+    "converted": 50,
+    "excluded": 0,
+    "external": 1,
+    "included": 50,
+    "total": 50
+  },
+  "zip_entries": [
+    "migraai-sqlserver-to-snowflake-converted/converted/",
+    "migraai-sqlserver-to-snowflake-converted/converted/01_reference_data-converted.sql",
+    "migraai-sqlserver-to-snowflake-converted/converted/02_sales_data-converted.sql",
+    "migraai-sqlserver-to-snowflake-converted/converted/03_operations-converted.sql",
+    "migraai-sqlserver-to-snowflake-converted/converted/04_objects_and_recovery-converted.sql",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/README.md",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/order.txt",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/run.ps1",
+    "migraai-sqlserver-to-snowflake-converted/execution/snowflake/run.sh",
+    "migraai-sqlserver-to-snowflake-converted/manifest.json",
+    "migraai-sqlserver-to-snowflake-converted/mapping/",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/data_types.csv",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/functions.csv",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/objects.csv",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/security.csv",
+    "migraai-sqlserver-to-snowflake-converted/mapping/csv/syntax.csv",
+    "migraai-sqlserver-to-snowflake-converted/mapping/mapping-workbook.xlsx",
+    "migraai-sqlserver-to-snowflake-converted/report/",
+    "migraai-sqlserver-to-snowflake-converted/report/session-report.md",
+    "migraai-sqlserver-to-snowflake-converted/report/session-report.pdf"
+  ],
+  "zip_sha256": "3ed2b501a14f53601eee596f680dd5aa7a0fc9d0e6ab90be20575e9709bbb9e0"
+}

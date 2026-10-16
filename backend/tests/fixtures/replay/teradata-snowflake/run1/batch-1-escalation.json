@@ -1,0 +1,214 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "SALES.\"ACCOUNT\" already exists as a standard table with a CUSTOMER_ID column (dependency signature).",
+        "The account is Enterprise Edition or higher (required for search optimization), and the deploying role owns the table.",
+        "The table-level clustering key on SALES.\"ACCOUNT\" is used by SALES.HIX_ACCOUNT."
+      ],
+      "explanations": [
+        "Chose candidate A's shape (informational UNIQUE constraint named IX_ACCOUNT_CUSTOMER plus search optimization on EQUALITY(CUSTOMER_ID)); all three candidates agreed on it.",
+        "Dropped B's RELY: SALES.\"ACCOUNT\" comes from a Teradata MULTISET table whose CUSTOMER_ID uniqueness was enforced only by this index, so nothing in Snowflake guarantees it and RELY would let the optimizer eliminate joins wrongly if duplicates arrive.",
+        "Dropped C's EXECUTE IMMEDIATE duplicate pre-check: it ran once at deploy time, did not enforce uniqueness afterwards, and added another opaque statement. The load pipeline should check uniqueness (listed under unsupported).",
+        "Search optimization rather than a clustering key because SALES.HIX_ACCOUNT uses the table's single clustering key.",
+        "Finding addressed: the remaining syntax.opaque_statement warning comes from ALTER TABLE ... ADD SEARCH OPTIMIZATION, which SQLGlot cannot parse but which is valid Snowflake DDL. It cannot be removed without dropping the lookup access path. Checked offline with MigraAI's validate_object and the Snowflake pack: all checks pass, with this one warning."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE UNIQUE INDEX sales.ix_account_customer (customer_id) ON sales.account -> named UNIQUE constraint IX_ACCOUNT_CUSTOMER on SALES.\"ACCOUNT\" (CUSTOMER_ID), without RELY.\n-- Reason: Snowflake standard tables have no secondary indexes; the constraint keeps the key and its source name as metadata but is not enforced. RELY is left off because nothing guarantees CUSTOMER_ID is unique (the Teradata table is MULTISET and only the index enforced it), and RELY lets the optimizer eliminate joins on that assumption.\nALTER TABLE SALES.\"ACCOUNT\" ADD CONSTRAINT IX_ACCOUNT_CUSTOMER UNIQUE (CUSTOMER_ID);\n\n-- Converted: unique secondary index access path on CUSTOMER_ID -> search optimization for equality predicates on CUSTOMER_ID.\n-- Reason: Search optimization is the Snowflake replacement for selective point lookups on standard tables; the single clustering key of SALES.\"ACCOUNT\" is left for SALES.HIX_ACCOUNT.\nALTER TABLE SALES.\"ACCOUNT\" ADD SEARCH OPTIMIZATION ON EQUALITY(CUSTOMER_ID);\n",
+          "language": "sql",
+          "rel_path": "indexes/SALES.IX_ACCOUNT_CUSTOMER.sql"
+        }
+      ],
+      "object_id": "f5d0c9621f444b12970b10fbb393f04e",
+      "qualified_name": "sales.ix_account_customer",
+      "self_confidence": 0.78,
+      "type": "index",
+      "unsupported": [
+        "Enforcing CUSTOMER_ID uniqueness: Teradata rejects duplicate keys when the index is built and on later inserts/updates (error 2801), but Snowflake does not enforce UNIQUE on standard tables. Writers must check it (e.g. GROUP BY CUSTOMER_ID HAVING COUNT(*) > 1), or the table must become a hybrid table.",
+        "A separately named index object; IX_ACCOUNT_CUSTOMER survives only as the constraint name."
+      ]
+    },
+    {
+      "assumptions": [
+        "Run with SnowSQL or Snowflake CLI (GET/REMOVE are client commands and do not run in Snowsight worksheets) using a named connection with key-pair authentication; the role has USAGE on SALES and SELECT on SALES.CUSTOMER.",
+        "The intended output is comma-delimited CSV without a header row, inferred from the .csv file name because the source sets no export mode. NULL is written as an empty field and an empty string as \"\". Set HEADER = TRUE if the consumer expects column titles.",
+        "The result is under the single-file limit (MAX_FILE_SIZE set just under 5 GB) and /tmp is writable on the client machine.",
+        "GET writes /tmp/customer.csv because the staged file keeps the name customer.csv when SINGLE = TRUE and COMPRESSION = NONE."
+      ],
+      "explanations": [
+        "Based on candidate C: COPY INTO user stage (single uncompressed CSV), then GET to /tmp/ and REMOVE. Rejected candidate A's SnowSQL !set/!spool commands, which are client-only directives that SQLGlot cannot parse (syntax.parse_error, a hard failure). !spool also writes the client's formatted output, not a guaranteed data file.",
+        "Not fixed: the semantic.unknown_table error from B and C. MigraAI's semantic check reads any table-like node not in the name map as an unknown table, so it flags the COPY INTO stage location @~/migraai_export/customer.csv even though that is a file location, not a table. This is a validator false positive. Wrapping the COPY in EXECUTE IMMEDIATE would clear it, but only by hiding the whole statement (including its real SALES.CUSTOMER reference) from the checks, so the plain statement is kept and the finding is left for the reviewer to accept or for the checker to learn stage locations.",
+        "Fixed the security.masked_secret_placeholder warning from A and B: the masked logon placeholder is no longer copied into a comment. The logon is described as client connection configuration (named connection with key-pair authentication) instead.",
+        "SEL was expanded to SELECT with explicit columns; sales.customer maps to SALES.CUSTOMER. The naming-map entry \"ZIP/LOAD_SCRIPT\".SQL names the source file, not a database object, so no object is created and the file is emitted as scripts/load_script.sql.",
+        "Checked offline with MigraAI's validate_object and the Snowflake pack: syntax passes with two opaque_statement warnings (GET and REMOVE, which are valid client commands SQLGlot cannot parse). Lint, rule, dependency and security pass with no findings, and the masked-secret warning is gone. The only error is the stage-path semantic.unknown_table false positive described above."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: BTEQ .LOGON -> removed; run this file with a SnowSQL or Snowflake CLI named connection that uses key-pair authentication (for example snow sql -c <connection> -f load_script.sql).\n-- Reason: Logon details are client configuration, not SQL; credentials must not be embedded in the script (snowflake.security.no_plaintext_credentials).\n-- Converted: .SET QUIET ON -> removed; use the client quiet option (snowsql -o quiet=true -o friendly=false).\n-- Reason: Output verbosity is a client setting in Snowflake, not a SQL statement.\n-- Converted: .EXPORT FILE = /tmp/customer.csv plus SEL customer_id, customer_name FROM sales.customer -> COPY INTO the user stage as one uncompressed CSV file.\n-- Reason: Snowflake unloads query results server-side with COPY INTO a stage location; SEL is the Teradata abbreviation of SELECT and the table name comes from the naming map.\nCOPY INTO @~/migraai_export/customer.csv\nFROM (\n    SELECT\n        c.CUSTOMER_ID,\n        c.CUSTOMER_NAME\n    FROM SALES.CUSTOMER c\n)\nFILE_FORMAT = (\n    TYPE = CSV\n    FIELD_DELIMITER = ','\n    FIELD_OPTIONALLY_ENCLOSED_BY = '\"'\n    NULL_IF = ('')\n    EMPTY_FIELD_AS_NULL = FALSE\n    COMPRESSION = NONE\n)\nHEADER = FALSE\nSINGLE = TRUE\nOVERWRITE = TRUE\nMAX_FILE_SIZE = 4900000000;\n\n-- Converted: export destination /tmp/customer.csv -> GET the staged file into the local /tmp/ directory.\n-- Reason: COPY INTO writes to a stage; GET (a SnowSQL / Snowflake CLI client command) downloads it to the machine running the client, where BTEQ wrote its export file.\nGET @~/migraai_export/customer.csv file:///tmp/;\n\n-- Converted: .EXPORT RESET -> REMOVE the staged copy; .LOGOFF -> removed.\n-- Reason: Closes out the export without leaving customer data in the user stage; the client session ends when the script finishes.\nREMOVE @~/migraai_export/customer.csv;\n",
+          "language": "sql",
+          "rel_path": "scripts/load_script.sql"
+        }
+      ],
+      "object_id": "2f681217726c4b1c8d1f74340f177ca7",
+      "qualified_name": "teradata-testpack.zip/load_script.sql",
+      "self_confidence": 0.68,
+      "type": "script",
+      "unsupported": [
+        "Byte-for-byte BTEQ .EXPORT layout (DATA/REPORT record format, fixed-width columns, NULL indicators) has no Snowflake equivalent; downstream consumers of /tmp/customer.csv must accept standard CSV.",
+        "BTEQ logon credentials are not carried over; the client connection must be configured separately with key-pair authentication or a SECRET-backed method."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction, so each statement commits on its own; this matches a Snowflake procedure running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Table kinds are taken from the Teradata test pack tables.sql: sales.payment, sales.transfer, sales.audit_log and sales.account_snapshot are SET tables, sales.account is MULTISET.",
+        "SALES.AUDIT_LOG.EVENT_TYPE was NOT CASESPECIFIC (Teradata-mode default for VARCHAR), so the duplicate comparison ignores case and trailing blanks.",
+        "EXECUTE AS OWNER matches the Teradata SQL SECURITY DEFINER/OWNER behaviour; switch to EXECUTE AS CALLER if callers' own privileges should apply.",
+        "BIGINT parameters are declared NUMBER(19,0) and DECIMAL(12,2) as NUMBER(12,2); both hold every Teradata value of those types.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value."
+      ],
+      "explanations": [
+        "No validator findings on any candidate; they disagreed on semantics. Chose candidate C's defensive approach, with corrections.",
+        "Rejected B's BEGIN TRANSACTION/COMMIT wrapper and its 'OK' return: in Teradata session mode the two inserts commit separately, so a failing audit insert leaves the payment row in place. Making them atomic changes behaviour, and an explicit transaction inside the procedure conflicts with callers' transactions.",
+        "Kept and extended the SET-table emulation: the test pack's tables.sql defines sales.payment and sales.audit_log as SET tables, so Teradata rejects an identical row with error 2802. C had skipped the check on SALES.PAYMENT ('kind unknown'); it is now added with NULL-safe EQUAL_NULL comparisons. The SALES.AUDIT_LOG check uses UPPER(RTRIM()) to match Teradata NOT CASESPECIFIC comparison. Each table gets its own exception (-20802 payment, -20803 audit).",
+        "Because of the hard-coded EVENT_ID 1, the second call fails on the audit check in both systems after the payment row is written. This is preserved deliberately as source behaviour.",
+        "SQL SECURITY OWNER maps to EXECUTE AS OWNER. DYNAMIC RESULT SETS 1 is removed because no WITH RETURN cursor is opened. IN keywords are removed and arguments are bound as :P_ACCOUNT/:P_AMOUNT. Dropped C's redundant CASTs on already-typed arguments and literals. Plain CREATE (not OR REPLACE) keeps Teradata's exists-error behaviour.",
+        "Checked offline with MigraAI's validate_object and the Snowflake pack: all checks pass, no findings."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.add_payment(IN p_account BIGINT, IN p_amount DECIMAL(12, 2)) -> CREATE PROCEDURE SALES.ADD_PAYMENT(P_ACCOUNT NUMBER(19,0), P_AMOUNT NUMBER(12,2)) RETURNS VARCHAR LANGUAGE SQL with a $$-delimited Snowflake Scripting body.\n-- Reason: Snowflake has no IN keyword (all arguments are input), requires a RETURNS clause (RETURN NULL stands in for no return value) and a delimited body; plain CREATE keeps the Teradata error when the procedure already exists.\n-- Converted: SQL SECURITY OWNER -> EXECUTE AS OWNER; DYNAMIC RESULT SETS 1 -> removed.\n-- Reason: Both run the body with the owner's privileges (snowflake.rule.procedure_execute_as); the body never opens a WITH RETURN cursor, so no result set is returned in either system.\nCREATE PROCEDURE SALES.ADD_PAYMENT(P_ACCOUNT NUMBER(19,0), P_AMOUNT NUMBER(12,2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nDECLARE\n    dup_count NUMBER(38,0) DEFAULT 0;\n    duplicate_payment EXCEPTION (-20802, 'Duplicate row in SET table SALES.PAYMENT');\n    duplicate_audit EXCEPTION (-20803, 'Duplicate row in SET table SALES.AUDIT_LOG (EVENT_ID 1, EVENT_TYPE PAYMENT)');\nBEGIN\n    -- Converted: Teradata SET-table duplicate-row error 2802 on SALES.PAYMENT -> NULL-safe existence check that raises -20802 before the insert.\n    -- Reason: sales.payment is a SET table, so an identical (1, p_account, p_amount) row was rejected; EQUAL_NULL matches the duplicate-row rule where NULLs compare equal. Snowflake would accept the duplicate silently.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.PAYMENT p\n    WHERE p.PAYMENT_ID = 1\n      AND EQUAL_NULL(p.ACCOUNT_ID, :P_ACCOUNT)\n      AND EQUAL_NULL(p.AMOUNT, :P_AMOUNT);\n    IF (dup_count > 0) THEN\n        RAISE duplicate_payment;\n    END IF;\n\n    -- Converted: INSERT INTO sales.payment ... VALUES (1, p_account, p_amount) -> same insert on SALES.PAYMENT with :P_ACCOUNT / :P_AMOUNT binds.\n    -- Reason: Snowflake Scripting references arguments inside SQL with a colon prefix; the hard-coded PAYMENT_ID 1 is kept as in the source.\n    INSERT INTO SALES.PAYMENT (PAYMENT_ID, ACCOUNT_ID, AMOUNT)\n    VALUES (1, :P_ACCOUNT, :P_AMOUNT);\n\n    -- Converted: Teradata SET-table duplicate-row error 2802 on SALES.AUDIT_LOG -> existence check that raises -20803.\n    -- Reason: sales.audit_log is a SET table; EVENT_TYPE is NOT CASESPECIFIC in Teradata mode, so the comparison ignores case and trailing blanks. As in Teradata, the payment row stays committed when this check fails.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.AUDIT_LOG a\n    WHERE a.EVENT_ID = 1\n      AND UPPER(RTRIM(a.EVENT_TYPE)) = 'PAYMENT';\n    IF (dup_count > 0) THEN\n        RAISE duplicate_audit;\n    END IF;\n\n    -- Converted: INSERT INTO sales.audit_log ... VALUES (1, 'PAYMENT') -> same insert on SALES.AUDIT_LOG.\n    -- Reason: Standard SQL insert; only the name changes per the naming map.\n    INSERT INTO SALES.AUDIT_LOG (EVENT_ID, EVENT_TYPE)\n    VALUES (1, 'PAYMENT');\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.ADD_PAYMENT.sql"
+        }
+      ],
+      "object_id": "9bf7f16fd9424a23aa549e90bc430560",
+      "qualified_name": "sales.add_payment",
+      "self_confidence": 0.8,
+      "type": "procedure",
+      "unsupported": [
+        "Teradata error 2802 surfaces as Snowflake user exceptions -20802/-20803 with a different SQLSTATE; callers that test specific error codes must be updated.",
+        "The duplicate checks are not atomic with the inserts; concurrent callers can still create duplicate rows, which Teradata prevented under row-hash locks."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction, so each statement commits on its own; this matches a Snowflake procedure running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Default Teradata SQL SECURITY DEFINER maps to EXECUTE AS OWNER; switch to EXECUTE AS CALLER if callers' own privileges should apply.",
+        "BIGINT parameters are declared NUMBER(19,0) and DECIMAL(12,2) as NUMBER(12,2); both hold every Teradata value of those types.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value.",
+        "Updating zero rows is not an error in either system; rounding P_AMOUNT into BALANCE's scale follows Snowflake half-away-from-zero rounding."
+      ],
+      "explanations": [
+        "No validator findings on any candidate; the candidates differed only in style. Used candidate C's typed signature with A's simple body: a single UPDATE on SALES.\"ACCOUNT\" (quoted reserved word, per the naming map) with :P_AMOUNT/:P_ACCOUNT binds.",
+        "Returns NULL (A/C) rather than B's 'Rows updated: ...' text, because the source returns nothing. Plain CREATE (A/C) rather than B's CREATE OR REPLACE, which would silently overwrite an existing procedure where Teradata raises an error.",
+        "No SET-table emulation is needed: sales.account is MULTISET and an UPDATE cannot create duplicate rows in it. Dropped C's redundant CASTs on already-typed arguments.",
+        "Checked offline with MigraAI's validate_object and the Snowflake pack: all checks pass, no findings."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.update_balance(IN p_account BIGINT, IN p_amount DECIMAL(12, 2)) -> CREATE PROCEDURE SALES.UPDATE_BALANCE(P_ACCOUNT NUMBER(19,0), P_AMOUNT NUMBER(12,2)) RETURNS VARCHAR LANGUAGE SQL with a $$-delimited Snowflake Scripting body.\n-- Reason: Snowflake has no IN keyword, requires a RETURNS clause (RETURN NULL stands in for no return value) and a delimited body; plain CREATE keeps the Teradata error when the procedure already exists.\n-- Converted: default SQL SECURITY (DEFINER) -> EXECUTE AS OWNER.\n-- Reason: Closest Snowflake equivalent of definer's rights; Snowflake requires the clause to be explicit (snowflake.rule.procedure_execute_as).\nCREATE PROCEDURE SALES.UPDATE_BALANCE(P_ACCOUNT NUMBER(19,0), P_AMOUNT NUMBER(12,2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: UPDATE sales.account SET balance = balance + p_amount WHERE account_id = p_account -> same update on SALES.\"ACCOUNT\" with :P_AMOUNT / :P_ACCOUNT binds.\n    -- Reason: ACCOUNT is a Snowflake reserved word, so the naming map quotes it; arguments are referenced with a colon prefix. NULL handling is unchanged: a NULL BALANCE stays NULL and a NULL P_ACCOUNT matches no rows.\n    UPDATE SALES.\"ACCOUNT\"\n    SET BALANCE = BALANCE + :P_AMOUNT\n    WHERE ACCOUNT_ID = :P_ACCOUNT;\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.UPDATE_BALANCE.sql"
+        }
+      ],
+      "object_id": "0622588a8b24455996df7d6ddd1a5f7e",
+      "qualified_name": "sales.update_balance",
+      "self_confidence": 0.9,
+      "type": "procedure",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction, so each statement commits on its own; this matches a Snowflake procedure running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Table kinds are taken from the Teradata test pack tables.sql: sales.payment, sales.transfer, sales.audit_log and sales.account_snapshot are SET tables, sales.account is MULTISET.",
+        "SALES.AUDIT_LOG.EVENT_TYPE was NOT CASESPECIFIC (Teradata-mode default for VARCHAR), so the duplicate comparison ignores case and trailing blanks.",
+        "Default Teradata SQL SECURITY DEFINER maps to EXECUTE AS OWNER; switch to EXECUTE AS CALLER if callers' own privileges should apply.",
+        "BIGINT parameters are declared NUMBER(19,0) and DECIMAL(12,2) as NUMBER(12,2); both hold every Teradata value of those types.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value."
+      ],
+      "explanations": [
+        "No validator findings on any candidate; they disagreed on semantics. Chose candidate C's defensive approach: keep the statement order and the hard-coded IDs 1 and 2, and emulate Teradata SET-table duplicate-row errors on SALES.TRANSFER (NULL-safe EQUAL_NULL) and SALES.AUDIT_LOG.",
+        "Rejected B's explicit transaction and 'OK' return for the same reason as ADD_PAYMENT: Teradata session mode commits each insert separately, so a failing audit insert leaves the transfer row in place.",
+        "The SALES.AUDIT_LOG check now uses UPPER(RTRIM(EVENT_TYPE)) to match Teradata NOT CASESPECIFIC comparison. Dropped redundant CASTs on already-typed arguments and literals. P_AMOUNT is kept in the signature (unused, as in the source) so three-argument CALLs still resolve.",
+        "Checked offline with MigraAI's validate_object and the Snowflake pack: all checks pass, no findings."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.post_transfer(IN p_from BIGINT, IN p_to BIGINT, IN p_amount DECIMAL(12, 2)) -> CREATE PROCEDURE SALES.POST_TRANSFER(P_FROM NUMBER(19,0), P_TO NUMBER(19,0), P_AMOUNT NUMBER(12,2)) RETURNS VARCHAR LANGUAGE SQL with a $$-delimited Snowflake Scripting body.\n-- Reason: Snowflake has no IN keyword, requires a RETURNS clause (RETURN NULL stands in for no return value) and a delimited body. P_AMOUNT is unused in the source body but kept so three-argument CALLs still resolve; plain CREATE keeps the Teradata error when the procedure already exists.\n-- Converted: default SQL SECURITY (DEFINER) -> EXECUTE AS OWNER.\n-- Reason: Closest Snowflake equivalent of definer's rights; Snowflake requires the clause to be explicit (snowflake.rule.procedure_execute_as).\nCREATE PROCEDURE SALES.POST_TRANSFER(P_FROM NUMBER(19,0), P_TO NUMBER(19,0), P_AMOUNT NUMBER(12,2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nDECLARE\n    dup_count NUMBER(38,0) DEFAULT 0;\n    duplicate_transfer EXCEPTION (-20802, 'Duplicate row in SET table SALES.TRANSFER');\n    duplicate_audit EXCEPTION (-20803, 'Duplicate row in SET table SALES.AUDIT_LOG (EVENT_ID 2, EVENT_TYPE TRANSFER)');\nBEGIN\n    -- Converted: Teradata SET-table duplicate-row error 2802 on SALES.TRANSFER -> NULL-safe existence check that raises -20802 before the insert.\n    -- Reason: sales.transfer is a SET table, so an identical (1, p_from, p_to) row was rejected; EQUAL_NULL matches the duplicate-row rule where NULLs compare equal.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.TRANSFER t\n    WHERE t.TRANSFER_ID = 1\n      AND EQUAL_NULL(t.FROM_ACCOUNT, :P_FROM)\n      AND EQUAL_NULL(t.TO_ACCOUNT, :P_TO);\n    IF (dup_count > 0) THEN\n        RAISE duplicate_transfer;\n    END IF;\n\n    -- Converted: INSERT INTO sales.transfer ... VALUES (1, p_from, p_to) -> same insert on SALES.TRANSFER with :P_FROM / :P_TO binds.\n    -- Reason: Snowflake Scripting references arguments inside SQL with a colon prefix; the hard-coded TRANSFER_ID 1 is kept as in the source.\n    INSERT INTO SALES.TRANSFER (TRANSFER_ID, FROM_ACCOUNT, TO_ACCOUNT)\n    VALUES (1, :P_FROM, :P_TO);\n\n    -- Converted: Teradata SET-table duplicate-row error 2802 on SALES.AUDIT_LOG -> existence check that raises -20803.\n    -- Reason: sales.audit_log is a SET table; EVENT_TYPE is NOT CASESPECIFIC in Teradata mode, so the comparison ignores case and trailing blanks. As in Teradata, the transfer row stays committed when this check fails.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.AUDIT_LOG a\n    WHERE a.EVENT_ID = 2\n      AND UPPER(RTRIM(a.EVENT_TYPE)) = 'TRANSFER';\n    IF (dup_count > 0) THEN\n        RAISE duplicate_audit;\n    END IF;\n\n    -- Converted: INSERT INTO sales.audit_log ... VALUES (2, 'TRANSFER') -> same insert on SALES.AUDIT_LOG.\n    -- Reason: Standard SQL insert; only the name changes per the naming map.\n    INSERT INTO SALES.AUDIT_LOG (EVENT_ID, EVENT_TYPE)\n    VALUES (2, 'TRANSFER');\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.POST_TRANSFER.sql"
+        }
+      ],
+      "object_id": "4925f10eedc34ba8a80a814fba76787e",
+      "qualified_name": "sales.post_transfer",
+      "self_confidence": 0.8,
+      "type": "procedure",
+      "unsupported": [
+        "Teradata error 2802 surfaces as Snowflake user exceptions -20802/-20803 with a different SQLSTATE; callers that test specific error codes must be updated.",
+        "The duplicate checks are not atomic with the inserts; concurrent callers can still create duplicate rows, which Teradata prevented under row-hash locks."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction, so each statement commits on its own; this matches a Snowflake procedure running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Table kinds are taken from the Teradata test pack tables.sql: sales.payment, sales.transfer, sales.audit_log and sales.account_snapshot are SET tables, sales.account is MULTISET.",
+        "Teradata session mode: INSERT ... SELECT into a SET table silently discards duplicates (ANSI mode would raise an error instead).",
+        "CURRENT_DATE is evaluated in the session time zone in both systems; the Snowflake TIMEZONE parameter must match the Teradata session time zone, or the snapshot date can differ around midnight.",
+        "Default Teradata SQL SECURITY DEFINER maps to EXECUTE AS OWNER.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value."
+      ],
+      "explanations": [
+        "No validator findings on any candidate; they disagreed on SET-table semantics. Chose candidate C's INSERT ... SELECT ... MINUS existing rows. sales.account_snapshot is a SET table, and a Teradata-mode INSERT ... SELECT into a SET table silently drops duplicate rows, so a same-day re-run inserts nothing new. A and B would insert duplicates (B listed this as unsupported).",
+        "MINUS is a set operation, so it also removes duplicates within the SELECT and compares NULLs as equal, matching Teradata's duplicate-row rule. Dropped C's redundant CAST of ACCOUNT_ID.",
+        "Returns NULL and uses plain CREATE, as in A/C. SALES.\"ACCOUNT\" is quoted per the naming map. CURRENT_DATE() is evaluated once per statement.",
+        "Checked offline with MigraAI's validate_object and the Snowflake pack: all checks pass, no findings."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.capture_snapshot() -> CREATE PROCEDURE SALES.CAPTURE_SNAPSHOT() RETURNS VARCHAR LANGUAGE SQL with a $$-delimited Snowflake Scripting body.\n-- Reason: Snowflake requires a RETURNS clause (RETURN NULL stands in for no return value) and a delimited body; plain CREATE keeps the Teradata error when the procedure already exists.\n-- Converted: default SQL SECURITY (DEFINER) -> EXECUTE AS OWNER.\n-- Reason: Closest Snowflake equivalent of definer's rights; Snowflake requires the clause to be explicit (snowflake.rule.procedure_execute_as).\nCREATE PROCEDURE SALES.CAPTURE_SNAPSHOT()\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: INSERT INTO sales.account_snapshot ... SELECT CURRENT_DATE, account_id FROM sales.account -> INSERT INTO SALES.ACCOUNT_SNAPSHOT ... SELECT CURRENT_DATE(), ACCOUNT_ID FROM SALES.\"ACCOUNT\" MINUS the rows already in SALES.ACCOUNT_SNAPSHOT.\n    -- Reason: sales.account_snapshot is a SET table, and a Teradata-mode INSERT ... SELECT into a SET table silently discards rows that duplicate each other or existing rows. MINUS reproduces that (distinct, NULL-safe, existing rows removed), so a same-day re-run adds nothing. ACCOUNT is quoted per the naming map.\n    INSERT INTO SALES.ACCOUNT_SNAPSHOT (SNAPSHOT_DATE, ACCOUNT_ID)\n    SELECT\n        CURRENT_DATE(),\n        a.ACCOUNT_ID\n    FROM SALES.\"ACCOUNT\" a\n    MINUS\n    SELECT\n        s.SNAPSHOT_DATE,\n        s.ACCOUNT_ID\n    FROM SALES.ACCOUNT_SNAPSHOT s;\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.CAPTURE_SNAPSHOT.sql"
+        }
+      ],
+      "object_id": "a47954ee9dd949db9073d5875b91551e",
+      "qualified_name": "sales.capture_snapshot",
+      "self_confidence": 0.85,
+      "type": "procedure",
+      "unsupported": [
+        "The MINUS de-duplication is not atomic against concurrent writers to SALES.ACCOUNT_SNAPSHOT."
+      ]
+    },
+    {
+      "assumptions": [
+        "The invalid statement is a truncated or redacted query, not intended logic.",
+        "Table kinds are taken from the Teradata test pack tables.sql: sales.payment, sales.transfer, sales.audit_log and sales.account_snapshot are SET tables, sales.account is MULTISET.",
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction, so each statement commits on its own; this matches a Snowflake procedure running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Default Teradata SQL SECURITY DEFINER maps to EXECUTE AS OWNER.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value."
+      ],
+      "explanations": [
+        "The source's first statement is an empty SELECT with no select list and no table. Teradata would refuse to create this procedure, so there is no working source behaviour to preserve, and the repair logic is unknown.",
+        "Chose candidate C's fail-closed approach over A and B, which drop the statement and still write a REPAIR audit row. A procedure named repair_payment that logs a repair without doing one would mislead audits. The body raises -20900 until a person supplies the intended statement.",
+        "Kept the converted audit insert after the RAISE so it is ready once the statement is fixed. Its SET-table duplicate check uses UPPER(RTRIM()) for NOT CASESPECIFIC comparison, and its exception code (-20803) matches the other procedures. Dropped redundant CASTs.",
+        "Checked offline with MigraAI's validate_object and the Snowflake pack: all checks pass, no findings. Confidence stays low because the procedure's real purpose cannot be recovered."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.repair_payment() -> CREATE PROCEDURE SALES.REPAIR_PAYMENT() RETURNS VARCHAR LANGUAGE SQL with a $$-delimited Snowflake Scripting body.\n-- Reason: Snowflake requires a RETURNS clause (RETURN NULL stands in for no return value) and a delimited body; plain CREATE keeps the Teradata error when the procedure already exists.\n-- Converted: default SQL SECURITY (DEFINER) -> EXECUTE AS OWNER.\n-- Reason: Closest Snowflake equivalent of definer's rights; Snowflake requires the clause to be explicit (snowflake.rule.procedure_execute_as).\nCREATE PROCEDURE SALES.REPAIR_PAYMENT()\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nDECLARE\n    unconverted_statement EXCEPTION (-20900, 'SALES.REPAIR_PAYMENT: source statement 1 is an empty SELECT with no select list and no table and was not converted; manual remediation required');\n    dup_count NUMBER(38,0) DEFAULT 0;\n    duplicate_audit EXCEPTION (-20803, 'Duplicate row in SET table SALES.AUDIT_LOG (EVENT_ID 3, EVENT_TYPE REPAIR)');\nBEGIN\n    -- Converted: invalid first source statement (an empty SELECT with no select list and no table) -> RAISE unconverted_statement.\n    -- Reason: The statement is invalid in Teradata too, so the source procedure could never be created and its repair logic is unknown. Failing closed stops a half-converted repair routine from writing a REPAIR audit row without doing the repair.\n    RAISE unconverted_statement;\n\n    -- Converted: Teradata SET-table duplicate-row error 2802 on SALES.AUDIT_LOG -> existence check that raises -20803.\n    -- Reason: sales.audit_log is a SET table; EVENT_TYPE is NOT CASESPECIFIC in Teradata mode, so the comparison ignores case and trailing blanks. Runs only after the statement above is replaced.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.AUDIT_LOG a\n    WHERE a.EVENT_ID = 3\n      AND UPPER(RTRIM(a.EVENT_TYPE)) = 'REPAIR';\n    IF (dup_count > 0) THEN\n        RAISE duplicate_audit;\n    END IF;\n\n    -- Converted: INSERT INTO sales.audit_log ... VALUES (3, 'REPAIR') -> same insert on SALES.AUDIT_LOG.\n    -- Reason: Standard SQL insert; only the name changes per the naming map.\n    INSERT INTO SALES.AUDIT_LOG (EVENT_ID, EVENT_TYPE)\n    VALUES (3, 'REPAIR');\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.REPAIR_PAYMENT.sql"
+        }
+      ],
+      "object_id": "e69e5a4f0d3e44ebbeb6d3ef07188e72",
+      "qualified_name": "sales.repair_payment",
+      "self_confidence": 0.35,
+      "type": "procedure",
+      "unsupported": [
+        "The source's first statement (an empty SELECT with no select list or table) cannot be converted. The original query is needed from the source owner.",
+        "Until that statement is replaced, every call raises -20900 and the audit insert never runs."
+      ]
+    }
+  ]
+}

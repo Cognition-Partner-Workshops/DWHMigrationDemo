@@ -47,7 +47,9 @@ def test_testpack_inventory_matches_golden(pack: Path) -> None:
     files = {
         path.relative_to(pack).as_posix(): path.read_bytes()
         for path in sorted(pack.rglob("*"))
-        if path.is_file() and path.name not in {"pack.yaml", "expected_inventory.yaml"}
+        if path.is_file()
+        and path.name not in {"pack.yaml", "expected_inventory.yaml"}
+        and "golden" not in path.relative_to(pack).parts
     }
     objects, edges = discover_files(files, source_dialect)
     expected = _expected(pack)

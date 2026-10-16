@@ -14,6 +14,7 @@ from typing import get_args
 import reportlab.rl_config
 from xhtml2pdf import pisa
 
+from migraai.packaging.acu import total_acus
 from migraai.packaging.model import PackagedObject, PackageInput
 from migraai.planning.pdf import render_markdown
 from migraai.validation.findings import CheckName
@@ -143,14 +144,32 @@ def build_report_md(pkg: PackageInput) -> str:
         out.append("No data was sent to Devin.")
     else:
         eg = pkg.egress
-        total_acus = sum(s.acus for s in pkg.sessions if s.acus is not None)
         out.append(f"- Consent given at: {_md(eg.consent_at)}")
         out.append(f"- Devin host: {_md(eg.devin_host)}")
         out.append(f"- Objects sent: {eg.objects_sent}")
         out.append(f"- Batches: {eg.batches}")
         out.append(f"- Sessions: {eg.sessions}")
-        out.append(f"- Total ACUs: {total_acus:.2f}")
+        out.append(f"- Total ACUs: {total_acus(pkg.sessions)}")
         out.append(f"- Blocked batches: {eg.blocked_batches}")
+        if pkg.base_run_id is not None:
+            out.append(
+                f"Re-converted {len(pkg.reconverted_object_ids)} selected objects in run "
+                f"{pkg.run_id}; other results carried over from run {pkg.base_run_id}."
+            )
+            if pkg.kept_base_object_ids:
+                names_by_id = {item.object_id: item.source_qualified_name for item in pkg.objects}
+                names = [
+                    _md(names_by_id.get(object_id, object_id))
+                    for object_id, _ in sorted(
+                        pkg.kept_base_object_ids.items(),
+                        key=lambda item: names_by_id.get(item[0], item[0]),
+                    )
+                ]
+                out.append(
+                    f"{len(pkg.kept_base_object_ids)} of them kept their earlier result "
+                    "because the re-conversion was cancelled or produced no usable "
+                    f"candidate: {', '.join(names)}"
+                )
         if eg.blocked_batches > 0:
             out.append("")
             out.append(
@@ -158,13 +177,15 @@ def build_report_md(pkg: PackageInput) -> str:
                 "they contained secrets and were not sent."
             )
         out += ["", ""]
+        show_run = pkg.base_run_id is not None or any(item.replayed for item in pkg.sessions)
         out += _table(
-            ["Role", "Batch", "State", "ACUs", "Link"],
+            (["Run"] if show_run else []) + ["Role", "Batch", "State", "ACUs", "Link"],
             [
                 [
+                    *([_md(s.run_id)] if show_run else []),
                     _md(s.role),
                     str(s.batch_index),
-                    _md(s.state),
+                    _md("replayed, nothing sent" if s.replayed else s.state),
                     "n/a" if s.acus is None else f"{s.acus:.2f}",
                     _link(s.url),
                 ]

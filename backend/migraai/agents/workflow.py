@@ -48,6 +48,7 @@ class WorkflowState(TypedDict, total=False):
     conversion_objects: list[dict[str, Any]]
     voter_outcomes: dict[str, SessionOutcome]
     candidates: dict[str, dict[str, Candidate | None]]
+    object_errors: dict[str, str]
     candidate_validations: dict[str, dict[str, list[Any]]]
     consensus: dict[str, Any]
     picked_validations: dict[str, list[Any]]
@@ -74,6 +75,17 @@ def _update_session_progress(
     callback = _runtime(state).get("session_status_callback")
     if callback is not None:
         callback(state["batch_index"], role, status, session_id)
+
+
+def _set_mock_session_identity(client: Any, state: WorkflowState, role: str) -> None:
+    configure = getattr(client, "set_session_identity", None)
+    if callable(configure):
+        runtime = _runtime(state)
+        configure(
+            run_id=runtime["run_id"],
+            batch_index=state["batch_index"],
+            role=f"voter_{role}" if role in {"A", "B", "C"} else role,
+        )
 
 
 @contextmanager
@@ -189,14 +201,20 @@ def _validation_context(state: WorkflowState) -> ValidationContext:
     )
 
 
-def _as_candidate(voter: str, object_id: str, value: Any, target: str) -> Candidate | None:
+def _as_candidate(
+    voter: str,
+    object_id: str,
+    value: Any,
+    target: str,
+    source_rel_path: str | None = None,
+) -> Candidate | None:
     if not isinstance(value, dict):
         return None
     files = value.get("files")
     if not isinstance(files, list):
         return None
     normalized_files = [
-        file
+        dict(file)
         for file in files
         if isinstance(file, dict)
         and isinstance(file.get("rel_path"), str)
@@ -205,6 +223,8 @@ def _as_candidate(voter: str, object_id: str, value: Any, target: str) -> Candid
     ]
     if not normalized_files:
         return None
+    if len(normalized_files) == 1 and source_rel_path:
+        normalized_files[0]["rel_path"] = source_rel_path
     try:
         confidence = float(value.get("self_confidence", 0.0))
     except (TypeError, ValueError):
@@ -289,6 +309,7 @@ def _run_voter(state: WorkflowState, voter: str) -> tuple[str, SessionOutcome]:
     )
     try:
         client = runtime["client_factory"](voter)
+        _set_mock_session_identity(client, state, voter)
         with runtime["session_semaphore"]:
             outcome = run_session(
                 client,
@@ -338,29 +359,63 @@ def _vote(state: WorkflowState) -> dict[str, Any]:
             voter, outcome = future.result()
             outcomes[voter] = outcome
     candidates: dict[str, dict[str, Candidate | None]] = {}
+    object_errors = dict(state.get("object_errors", {}))
     for source_object in state["conversion_objects"]:
         object_id = source_object["object_id"]
         candidates[object_id] = {}
-        for voter, outcome in outcomes.items():
-            output = outcome.structured_output
-            entries = output.get("objects", []) if isinstance(output, dict) else []
-            entry = next(
-                (
-                    item
-                    for item in entries
-                    if isinstance(item, dict) and item.get("object_id") == object_id
-                ),
-                None,
-            )
-            candidates[object_id][voter] = _as_candidate(voter, object_id, entry, state["target"])
-    return {"voter_outcomes": outcomes, "candidates": candidates}
+        try:
+            for voter, outcome in outcomes.items():
+                output = outcome.structured_output
+                entries = output.get("objects", []) if isinstance(output, dict) else []
+                entry = next(
+                    (
+                        item
+                        for item in entries
+                        if isinstance(item, dict) and item.get("object_id") == object_id
+                    ),
+                    None,
+                )
+                candidates[object_id][voter] = _as_candidate(
+                    voter,
+                    object_id,
+                    entry,
+                    state["target"],
+                    str(source_object.get("rel_path", "")),
+                )
+        except Exception as error:
+            object_errors[object_id] = _processing_error("Candidate normalization", error)
+            candidates[object_id] = {voter: None for voter in ("A", "B", "C")}
+    return {
+        "voter_outcomes": outcomes,
+        "candidates": candidates,
+        "object_errors": object_errors,
+    }
 
 
 def _consensus(state: WorkflowState) -> dict[str, Any]:
     chosen: dict[str, Any] = {}
+    object_errors = dict(state.get("object_errors", {}))
     for source_object in state["conversion_objects"]:
         object_id = source_object["object_id"]
-        result = choose(state["candidates"][object_id], target=state["target"])
+        if object_id in object_errors:
+            chosen[object_id] = {
+                "candidate": None,
+                "picked_voter": None,
+                "agreement": None,
+                "pairwise": {},
+            }
+            continue
+        try:
+            result = choose(state["candidates"][object_id], target=state["target"])
+        except Exception as error:
+            object_errors[object_id] = _processing_error("Consensus selection", error)
+            chosen[object_id] = {
+                "candidate": None,
+                "picked_voter": None,
+                "agreement": None,
+                "pairwise": {},
+            }
+            continue
         chosen[object_id] = {
             "candidate": (
                 state["candidates"][object_id].get(result.picked_voter)
@@ -371,23 +426,36 @@ def _consensus(state: WorkflowState) -> dict[str, Any]:
             "agreement": result.agreement,
             "pairwise": result.pairwise,
         }
-    return {"consensus": chosen}
+    return {"consensus": chosen, "object_errors": object_errors}
 
 
 def _validate(state: WorkflowState) -> dict[str, Any]:
     candidate_validations: dict[str, dict[str, list[Any]]] = {}
     picked_validations: dict[str, list[Any]] = {}
+    object_errors = dict(state.get("object_errors", {}))
     for source_object in state["conversion_objects"]:
         object_id = source_object["object_id"]
         candidates = state["candidates"][object_id]
-        results = {
-            voter: _validation(source_object, candidate, _runtime(state)["validation_context"])
-            for voter, candidate in candidates.items()
-            if candidate is not None
-        }
-        candidate_validations[object_id] = results
-        result = choose(candidates, results, target=state["target"])
         selected = state["consensus"][object_id]
+        if object_id in object_errors:
+            candidate_validations[object_id] = {}
+            picked_validations[object_id] = []
+            selected.update(candidate=None, picked_voter=None, agreement=None, pairwise={})
+            continue
+        try:
+            results = {
+                voter: _validation(source_object, candidate, _runtime(state)["validation_context"])
+                for voter, candidate in candidates.items()
+                if candidate is not None
+            }
+            result = choose(candidates, results, target=state["target"])
+        except Exception as error:
+            object_errors[object_id] = _processing_error("Validation", error)
+            candidate_validations[object_id] = {}
+            picked_validations[object_id] = []
+            selected.update(candidate=None, picked_voter=None, agreement=None, pairwise={})
+            continue
+        candidate_validations[object_id] = results
         selected.update(
             candidate=candidates.get(result.picked_voter) if result.picked_voter else None,
             picked_voter=result.picked_voter,
@@ -400,33 +468,45 @@ def _validate(state: WorkflowState) -> dict[str, Any]:
     return {
         "candidate_validations": candidate_validations,
         "picked_validations": picked_validations,
+        "object_errors": object_errors,
     }
 
 
 def _score(state: WorkflowState) -> dict[str, Any]:
     scores: dict[str, float] = {}
     to_escalate: list[str] = []
+    object_errors = dict(state.get("object_errors", {}))
     for source_object in state["conversion_objects"]:
         object_id = source_object["object_id"]
         selected = state["consensus"][object_id]
+        if object_id in object_errors:
+            selected["candidate"] = None
+            scores[object_id] = 0.0
+            continue
         candidate = selected["candidate"]
-        value = (
-            score(
-                selected["agreement"],
-                pass_rate(state["picked_validations"][object_id]),
-                [
-                    item.self_confidence
-                    for item in state["candidates"][object_id].values()
-                    if item is not None
-                ],
+        try:
+            value = (
+                score(
+                    selected["agreement"],
+                    pass_rate(state["picked_validations"][object_id]),
+                    [
+                        item.self_confidence
+                        for item in state["candidates"][object_id].values()
+                        if item is not None
+                    ],
+                )
+                if candidate is not None
+                else 0.0
             )
-            if candidate is not None
-            else 0.0
-        )
+        except Exception as error:
+            object_errors[object_id] = _processing_error("Confidence scoring", error)
+            selected["candidate"] = None
+            scores[object_id] = 0.0
+            continue
         scores[object_id] = value
         if value < state["confidence_threshold"]:
             to_escalate.append(object_id)
-    return {"scores": scores, "to_escalate": to_escalate}
+    return {"scores": scores, "to_escalate": to_escalate, "object_errors": object_errors}
 
 
 def _run_escalation(state: WorkflowState) -> dict[str, Any]:
@@ -469,6 +549,7 @@ def _run_escalation(state: WorkflowState) -> dict[str, Any]:
     client = None
     try:
         client = runtime["client_factory"]("escalation")
+        _set_mock_session_identity(client, state, "escalation")
         with runtime["session_semaphore"]:
             outcome = run_session(
                 client,
@@ -510,6 +591,10 @@ def _run_escalation(state: WorkflowState) -> dict[str, Any]:
     revised: dict[str, Candidate | None] = {}
     output = outcome.structured_output
     entries = output.get("objects", []) if isinstance(output, dict) else []
+    source_rel_paths = {
+        item["object_id"]: str(item.get("rel_path", "")) for item in state["conversion_objects"]
+    }
+    object_errors = dict(state.get("object_errors", {}))
     for object_id in state["to_escalate"]:
         entry = next(
             (
@@ -519,20 +604,26 @@ def _run_escalation(state: WorkflowState) -> dict[str, Any]:
             ),
             None,
         )
-        revised[object_id] = (
-            _as_candidate(
-                "escalation",
-                object_id,
-                entry,
-                state["target"],
+        try:
+            revised[object_id] = (
+                _as_candidate(
+                    "escalation",
+                    object_id,
+                    entry,
+                    state["target"],
+                    source_rel_paths.get(object_id),
+                )
+                if outcome.state == "done"
+                else None
             )
-            if outcome.state == "done"
-            else None
-        )
+        except Exception as error:
+            object_errors[object_id] = _processing_error("Escalation normalization", error)
+            revised[object_id] = None
     return {
         "escalation_outcome": outcome,
         "escalation_candidates": revised,
         "escalated": outcome.state == "done" and any(revised.values()),
+        "object_errors": object_errors,
     }
 
 
@@ -540,41 +631,57 @@ def _revalidate(state: WorkflowState) -> dict[str, Any]:
     results = {key: dict(value) for key, value in state["consensus"].items()}
     picked_validations = dict(state["picked_validations"])
     scores = dict(state["scores"])
+    object_errors = dict(state.get("object_errors", {}))
     for object_id in state["to_escalate"]:
+        if object_id in object_errors:
+            continue
         revised = state.get("escalation_candidates", {}).get(object_id)
         if revised is None:
             continue
         source_object = next(
             item for item in state["conversion_objects"] if item["object_id"] == object_id
         )
-        checks = _validation(source_object, revised, _runtime(state)["validation_context"])
-        previous = results[object_id]
-        selected = revised
-        results[object_id] = {
-            "candidate": selected,
-            "picked_voter": "escalation",
-            "agreement": previous["agreement"],
-            "pairwise": previous["pairwise"],
-        }
-        picked_validations[object_id] = checks
-        confidences = [
-            item.self_confidence
-            for item in state["candidates"][object_id].values()
-            if item is not None
-        ]
-        confidences.append(selected.self_confidence)
-        scores[object_id] = score(
-            previous["agreement"],
-            pass_rate(checks),
-            confidences,
-        )
-    return {"consensus": results, "picked_validations": picked_validations, "scores": scores}
+        try:
+            checks = _validation(source_object, revised, _runtime(state)["validation_context"])
+            previous = results[object_id]
+            results[object_id] = {
+                "candidate": revised,
+                "picked_voter": "escalation",
+                "agreement": previous["agreement"],
+                "pairwise": previous["pairwise"],
+            }
+            picked_validations[object_id] = checks
+            confidences = [
+                item.self_confidence
+                for item in state["candidates"][object_id].values()
+                if item is not None
+            ]
+            confidences.append(revised.self_confidence)
+            scores[object_id] = score(
+                previous["agreement"],
+                pass_rate(checks),
+                confidences,
+            )
+        except Exception as error:
+            object_errors[object_id] = _processing_error("Revalidation", error)
+            results[object_id]["candidate"] = None
+            scores[object_id] = 0.0
+    return {
+        "consensus": results,
+        "picked_validations": picked_validations,
+        "scores": scores,
+        "object_errors": object_errors,
+    }
 
 
 def _failure_reason(error: str | None) -> str:
     if not error:
         return ""
     return " ".join(secret_mask.mask_secrets(str(error)).split())[:200]
+
+
+def _processing_error(stage: str, error: Exception) -> str:
+    return _failure_reason(f"{stage} failed ({type(error).__name__}): {error}")
 
 
 def _session_failure_description(
@@ -597,7 +704,8 @@ def _finalise(state: WorkflowState) -> dict[str, Any]:
     for source_object in state["conversion_objects"]:
         object_id = source_object["object_id"]
         selected = state["consensus"][object_id]
-        candidate = selected["candidate"]
+        object_error = state.get("object_errors", {}).get(object_id)
+        candidate = None if object_error else selected["candidate"]
         confidence = state["scores"][object_id]
         if candidate is None:
             status = "failed"
@@ -618,20 +726,24 @@ def _finalise(state: WorkflowState) -> dict[str, Any]:
             "agreement": selected["agreement"],
         }
         if candidate is None:
-            candidates = state["candidates"].get(object_id, {})
-            outcomes = state.get("voter_outcomes", {})
-            reasons = [
-                f"{voter} "
-                f"{_session_failure_description(outcomes.get(voter), candidates.get(voter))}"
-                for voter in ("A", "B", "C")
-            ]
-            escalation = state.get("escalation_outcome")
-            if escalation is not None:
-                escalation_candidate = state.get("escalation_candidates", {}).get(object_id)
-                reasons.append(
-                    "escalation " + _session_failure_description(escalation, escalation_candidate)
-                )
-            result["reason"] = "No usable candidate: " + "; ".join(reasons)
+            if object_error:
+                result["reason"] = f"Object processing failed: {_failure_reason(object_error)}"
+            else:
+                candidates = state["candidates"].get(object_id, {})
+                outcomes = state.get("voter_outcomes", {})
+                reasons = [
+                    f"{voter} "
+                    f"{_session_failure_description(outcomes.get(voter), candidates.get(voter))}"
+                    for voter in ("A", "B", "C")
+                ]
+                escalation = state.get("escalation_outcome")
+                if escalation is not None:
+                    escalation_candidate = state.get("escalation_candidates", {}).get(object_id)
+                    reasons.append(
+                        "escalation "
+                        + _session_failure_description(escalation, escalation_candidate)
+                    )
+                result["reason"] = "No usable candidate: " + "; ".join(reasons)
         results[object_id] = result
     return {"results": results}
 
@@ -691,6 +803,7 @@ def run_batch_workflow(
         "cancel": cancel,
         "session_semaphore": session_semaphore,
         "client_factory": client_factory,
+        "run_id": run_id,
         "session_status_callback": session_status_callback,
     }
     with _RUNTIME_LOCK:

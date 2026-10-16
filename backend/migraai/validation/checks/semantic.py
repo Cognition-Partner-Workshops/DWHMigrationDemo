@@ -1,11 +1,12 @@
 import sqlglot
 from sqlglot import ErrorLevel, exp
-from sqlglot.errors import ParseError
+from sqlglot.errors import ParseError, TokenError
 
 from migraai.validation.context import ObjectUnderTest, ValidationContext
 from migraai.validation.dialects import sqlglot_dialect
 from migraai.validation.findings import Finding
 from migraai.validation.names import identifier_parts, normalize_name
+from migraai.validation.sql import exclude_snowflake_stage_copy_statements
 
 
 def _table_name(table: exp.Table) -> str:
@@ -145,28 +146,32 @@ def validate(obj: ObjectUnderTest, ctx: ValidationContext) -> list[Finding]:
         obj.source_qualified_name,
     )
     self_name = normalize_name(self_target)
-    parsed_files: list[list[exp.Expression]] = []
+    parsed_files: list[list[exp.Expression | None]] = []
 
     for file in obj.files:
         if file.language.casefold() != "sql":
             continue
         try:
             statements = sqlglot.parse(
-                file.content,
+                exclude_snowflake_stage_copy_statements(file.content),
                 read=sqlglot_dialect(ctx.target),
                 error_level=ErrorLevel.RAISE,
             )
-        except ParseError:
+        except (ParseError, TokenError):
             continue
         parsed_files.append(statements)
 
     unknown_tables: list[tuple[str, int | None]] = []
     for statements in parsed_files:
         for statement in statements:
+            if statement is None:
+                continue
             cte_names = {cte.alias_or_name.casefold() for cte in statement.find_all(exp.CTE)}
             table_aliases: dict[str, str] = {}
             for table in statement.find_all(exp.Table):
                 name = _table_name(table)
+                if name.startswith("@") or "/" in name or "://" in name:
+                    continue
                 normalized = normalize_name(name)
                 if not normalized or (
                     not table.catalog and not table.db and table.name.casefold() in cte_names

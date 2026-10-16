@@ -10,6 +10,7 @@ import httpx
 import sqlglot
 
 from migraai.devin.attachment import parse_batch
+from migraai.validation.sql import split_snowflake_stage_copy_statements
 
 _SOURCE_DIALECTS = {
     "teradata": "teradata",
@@ -62,7 +63,15 @@ class MockDevinClient:
         self.closed = False
         self._next_attachment = 1
         self._next_session = 1
+        self._session_identity: tuple[str, int, str] | None = None
         self._create_5xx_raised = False
+
+    def set_session_identity(self, *, run_id: str, batch_index: int, role: str) -> None:
+        self._session_identity = (
+            run_id[:8] or "local",
+            batch_index,
+            role.casefold().replace("-", "_"),
+        )
 
     def upload_attachment(self, name: str, data: bytes | str) -> str:
         content = data.decode("utf-8") if isinstance(data, bytes) else data
@@ -80,6 +89,8 @@ class MockDevinClient:
         title: str,
         tags: list[str],
     ) -> tuple[str, str]:
+        attempt = self._next_session
+        self._next_session += 1
         try:
             delay_s = float(os.environ.get("MIGRAAI_TEST_MOCK_SESSION_DELAY_S", "0"))
         except ValueError:
@@ -123,8 +134,20 @@ class MockDevinClient:
             state, output, detail = "blocked", None, "Mock session is blocked."
         elif voter in self.scenario.blocked_with_output_voters:
             state, detail = "blocked", "Mock session is blocked with output."
-        session_id = f"mock-session-{self._next_session}"
-        self._next_session += 1
+        if self._session_identity is None:
+            batch_tag = next((tag for tag in tags if tag.startswith("batch-")), "batch-1")
+            try:
+                batch_index = max(0, int(batch_tag.removeprefix("batch-")) - 1)
+            except ValueError:
+                batch_index = 0
+            role = next(
+                (tag.replace("-", "_") for tag in tags if tag.startswith("voter-")),
+                "escalation" if "escalation" in tags else "default",
+            )
+            run_prefix = "local"
+        else:
+            run_prefix, batch_index, role = self._session_identity
+        session_id = f"mock-{run_prefix}-b{batch_index}-{role}-a{attempt}"
         url = f"mock://sessions/{session_id}"
         self.sessions[session_id] = {
             "state": state,
@@ -134,6 +157,12 @@ class MockDevinClient:
         return session_id, url
 
     def get_session(self, session_id: str) -> dict[str, Any]:
+        try:
+            delay_s = float(os.environ.get("MIGRAAI_TEST_MOCK_SESSION_RESPONSE_DELAY_S", "0"))
+        except ValueError:
+            delay_s = 0
+        if delay_s > 0:
+            time.sleep(min(delay_s, 5))
         return dict(self.sessions[session_id])
 
     def terminate_session(self, session_id: str) -> None:
@@ -246,8 +275,14 @@ class MockDevinClient:
             or target not in set(_TARGET_DIALECTS.values())
         ):
             return source_text
+        parser_text, stage_copies = split_snowflake_stage_copy_statements(source_text)
         try:
-            converted = sqlglot.transpile(source_text, read=source, write=target)
-            return "\n".join(converted) if converted else source_text
+            converted = (
+                sqlglot.transpile(parser_text, read=source, write=target)
+                if parser_text.strip()
+                else []
+            )
+            converted_text = "\n".join(converted)
+            return "\n".join([converted_text, *stage_copies]).strip() or source_text
         except Exception:
             return source_text

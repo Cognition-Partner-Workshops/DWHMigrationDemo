@@ -9,9 +9,11 @@ import time
 import uuid
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
+from typing import Any
 
 import pytest
 
+from migraai.agents import workflow
 from migraai.agents.batching import Batch, plan_batches
 from migraai.agents.context import build_batch
 from migraai.agents.job import ConversionJob
@@ -360,6 +362,113 @@ def test_secret_guard_blocks_batch_before_upload_or_session(
     assert "guard-secret" not in audit_path.read_text(encoding="utf-8")
 
 
+def test_validator_exception_fails_only_the_affected_object(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_dir = tmp_path / "validator-errors"
+    source_dir.mkdir()
+    for name in ("good_a", "bad", "good_b"):
+        (source_dir / f"{name}.sql").write_text(
+            f"CREATE TABLE sales.{name} (id INTEGER);",
+            encoding="utf-8",
+        )
+    session = _inventory_session(tmp_path / "validator-session", source_dir, "teradata")
+    session["target"] = "snowflake"
+    bad_object = next(
+        item for item in session["inventory"].page(page_size=20)["items"] if item["name"] == "bad"
+    )
+    original_validate = workflow.validate_object
+
+    def fail_one_object(obj, context):
+        if obj.source_qualified_name == "sales.bad":
+            raise RuntimeError("password=hunter2xyz")
+        return original_validate(obj, context)
+
+    monkeypatch.setattr(workflow, "validate_object", fail_one_object)
+    job = ConversionJob(
+        session=session,
+        audit=None,
+        batch_size=20,
+        timeout_minutes=1,
+        confidence_threshold=0.0,
+        client_factory=lambda role: MockDevinClient(),
+        pack=load_pack("snowflake"),
+    )
+
+    job.start()
+    job.join(timeout=30)
+
+    assert not job.is_alive()
+    assert job.snapshot()["state"] == "done"
+    assert job.results[str(bad_object["id"])]["status"] == "failed"
+    assert all(
+        result["status"] == "converted"
+        for object_id, result in job.results.items()
+        if object_id != str(bad_object["id"])
+    )
+    reason = job.errors[str(bad_object["id"])]
+    assert "hunter2xyz" not in reason
+    assert secret_mask.mask_secrets("password=hunter2xyz") in reason
+    package = build_package_input(job, session, "test")
+    packaged_bad_object = next(
+        item for item in package.objects if item.object_id == bad_object["id"]
+    )
+    assert packaged_bad_object.status == "failed"
+    assert packaged_bad_object.error == reason
+
+
+def test_packaging_exception_fails_only_the_affected_object(tmp_path: Path) -> None:
+    source_dir = tmp_path / "packaging-errors"
+    source_dir.mkdir()
+    for name in ("good_a", "bad", "good_b"):
+        (source_dir / f"{name}.sql").write_text(
+            f"CREATE TABLE sales.{name} (id INTEGER);",
+            encoding="utf-8",
+        )
+    session = _inventory_session(tmp_path / "packaging-session", source_dir, "teradata")
+    session["target"] = "snowflake"
+    bad_object = next(
+        item for item in session["inventory"].page(page_size=20)["items"] if item["name"] == "bad"
+    )
+    job = ConversionJob(
+        session=session,
+        audit=None,
+        batch_size=20,
+        timeout_minutes=1,
+        confidence_threshold=0.0,
+        client_factory=lambda role: MockDevinClient(),
+        pack=load_pack("snowflake"),
+    )
+    store_json = job._store_json
+
+    def fail_final_packaging(rel_path: str, value: Any) -> str:
+        if rel_path.endswith(f"/{bad_object['id']}/final.json"):
+            raise RuntimeError("password=hunter2xyz")
+        return store_json(rel_path, value)
+
+    job._store_json = fail_final_packaging
+    job.start()
+    job.join(timeout=30)
+
+    bad_id = str(bad_object["id"])
+    assert not job.is_alive()
+    assert job.snapshot()["state"] == "done"
+    assert job.results[bad_id]["status"] == "failed"
+    assert all(
+        result["status"] == "converted"
+        for object_id, result in job.results.items()
+        if object_id != bad_id
+    )
+    reason = job.errors[bad_id]
+    assert "hunter2xyz" not in reason
+    assert secret_mask.mask_secrets("password=hunter2xyz") in reason
+    package = build_package_input(job, session, "test")
+    packaged_bad_object = next(item for item in package.objects if item.object_id == bad_id)
+    assert packaged_bad_object.status == "failed"
+    assert packaged_bad_object.error == reason
+
+
 def test_attachment_sections_do_not_change_object_round_trip() -> None:
     text = render_batch(
         [{"object_id": "one", "rel_path": "a.sql", "language": "sql", "source_text": "SELECT 1;"}],
@@ -437,6 +546,78 @@ def test_confidence_uses_weighted_object_counts() -> None:
     assert score(0.5, 0.75, [0.4, 0.6]) == pytest.approx(0.6)
     assert score(1.0, 1.0, []) == pytest.approx(0.8)
     assert overall_score([0.5, 0.9], [1, 3]) == pytest.approx(0.8)
+
+
+def test_single_file_candidates_use_source_path_for_agreement() -> None:
+    from migraai.agents.workflow import _as_candidate
+
+    source_path = "teradata-testpack.zip/tables.sql"
+    content = "CREATE TABLE sales.card (card_id INTEGER);"
+    candidates = {
+        voter: _as_candidate(
+            voter,
+            "card",
+            {
+                "files": [
+                    {
+                        "rel_path": candidate_path,
+                        "language": "sql",
+                        "content": content,
+                    }
+                ]
+            },
+            "snowflake",
+            source_rel_path=source_path,
+        )
+        for voter, candidate_path in (
+            ("A", "tables/sales.card.sql"),
+            ("B", "tables/SALES.CARD.sql"),
+        )
+    }
+
+    assert candidates["A"] is not None
+    assert candidates["B"] is not None
+    assert candidates["A"].files[0]["rel_path"] == source_path
+    assert candidates["B"].files[0]["rel_path"] == source_path
+    assert choose(candidates, target="snowflake").agreement == 1.0
+
+
+def test_procedure_dependency_context_includes_parameter_signatures(tmp_path: Path) -> None:
+    session = _inventory_session(tmp_path, TERADATA_PACK, "teradata")
+    inventory_rows = session["inventory"].page(page_size=300)["items"]
+    grant = next(
+        row
+        for row in inventory_rows
+        if row["qualified_name"] == "EXECUTE PROCEDURE on sales.add_payment"
+    )
+
+    attachment, _ = build_batch(
+        session,
+        Batch(index=0, objects=[grant]),
+        "teradata",
+        "snowflake",
+        _target_pack("snowflake"),
+        {},
+    )
+
+    assert '"sales.add_payment"' in attachment
+    assert '"name": "p_account"' in attachment
+    assert '"type": "BIGINT"' in attachment
+    assert '"direction": "in"' in attachment
+    assert '"name": "p_amount"' in attachment
+    assert '"type": "DECIMAL(12, 2)"' in attachment
+
+
+def test_conversion_prompts_preserve_path_and_data_type_rules() -> None:
+    from migraai.devin.prompts import ESCALATION, VOTER_BASE
+
+    assert (
+        "For a single-file object, set rel_path to the object's source rel_path exactly as given "
+        "in the attachment; use other paths only for the extra files an ETL output format "
+        "requires. Use the data types from the type mappings exactly as written, and keep the "
+        "source precision and scale unless a mapping says otherwise."
+    ) in VOTER_BASE
+    assert "naming, rel_path and data-type rules as the candidates." in ESCALATION
 
 
 def test_langsmith_tracing_is_forced_off(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -681,6 +862,11 @@ def test_conversion_job_continues_after_voter_failure_and_cancels_running_sessio
     cancel_job.join(timeout=30)
     assert not cancel_job.is_alive()
     assert cancel_job.snapshot()["state"] == "cancelled"
+    assert all(
+        status != "queued"
+        for batch in cancel_job.snapshot()["progress"]["batches"].values()
+        for status in batch["voters"].values()
+    )
     assert all(client.termination_calls for client in slow_clients if client.sessions)
     package = build_package_input(cancel_job, cancel_session, "")
     assert package.egress is not None
@@ -694,6 +880,117 @@ def test_conversion_job_continues_after_voter_failure_and_cancels_running_sessio
     section = report[report.index("## 4. Data sent to Devin") : report.index("## 5.")]
     assert f"- Sessions: {len(cancel_job.started_sessions)}" in section
     assert section.count("cancelled") >= cancelled_count
+
+
+def test_cancel_finalises_full_run_results_before_blocked_batch_returns(tmp_path: Path) -> None:
+    source_dir = tmp_path / "source-pack"
+    source_dir.mkdir()
+    for name in ("a", "b", "c"):
+        (source_dir / f"{name}.sql").write_text(
+            f"CREATE TABLE sales.{name} (id INTEGER);",
+            encoding="utf-8",
+        )
+    session = _inventory_session(tmp_path / "cancel-immediate", source_dir, "teradata")
+    entered = threading.Event()
+    release = threading.Event()
+
+    class GatedMockClient(MockDevinClient):
+        def get_session(self, session_id: str) -> dict[str, Any]:
+            entered.set()
+            if not release.wait(timeout=10):
+                raise TimeoutError("Mock session gate timed out.")
+            return super().get_session(session_id)
+
+    job = ConversionJob(
+        session=session,
+        audit=AuditLog(tmp_path / "cancel-immediate" / "audit.jsonl"),
+        batch_size=1,
+        timeout_minutes=1,
+        max_concurrent_sessions=4,
+        client_factory=lambda _: GatedMockClient(),
+        pack=_target_pack("snowflake"),
+    )
+    job.start()
+    try:
+        assert entered.wait(timeout=5)
+        assert len(job.selected_objects) == 3
+
+        job.cancel()
+
+        counts_after_cancel = dict(job.counts)
+        snapshot = job.snapshot()
+        assert snapshot["state"] == "cancelled"
+        assert snapshot["counts"] == {
+            "converted": 0,
+            "escalated": 0,
+            "expert_review": 0,
+            "failed": 0,
+            "cancelled": 3,
+        }
+        assert len(job.results) == 3
+        assert all(result["status"] == "cancelled" for result in job.results.values())
+        assert all(
+            state != "queued"
+            for batch in snapshot["progress"]["batches"].values()
+            for state in batch["voters"].values()
+        )
+        with session["inventory"].lock:
+            persisted_state = (
+                session["inventory"]
+                .connection.execute(
+                    "SELECT state FROM conversion_run WHERE id=?",
+                    (job.run_id,),
+                )
+                .fetchone()["state"]
+            )
+        assert persisted_state == "cancelled"
+
+        events = [
+            json.loads(line) for line in job.audit.path.read_text(encoding="utf-8").splitlines()
+        ]
+        cancel_event = next(event for event in events if event["action"] == "convert.cancel")
+        assert cancel_event["details"]["completed_count"] == 3
+
+        release.set()
+        job.join(timeout=30)
+        assert not job.is_alive()
+        assert job.counts == counts_after_cancel
+        assert all(result["status"] == "cancelled" for result in job.results.values())
+    finally:
+        release.set()
+        job.join(timeout=30)
+
+
+def test_three_batch_mock_run_reports_nine_distinct_sessions(tmp_path: Path) -> None:
+    source_dir = tmp_path / "three-batch-pack"
+    source_dir.mkdir()
+    for name in ("a", "b", "c"):
+        (source_dir / f"{name}.sql").write_text(
+            f"CREATE TABLE sales.{name} (id INTEGER);",
+            encoding="utf-8",
+        )
+    session = _inventory_session(tmp_path / "three-batch", source_dir, "teradata")
+    job = ConversionJob(
+        session=session,
+        audit=None,
+        batch_size=1,
+        timeout_minutes=1,
+        confidence_threshold=0.0,
+        max_concurrent_sessions=4,
+        client_factory=lambda _: MockDevinClient(),
+        pack=_target_pack("snowflake"),
+    )
+
+    job.start()
+    job.join(timeout=30)
+
+    assert not job.is_alive()
+    assert len(job.batches) == 3
+    assert len(job.started_sessions) == 9
+    assert len(set(job.started_sessions)) == 9
+    report = build_report_md(build_package_input(job, session, "test"))
+    section = report[report.index("## 4. Data sent to Devin") : report.index("## 5.")]
+    assert "- Sessions: 9" in section
 
 
 def test_conversion_job_publishes_live_voter_and_escalation_progress(

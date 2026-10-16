@@ -80,6 +80,8 @@ class SessionSummary:
     state: str
     acus: float | None
     url: str | None
+    run_id: str = ""
+    replayed: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -106,6 +108,9 @@ class PackageInput:
     egress: EgressSummary | None = None
     kb_version: str | None = None
     notes: tuple[str, ...] = field(default_factory=tuple)
+    base_run_id: str | None = None
+    reconverted_object_ids: tuple[str, ...] = ()
+    kept_base_object_ids: dict[str, str] = field(default_factory=dict)
 
     def included(self) -> tuple[PackagedObject, ...]:
         """Objects that go into the ZIP: converted and expert_review, in execution order."""

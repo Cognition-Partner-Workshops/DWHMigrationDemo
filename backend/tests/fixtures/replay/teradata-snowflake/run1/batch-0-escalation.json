@@ -1,0 +1,259 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "The script runs as a role with CREATE ROLE privilege (USERADMIN or SECURITYADMIN), not ACCOUNTADMIN; that role becomes the owner of READER.",
+        "Teradata role names are case-insensitive, so the Snowflake role READER is the same role referenced by the later GRANT reader statements in the batch."
+      ],
+      "explanations": [
+        "All three candidates were valid and passed every check (only the informational SQLGlot opaque-command warning, which every CREATE ROLE gets). They differed only in IF NOT EXISTS and file path, so this is a tie-break, not a fix.",
+        "Chose plain CREATE ROLE READER (A/C) over B's CREATE ROLE IF NOT EXISTS: Teradata CREATE ROLE fails when the role exists, and IF NOT EXISTS would silently accept a pre-existing role that may already carry unrelated grants.",
+        "Wrote the name as unquoted upper case READER to match the uppercase naming used for the converted tables; unquoted reader and READER resolve to the same Snowflake role, and READER is not a Snowflake reserved keyword.",
+        "Kept the source file path (teradata-testpack.zip/security.sql) as rel_path, as candidate A and the MigraAI packager do, so the role lands in the converted security.sql alongside the users and grants.",
+        "No GRANT ROLE ... TO ROLE SYSADMIN was added; Snowflake recommends it, but the source has no such grant, so adding it would widen privileges. It is left to the security team."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE ROLE reader -> CREATE ROLE READER (Snowflake account-level role; unquoted name, resolves to READER)\n-- Reason: Snowflake supports CREATE ROLE directly; plain CREATE ROLE keeps the Teradata behaviour of failing if the role already exists, and no privileges or role hierarchy are added because the source defines none\nCREATE ROLE READER;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "a3dc1ff9f6c14b83a5bb9ee4b819c9e8",
+      "qualified_name": "reader",
+      "self_confidence": 0.96,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The script runs as a role with CREATE ROLE privilege (USERADMIN or SECURITYADMIN), not ACCOUNTADMIN; that role becomes the owner of OPERATOR.",
+        "Teradata role names are case-insensitive, so the Snowflake role OPERATOR is the same role referenced by the later GRANT operator statements in the batch."
+      ],
+      "explanations": [
+        "All three candidates were valid and passed every check (only the informational SQLGlot opaque-command warning, which every CREATE ROLE gets). They differed only in IF NOT EXISTS and file path, so this is a tie-break, not a fix.",
+        "Chose plain CREATE ROLE OPERATOR (A/C) over B's CREATE ROLE IF NOT EXISTS: Teradata CREATE ROLE fails when the role exists, and IF NOT EXISTS would silently accept a pre-existing role that may already carry unrelated grants.",
+        "Wrote the name as unquoted upper case OPERATOR to match the uppercase naming used for the converted tables; unquoted reader and READER resolve to the same Snowflake role, and OPERATOR is not a Snowflake reserved keyword.",
+        "Kept the source file path (teradata-testpack.zip/security.sql) as rel_path, as candidate A and the MigraAI packager do, so the role lands in the converted security.sql alongside the users and grants.",
+        "No GRANT ROLE ... TO ROLE SYSADMIN was added; Snowflake recommends it, but the source has no such grant, so adding it would widen privileges. It is left to the security team."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE ROLE operator -> CREATE ROLE OPERATOR (Snowflake account-level role; unquoted name, resolves to OPERATOR)\n-- Reason: Snowflake supports CREATE ROLE directly; plain CREATE ROLE keeps the Teradata behaviour of failing if the role already exists, and no privileges or role hierarchy are added because the source defines none\nCREATE ROLE OPERATOR;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "9368b37c5bfb40218bdddd18df63c027",
+      "qualified_name": "operator",
+      "self_confidence": 0.96,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The script runs as a role with CREATE ROLE privilege (USERADMIN or SECURITYADMIN), not ACCOUNTADMIN; that role becomes the owner of AUDITOR.",
+        "Teradata role names are case-insensitive, so the Snowflake role AUDITOR is the same role referenced by the later GRANT auditor statements in the batch."
+      ],
+      "explanations": [
+        "All three candidates were valid and passed every check (only the informational SQLGlot opaque-command warning, which every CREATE ROLE gets). They differed only in IF NOT EXISTS and file path, so this is a tie-break, not a fix.",
+        "Chose plain CREATE ROLE AUDITOR (A/C) over B's CREATE ROLE IF NOT EXISTS: Teradata CREATE ROLE fails when the role exists, and IF NOT EXISTS would silently accept a pre-existing role that may already carry unrelated grants.",
+        "Wrote the name as unquoted upper case AUDITOR to match the uppercase naming used for the converted tables; unquoted reader and READER resolve to the same Snowflake role, and AUDITOR is not a Snowflake reserved keyword.",
+        "Kept the source file path (teradata-testpack.zip/security.sql) as rel_path, as candidate A and the MigraAI packager do, so the role lands in the converted security.sql alongside the users and grants.",
+        "No GRANT ROLE ... TO ROLE SYSADMIN was added; Snowflake recommends it, but the source has no such grant, so adding it would widen privileges. It is left to the security team."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE ROLE auditor -> CREATE ROLE AUDITOR (Snowflake account-level role; unquoted name, resolves to AUDITOR)\n-- Reason: Snowflake supports CREATE ROLE directly; plain CREATE ROLE keeps the Teradata behaviour of failing if the role already exists, and no privileges or role hierarchy are added because the source defines none\nCREATE ROLE AUDITOR;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "d8766f138b304b4f90ab85a8e4260024",
+      "qualified_name": "auditor",
+      "self_confidence": 0.96,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The script runs as a role with CREATE USER privilege (USERADMIN or SECURITYADMIN).",
+        "The Teradata credential was masked before sending and cannot be migrated; an administrator provisions the login credential (SSO, MFA-backed credential, or key-pair) through the identity process after creation.",
+        "The Teradata database sales maps to the Snowflake schema SALES inside a target database chosen at deployment."
+      ],
+      "explanations": [
+        "Fixed the security.secret_in_output errors on candidate A: they came from its comment text (the source credential clause copied verbatim, the word for the credential followed by another word, and an RSA_PUBLIC_KEY = '<public key>' example), not from SQL. The new comment block names the removed clause without repeating it, so the masked placeholder and the matching patterns no longer appear.",
+        "Removed DEFAULT_NAMESPACE = SALES (candidate A). The naming map turns the Teradata database sales into the Snowflake schema SALES (sales.customer -> SALES.CUSTOMER), but DEFAULT_NAMESPACE = SALES would point at a database called SALES. The default database is kept in COMMENT and listed under unsupported until the target database is known.",
+        "TYPE = PERSON: analyst is an interactive user, so it is a PERSON user. That still lets an administrator set its login credential out of band, which matches the source's credential-based logon.",
+        "No DEFAULT_ROLE was set (candidate B used one): the Teradata user has no DEFAULT ROLE clause, and the role grant is a separate object in this batch.",
+        "Plain CREATE USER (no IF NOT EXISTS) keeps the Teradata behaviour of failing when the user exists. Unquoted upper case ANALYST follows the uppercase naming convention; it is not a reserved keyword.",
+        "Kept the source file path teradata-testpack.zip/security.sql as rel_path, as the packager expects."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE USER analyst FROM sales AS PERM = 0, PASSWORD, DEFAULT DATABASE = sales -> CREATE USER ANALYST TYPE = PERSON; FROM sales, PERM and the masked credential removed; DEFAULT DATABASE kept in COMMENT\n-- Reason: Snowflake users are account-level with no owning database or perm-space quota; credentials must not be embedded, so an administrator provisions the login credential (SSO, MFA-backed credential, or key-pair) through the identity process after creation; DEFAULT_NAMESPACE needs the target database name, which the naming map does not give\nCREATE USER ANALYST\n  TYPE = PERSON\n  COMMENT = 'Migrated from Teradata user analyst (owner database sales; default database sales)';\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "64c54c7c980b4b03a1318f025881d865",
+      "qualified_name": "analyst",
+      "self_confidence": 0.85,
+      "type": "user",
+      "unsupported": [
+        "FROM sales (Teradata owning database / user hierarchy): Snowflake users are account-level objects with no parent database.",
+        "PERM = 0 (permanent space quota): Snowflake has no per-user storage quota; storage is billed per account.",
+        "DEFAULT DATABASE = sales: set it at deployment with ALTER USER ANALYST SET DEFAULT_NAMESPACE = '<target_database>.SALES', because the naming map does not give the target database.",
+        "Masked source credential: not migrated; an administrator provisions the login credential (SSO, MFA-backed credential, or key-pair) through the identity process after creation."
+      ]
+    },
+    {
+      "assumptions": [
+        "The script runs as a role with CREATE USER privilege (USERADMIN or SECURITYADMIN).",
+        "The Teradata credential was masked before sending and cannot be migrated; the service user authenticates with key-pair auth and an administrator registers its RSA public key with ALTER USER LOADER SET RSA_PUBLIC_KEY after creation.",
+        "The Teradata database sales maps to the Snowflake schema SALES inside a target database chosen at deployment."
+      ],
+      "explanations": [
+        "Fixed the security.secret_in_output errors on candidate A: they came from its comment text (the source credential clause copied verbatim, the word for the credential followed by another word, and an RSA_PUBLIC_KEY = '<public key>' example), not from SQL. The new comment block names the removed clause without repeating it, so the masked placeholder and the matching patterns no longer appear. Candidate B for loader failed the same check because its comment had the credential word followed by 'login'; that wording is gone too.",
+        "Removed DEFAULT_NAMESPACE = SALES (candidate A). The naming map turns the Teradata database sales into the Snowflake schema SALES (sales.customer -> SALES.CUSTOMER), but DEFAULT_NAMESPACE = SALES would point at a database called SALES. The default database is kept in COMMENT and listed under unsupported until the target database is known.",
+        "TYPE = SERVICE: loader is a batch/ETL account. Snowflake guidance is key-pair authentication for service users, and TYPE = SERVICE blocks interactive logon. This changes how it authenticates (the source used a credential), so the RSA public key must be registered before cut-over (see unsupported).",
+        "No DEFAULT_ROLE was set (candidate B used one): the Teradata user has no DEFAULT ROLE clause, and the role grant is a separate object in this batch.",
+        "Plain CREATE USER (no IF NOT EXISTS) keeps the Teradata behaviour of failing when the user exists. Unquoted upper case LOADER follows the uppercase naming convention; it is not a reserved keyword.",
+        "Kept the source file path teradata-testpack.zip/security.sql as rel_path, as the packager expects."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE USER loader FROM sales AS PERM = 0, PASSWORD, DEFAULT DATABASE = sales -> CREATE USER LOADER TYPE = SERVICE; FROM sales, PERM and the masked credential removed; DEFAULT DATABASE kept in COMMENT\n-- Reason: Snowflake users are account-level with no owning database or perm-space quota; credentials must not be embedded, so the service user authenticates with key-pair auth and an administrator registers its RSA public key with ALTER USER LOADER SET RSA_PUBLIC_KEY after creation; DEFAULT_NAMESPACE needs the target database name, which the naming map does not give\nCREATE USER LOADER\n  TYPE = SERVICE\n  COMMENT = 'Migrated from Teradata user loader (owner database sales; default database sales)';\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "542b236d7e3c4511a38f3e3ed02c6f4c",
+      "qualified_name": "loader",
+      "self_confidence": 0.85,
+      "type": "user",
+      "unsupported": [
+        "FROM sales (Teradata owning database / user hierarchy): Snowflake users are account-level objects with no parent database.",
+        "PERM = 0 (permanent space quota): Snowflake has no per-user storage quota; storage is billed per account.",
+        "DEFAULT DATABASE = sales: set it at deployment with ALTER USER LOADER SET DEFAULT_NAMESPACE = '<target_database>.SALES', because the naming map does not give the target database.",
+        "Masked source credential: not migrated; the service user authenticates with key-pair auth and an administrator registers its RSA public key with ALTER USER LOADER SET RSA_PUBLIC_KEY after creation."
+      ]
+    },
+    {
+      "assumptions": [
+        "The SALES schema exists in the target database before this script runs.",
+        "Column names stay unquoted and resolve in upper case; queries that reference them unquoted keep working.",
+        "No clustering key is needed until table size and query patterns are measured."
+      ],
+      "explanations": [
+        "All three candidates passed every validator check (only the opaque-statement warning), so this escalation is about their disagreement on column types, not a failed check.",
+        "Chose A/B's INTEGER over C's NUMBER(10,0)/NUMBER(19,0). In Snowflake INTEGER and BIGINT are NUMBER(38,0). Neither choice enforces the Teradata 32/64-bit range: NUMBER(10,0) allows values up to 9,999,999,999, which is still past the int32 range, so C's narrower precision adds no real range check. It also makes the columns differ from other converted tables that keep INTEGER/BIGINT, which matters for joins and CTAS type inference.",
+        "Dropped PRIMARY INDEX (employee_id) without adding CLUSTER BY. The source has no size information, and Snowflake recommends clustering keys only for large tables after measuring. If the table proves large, ALTER TABLE SALES.EMPLOYEE CLUSTER BY (employee_id) is the matching replacement.",
+        "SET table duplicate-row rejection has no Snowflake equivalent and is listed under unsupported, which the candidates did not do.",
+        "Used the naming-map name SALES.EMPLOYEE and kept the column names unquoted so they resolve in upper case. Kept the source file path teradata-testpack.zip/tables.sql as rel_path."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.employee -> CREATE TABLE SALES.EMPLOYEE (naming map); removed SET and PRIMARY INDEX (employee_id); INTEGER kept as Snowflake INTEGER (NUMBER(38,0))\n-- Reason: Snowflake has no SET/MULTISET table kinds or primary index; micro-partitioning replaces AMP hash distribution, and NUMBER(38,0) holds every Teradata INTEGER value without precision loss\nCREATE TABLE SALES.EMPLOYEE (\n  employee_id INTEGER,\n  branch_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "0c7937505cef42e1b588e29ead90c760",
+      "qualified_name": "sales.employee",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata silently rejects fully duplicate rows on insert into a SET table; Snowflake tables allow duplicates. Loads into SALES.EMPLOYEE must de-duplicate (for example INSERT ... SELECT DISTINCT or a MERGE) if that behaviour is relied on.",
+        "PRIMARY INDEX (employee_id): Teradata AMP hash distribution has no Snowflake equivalent; micro-partitioning is automatic."
+      ]
+    },
+    {
+      "assumptions": [
+        "The SALES schema exists in the target database before this script runs.",
+        "Column names stay unquoted and resolve in upper case; queries that reference them unquoted keep working.",
+        "No clustering key is needed until table size and query patterns are measured."
+      ],
+      "explanations": [
+        "All three candidates passed every validator check (only the opaque-statement warning), so this escalation is about their disagreement on column types, not a failed check.",
+        "Chose A/B's BIGINT/INTEGER over C's NUMBER(10,0)/NUMBER(19,0). In Snowflake INTEGER and BIGINT are NUMBER(38,0). Neither choice enforces the Teradata 32/64-bit range: NUMBER(10,0) allows values up to 9,999,999,999, which is still past the int32 range, so C's narrower precision adds no real range check. It also makes the columns differ from other converted tables that keep INTEGER/BIGINT, which matters for joins and CTAS type inference.",
+        "Dropped PRIMARY INDEX (order_id) without adding CLUSTER BY. The source has no size information, and Snowflake recommends clustering keys only for large tables after measuring. If the table proves large, ALTER TABLE SALES.ORDER_HEADER CLUSTER BY (order_id) is the matching replacement.",
+        "SET table duplicate-row rejection has no Snowflake equivalent and is listed under unsupported, which the candidates did not do.",
+        "Used the naming-map name SALES.ORDER_HEADER and kept the column names unquoted so they resolve in upper case. Kept the source file path teradata-testpack.zip/tables.sql as rel_path."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.order_header -> CREATE TABLE SALES.ORDER_HEADER (naming map); removed SET and PRIMARY INDEX (order_id); BIGINT/INTEGER kept as Snowflake BIGINT/INTEGER (NUMBER(38,0))\n-- Reason: Snowflake has no SET/MULTISET table kinds or primary index; micro-partitioning replaces AMP hash distribution, and NUMBER(38,0) holds every Teradata BIGINT/INTEGER value without precision loss\nCREATE TABLE SALES.ORDER_HEADER (\n  order_id BIGINT,\n  customer_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "6db6baea46a24a9b92ab31882fdf28e4",
+      "qualified_name": "sales.order_header",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata silently rejects fully duplicate rows on insert into a SET table; Snowflake tables allow duplicates. Loads into SALES.ORDER_HEADER must de-duplicate (for example INSERT ... SELECT DISTINCT or a MERGE) if that behaviour is relied on.",
+        "PRIMARY INDEX (order_id): Teradata AMP hash distribution has no Snowflake equivalent; micro-partitioning is automatic."
+      ]
+    },
+    {
+      "assumptions": [
+        "The SALES schema exists in the target database before this script runs.",
+        "Column names stay unquoted and resolve in upper case; queries that reference them unquoted keep working.",
+        "No clustering key is needed until table size and query patterns are measured."
+      ],
+      "explanations": [
+        "All three candidates passed every validator check (only the opaque-statement warning), so this escalation is about their disagreement on column types, not a failed check.",
+        "Chose A/B's BIGINT/INTEGER over C's NUMBER(10,0)/NUMBER(19,0). In Snowflake INTEGER and BIGINT are NUMBER(38,0). Neither choice enforces the Teradata 32/64-bit range: NUMBER(10,0) allows values up to 9,999,999,999, which is still past the int32 range, so C's narrower precision adds no real range check. It also makes the columns differ from other converted tables that keep INTEGER/BIGINT, which matters for joins and CTAS type inference.",
+        "Dropped PRIMARY INDEX (order_id, product_id) without adding CLUSTER BY. The source has no size information, and Snowflake recommends clustering keys only for large tables after measuring. If the table proves large, ALTER TABLE SALES.ORDER_LINE CLUSTER BY (order_id, product_id) is the matching replacement.",
+        "SET table duplicate-row rejection has no Snowflake equivalent and is listed under unsupported, which the candidates did not do.",
+        "Used the naming-map name SALES.ORDER_LINE and kept the column names unquoted so they resolve in upper case. Kept the source file path teradata-testpack.zip/tables.sql as rel_path."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.order_line -> CREATE TABLE SALES.ORDER_LINE (naming map); removed SET and PRIMARY INDEX (order_id, product_id); BIGINT/INTEGER kept as Snowflake BIGINT/INTEGER (NUMBER(38,0))\n-- Reason: Snowflake has no SET/MULTISET table kinds or primary index; micro-partitioning replaces AMP hash distribution, and NUMBER(38,0) holds every Teradata BIGINT/INTEGER value without precision loss\nCREATE TABLE SALES.ORDER_LINE (\n  order_id BIGINT,\n  product_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "fdf84ace6c28487facdd6b1b6ca109f9",
+      "qualified_name": "sales.order_line",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata silently rejects fully duplicate rows on insert into a SET table; Snowflake tables allow duplicates. Loads into SALES.ORDER_LINE must de-duplicate (for example INSERT ... SELECT DISTINCT or a MERGE) if that behaviour is relied on.",
+        "PRIMARY INDEX (order_id, product_id): Teradata AMP hash distribution has no Snowflake equivalent; micro-partitioning is automatic."
+      ]
+    },
+    {
+      "assumptions": [
+        "The SALES schema exists in the target database before this script runs.",
+        "Column names stay unquoted and resolve in upper case; queries that reference them unquoted keep working.",
+        "No clustering key is needed until table size and query patterns are measured."
+      ],
+      "explanations": [
+        "All three candidates passed every validator check (only the opaque-statement warning), so this escalation is about their disagreement on column types, not a failed check.",
+        "Chose A/B's BIGINT over C's NUMBER(10,0)/NUMBER(19,0). In Snowflake INTEGER and BIGINT are NUMBER(38,0). Neither choice enforces the Teradata 32/64-bit range: NUMBER(10,0) allows values up to 9,999,999,999, which is still past the int32 range, so C's narrower precision adds no real range check. It also makes the columns differ from other converted tables that keep INTEGER/BIGINT, which matters for joins and CTAS type inference.",
+        "Dropped PRIMARY INDEX (card_id) without adding CLUSTER BY. The source has no size information, and Snowflake recommends clustering keys only for large tables after measuring. If the table proves large, ALTER TABLE SALES.CARD CLUSTER BY (card_id) is the matching replacement.",
+        "SET table duplicate-row rejection has no Snowflake equivalent and is listed under unsupported, which the candidates did not do.",
+        "Used the naming-map name SALES.CARD and kept the column names unquoted so they resolve in upper case. Kept the source file path teradata-testpack.zip/tables.sql as rel_path."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.card -> CREATE TABLE SALES.CARD (naming map); removed SET and PRIMARY INDEX (card_id); BIGINT kept as Snowflake BIGINT (NUMBER(38,0))\n-- Reason: Snowflake has no SET/MULTISET table kinds or primary index; micro-partitioning replaces AMP hash distribution, and NUMBER(38,0) holds every Teradata BIGINT value without precision loss\nCREATE TABLE SALES.CARD (\n  card_id BIGINT,\n  account_id BIGINT\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "27a996d8077c44508be2f69c941d61e8",
+      "qualified_name": "sales.card",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata silently rejects fully duplicate rows on insert into a SET table; Snowflake tables allow duplicates. Loads into SALES.CARD must de-duplicate (for example INSERT ... SELECT DISTINCT or a MERGE) if that behaviour is relied on.",
+        "PRIMARY INDEX (card_id): Teradata AMP hash distribution has no Snowflake equivalent; micro-partitioning is automatic."
+      ]
+    }
+  ]
+}

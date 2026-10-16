@@ -1,0 +1,702 @@
+{
+  "conversion": {
+    "objects": [
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "ANALYSTS",
+        "type": "group"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "ETL_USER",
+        "type": "user"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LIST, SELECT on LOGISTICS.SHIPMENT_SUMMARY",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.ACTIVE_SHIPMENTS",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.ADDRESS",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.CARRIER",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.CARRIER_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.CUSTOMER",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.CUSTOMER_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.DELIVERY",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.DELIVERY_ATTEMPT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.DELIVERY_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.DRIVER",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.EXTERNAL_CUSTOMER",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.FREIGHT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.INVENTORY",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.INVENTORY_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.MEDIAN",
+        "type": "aggregate"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.ORDER_DETAIL",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.ORDER_HEADER",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.ORDER_LINE",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "LOGISTICS.PARTIAL_LOAD",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.PRODUCT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.RECENT_SHIPMENTS",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "failed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.RECONCILIATION",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "LOGISTICS.RECORD_SHIPMENT",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.RECOVERED",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.RECOVERED_AFTER_UNKNOWN",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "LOGISTICS.REPRICE_FREIGHT",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.RETURN_ORDER",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.ROUTE",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.SHIPMENT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.SHIPMENTS",
+        "type": "synonym"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.SHIPMENT_EVENT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.SHIPMENT_HISTORY",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.SHIPMENT_SEQ",
+        "type": "sequence"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "LOGISTICS.SHIPMENT_STAGE",
+        "type": "external_table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.SHIPMENT_SUMMARY",
+        "type": "materialized_view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.STAGED_SHIPMENTS",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.TRACKING",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.TRANSFORM_LIB",
+        "type": "library"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "LOGISTICS.UPDATE_TRACKING",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.VEHICLE",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "LOGISTICS.WAREHOUSE",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "OPERATORS",
+        "type": "group"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "SELECT, INSERT on LOGISTICS.SHIPMENT",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "load_script.sql",
+        "type": "script"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "maintenance.sql",
+        "type": "script"
+      }
+    ],
+    "status_counts": {
+      "cancelled": 0,
+      "converted": 48,
+      "expert_review": 0,
+      "failed": 0
+    }
+  },
+  "entries_sha256": {
+    "migraai-netezza-to-databricks-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/converted/load_script-converted.sql": "e0c129b259a0e47b0bb583ec8b0a303428b23b415053a631b0448f47792efd8b",
+    "migraai-netezza-to-databricks-converted/converted/maintenance-converted.sql": "b2ac5eb00f6ddbef9f46f8229148426a738dd768b383bafbd1dfa773a37ede1b",
+    "migraai-netezza-to-databricks-converted/converted/recovery-converted.sql": "29af6fef4bcf05b8e3ae0e494ffb0c1a48788570b1c4feb1220d14a0afddd6a3",
+    "migraai-netezza-to-databricks-converted/converted/routines-converted.sql": "4e07a0f4569808cb559fe618ad6c570a676a66d42ca1f91dce191f792c0c0e10",
+    "migraai-netezza-to-databricks-converted/converted/security-converted.sql": "d142a626f32fe512ebd8da830177d855ea78ab485c471e08e9e0f9d2a9645138",
+    "migraai-netezza-to-databricks-converted/converted/tables-converted.sql": "05ca4257dcd1400a3e926c27d2ad5c247fd01fea1fc9b389e20a696dd9242b84",
+    "migraai-netezza-to-databricks-converted/converted/views-converted.sql": "f1ed3caa895edf849bf8f5e3a16f320e110fb038cde0d451b8155595004b1045",
+    "migraai-netezza-to-databricks-converted/execution/databricks/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/execution/databricks/README.md": "3e1ad7fe276d1371ff7a25e87b73caf46b22e91f48bc165edbe66c7a75d2988e",
+    "migraai-netezza-to-databricks-converted/execution/databricks/order.txt": "1103194d045ddfec5665bef7dbbb58097a25a5e3f487f8651cdb23fa8f5fb9e0",
+    "migraai-netezza-to-databricks-converted/execution/databricks/run.ps1": "c8bec05e639b254aa9b11a08c8aa51af5d8b7ebfe9a09ccadbf093937ffbd5e3",
+    "migraai-netezza-to-databricks-converted/execution/databricks/run.sh": "33a660b514949ae06411bf9335fc873af66b6d03f4400e8b92e9e09ec1491b47",
+    "migraai-netezza-to-databricks-converted/manifest.json": "9b3e41cac6025d8cbc296689a076c6ee9cf6dae773faef9282436d0801e6fdfd",
+    "migraai-netezza-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/mapping/csv/data_types.csv": "62d7b06ec9997a94d2af72b3716d3da354df367c0a41022c2f77a803623a0eba",
+    "migraai-netezza-to-databricks-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-netezza-to-databricks-converted/mapping/csv/objects.csv": "ab2bc62939d61f89edf4453ed46b7c4162fb780e469ed0f9a2c6036afef94cc8",
+    "migraai-netezza-to-databricks-converted/mapping/csv/security.csv": "c27e9ee9a4264bd4a8f0fa209d9e8309636e6d39de9947fe91eba80798b33bb2",
+    "migraai-netezza-to-databricks-converted/mapping/csv/syntax.csv": "d4b72ed910e4994e56a41090c238b149b0a64eeabb17ac6b20a406c7dfd81d55",
+    "migraai-netezza-to-databricks-converted/mapping/mapping-workbook.xlsx": "c4287104803bd16c6d6d1e5fde3ccb7c223f5820e1cb22cb66c0b3c4cc1f2aa1",
+    "migraai-netezza-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-netezza-to-databricks-converted/report/session-report.md": "a3c0bf0a695fcb990629e6444d920c96a29ed111fd8aaaf5174979ef891a3869",
+    "migraai-netezza-to-databricks-converted/report/session-report.pdf": "81ddd1b3c862e5f3c29d7beca35f212d21192e82b01348803ea7429325855fc3"
+  },
+  "inventory": {
+    "external": 1,
+    "objects": 49
+  },
+  "manifest_counts": {
+    "converted": 48,
+    "excluded": 0,
+    "external": 1,
+    "included": 48,
+    "total": 48
+  },
+  "zip_entries": [
+    "migraai-netezza-to-databricks-converted/converted/",
+    "migraai-netezza-to-databricks-converted/converted/load_script-converted.sql",
+    "migraai-netezza-to-databricks-converted/converted/maintenance-converted.sql",
+    "migraai-netezza-to-databricks-converted/converted/recovery-converted.sql",
+    "migraai-netezza-to-databricks-converted/converted/routines-converted.sql",
+    "migraai-netezza-to-databricks-converted/converted/security-converted.sql",
+    "migraai-netezza-to-databricks-converted/converted/tables-converted.sql",
+    "migraai-netezza-to-databricks-converted/converted/views-converted.sql",
+    "migraai-netezza-to-databricks-converted/execution/databricks/",
+    "migraai-netezza-to-databricks-converted/execution/databricks/README.md",
+    "migraai-netezza-to-databricks-converted/execution/databricks/order.txt",
+    "migraai-netezza-to-databricks-converted/execution/databricks/run.ps1",
+    "migraai-netezza-to-databricks-converted/execution/databricks/run.sh",
+    "migraai-netezza-to-databricks-converted/manifest.json",
+    "migraai-netezza-to-databricks-converted/mapping/",
+    "migraai-netezza-to-databricks-converted/mapping/csv/",
+    "migraai-netezza-to-databricks-converted/mapping/csv/data_types.csv",
+    "migraai-netezza-to-databricks-converted/mapping/csv/functions.csv",
+    "migraai-netezza-to-databricks-converted/mapping/csv/objects.csv",
+    "migraai-netezza-to-databricks-converted/mapping/csv/security.csv",
+    "migraai-netezza-to-databricks-converted/mapping/csv/syntax.csv",
+    "migraai-netezza-to-databricks-converted/mapping/mapping-workbook.xlsx",
+    "migraai-netezza-to-databricks-converted/report/",
+    "migraai-netezza-to-databricks-converted/report/session-report.md",
+    "migraai-netezza-to-databricks-converted/report/session-report.pdf"
+  ],
+  "zip_sha256": "30cb02b34bb01e5245e6c50ef03af0c4df3085b71392ded4de46d431d7ffcfd8"
+}

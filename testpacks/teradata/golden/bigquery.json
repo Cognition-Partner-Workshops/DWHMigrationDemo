@@ -1,0 +1,806 @@
+{
+  "conversion": {
+    "objects": [
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "EXECUTE PROCEDURE on sales.add_payment",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "ROLE on operator",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "ROLE on reader",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "SELECT on sales.account_payments",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "SELECT on sales.audit_log",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "SELECT on sales.customer_accounts",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "SELECT, INSERT on sales.payment",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analyst",
+        "type": "user"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "auditor",
+        "type": "role"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "load_script.sql",
+        "type": "script"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "loader",
+        "type": "user"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "operator",
+        "type": "role"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "reader",
+        "type": "role"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.account",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.account_payments",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.account_snapshot",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "sales.add_payment",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.audit_log",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.branch",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.capture_snapshot",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.card",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.card_activity",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.card_txn",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.customer",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.customer_accounts",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.customer_alias",
+        "type": "synonym"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.customer_external_rate",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.customer_loans",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.customer_risk",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.customer_segment",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.daily_account_balances",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.daily_balance",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.employee",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.external_rate",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.hix_account",
+        "type": "hash_index"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.hix_card",
+        "type": "hash_index"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.ix_account_customer",
+        "type": "index"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.ix_customer_status",
+        "type": "index"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.jix_order",
+        "type": "join_index"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.loan",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.loan_payment",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.order_detail",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.order_header",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.order_line",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.payment",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "sales.post_transfer",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.product",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.recovered_after_error",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.recovered_table",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "sales.refresh_daily",
+        "type": "macro"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.repair_payment",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.risk_score",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.transfer",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.transfer_activity",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "sales.unuploaded_reference",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "sales.update_balance",
+        "type": "procedure"
+      }
+    ],
+    "status_counts": {
+      "cancelled": 0,
+      "converted": 56,
+      "expert_review": 0,
+      "failed": 0
+    }
+  },
+  "entries_sha256": {
+    "migraai-teradata-to-bigquery-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/converted/indexes-converted.sql": "d0fc00d90ae406c438c0709285b18438e912e89a4571b7494383815521975acf",
+    "migraai-teradata-to-bigquery-converted/converted/load_script-converted.sql": "c7503ecdbf0797197371360f7938e214b820763b27220f42eccc4b4a1afa462d",
+    "migraai-teradata-to-bigquery-converted/converted/maintenance-converted.sql": "ae75886f0a1a4c23aa19a413c6304661e6181734cc0589b5cb60cd05a2b4c10c",
+    "migraai-teradata-to-bigquery-converted/converted/routines-converted.sql": "2bce7b6d33234e1033c2b8f6623a3cb799778da8d0f663b369dc92c316d78baa",
+    "migraai-teradata-to-bigquery-converted/converted/security-converted.sql": "c1efc3cb4cd811df2c4305270b04b3346f76869e4f02ae64f77afaecacf59888",
+    "migraai-teradata-to-bigquery-converted/converted/tables-converted.sql": "bb49150b1ad99e4c5dddca06dbde2459569c5b795da63875caec1406bc392163",
+    "migraai-teradata-to-bigquery-converted/converted/views-converted.sql": "086610f86e326797ddfdfcb0b6377239bfd330b98f6608c43d32bc493484417f",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/README.md": "00d9a97a6141fd42d61de8df5aaf1fff4149196971d222e10c47fb20fa142d48",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/order.txt": "25f25277a8a3ba9d0d5c31447665fa5e11f91235968ff1cfffd25cb2e5d1df93",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/run.ps1": "2e60e088731973a98dc84d9ccae99514b1d2634f4cc3e5f861309aa6aaaed495",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/run.sh": "deedda575cb961269219eaa3c2167ab7ed7c1252d6b3a0d20034b6cb1a3da02c",
+    "migraai-teradata-to-bigquery-converted/manifest.json": "4f7186d284b59d2b18dd81edbaf68323bb5f0e6382dfaa033ae33b9c559bda59",
+    "migraai-teradata-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/data_types.csv": "73c8061d8035b1238a6d87770b053f2a1616e3a660eed55e60a967c0005d1841",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/objects.csv": "fc4346e70d2f55033dcd340a0826ad19679918db27a7b2d003b5491513bea4e7",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/security.csv": "2d03c1d913ab37d10fcf8ee49fec6c56a50eaabbc72b63f1e0da2fefcae8159a",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/syntax.csv": "4d0e8324e5044b271ba18d7505054066220417ed20e1951673fc612294a35a95",
+    "migraai-teradata-to-bigquery-converted/mapping/mapping-workbook.xlsx": "65d5a002beeacad1b73fc9fa2d5c3022c9a12f04ea15ac0d395251a6511d3a22",
+    "migraai-teradata-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-teradata-to-bigquery-converted/report/session-report.md": "0eb0fa728244709caf2b7a9eefd771c188e8822fb0f1cd54110748aac521f494",
+    "migraai-teradata-to-bigquery-converted/report/session-report.pdf": "dccc120e311060ea0567acee93a32acb13ef7629ce0aa4525c5a75aed7f9b3d1"
+  },
+  "inventory": {
+    "external": 1,
+    "objects": 57
+  },
+  "manifest_counts": {
+    "converted": 56,
+    "excluded": 0,
+    "external": 1,
+    "included": 56,
+    "total": 56
+  },
+  "zip_entries": [
+    "migraai-teradata-to-bigquery-converted/converted/",
+    "migraai-teradata-to-bigquery-converted/converted/indexes-converted.sql",
+    "migraai-teradata-to-bigquery-converted/converted/load_script-converted.sql",
+    "migraai-teradata-to-bigquery-converted/converted/maintenance-converted.sql",
+    "migraai-teradata-to-bigquery-converted/converted/routines-converted.sql",
+    "migraai-teradata-to-bigquery-converted/converted/security-converted.sql",
+    "migraai-teradata-to-bigquery-converted/converted/tables-converted.sql",
+    "migraai-teradata-to-bigquery-converted/converted/views-converted.sql",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/README.md",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/order.txt",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/run.ps1",
+    "migraai-teradata-to-bigquery-converted/execution/bigquery/run.sh",
+    "migraai-teradata-to-bigquery-converted/manifest.json",
+    "migraai-teradata-to-bigquery-converted/mapping/",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/data_types.csv",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/functions.csv",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/objects.csv",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/security.csv",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/syntax.csv",
+    "migraai-teradata-to-bigquery-converted/mapping/mapping-workbook.xlsx",
+    "migraai-teradata-to-bigquery-converted/report/",
+    "migraai-teradata-to-bigquery-converted/report/session-report.md",
+    "migraai-teradata-to-bigquery-converted/report/session-report.pdf"
+  ],
+  "zip_sha256": "4465997f69f236c063c24046542a1a3a9b908ff83e9a9343ca4b78f892bb4f9a"
+}

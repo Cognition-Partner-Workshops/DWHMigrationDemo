@@ -2076,6 +2076,14 @@ th {
   color: #173865;
 }
 
+.conversion-kept-base-note {
+  margin: 3px 0 6px;
+  padding: 4px 9px;
+  color: #516a8a;
+  background: #f1f6fd;
+  font-size: 9px;
+}
+
 .conversion-batch-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
@@ -2185,6 +2193,13 @@ th {
   overflow: auto;
 }
 
+.conversion-selection-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px;
+}
+
 .conversion-table {
   width: 100%;
   min-width: 1080px;
@@ -2210,6 +2225,13 @@ th {
 
 .conversion-table th:first-child,
 .conversion-table td:first-child {
+  width: 24px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.conversion-table th:nth-child(2),
+.conversion-table td:nth-child(2) {
   min-width: 145px;
   text-align: left;
 }

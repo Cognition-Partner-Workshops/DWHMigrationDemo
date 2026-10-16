@@ -251,6 +251,7 @@ export type ConversionJobStatus = {
   object_count: number;
   batch_count: number;
   reason: string | null;
+  kept_base_object_ids?: Record<string, string>;
 };
 
 export type ConversionRow = {
@@ -449,17 +450,21 @@ export function cancelPlanJob(): Promise<PlanStatus> {
   return apiRequest<PlanStatus>("/api/plan/job", { method: "DELETE" });
 }
 
-export function postConvertEstimate(): Promise<ConvertEstimate> {
-  return apiRequest<ConvertEstimate>("/api/convert/estimate", {
+export function postConvertEstimate(objectIds?: string[]): Promise<ConvertEstimate> {
+  const query = new URLSearchParams();
+  objectIds?.forEach((objectId) => query.append("object_ids", objectId));
+  const serialized = query.toString();
+  const suffix = serialized ? `?${serialized}` : "";
+  return apiRequest<ConvertEstimate>(`/api/convert/estimate${suffix}`, {
     method: "POST",
     body: {},
   });
 }
 
-export function startConversion(): Promise<{ job_id: string }> {
+export function startConversion(objectIds?: string[]): Promise<{ job_id: string }> {
   return apiRequest<{ job_id: string }>("/api/convert", {
     method: "POST",
-    body: { consent: true },
+    body: { consent: true, ...(objectIds ? { object_ids: objectIds } : {}) },
   });
 }
 

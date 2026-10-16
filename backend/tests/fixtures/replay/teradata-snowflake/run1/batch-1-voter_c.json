@@ -1,0 +1,549 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "Session database is set (USE DATABASE) so SALES.<object> from the naming map resolves; the naming map gives schema-qualified names only.",
+        "Source sessions run in Teradata (BTET) mode; VARCHAR/CHAR columns there default to NOT CASESPECIFIC and comparisons ignore trailing blanks, while Snowflake comparisons are case-sensitive and blank-sensitive. No COLLATE was added, so queries filtering on character columns may need review.",
+        "INTEGER/BIGINT mapped to NUMBER(10,0)/NUMBER(19,0); these still accept values slightly outside the 32/64-bit ranges because Snowflake has no CHECK constraints.",
+        "All columns stay nullable, as in the source (no NOT NULL in the source DDL)."
+      ],
+      "explanations": [
+        "sales.transfer converted to permanent table SALES.TRANSFER with explicit exact numeric types.",
+        "PRIMARY INDEX dropped (distribution only, not a constraint).",
+        "Plain CREATE TABLE preserves the error raised when the table already exists."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.transfer -> CREATE TABLE SALES.TRANSFER (permanent table, no OR REPLACE / IF NOT EXISTS)\n-- Reason: Snowflake has no SET/MULTISET table kinds; plain CREATE TABLE keeps the source behaviour of failing when the table already exists. SET-table duplicate-row rejection is not enforced by Snowflake.\n-- Converted: BIGINT -> NUMBER(19,0)\n-- Reason: Snowflake BIGINT is an alias for NUMBER(38,0); NUMBER(19,0) is the narrowest exact type that holds the full Teradata 64-bit BIGINT range.\n-- Converted: PRIMARY INDEX (transfer_id) removed; no clustering key added\n-- Reason: A non-unique Teradata primary index only controls AMP hash distribution and is not a constraint; Snowflake micro-partitions automatically, and a clustering key is only worthwhile on very large tables.\nCREATE TABLE SALES.TRANSFER (\n    TRANSFER_ID NUMBER(19,0),\n    FROM_ACCOUNT NUMBER(19,0),\n    TO_ACCOUNT NUMBER(19,0)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/transfer.sql"
+        }
+      ],
+      "object_id": "0aebbcfee46e473987d00d2ba4657f19",
+      "qualified_name": "sales.transfer",
+      "self_confidence": 0.85,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata rejects (INSERT...VALUES, error 2802) or silently discards (INSERT...SELECT in Teradata mode) fully duplicate rows; Snowflake tables accept duplicates. Writers must de-duplicate. The converted procedures in this batch that write this table emulate it."
+      ]
+    },
+    {
+      "assumptions": [
+        "Session database is set (USE DATABASE) so SALES.<object> from the naming map resolves; the naming map gives schema-qualified names only.",
+        "Source sessions run in Teradata (BTET) mode; VARCHAR/CHAR columns there default to NOT CASESPECIFIC and comparisons ignore trailing blanks, while Snowflake comparisons are case-sensitive and blank-sensitive. No COLLATE was added, so queries filtering on character columns may need review.",
+        "INTEGER/BIGINT mapped to NUMBER(10,0)/NUMBER(19,0); these still accept values slightly outside the 32/64-bit ranges because Snowflake has no CHECK constraints.",
+        "All columns stay nullable, as in the source (no NOT NULL in the source DDL)."
+      ],
+      "explanations": [
+        "sales.audit_log converted to permanent table SALES.AUDIT_LOG with explicit exact numeric types.",
+        "PRIMARY INDEX dropped (distribution only, not a constraint).",
+        "Plain CREATE TABLE preserves the error raised when the table already exists."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.audit_log -> CREATE TABLE SALES.AUDIT_LOG (permanent table, no OR REPLACE / IF NOT EXISTS)\n-- Reason: Snowflake has no SET/MULTISET table kinds; plain CREATE TABLE keeps the source behaviour of failing when the table already exists. SET-table duplicate-row rejection is not enforced by Snowflake.\n-- Converted: BIGINT -> NUMBER(19,0)\n-- Reason: Snowflake BIGINT is an alias for NUMBER(38,0); NUMBER(19,0) is the narrowest exact type that holds the full Teradata 64-bit BIGINT range.\n-- Converted: VARCHAR(40) -> VARCHAR(40)\n-- Reason: Same maximum length in characters; comparisons in Snowflake are case-sensitive and trailing-blank-sensitive (see assumptions).\n-- Converted: PRIMARY INDEX (event_id) removed; no clustering key added\n-- Reason: A non-unique Teradata primary index only controls AMP hash distribution and is not a constraint; Snowflake micro-partitions automatically, and a clustering key is only worthwhile on very large tables.\nCREATE TABLE SALES.AUDIT_LOG (\n    EVENT_ID NUMBER(19,0),\n    EVENT_TYPE VARCHAR(40)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/audit_log.sql"
+        }
+      ],
+      "object_id": "7ab8c6402bd54405bad2107ad715d77c",
+      "qualified_name": "sales.audit_log",
+      "self_confidence": 0.85,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata rejects (INSERT...VALUES, error 2802) or silently discards (INSERT...SELECT in Teradata mode) fully duplicate rows; Snowflake tables accept duplicates. Writers must de-duplicate. The converted procedures in this batch that write this table emulate it."
+      ]
+    },
+    {
+      "assumptions": [
+        "Session database is set (USE DATABASE) so SALES.<object> from the naming map resolves; the naming map gives schema-qualified names only.",
+        "Source sessions run in Teradata (BTET) mode; VARCHAR/CHAR columns there default to NOT CASESPECIFIC and comparisons ignore trailing blanks, while Snowflake comparisons are case-sensitive and blank-sensitive. No COLLATE was added, so queries filtering on character columns may need review.",
+        "INTEGER/BIGINT mapped to NUMBER(10,0)/NUMBER(19,0); these still accept values slightly outside the 32/64-bit ranges because Snowflake has no CHECK constraints.",
+        "All columns stay nullable, as in the source (no NOT NULL in the source DDL)."
+      ],
+      "explanations": [
+        "sales.risk_score converted to permanent table SALES.RISK_SCORE with explicit exact numeric types.",
+        "PRIMARY INDEX dropped (distribution only, not a constraint).",
+        "Plain CREATE TABLE preserves the error raised when the table already exists."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.risk_score -> CREATE TABLE SALES.RISK_SCORE (permanent table, no OR REPLACE / IF NOT EXISTS)\n-- Reason: Snowflake has no SET/MULTISET table kinds; plain CREATE TABLE keeps the source behaviour of failing when the table already exists. SET-table duplicate-row rejection is not enforced by Snowflake.\n-- Converted: INTEGER -> NUMBER(10,0)\n-- Reason: Snowflake INTEGER is an alias for NUMBER(38,0); NUMBER(10,0) is the narrowest exact type that holds the full Teradata 32-bit INTEGER range.\n-- Converted: DECIMAL(5, 2) -> NUMBER(5,2)\n-- Reason: Exact fixed-point equivalent with the same precision and scale.\n-- Converted: PRIMARY INDEX (customer_id) removed; no clustering key added\n-- Reason: A non-unique Teradata primary index only controls AMP hash distribution and is not a constraint; Snowflake micro-partitions automatically, and a clustering key is only worthwhile on very large tables.\nCREATE TABLE SALES.RISK_SCORE (\n    CUSTOMER_ID NUMBER(10,0),\n    SCORE NUMBER(5,2)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/risk_score.sql"
+        }
+      ],
+      "object_id": "40bd3590fb7340748d82a284f8088fff",
+      "qualified_name": "sales.risk_score",
+      "self_confidence": 0.86,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata rejects (INSERT...VALUES, error 2802) or silently discards (INSERT...SELECT in Teradata mode) fully duplicate rows; Snowflake tables accept duplicates. Writers must de-duplicate."
+      ]
+    },
+    {
+      "assumptions": [
+        "Session database is set (USE DATABASE) so SALES.<object> from the naming map resolves; the naming map gives schema-qualified names only.",
+        "Source sessions run in Teradata (BTET) mode; VARCHAR/CHAR columns there default to NOT CASESPECIFIC and comparisons ignore trailing blanks, while Snowflake comparisons are case-sensitive and blank-sensitive. No COLLATE was added, so queries filtering on character columns may need review.",
+        "INTEGER/BIGINT mapped to NUMBER(10,0)/NUMBER(19,0); these still accept values slightly outside the 32/64-bit ranges because Snowflake has no CHECK constraints.",
+        "All columns stay nullable, as in the source (no NOT NULL in the source DDL)."
+      ],
+      "explanations": [
+        "sales.account_snapshot converted to permanent table SALES.ACCOUNT_SNAPSHOT with explicit exact numeric types.",
+        "PRIMARY INDEX dropped (distribution only, not a constraint).",
+        "Plain CREATE TABLE preserves the error raised when the table already exists."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.account_snapshot -> CREATE TABLE SALES.ACCOUNT_SNAPSHOT (permanent table, no OR REPLACE / IF NOT EXISTS)\n-- Reason: Snowflake has no SET/MULTISET table kinds; plain CREATE TABLE keeps the source behaviour of failing when the table already exists. SET-table duplicate-row rejection is not enforced by Snowflake.\n-- Converted: DATE -> DATE\n-- Reason: Direct equivalent (calendar date, no time component).\n-- Converted: BIGINT -> NUMBER(19,0)\n-- Reason: Snowflake BIGINT is an alias for NUMBER(38,0); NUMBER(19,0) is the narrowest exact type that holds the full Teradata 64-bit BIGINT range.\n-- Converted: PRIMARY INDEX (account_id) removed; no clustering key added\n-- Reason: A non-unique Teradata primary index only controls AMP hash distribution and is not a constraint; Snowflake micro-partitions automatically, and a clustering key is only worthwhile on very large tables.\nCREATE TABLE SALES.ACCOUNT_SNAPSHOT (\n    SNAPSHOT_DATE DATE,\n    ACCOUNT_ID NUMBER(19,0)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/account_snapshot.sql"
+        }
+      ],
+      "object_id": "7d18d448ba454ea48e579c5fd2e4409d",
+      "qualified_name": "sales.account_snapshot",
+      "self_confidence": 0.86,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata rejects (INSERT...VALUES, error 2802) or silently discards (INSERT...SELECT in Teradata mode) fully duplicate rows; Snowflake tables accept duplicates. Writers must de-duplicate. The converted procedures in this batch that write this table emulate it."
+      ]
+    },
+    {
+      "assumptions": [
+        "Session database is set (USE DATABASE) so SALES.<object> from the naming map resolves; the naming map gives schema-qualified names only.",
+        "Source sessions run in Teradata (BTET) mode; VARCHAR/CHAR columns there default to NOT CASESPECIFIC and comparisons ignore trailing blanks, while Snowflake comparisons are case-sensitive and blank-sensitive. No COLLATE was added, so queries filtering on character columns may need review.",
+        "INTEGER/BIGINT mapped to NUMBER(10,0)/NUMBER(19,0); these still accept values slightly outside the 32/64-bit ranges because Snowflake has no CHECK constraints.",
+        "All columns stay nullable, as in the source (no NOT NULL in the source DDL)."
+      ],
+      "explanations": [
+        "sales.customer_segment converted to permanent table SALES.CUSTOMER_SEGMENT with explicit exact numeric types.",
+        "PRIMARY INDEX dropped (distribution only, not a constraint).",
+        "Plain CREATE TABLE preserves the error raised when the table already exists."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.customer_segment -> CREATE TABLE SALES.CUSTOMER_SEGMENT (permanent table, no OR REPLACE / IF NOT EXISTS)\n-- Reason: Snowflake has no SET/MULTISET table kinds; plain CREATE TABLE keeps the source behaviour of failing when the table already exists. SET-table duplicate-row rejection is not enforced by Snowflake.\n-- Converted: INTEGER -> NUMBER(10,0)\n-- Reason: Snowflake INTEGER is an alias for NUMBER(38,0); NUMBER(10,0) is the narrowest exact type that holds the full Teradata 32-bit INTEGER range.\n-- Converted: VARCHAR(12) -> VARCHAR(12)\n-- Reason: Same maximum length in characters; comparisons in Snowflake are case-sensitive and trailing-blank-sensitive (see assumptions).\n-- Converted: PRIMARY INDEX (customer_id) removed; no clustering key added\n-- Reason: A non-unique Teradata primary index only controls AMP hash distribution and is not a constraint; Snowflake micro-partitions automatically, and a clustering key is only worthwhile on very large tables.\nCREATE TABLE SALES.CUSTOMER_SEGMENT (\n    CUSTOMER_ID NUMBER(10,0),\n    SEGMENT_CODE VARCHAR(12)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/customer_segment.sql"
+        }
+      ],
+      "object_id": "a1aa76dccce44b2ca8ef6c3fdff9079f",
+      "qualified_name": "sales.customer_segment",
+      "self_confidence": 0.85,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata rejects (INSERT...VALUES, error 2802) or silently discards (INSERT...SELECT in Teradata mode) fully duplicate rows; Snowflake tables accept duplicates. Writers must de-duplicate."
+      ]
+    },
+    {
+      "assumptions": [
+        "Session database is set (USE DATABASE) so SALES.<object> from the naming map resolves; the naming map gives schema-qualified names only.",
+        "Source sessions run in Teradata (BTET) mode; VARCHAR/CHAR columns there default to NOT CASESPECIFIC and comparisons ignore trailing blanks, while Snowflake comparisons are case-sensitive and blank-sensitive. No COLLATE was added, so queries filtering on character columns may need review.",
+        "INTEGER/BIGINT mapped to NUMBER(10,0)/NUMBER(19,0); these still accept values slightly outside the 32/64-bit ranges because Snowflake has no CHECK constraints.",
+        "All columns stay nullable, as in the source (no NOT NULL in the source DDL)."
+      ],
+      "explanations": [
+        "sales.external_rate converted to permanent table SALES.EXTERNAL_RATE with explicit exact numeric types.",
+        "PRIMARY INDEX dropped (distribution only, not a constraint).",
+        "Plain CREATE TABLE preserves the error raised when the table already exists."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.external_rate -> CREATE TABLE SALES.EXTERNAL_RATE (permanent table, no OR REPLACE / IF NOT EXISTS)\n-- Reason: Snowflake has no SET/MULTISET table kinds; plain CREATE TABLE keeps the source behaviour of failing when the table already exists. SET-table duplicate-row rejection is not enforced by Snowflake.\n-- Converted: DATE -> DATE\n-- Reason: Direct equivalent (calendar date, no time component).\n-- Converted: DECIMAL(6, 4) -> NUMBER(6,4)\n-- Reason: Exact fixed-point equivalent with the same precision and scale.\n-- Converted: PRIMARY INDEX (rate_date) removed; no clustering key added\n-- Reason: A non-unique Teradata primary index only controls AMP hash distribution and is not a constraint; Snowflake micro-partitions automatically, and a clustering key is only worthwhile on very large tables.\nCREATE TABLE SALES.EXTERNAL_RATE (\n    RATE_DATE DATE,\n    RATE NUMBER(6,4)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/external_rate.sql"
+        }
+      ],
+      "object_id": "8d5ea967c8614d63a128c8ad7ddfe354",
+      "qualified_name": "sales.external_rate",
+      "self_confidence": 0.86,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata rejects (INSERT...VALUES, error 2802) or silently discards (INSERT...SELECT in Teradata mode) fully duplicate rows; Snowflake tables accept duplicates. Writers must de-duplicate."
+      ]
+    },
+    {
+      "assumptions": [
+        "Session database is set (USE DATABASE) so SALES.<object> from the naming map resolves; the naming map gives schema-qualified names only.",
+        "Source sessions run in Teradata (BTET) mode; VARCHAR/CHAR columns there default to NOT CASESPECIFIC and comparisons ignore trailing blanks, while Snowflake comparisons are case-sensitive and blank-sensitive. No COLLATE was added, so queries filtering on character columns may need review.",
+        "INTEGER/BIGINT mapped to NUMBER(10,0)/NUMBER(19,0); these still accept values slightly outside the 32/64-bit ranges because Snowflake has no CHECK constraints.",
+        "All columns stay nullable, as in the source (no NOT NULL in the source DDL)."
+      ],
+      "explanations": [
+        "sales.daily_balance converted to permanent table SALES.DAILY_BALANCE with explicit exact numeric types.",
+        "PRIMARY INDEX dropped (distribution only, not a constraint).",
+        "Plain CREATE TABLE preserves the error raised when the table already exists."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.daily_balance -> CREATE TABLE SALES.DAILY_BALANCE (permanent table, no OR REPLACE / IF NOT EXISTS)\n-- Reason: Snowflake has no SET/MULTISET table kinds; plain CREATE TABLE keeps the source behaviour of failing when the table already exists. SET-table duplicate-row rejection is not enforced by Snowflake.\n-- Converted: DATE -> DATE\n-- Reason: Direct equivalent (calendar date, no time component).\n-- Converted: BIGINT -> NUMBER(19,0)\n-- Reason: Snowflake BIGINT is an alias for NUMBER(38,0); NUMBER(19,0) is the narrowest exact type that holds the full Teradata 64-bit BIGINT range.\n-- Converted: DECIMAL(14, 2) -> NUMBER(14,2)\n-- Reason: Exact fixed-point equivalent with the same precision and scale.\n-- Converted: PRIMARY INDEX (account_id) removed; no clustering key added\n-- Reason: A non-unique Teradata primary index only controls AMP hash distribution and is not a constraint; Snowflake micro-partitions automatically, and a clustering key is only worthwhile on very large tables.\nCREATE TABLE SALES.DAILY_BALANCE (\n    BALANCE_DATE DATE,\n    ACCOUNT_ID NUMBER(19,0),\n    AMOUNT NUMBER(14,2)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/daily_balance.sql"
+        }
+      ],
+      "object_id": "4546b484755849ceafd42f6f7a3e87f9",
+      "qualified_name": "sales.daily_balance",
+      "self_confidence": 0.86,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata rejects (INSERT...VALUES, error 2802) or silently discards (INSERT...SELECT in Teradata mode) fully duplicate rows; Snowflake tables accept duplicates. Writers must de-duplicate."
+      ]
+    },
+    {
+      "assumptions": [
+        "Session database is set (USE DATABASE) so SALES.<object> from the naming map resolves; the naming map gives schema-qualified names only.",
+        "Source sessions run in Teradata (BTET) mode; VARCHAR/CHAR columns there default to NOT CASESPECIFIC and comparisons ignore trailing blanks, while Snowflake comparisons are case-sensitive and blank-sensitive. No COLLATE was added, so queries filtering on character columns may need review.",
+        "INTEGER/BIGINT mapped to NUMBER(10,0)/NUMBER(19,0); these still accept values slightly outside the 32/64-bit ranges because Snowflake has no CHECK constraints.",
+        "All columns stay nullable, as in the source (no NOT NULL in the source DDL).",
+        "Teradata gives a table without an explicit PRIMARY INDEX a default primary index on its first column (or NoPI, depending on DBS settings); either way it only affects distribution, so nothing is carried over."
+      ],
+      "explanations": [
+        "sales.recovered_table converted to permanent table SALES.RECOVERED_TABLE with explicit exact numeric types.",
+        "No primary index in source.",
+        "Plain CREATE TABLE preserves the error raised when the table already exists."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE sales.recovered_table -> CREATE TABLE SALES.RECOVERED_TABLE (permanent table, no OR REPLACE / IF NOT EXISTS)\n-- Reason: Snowflake has no SET/MULTISET table kinds; plain CREATE TABLE keeps the source behaviour of failing when the table already exists. SET-table duplicate-row rejection is not enforced by Snowflake.\n-- Converted: INTEGER -> NUMBER(10,0)\n-- Reason: Snowflake INTEGER is an alias for NUMBER(38,0); NUMBER(10,0) is the narrowest exact type that holds the full Teradata 32-bit INTEGER range.\nCREATE TABLE SALES.RECOVERED_TABLE (\n    ID NUMBER(10,0)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/recovered_table.sql"
+        }
+      ],
+      "object_id": "06cd4c10700048d598398cd1ec90b8ae",
+      "qualified_name": "sales.recovered_table",
+      "self_confidence": 0.87,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics: Teradata rejects (INSERT...VALUES, error 2802) or silently discards (INSERT...SELECT in Teradata mode) fully duplicate rows; Snowflake tables accept duplicates. Writers must de-duplicate."
+      ]
+    },
+    {
+      "assumptions": [
+        "Base table already exists, created in an earlier batch with the columns listed in the dependency signatures.",
+        "A table has only one clustering key; ALTER TABLE ... CLUSTER BY replaces any key set elsewhere (e.g. by another batch) and enables Automatic Clustering credit consumption.",
+        "STATUS is low cardinality (status codes), making clustering a better fit than search optimization."
+      ],
+      "explanations": [
+        "NUSI on SALES.CUSTOMER.STATUS replaced by ALTER TABLE SALES.CUSTOMER CLUSTER BY (STATUS) per snowflake.rule.no_create_index.",
+        "No query semantics change: an index is only an access path."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata non-unique secondary index sales.ix_customer_status (status) ON sales.customer -> clustering key on SALES.CUSTOMER (STATUS)\n-- Reason: Snowflake standard tables have no secondary indexes (index DDL applies only to hybrid tables); STATUS is a low-cardinality CHAR column, so a clustering key improves micro-partition pruning for status filters, whereas search optimization suits highly selective point lookups.\n-- Converted: index name IX_CUSTOMER_STATUS is not created as an object\n-- Reason: Clustering keys are table properties and have no name; the mapping is recorded here.\nALTER TABLE SALES.CUSTOMER CLUSTER BY (STATUS);\n",
+          "language": "sql",
+          "rel_path": "indexes/ix_customer_status.sql"
+        }
+      ],
+      "object_id": "4f3123f0a0e049368b9f185adfcbf0b1",
+      "qualified_name": "sales.ix_customer_status",
+      "self_confidence": 0.78,
+      "type": "index",
+      "unsupported": [
+        "Named secondary-index object SALES.IX_CUSTOMER_STATUS has no Snowflake equivalent on standard tables; nothing named IX_CUSTOMER_STATUS exists after conversion."
+      ]
+    },
+    {
+      "assumptions": [
+        "Base table already exists, created in an earlier batch with the columns listed in the dependency signatures.",
+        "Search optimization requires Snowflake Enterprise Edition or higher and incurs storage/maintenance cost; the role running this needs OWNERSHIP on the table (or ADD SEARCH OPTIMIZATION on the schema).",
+        "A Teradata unique secondary index allows at most one NULL key, so the pre-check groups NULLs together as a key value.",
+        "The pre-check is run through EXECUTE IMMEDIATE $$...$$ so it works from SnowSQL / Snowflake CLI as well as Snowsight."
+      ],
+      "explanations": [
+        "USI converted to: a one-off duplicate pre-check (keeps the creation-time failure), an informational UNIQUE constraint named IX_ACCOUNT_CUSTOMER, and search optimization on CUSTOMER_ID.",
+        "ACCOUNT is a reserved word in Snowflake, so the table is referenced as SALES.\"ACCOUNT\" as given in the naming map.",
+        "Search optimization (not a clustering key) because SALES.HIX_ACCOUNT already claims the single clustering key of SALES.\"ACCOUNT\"."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE UNIQUE secondary index sales.ix_account_customer (customer_id) -> pre-check block that fails if SALES.\"ACCOUNT\" already holds duplicate CUSTOMER_ID values\n-- Reason: Teradata refuses to build a unique index over duplicate keys; Snowflake does not enforce UNIQUE, so the check keeps the creation-time error behaviour. NULL is counted as a key value because a Teradata unique index admits at most one NULL.\nEXECUTE IMMEDIATE $$\nDECLARE\n    dup_count NUMBER(38,0) DEFAULT 0;\n    duplicate_unique_key EXCEPTION (-20801, 'Duplicate CUSTOMER_ID values in SALES.ACCOUNT; unique index IX_ACCOUNT_CUSTOMER cannot be created');\nBEGIN\n    SELECT COUNT(*) INTO :dup_count\n    FROM (\n        SELECT a.CUSTOMER_ID\n        FROM SALES.\"ACCOUNT\" a\n        GROUP BY a.CUSTOMER_ID\n        HAVING COUNT(*) > 1\n    ) d;\n    IF (dup_count > 0) THEN\n        RAISE duplicate_unique_key;\n    END IF;\n    RETURN NULL;\nEND;\n$$;\n\n-- Converted: uniqueness of CUSTOMER_ID -> informational UNIQUE constraint named IX_ACCOUNT_CUSTOMER\n-- Reason: Keeps the source name and documents the key for tools and the optimizer; Snowflake does NOT enforce UNIQUE on standard tables (only NOT NULL is enforced).\nALTER TABLE SALES.\"ACCOUNT\" ADD CONSTRAINT IX_ACCOUNT_CUSTOMER UNIQUE (CUSTOMER_ID);\n\n-- Converted: unique secondary-index access path on CUSTOMER_ID -> search optimization EQUALITY(CUSTOMER_ID)\n-- Reason: Index DDL applies only to hybrid tables; search optimization is the documented replacement for selective point lookups on a unique column, and the table clustering key is used by SALES.HIX_ACCOUNT.\nALTER TABLE SALES.\"ACCOUNT\" ADD SEARCH OPTIMIZATION ON EQUALITY(CUSTOMER_ID);\n",
+          "language": "sql",
+          "rel_path": "indexes/ix_account_customer.sql"
+        }
+      ],
+      "object_id": "f5d0c9621f444b12970b10fbb393f04e",
+      "qualified_name": "sales.ix_account_customer",
+      "self_confidence": 0.6,
+      "type": "index",
+      "unsupported": [
+        "Ongoing uniqueness enforcement of CUSTOMER_ID: Teradata rejects later duplicate inserts/updates (error 2801), Snowflake UNIQUE is informational only. Writers to SALES.\"ACCOUNT\" must check it themselves or the table must become a hybrid table.",
+        "Named index object IX_ACCOUNT_CUSTOMER (kept only as the constraint name)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Base table already exists, created in an earlier batch with the columns listed in the dependency signatures.",
+        "A table has only one clustering key; ALTER TABLE ... CLUSTER BY replaces any key set elsewhere (e.g. by another batch) and enables Automatic Clustering credit consumption.",
+        "SALES.\"ACCOUNT\" is large enough for clustering to pay off; on a small table the key is harmless but adds Automatic Clustering cost."
+      ],
+      "explanations": [
+        "Hash index replaced by ALTER TABLE SALES.\"ACCOUNT\" CLUSTER BY (CUSTOMER_ID), matching the BY (customer_id) distribution.",
+        "ACCOUNT_ID is not covered separately; Snowflake reads it from the base table micro-partitions."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE HASH INDEX sales.hix_account (account_id) ON sales.account BY (customer_id) -> clustering key on SALES.\"ACCOUNT\" (CUSTOMER_ID)\n-- Reason: The hash index stores ACCOUNT_ID rows hash-distributed by CUSTOMER_ID so lookups by customer co-locate; Snowflake has no hash indexes, and a clustering key on CUSTOMER_ID is the documented way to co-locate rows for that access path.\n-- Converted: hash index object name HIX_ACCOUNT is not created\n-- Reason: Clustering keys are unnamed table properties; the mapping is recorded here.\nALTER TABLE SALES.\"ACCOUNT\" CLUSTER BY (CUSTOMER_ID);\n",
+          "language": "sql",
+          "rel_path": "indexes/hix_account.sql"
+        }
+      ],
+      "object_id": "b64f49f9ea84495a81a545f2f0576cef",
+      "qualified_name": "sales.hix_account",
+      "self_confidence": 0.75,
+      "type": "hash_index",
+      "unsupported": [
+        "Hash index as a separate, optimizer-maintained covering structure has no Snowflake equivalent; nothing named HIX_ACCOUNT exists after conversion."
+      ]
+    },
+    {
+      "assumptions": [
+        "Base table already exists, created in an earlier batch with the columns listed in the dependency signatures.",
+        "Search optimization requires Snowflake Enterprise Edition or higher and incurs storage/maintenance cost; the role running this needs OWNERSHIP on the table (or ADD SEARCH OPTIMIZATION on the schema).",
+        "CARD_ID is high cardinality and queried by equality."
+      ],
+      "explanations": [
+        "Hash index without BY clause (distributed like the base table) replaced by search optimization on CARD_ID."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE HASH INDEX sales.hix_card (card_id) ON sales.card -> search optimization EQUALITY(CARD_ID) on SALES.CARD\n-- Reason: Snowflake has no hash indexes; CARD_ID is a high-cardinality identifier used for point lookups, which is what search optimization serves (a clustering key on a near-unique column is discouraged).\n-- Converted: hash index object name HIX_CARD is not created\n-- Reason: Search optimization is a table property with no name; the mapping is recorded here.\nALTER TABLE SALES.CARD ADD SEARCH OPTIMIZATION ON EQUALITY(CARD_ID);\n",
+          "language": "sql",
+          "rel_path": "indexes/hix_card.sql"
+        }
+      ],
+      "object_id": "51c11bdfe1ef44dd91a39f2b52bdb7ee",
+      "qualified_name": "sales.hix_card",
+      "self_confidence": 0.7,
+      "type": "hash_index",
+      "unsupported": [
+        "Hash index as a separate covering structure has no Snowflake equivalent; nothing named HIX_CARD exists after conversion.",
+        "On Standard Edition accounts search optimization is unavailable; the fallback is ALTER TABLE SALES.CARD CLUSTER BY (CARD_ID) or no action."
+      ]
+    },
+    {
+      "assumptions": [
+        "Base table already exists, created in an earlier batch with the columns listed in the dependency signatures.",
+        "Nothing queries the join index by name (Teradata join indexes are used only implicitly by the optimizer), so exposing it as a view is safe.",
+        "If precomputation is needed for performance, a DYNAMIC TABLE with a TARGET_LAG and warehouse, or clustering both tables on ORDER_ID, can be added later; not done here to avoid changing freshness or cost."
+      ],
+      "explanations": [
+        "Join index converted to a standard view with identical columns and join predicate.",
+        "Column list declared on the view so the output names stay ORDER_ID, PRODUCT_ID."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE JOIN INDEX sales.jix_order -> CREATE VIEW SALES.JIX_ORDER with the same projection and inner join\n-- Reason: Snowflake materialized views cannot contain joins and has no join indexes; a view keeps the exact row set (inner join, duplicates kept, NULL ORDER_ID rows excluded) and is always consistent with the base tables, as the join index was. Plain CREATE (no OR REPLACE) keeps the error if the object already exists.\n-- Converted: implicit join JOIN -> explicit INNER JOIN; table aliases and columns uppercased and fully qualified via the naming map\n-- Reason: Same semantics, explicit join type for readability.\nCREATE VIEW SALES.JIX_ORDER (ORDER_ID, PRODUCT_ID) AS\nSELECT\n    h.ORDER_ID,\n    l.PRODUCT_ID\nFROM SALES.ORDER_HEADER h\nINNER JOIN SALES.ORDER_LINE l\n    ON h.ORDER_ID = l.ORDER_ID;\n",
+          "language": "sql",
+          "rel_path": "indexes/jix_order.sql"
+        }
+      ],
+      "object_id": "e40a0d6ec00647e5b7ad800cc28589b7",
+      "qualified_name": "sales.jix_order",
+      "self_confidence": 0.72,
+      "type": "join_index",
+      "unsupported": [
+        "Physical pre-joined, automatically maintained storage of a join index (optimizer rewrite to use it) has no Snowflake equivalent; the view recomputes the join at query time."
+      ]
+    },
+    {
+      "assumptions": [
+        "Base table already exists, created in an earlier batch with the columns listed in the dependency signatures.",
+        "Consumers only read through the alias.",
+        "Grants on SALES.CUSTOMER_ALIAS must be issued separately; a synonym inherited the base table's privileges."
+      ],
+      "explanations": [
+        "Synonym replaced by a pass-through view with the three columns from the SALES.CUSTOMER dependency signature."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SYNONYM sales.customer_alias FOR sales.customer -> CREATE VIEW SALES.CUSTOMER_ALIAS over SALES.CUSTOMER\n-- Reason: Snowflake has no synonyms; a view is the standard substitute for read access under the alias name. Columns are listed explicitly (no star projection) and plain CREATE keeps the error if the object already exists.\nCREATE VIEW SALES.CUSTOMER_ALIAS (CUSTOMER_ID, CUSTOMER_NAME, STATUS) AS\nSELECT\n    c.CUSTOMER_ID,\n    c.CUSTOMER_NAME,\n    c.STATUS\nFROM SALES.CUSTOMER c;\n",
+          "language": "sql",
+          "rel_path": "synonyms/customer_alias.sql"
+        }
+      ],
+      "object_id": "823dfd1f946c47c39b3be6d16f9a9d49",
+      "qualified_name": "sales.customer_alias",
+      "self_confidence": 0.75,
+      "type": "synonym",
+      "unsupported": [
+        "DML (INSERT/UPDATE/DELETE/MERGE) through the alias: a Snowflake view is read-only.",
+        "Automatic tracking of later column changes on SALES.CUSTOMER: the view's column list is fixed at creation and must be recreated if the table changes."
+      ]
+    },
+    {
+      "assumptions": [
+        "Run with SnowSQL or Snowflake CLI (GET is a client-side command and does not run in Snowsight worksheets).",
+        "Intended output is a comma-delimited CSV with a header row; empty strings are written as \"\" and NULL as an empty field.",
+        "The client connection uses key-pair authentication and has USAGE on SALES and SELECT on SALES.CUSTOMER.",
+        "Result size is below the 5 GB single-file limit (MAX_FILE_SIZE set just under it).",
+        "@~/migraai_export/customer.csv is the user stage (a file location), not a table; static checkers that treat it as a table reference report a false positive."
+      ],
+      "explanations": [
+        "BTEQ export script converted to COPY INTO @~ (single CSV) + GET to /tmp/ + REMOVE.",
+        "Client-only BTEQ commands (.LOGON, .SET QUIET, .EXPORT RESET, .LOGOFF) mapped to connection/client options.",
+        "The naming-map target \"ZIP/LOAD_SCRIPT\".SQL names the source file, not a database object, so no object is created."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: .LOGON (masked credentials) -> removed; connect with a SnowSQL / Snowflake CLI named connection (e.g. snow sql -c <connection> -f load_script.sql)\n-- Reason: Credentials must not be embedded in scripts; the connection should use key-pair authentication configured outside the script.\n-- Converted: .SET QUIET ON -> removed; use client option quiet (snowsql -o quiet=true -o friendly=false)\n-- Reason: Output verbosity is a client setting, not SQL.\n-- Converted: .EXPORT FILE = /tmp/customer.csv + SEL ... -> COPY INTO the user stage as one uncompressed CSV file\n-- Reason: Snowflake exports query results server-side with COPY INTO <location>; SEL is the Teradata abbreviation of SELECT. Columns stay explicit; no ORDER BY is added because the source had none (row order is unspecified in both systems).\nCOPY INTO @~/migraai_export/customer.csv\nFROM (\n    SELECT\n        c.CUSTOMER_ID,\n        c.CUSTOMER_NAME\n    FROM SALES.CUSTOMER c\n)\nFILE_FORMAT = (\n    TYPE = CSV\n    FIELD_DELIMITER = ','\n    FIELD_OPTIONALLY_ENCLOSED_BY = '\"'\n    NULL_IF = ('')\n    EMPTY_FIELD_AS_NULL = FALSE\n    COMPRESSION = NONE\n)\nHEADER = TRUE\nSINGLE = TRUE\nOVERWRITE = TRUE\nMAX_FILE_SIZE = 4900000000;\n\n-- Converted: export target /tmp/customer.csv -> GET the staged file to the client directory /tmp/\n-- Reason: COPY INTO writes to a stage; GET downloads it to the machine running the client, matching the client-side file written by BTEQ.\nGET @~/migraai_export/customer.csv file:///tmp/;\n\n-- Converted: .EXPORT RESET -> remove the staged copy\n-- Reason: Ends the export and avoids leaving data in the user stage.\nREMOVE @~/migraai_export/customer.csv;\n\n-- Converted: .LOGOFF -> removed\n-- Reason: The client session ends when the script finishes.\n",
+          "language": "sql",
+          "rel_path": "scripts/load_script.sql"
+        }
+      ],
+      "object_id": "2f681217726c4b1c8d1f74340f177ca7",
+      "qualified_name": "teradata-testpack.zip/load_script.sql",
+      "self_confidence": 0.6,
+      "type": "script",
+      "unsupported": [
+        "Exact BTEQ export file layout: the default BTEQ .EXPORT format (record/REPORT mode, fixed-width columns, '?' for NULL, column titles) cannot be reproduced by COPY INTO; downstream consumers of /tmp/customer.csv must accept standard CSV."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction: each statement commits on its own, which matches Snowflake procedures running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Target tables already exist (earlier objects in this batch / earlier batches) with the columns in the dependency signatures.",
+        "Session database is set so SALES.<object> resolves.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value.",
+        "SALES.AUDIT_LOG is a Teradata SET table (created as SET in this batch), so inserting an identical row raises error 2802; this is emulated with a pre-insert check that raises -20802. The check uses exact comparison, while Teradata NOT CASESPECIFIC columns would also treat case/trailing-blank variants as duplicates.",
+        "SALES.PAYMENT is not defined in this batch, so its SET/MULTISET kind is unknown; no duplicate check was added for it. If it was a SET table, a repeated (1, p_account, p_amount) row would have failed in Teradata but succeeds here.",
+        "Decimal rounding when a caller passes more than 2 decimals: Snowflake rounds half away from zero on the cast to NUMBER(12,2); Teradata's rounding mode depends on the RoundHalfwayMagUp setting."
+      ],
+      "explanations": [
+        "Converted to a Snowflake Scripting procedure with EXECUTE AS OWNER (from SQL SECURITY OWNER).",
+        "Statement order and hard-coded IDs (PAYMENT_ID 1, EVENT_ID 1) kept exactly.",
+        "SET-table duplicate-row error on SALES.AUDIT_LOG emulated with a pre-insert check raising -20802."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.add_payment(IN p_account BIGINT, IN p_amount DECIMAL(12, 2)) -> CREATE PROCEDURE SALES.ADD_PAYMENT(P_ACCOUNT NUMBER(19,0), P_AMOUNT NUMBER(12,2)) RETURNS VARCHAR LANGUAGE SQL\n-- Reason: Snowflake Scripting procedure; IN is the only parameter mode, BIGINT/DECIMAL mapped to exact NUMBER types; Snowflake requires a RETURNS clause, so RETURN NULL stands in for no return value. Plain CREATE keeps the error if it already exists.\n-- Converted: SQL SECURITY OWNER -> EXECUTE AS OWNER\n-- Reason: Both run the body with the owner's privileges.\n-- Converted: DYNAMIC RESULT SETS 1 -> removed\n-- Reason: The body never opens a result-set cursor, so the procedure returns no result set in either system.\nCREATE PROCEDURE SALES.ADD_PAYMENT(P_ACCOUNT NUMBER(19,0), P_AMOUNT NUMBER(12,2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nDECLARE\n    dup_count NUMBER(38,0) DEFAULT 0;\n    duplicate_row EXCEPTION (-20802, 'Duplicate row in SET table SALES.AUDIT_LOG (EVENT_ID 1, EVENT_TYPE PAYMENT)');\nBEGIN\n    -- Converted: INSERT INTO sales.payment ... VALUES (1, p_account, p_amount) -> same insert with bind variables and explicit casts\n    -- Reason: Parameters are referenced as :NAME in Snowflake Scripting SQL; explicit casts keep the source types.\n    INSERT INTO SALES.PAYMENT (PAYMENT_ID, ACCOUNT_ID, AMOUNT)\n    VALUES (CAST(1 AS NUMBER(19,0)), CAST(:P_ACCOUNT AS NUMBER(19,0)), CAST(:P_AMOUNT AS NUMBER(12,2)));\n\n    -- Converted: SET-table duplicate-row error on SALES.AUDIT_LOG -> explicit existence check that raises -20802\n    -- Reason: SALES.AUDIT_LOG was a Teradata SET table; inserting an identical row failed with error 2802 after the payment row had already been committed. Snowflake would silently accept the duplicate.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.AUDIT_LOG t\n    WHERE t.EVENT_ID = 1\n      AND t.EVENT_TYPE = 'PAYMENT';\n    IF (dup_count > 0) THEN\n        RAISE duplicate_row;\n    END IF;\n\n    -- Converted: INSERT INTO sales.audit_log ... VALUES (1, 'PAYMENT') -> same insert with explicit casts\n    -- Reason: Keeps the column types of SALES.AUDIT_LOG.\n    INSERT INTO SALES.AUDIT_LOG (EVENT_ID, EVENT_TYPE)\n    VALUES (CAST(1 AS NUMBER(19,0)), CAST('PAYMENT' AS VARCHAR(40)));\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/add_payment.sql"
+        }
+      ],
+      "object_id": "9bf7f16fd9424a23aa549e90bc430560",
+      "qualified_name": "sales.add_payment",
+      "self_confidence": 0.7,
+      "type": "procedure",
+      "unsupported": [
+        "Teradata error codes (2802 duplicate row) are surfaced as Snowflake user exception -20802 with a different SQLSTATE; callers that test specific error codes must be updated."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction: each statement commits on its own, which matches Snowflake procedures running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Target tables already exist (earlier objects in this batch / earlier batches) with the columns in the dependency signatures.",
+        "Session database is set so SALES.<object> resolves.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value.",
+        "Teradata default SQL SECURITY DEFINER maps most closely to EXECUTE AS OWNER; switch to EXECUTE AS CALLER if callers' own privileges should apply.",
+        "Updating zero rows is not an error in either system.",
+        "Overflow of BALANCE precision raises an error in both systems; rounding to BALANCE's scale on assignment follows Snowflake half-away-from-zero rounding."
+      ],
+      "explanations": [
+        "Converted to a Snowflake Scripting procedure; single UPDATE kept with identical predicate and NULL behaviour.",
+        "EXECUTE AS OWNER chosen to match the Teradata default SQL SECURITY DEFINER."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.update_balance(IN p_account BIGINT, IN p_amount DECIMAL(12, 2)) -> CREATE PROCEDURE SALES.UPDATE_BALANCE(P_ACCOUNT NUMBER(19,0), P_AMOUNT NUMBER(12,2)) RETURNS VARCHAR LANGUAGE SQL\n-- Reason: Snowflake Scripting procedure with exact NUMBER parameter types; RETURNS is mandatory in Snowflake, so RETURN NULL stands in for no return value. Plain CREATE keeps the error if it already exists.\n-- Converted: default SQL SECURITY (DEFINER) -> EXECUTE AS OWNER\n-- Reason: Teradata runs a procedure without a SQL SECURITY clause with the definer's rights, the closest Snowflake option is the owner's rights; Snowflake requires the clause to be explicit.\nCREATE PROCEDURE SALES.UPDATE_BALANCE(P_ACCOUNT NUMBER(19,0), P_AMOUNT NUMBER(12,2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: UPDATE sales.account SET balance = balance + p_amount WHERE account_id = p_account -> same update on SALES.\"ACCOUNT\" with bind variables and explicit casts\n    -- Reason: ACCOUNT is reserved in Snowflake so it is quoted per the naming map; NULL BALANCE stays NULL and a NULL P_ACCOUNT matches no rows, as in the source.\n    UPDATE SALES.\"ACCOUNT\"\n    SET BALANCE = BALANCE + CAST(:P_AMOUNT AS NUMBER(12,2))\n    WHERE ACCOUNT_ID = CAST(:P_ACCOUNT AS NUMBER(19,0));\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/update_balance.sql"
+        }
+      ],
+      "object_id": "0622588a8b24455996df7d6ddd1a5f7e",
+      "qualified_name": "sales.update_balance",
+      "self_confidence": 0.82,
+      "type": "procedure",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction: each statement commits on its own, which matches Snowflake procedures running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Target tables already exist (earlier objects in this batch / earlier batches) with the columns in the dependency signatures.",
+        "Session database is set so SALES.<object> resolves.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value.",
+        "SALES.TRANSFER is a Teradata SET table (created as SET in this batch), so inserting an identical row raises error 2802; this is emulated with a pre-insert check that raises -20802. The check uses exact comparison, while Teradata NOT CASESPECIFIC columns would also treat case/trailing-blank variants as duplicates.",
+        "SALES.AUDIT_LOG is a Teradata SET table (created as SET in this batch), so inserting an identical row raises error 2802; this is emulated with a pre-insert check that raises -20802. The check uses exact comparison, while Teradata NOT CASESPECIFIC columns would also treat case/trailing-blank variants as duplicates.",
+        "EXECUTE AS OWNER matches the Teradata default SQL SECURITY DEFINER."
+      ],
+      "explanations": [
+        "Converted to a Snowflake Scripting procedure; both inserts kept in order with hard-coded IDs 1 and 2.",
+        "SET-table duplicate-row errors on SALES.TRANSFER and SALES.AUDIT_LOG emulated with pre-insert checks.",
+        "P_AMOUNT kept in the signature (unused in the source body) so existing CALLs with three arguments still resolve."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.post_transfer(IN p_from BIGINT, IN p_to BIGINT, IN p_amount DECIMAL(12, 2)) -> CREATE PROCEDURE SALES.POST_TRANSFER(P_FROM NUMBER(19,0), P_TO NUMBER(19,0), P_AMOUNT NUMBER(12,2)) RETURNS VARCHAR LANGUAGE SQL\n-- Reason: Snowflake Scripting procedure with exact NUMBER parameter types; RETURNS is mandatory, so RETURN NULL stands in for no return value. P_AMOUNT is kept in the signature even though the source body never uses it. Plain CREATE keeps the error if it already exists.\n-- Converted: default SQL SECURITY (DEFINER) -> EXECUTE AS OWNER\n-- Reason: Closest Snowflake equivalent of definer's rights; Snowflake requires the clause to be explicit.\nCREATE PROCEDURE SALES.POST_TRANSFER(P_FROM NUMBER(19,0), P_TO NUMBER(19,0), P_AMOUNT NUMBER(12,2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nDECLARE\n    dup_count NUMBER(38,0) DEFAULT 0;\n    duplicate_transfer EXCEPTION (-20802, 'Duplicate row in SET table SALES.TRANSFER');\n    duplicate_audit EXCEPTION (-20803, 'Duplicate row in SET table SALES.AUDIT_LOG (EVENT_ID 2, EVENT_TYPE TRANSFER)');\nBEGIN\n    -- Converted: SET-table duplicate-row error on SALES.TRANSFER -> NULL-safe existence check that raises -20802\n    -- Reason: SALES.TRANSFER was a Teradata SET table; an identical row (NULLs compare equal in the duplicate-row check) failed with error 2802. EQUAL_NULL reproduces the NULL-equal comparison.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.TRANSFER t\n    WHERE t.TRANSFER_ID = 1\n      AND EQUAL_NULL(t.FROM_ACCOUNT, CAST(:P_FROM AS NUMBER(19,0)))\n      AND EQUAL_NULL(t.TO_ACCOUNT, CAST(:P_TO AS NUMBER(19,0)));\n    IF (dup_count > 0) THEN\n        RAISE duplicate_transfer;\n    END IF;\n\n    -- Converted: INSERT INTO sales.transfer ... VALUES (1, p_from, p_to) -> same insert with bind variables and explicit casts\n    -- Reason: Parameters are referenced as :NAME in Snowflake Scripting SQL; casts keep the source types.\n    INSERT INTO SALES.TRANSFER (TRANSFER_ID, FROM_ACCOUNT, TO_ACCOUNT)\n    VALUES (CAST(1 AS NUMBER(19,0)), CAST(:P_FROM AS NUMBER(19,0)), CAST(:P_TO AS NUMBER(19,0)));\n\n    -- Converted: SET-table duplicate-row error on SALES.AUDIT_LOG -> existence check that raises -20803\n    -- Reason: SALES.AUDIT_LOG was a Teradata SET table; the transfer row is already committed when this fails, as in Teradata.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.AUDIT_LOG a\n    WHERE a.EVENT_ID = 2\n      AND a.EVENT_TYPE = 'TRANSFER';\n    IF (dup_count > 0) THEN\n        RAISE duplicate_audit;\n    END IF;\n\n    -- Converted: INSERT INTO sales.audit_log ... VALUES (2, 'TRANSFER') -> same insert with explicit casts\n    -- Reason: Keeps the column types of SALES.AUDIT_LOG.\n    INSERT INTO SALES.AUDIT_LOG (EVENT_ID, EVENT_TYPE)\n    VALUES (CAST(2 AS NUMBER(19,0)), CAST('TRANSFER' AS VARCHAR(40)));\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/post_transfer.sql"
+        }
+      ],
+      "object_id": "4925f10eedc34ba8a80a814fba76787e",
+      "qualified_name": "sales.post_transfer",
+      "self_confidence": 0.7,
+      "type": "procedure",
+      "unsupported": [
+        "Teradata error code 2802 is surfaced as Snowflake user exceptions -20802/-20803 with different SQLSTATEs.",
+        "The duplicate checks are not atomic with the inserts; under concurrent callers a duplicate can still slip in (Teradata enforced it under row-hash locks)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction: each statement commits on its own, which matches Snowflake procedures running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Target tables already exist (earlier objects in this batch / earlier batches) with the columns in the dependency signatures.",
+        "Session database is set so SALES.<object> resolves.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value.",
+        "Teradata mode: INSERT...SELECT into a SET table silently drops duplicates (ANSI mode would raise an error instead).",
+        "CURRENT_DATE is evaluated in the session time zone in both systems; the Snowflake session TIMEZONE parameter must match the Teradata session time zone or the snapshot date can differ around midnight.",
+        "EXECUTE AS OWNER matches the Teradata default SQL SECURITY DEFINER."
+      ],
+      "explanations": [
+        "Converted to a Snowflake Scripting procedure with EXECUTE AS OWNER.",
+        "SET-table silent de-duplication on INSERT...SELECT reproduced with MINUS against the existing target rows, so re-running on the same day adds no duplicates (as in Teradata)."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.capture_snapshot() -> CREATE PROCEDURE SALES.CAPTURE_SNAPSHOT() RETURNS VARCHAR LANGUAGE SQL\n-- Reason: Snowflake Scripting procedure; RETURNS is mandatory, so RETURN NULL stands in for no return value. Plain CREATE keeps the error if it already exists.\n-- Converted: default SQL SECURITY (DEFINER) -> EXECUTE AS OWNER\n-- Reason: Closest Snowflake equivalent of definer's rights; Snowflake requires the clause to be explicit.\nCREATE PROCEDURE SALES.CAPTURE_SNAPSHOT()\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: INSERT ... SELECT CURRENT_DATE, account_id FROM sales.account -> INSERT ... SELECT CURRENT_DATE(), ACCOUNT_ID FROM SALES.\"ACCOUNT\" MINUS existing SALES.ACCOUNT_SNAPSHOT rows\n    -- Reason: SALES.ACCOUNT_SNAPSHOT was a Teradata SET table, and INSERT...SELECT in Teradata mode silently discards rows that duplicate each other or existing rows (NULLs compare equal). MINUS gives exactly that: distinct rows, NULL-safe, minus rows already present. CURRENT_DATE() is evaluated once per statement in both systems.\n    INSERT INTO SALES.ACCOUNT_SNAPSHOT (SNAPSHOT_DATE, ACCOUNT_ID)\n    SELECT\n        CURRENT_DATE(),\n        CAST(a.ACCOUNT_ID AS NUMBER(19,0))\n    FROM SALES.\"ACCOUNT\" a\n    MINUS\n    SELECT\n        s.SNAPSHOT_DATE,\n        s.ACCOUNT_ID\n    FROM SALES.ACCOUNT_SNAPSHOT s;\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/capture_snapshot.sql"
+        }
+      ],
+      "object_id": "a47954ee9dd949db9073d5875b91551e",
+      "qualified_name": "sales.capture_snapshot",
+      "self_confidence": 0.78,
+      "type": "procedure",
+      "unsupported": [
+        "The MINUS de-duplication is not atomic against concurrent writers to SALES.ACCOUNT_SNAPSHOT."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata session (BTET) mode with the CALL issued outside an explicit transaction: each statement commits on its own, which matches Snowflake procedures running with AUTOCOMMIT on. If a caller wraps the CALL in an explicit transaction, rollback behaviour must be reviewed.",
+        "Target tables already exist (earlier objects in this batch / earlier batches) with the columns in the dependency signatures.",
+        "Session database is set so SALES.<object> resolves.",
+        "RETURNS VARCHAR with RETURN NULL stands in for a Teradata procedure that returns no value; callers ignore the return value.",
+        "The invalid statement is a truncated/redacted query, not intentional; Teradata itself would reject the CREATE PROCEDURE, so the source procedure never existed in a working form.",
+        "SALES.AUDIT_LOG is a Teradata SET table (created as SET in this batch), so inserting an identical row raises error 2802; this is emulated with a pre-insert check that raises -20802. The check uses exact comparison, while Teradata NOT CASESPECIFIC columns would also treat case/trailing-blank variants as duplicates.",
+        "EXECUTE AS OWNER matches the Teradata default SQL SECURITY DEFINER."
+      ],
+      "explanations": [
+        "Source was only partially parsed: its first statement is an empty SELECT with no select list and no table.",
+        "Converted what is unambiguous (procedure shell, audit insert with SET-table duplicate check) and replaced the invalid statement with a RAISE so every call fails with -20900 until a human supplies the intended query."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE sales.repair_payment() -> CREATE PROCEDURE SALES.REPAIR_PAYMENT() RETURNS VARCHAR LANGUAGE SQL\n-- Reason: Snowflake Scripting procedure; RETURNS is mandatory, so RETURN NULL stands in for no return value. Plain CREATE keeps the error if it already exists.\n-- Converted: default SQL SECURITY (DEFINER) -> EXECUTE AS OWNER\n-- Reason: Closest Snowflake equivalent of definer's rights; Snowflake requires the clause to be explicit.\nCREATE PROCEDURE SALES.REPAIR_PAYMENT()\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nDECLARE\n    unconverted_statement EXCEPTION (-20900, 'SALES.REPAIR_PAYMENT: source statement 1 is an empty, invalid SELECT and was not converted; manual remediation required');\n    dup_count NUMBER(38,0) DEFAULT 0;\n    duplicate_audit EXCEPTION (-20802, 'Duplicate row in SET table SALES.AUDIT_LOG (EVENT_ID 3, EVENT_TYPE REPAIR)');\nBEGIN\n    -- Converted: invalid source statement (SELECT with no select list and no table) -> RAISE unconverted_statement\n    -- Reason: The source statement is syntactically invalid (Teradata could not compile this procedure), so its intent is unknown. Failing closed keeps the audit row from being written by a half-converted repair routine.\n    RAISE unconverted_statement;\n\n    -- Converted: SET-table duplicate-row error on SALES.AUDIT_LOG -> existence check that raises -20802\n    -- Reason: SALES.AUDIT_LOG was a Teradata SET table; an identical row raised error 2802.\n    SELECT COUNT(*) INTO :dup_count\n    FROM SALES.AUDIT_LOG a\n    WHERE a.EVENT_ID = 3\n      AND a.EVENT_TYPE = 'REPAIR';\n    IF (dup_count > 0) THEN\n        RAISE duplicate_audit;\n    END IF;\n\n    -- Converted: INSERT INTO sales.audit_log ... VALUES (3, 'REPAIR') -> same insert with explicit casts\n    -- Reason: Keeps the column types of SALES.AUDIT_LOG; this code runs only after the unconverted statement above is fixed.\n    INSERT INTO SALES.AUDIT_LOG (EVENT_ID, EVENT_TYPE)\n    VALUES (CAST(3 AS NUMBER(19,0)), CAST('REPAIR' AS VARCHAR(40)));\n\n    RETURN NULL;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/repair_payment.sql"
+        }
+      ],
+      "object_id": "e69e5a4f0d3e44ebbeb6d3ef07188e72",
+      "qualified_name": "sales.repair_payment",
+      "self_confidence": 0.3,
+      "type": "procedure",
+      "unsupported": [
+        "Source statement 'SELECT FROM ;' has no select list, no table and no target; it cannot be converted and needs the original query from the source owner.",
+        "The procedure always raises -20900, so the audit insert is unreachable until the invalid statement is replaced."
+      ]
+    }
+  ]
+}

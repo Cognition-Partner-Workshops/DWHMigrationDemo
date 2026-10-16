@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 import json
-import os
 from collections.abc import Iterator
-from typing import Any
-from urllib.parse import urlsplit
+from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from migraai.agents.batching import plan_batches
 from migraai.agents.job import ConversionJob
+from migraai.devin.client import (
+    build_conversion_client_factory,
+    conversion_client_host,
+    next_conversion_client_mode,
+)
 from migraai.validation.findings import CheckResult
 from migraai.validation.validate import pass_rate
 
@@ -58,21 +61,56 @@ def _inventory(session: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict
 
 def devin_configuration(request: Request) -> tuple[bool, str]:
     settings = request.app.state.settings_store.read()
-    mock_mode = os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1"
+    client_mode = next_conversion_client_mode()
     configured = settings.token_kind in {"legacy", "v3"} and (
         settings.token_kind != "v3" or bool(settings.devin_org_id)
     )
-    parsed = urlsplit(settings.devin_api_base_url)
-    return mock_mode or configured, "local mock" if mock_mode else (parsed.netloc or "Devin")
+    return client_mode in {"mock", "replay"} or configured, conversion_client_host(
+        settings.devin_api_base_url, client_mode
+    )
 
 
-def _estimate(request: Request, session: dict[str, Any]) -> dict[str, Any]:
+def _validated_object_ids(objects: list[dict[str, Any]], object_ids: Any) -> list[str] | None:
+    if object_ids is None:
+        return None
+    if (
+        not isinstance(object_ids, list)
+        or not object_ids
+        or any(not isinstance(object_id, str) or not object_id for object_id in object_ids)
+        or len(set(object_ids)) != len(object_ids)
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="object_ids must be a non-empty list of unique inventory IDs.",
+        )
+    known_ids = {str(item.get("id", "")) for item in objects}
+    if any(object_id not in known_ids for object_id in object_ids):
+        raise HTTPException(status_code=400, detail="object_ids contains an unknown inventory ID.")
+    return object_ids
+
+
+def _estimate(
+    request: Request,
+    session: dict[str, Any],
+    object_ids: list[str] | None = None,
+) -> dict[str, Any]:
     settings = request.app.state.settings_store.read()
     objects, edges = _inventory(session)
-    local_objects = [item for item in objects if item.get("external") not in (True, 1, "true")]
+    selected_ids = _validated_object_ids(objects, object_ids)
+    selected = set(selected_ids) if selected_ids is not None else None
+    local_objects = [
+        item
+        for item in objects
+        if item.get("external") not in (True, 1, "true")
+        and (selected is None or str(item.get("id", "")) in selected)
+    ]
     if not local_objects:
         raise HTTPException(status_code=409, detail="No selected parsed objects to convert.")
-    batches = plan_batches(objects, edges, settings.conversion_batch_size)
+    batches = plan_batches(
+        objects if selected_ids is None else local_objects,
+        edges,
+        settings.conversion_batch_size,
+    )
     configured, host = devin_configuration(request)
     voter_sessions = len(batches) * 3
     max_escalation_sessions = len(batches)
@@ -93,9 +131,12 @@ def _estimate(request: Request, session: dict[str, Any]) -> dict[str, Any]:
 
 
 @router.post("/convert/estimate")
-def post_convert_estimate(request: Request) -> dict[str, Any]:
+def post_convert_estimate(
+    request: Request,
+    object_ids: Annotated[list[str] | None, Query()] = None,
+) -> dict[str, Any]:
     session = _session(request)
-    return _estimate(request, session)
+    return _estimate(request, session, object_ids)
 
 
 @router.post("/convert", response_model=None)
@@ -105,19 +146,34 @@ def post_convert(
     if not payload or payload.get("consent") is not True:
         raise HTTPException(status_code=400, detail="Consent is required before conversion.")
     session = _session(request)
-    estimate = _estimate(request, session)
-    if not estimate["devin_configured"]:
-        return JSONResponse(
-            status_code=412,
-            content={"code": "devin_not_configured", "message": NO_DEVIN_MESSAGE},
-        )
+    objects, _ = _inventory(session)
+    object_ids = _validated_object_ids(objects, payload.get("object_ids"))
+    estimate = _estimate(request, session, object_ids)
     with request.app.state.convert_lock:
         current_job = request.app.state.convert_job
         if current_job is not None and current_job.is_alive():
             raise HTTPException(status_code=409, detail="A conversion is already active.")
+        base = None
+        if object_ids is not None:
+            same_session = current_job is not None and current_job.session.get(
+                "session_id"
+            ) == session.get("session_id")
+            if not same_session or current_job.state not in {"done", "cancelled"}:
+                raise HTTPException(
+                    status_code=409,
+                    detail="Convert selected objects needs a finished conversion to merge with.",
+                )
+            base = current_job
+        if not estimate["devin_configured"]:
+            return JSONResponse(
+                status_code=412,
+                content={"code": "devin_not_configured", "message": NO_DEVIN_MESSAGE},
+            )
         org_id, base_url, pat = request.app.state.settings_store.runtime_devin_config()
         settings = request.app.state.settings_store.read()
-        _, devin_host = devin_configuration(request)
+        client_factory, replayed, devin_host = build_conversion_client_factory(
+            base_url, org_id, pat
+        )
         job = ConversionJob(
             session=session,
             audit=request.app.state.audit_log,
@@ -129,7 +185,11 @@ def post_convert(
             max_concurrent_sessions=settings.max_concurrent_sessions,
             confidence_threshold=settings.confidence_threshold,
             devin_host=devin_host,
+            client_factory=client_factory,
             consent=True,
+            object_ids=object_ids,
+            base=base,
+            replayed=replayed,
         )
         request.app.state.convert_job = job
         job.start()
@@ -317,22 +377,29 @@ def get_conversion_detail(object_id: str, request: Request) -> dict[str, Any]:
     if job is None or not any(str(item.get("id", "")) == object_id for item in job.objects):
         raise HTTPException(status_code=404, detail="Unknown converted object.")
     inventory = session["inventory"]
-    with inventory.lock:
-        object_row = inventory.connection.execute(
-            "SELECT state,confidence,picked_voter,code_path FROM conversion_object "
-            "WHERE run_id=? AND object_id=?",
-            (job.run_id, object_id),
-        ).fetchone()
-        candidate_rows = inventory.connection.execute(
-            "SELECT voter,state,self_confidence,code_path FROM conversion_candidate "
-            "WHERE run_id=? AND object_id=?",
-            (job.run_id, object_id),
-        ).fetchall()
-        session_rows = inventory.connection.execute(
-            "SELECT role,url,state,acus,error FROM conversion_session "
-            "WHERE run_id=? AND object_id=? ORDER BY rowid",
-            (job.run_id, object_id),
-        ).fetchall()
+    object_row = None
+    candidate_rows = []
+    session_rows = []
+    historical_job = job
+    while historical_job is not None and object_row is None:
+        with inventory.lock:
+            object_row = inventory.connection.execute(
+                "SELECT state,confidence,picked_voter,code_path FROM conversion_object "
+                "WHERE run_id=? AND object_id=?",
+                (historical_job.run_id, object_id),
+            ).fetchone()
+            if object_row is not None:
+                candidate_rows = inventory.connection.execute(
+                    "SELECT voter,state,self_confidence,code_path FROM conversion_candidate "
+                    "WHERE run_id=? AND object_id=?",
+                    (historical_job.run_id, object_id),
+                ).fetchall()
+                session_rows = inventory.connection.execute(
+                    "SELECT role,url,state,acus,error FROM conversion_session "
+                    "WHERE run_id=? AND object_id=? ORDER BY rowid",
+                    (historical_job.run_id, object_id),
+                ).fetchall()
+        historical_job = getattr(historical_job, "base", None)
     result = job.results.get(object_id)
     final_candidate = result.get("candidate") if result else None
     candidates: dict[str, Any] = {voter: None for voter in ("A", "B", "C")}

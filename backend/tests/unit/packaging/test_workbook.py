@@ -142,6 +142,7 @@ def test_workbook_and_csvs_are_deterministic_and_timestamped() -> None:
     assert first_csvs == second_csvs
 
     with ZipFile(BytesIO(first)) as archive:
+        assert all(entry.create_system == 3 for entry in archive.infolist())
         assert all(entry.date_time == (2026, 10, 16, 0, 0, 0) for entry in archive.infolist())
         core = archive.read("docProps/core.xml").decode("utf-8")
     assert core.count("2026-10-16T00:00:00Z") == 2

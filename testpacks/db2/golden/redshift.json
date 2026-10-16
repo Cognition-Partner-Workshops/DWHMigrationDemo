@@ -1,0 +1,676 @@
+{
+  "conversion": {
+    "objects": [
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.ACCOUNT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.ACCOUNT_COUNT",
+        "type": "function"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.ACCOUNT_HISTORY",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "failed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.ACCOUNT_INDEX",
+        "type": "index"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.ACCOUNT_MQT",
+        "type": "materialized_query_table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.ACCOUNT_PRODUCT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.ACCOUNT_SEQ",
+        "type": "sequence"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.ACCOUNT_TOTALS",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.ACCOUNT_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.ACTIVE_CUSTOMER",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.AUDIT_LOG",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.BRANCH",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.BRANCH_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.CURRENT_BALANCE",
+        "type": "function"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.CUSTOMER",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.CUSTOMER_ALIAS",
+        "type": "alias"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.CUSTOMER_MASK",
+        "type": "column_mask"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.CUSTOMER_PERMISSION",
+        "type": "row_permission"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.CUSTOMER_SYNONYM",
+        "type": "synonym"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.CUSTOMER_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.DAILY_BALANCE",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.EVENT_LOG",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.EXTERNAL_CUSTOMER",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.HISTORY",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.HISTORY_ARCHIVE",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.PARTIAL",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.PAYMENT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.PAYMENT_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.PREPARED",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.PRODUCT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.PRODUCT_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.RECENT_ACCOUNTS",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.RECONCILIATION",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.RECORD_PAYMENT",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.SETTLEMENT",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.SETTLEMENT_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.TRANSFER",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.TRANSFER_FUNDS",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.TRANSFER_VIEW",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "BANK.UNCOMMITTED_CUSTOMERS",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "BANK.UPDATE_BALANCE",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "EXECUTE on BANK.RECORD_PAYMENT",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "failed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "SELECT, UPDATE on BANK.ACCOUNT",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "load_script.sql",
+        "type": "script"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "maintenance.sql",
+        "type": "script"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "failed",
+          "syntax": "passed"
+        },
+        "name": "recovery.sql",
+        "type": "script"
+      }
+    ],
+    "status_counts": {
+      "cancelled": 0,
+      "converted": 46,
+      "expert_review": 0,
+      "failed": 0
+    }
+  },
+  "entries_sha256": {
+    "migraai-db2-to-redshift-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-redshift-converted/converted/load_script-converted.sql": "d5bac84236b76eb92b982d711b82b22147c96a829c3160c416bf457711e75078",
+    "migraai-db2-to-redshift-converted/converted/maintenance-converted.sql": "9d6e80b8be0b990de70485a0fee6d3748043e387325b0d3f426fde730513c014",
+    "migraai-db2-to-redshift-converted/converted/recovery-converted.sql": "5762ad1582c36ccb421f8db5911a045e30716b3574e29a55aee56f2442a36f1e",
+    "migraai-db2-to-redshift-converted/converted/routines-converted.sql": "383309578b5903cee4da78853932a945dc2b38a2f7cfc4565308b71b6fe3d708",
+    "migraai-db2-to-redshift-converted/converted/security-converted.sql": "06d4492797c765a228cc1ccc62ad451d89f9b873f1946aa0506daa2f69aa1b80",
+    "migraai-db2-to-redshift-converted/converted/tables-converted.sql": "26c07fde3e115cc5440010a882b4431f8ad719ba71ddb2fbe56f8949954576d9",
+    "migraai-db2-to-redshift-converted/converted/views-converted.sql": "a4415f36d2aa3d2f95b62dd81085cd30bf97fd3e9942004e49a74faa65a8abd4",
+    "migraai-db2-to-redshift-converted/execution/redshift/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-redshift-converted/execution/redshift/README.md": "6d71d096e87a001b4d1d0e9bf59616797867783939fcff19c1c13a691cd947a2",
+    "migraai-db2-to-redshift-converted/execution/redshift/order.txt": "1035c7f8d6977a1634c316c7edf885b1362de6fba73fdafb3aa54701644c9d9d",
+    "migraai-db2-to-redshift-converted/execution/redshift/run.ps1": "4f74ae8c278071b451279a19ab0a97f081ee05be8dd84b49f43278922945a837",
+    "migraai-db2-to-redshift-converted/execution/redshift/run.sh": "367b0833a2c0d1019e45fbe03b0cc85bca157facdfa1502ce20dee6a27de3014",
+    "migraai-db2-to-redshift-converted/manifest.json": "c745ecddeab1cd5a1b8ab4998ef29a5baded2e4dff4f671eae3ff9e8b0f258b3",
+    "migraai-db2-to-redshift-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-redshift-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-redshift-converted/mapping/csv/data_types.csv": "60e7e252bcc1cb78f97298f8897c4114001822a7ed173e147ecaf4ea0737e50d",
+    "migraai-db2-to-redshift-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-db2-to-redshift-converted/mapping/csv/objects.csv": "0615fdab783ef11a97ce2eab2bc2bf12d22ac68f00ad5037a3a2b2aa84bc6ee9",
+    "migraai-db2-to-redshift-converted/mapping/csv/security.csv": "4e7e362668b5e119410012503465dd4c938cac31157c4a6668fd47f28cef5add",
+    "migraai-db2-to-redshift-converted/mapping/csv/syntax.csv": "f2ec8cecca6b4f2011f0c819d757c20364dd28b3b18a37aad2399b329d72dad1",
+    "migraai-db2-to-redshift-converted/mapping/mapping-workbook.xlsx": "937b6071fa75e1c4f6b08f221bc92e2a9f7ae1dfd482616549b764525c43b7fa",
+    "migraai-db2-to-redshift-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-db2-to-redshift-converted/report/session-report.md": "69445c88aa1f9d560964c71e7491ae49bb0ea6701a660d574d755001ad1c2341",
+    "migraai-db2-to-redshift-converted/report/session-report.pdf": "a3a6848c7171806b18e01cf833d161a35bd4b841de2530e205444fffbc446603"
+  },
+  "inventory": {
+    "external": 1,
+    "objects": 47
+  },
+  "manifest_counts": {
+    "converted": 46,
+    "excluded": 0,
+    "external": 1,
+    "included": 46,
+    "total": 46
+  },
+  "zip_entries": [
+    "migraai-db2-to-redshift-converted/converted/",
+    "migraai-db2-to-redshift-converted/converted/load_script-converted.sql",
+    "migraai-db2-to-redshift-converted/converted/maintenance-converted.sql",
+    "migraai-db2-to-redshift-converted/converted/recovery-converted.sql",
+    "migraai-db2-to-redshift-converted/converted/routines-converted.sql",
+    "migraai-db2-to-redshift-converted/converted/security-converted.sql",
+    "migraai-db2-to-redshift-converted/converted/tables-converted.sql",
+    "migraai-db2-to-redshift-converted/converted/views-converted.sql",
+    "migraai-db2-to-redshift-converted/execution/redshift/",
+    "migraai-db2-to-redshift-converted/execution/redshift/README.md",
+    "migraai-db2-to-redshift-converted/execution/redshift/order.txt",
+    "migraai-db2-to-redshift-converted/execution/redshift/run.ps1",
+    "migraai-db2-to-redshift-converted/execution/redshift/run.sh",
+    "migraai-db2-to-redshift-converted/manifest.json",
+    "migraai-db2-to-redshift-converted/mapping/",
+    "migraai-db2-to-redshift-converted/mapping/csv/",
+    "migraai-db2-to-redshift-converted/mapping/csv/data_types.csv",
+    "migraai-db2-to-redshift-converted/mapping/csv/functions.csv",
+    "migraai-db2-to-redshift-converted/mapping/csv/objects.csv",
+    "migraai-db2-to-redshift-converted/mapping/csv/security.csv",
+    "migraai-db2-to-redshift-converted/mapping/csv/syntax.csv",
+    "migraai-db2-to-redshift-converted/mapping/mapping-workbook.xlsx",
+    "migraai-db2-to-redshift-converted/report/",
+    "migraai-db2-to-redshift-converted/report/session-report.md",
+    "migraai-db2-to-redshift-converted/report/session-report.pdf"
+  ],
+  "zip_sha256": "97cfdb7a67625fc180c5a926055b6398af195e3d4007c63c0239b85ff4934a6a"
+}

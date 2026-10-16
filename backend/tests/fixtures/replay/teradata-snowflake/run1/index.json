@@ -1,0 +1,490 @@
+{
+  "batches": [
+    {
+      "batch": 0,
+      "object_ids": [
+        "a7aae32295d64aec941dcd916b1f5720",
+        "a3dc1ff9f6c14b83a5bb9ee4b819c9e8",
+        "9368b37c5bfb40218bdddd18df63c027",
+        "d8766f138b304b4f90ab85a8e4260024",
+        "64c54c7c980b4b03a1318f025881d865",
+        "542b236d7e3c4511a38f3e3ed02c6f4c",
+        "5116bc548cd8484e8701a5f25b127e39",
+        "aa86464cb6ba48208d12f68526e8c47d",
+        "76c6a88f0b1845d48f8ccef3dd8087ec",
+        "2d42cac86fec4be5ae92250db28c7d89",
+        "18aa2df625f8453cbb1d3b3f4d72d7f7",
+        "0c7937505cef42e1b588e29ead90c760",
+        "dfe4df7731be47e69190a1f6d11b6e60",
+        "6db6baea46a24a9b92ab31882fdf28e4",
+        "fdf84ace6c28487facdd6b1b6ca109f9",
+        "5b92ee8a397f430d8e59d379ea1c6727",
+        "c612fd963a0142fc8dbfa4de93e3ba57",
+        "87ecc30da83e4555a55b47c4aa74c70c",
+        "27a996d8077c44508be2f69c941d61e8",
+        "0ab1e99f2d1b4db9ae89094ba12dda69"
+      ],
+      "objects": [
+        {
+          "object_id": "a7aae32295d64aec941dcd916b1f5720",
+          "qualified_name": "sales.recovered_after_error",
+          "type": "table"
+        },
+        {
+          "object_id": "a3dc1ff9f6c14b83a5bb9ee4b819c9e8",
+          "qualified_name": "reader",
+          "type": "role"
+        },
+        {
+          "object_id": "9368b37c5bfb40218bdddd18df63c027",
+          "qualified_name": "operator",
+          "type": "role"
+        },
+        {
+          "object_id": "d8766f138b304b4f90ab85a8e4260024",
+          "qualified_name": "auditor",
+          "type": "role"
+        },
+        {
+          "object_id": "64c54c7c980b4b03a1318f025881d865",
+          "qualified_name": "analyst",
+          "type": "user"
+        },
+        {
+          "object_id": "542b236d7e3c4511a38f3e3ed02c6f4c",
+          "qualified_name": "loader",
+          "type": "user"
+        },
+        {
+          "object_id": "5116bc548cd8484e8701a5f25b127e39",
+          "qualified_name": "ROLE on reader",
+          "type": "grant"
+        },
+        {
+          "object_id": "aa86464cb6ba48208d12f68526e8c47d",
+          "qualified_name": "ROLE on operator",
+          "type": "grant"
+        },
+        {
+          "object_id": "76c6a88f0b1845d48f8ccef3dd8087ec",
+          "qualified_name": "sales.customer",
+          "type": "table"
+        },
+        {
+          "object_id": "2d42cac86fec4be5ae92250db28c7d89",
+          "qualified_name": "sales.account",
+          "type": "table"
+        },
+        {
+          "object_id": "18aa2df625f8453cbb1d3b3f4d72d7f7",
+          "qualified_name": "sales.branch",
+          "type": "table"
+        },
+        {
+          "object_id": "0c7937505cef42e1b588e29ead90c760",
+          "qualified_name": "sales.employee",
+          "type": "table"
+        },
+        {
+          "object_id": "dfe4df7731be47e69190a1f6d11b6e60",
+          "qualified_name": "sales.product",
+          "type": "table"
+        },
+        {
+          "object_id": "6db6baea46a24a9b92ab31882fdf28e4",
+          "qualified_name": "sales.order_header",
+          "type": "table"
+        },
+        {
+          "object_id": "fdf84ace6c28487facdd6b1b6ca109f9",
+          "qualified_name": "sales.order_line",
+          "type": "table"
+        },
+        {
+          "object_id": "5b92ee8a397f430d8e59d379ea1c6727",
+          "qualified_name": "sales.payment",
+          "type": "table"
+        },
+        {
+          "object_id": "c612fd963a0142fc8dbfa4de93e3ba57",
+          "qualified_name": "sales.loan",
+          "type": "table"
+        },
+        {
+          "object_id": "87ecc30da83e4555a55b47c4aa74c70c",
+          "qualified_name": "sales.loan_payment",
+          "type": "table"
+        },
+        {
+          "object_id": "27a996d8077c44508be2f69c941d61e8",
+          "qualified_name": "sales.card",
+          "type": "table"
+        },
+        {
+          "object_id": "0ab1e99f2d1b4db9ae89094ba12dda69",
+          "qualified_name": "sales.card_txn",
+          "type": "table"
+        }
+      ],
+      "outputs": {
+        "escalation": "batch-0-escalation.json",
+        "voter_a": "batch-0-voter_a.json",
+        "voter_b": "batch-0-voter_b.json",
+        "voter_c": "batch-0-voter_c.json"
+      }
+    },
+    {
+      "batch": 1,
+      "object_ids": [
+        "0aebbcfee46e473987d00d2ba4657f19",
+        "7ab8c6402bd54405bad2107ad715d77c",
+        "40bd3590fb7340748d82a284f8088fff",
+        "7d18d448ba454ea48e579c5fd2e4409d",
+        "a1aa76dccce44b2ca8ef6c3fdff9079f",
+        "8d5ea967c8614d63a128c8ad7ddfe354",
+        "4546b484755849ceafd42f6f7a3e87f9",
+        "06cd4c10700048d598398cd1ec90b8ae",
+        "4f3123f0a0e049368b9f185adfcbf0b1",
+        "f5d0c9621f444b12970b10fbb393f04e",
+        "b64f49f9ea84495a81a545f2f0576cef",
+        "51c11bdfe1ef44dd91a39f2b52bdb7ee",
+        "e40a0d6ec00647e5b7ad800cc28589b7",
+        "823dfd1f946c47c39b3be6d16f9a9d49",
+        "2f681217726c4b1c8d1f74340f177ca7",
+        "9bf7f16fd9424a23aa549e90bc430560",
+        "0622588a8b24455996df7d6ddd1a5f7e",
+        "4925f10eedc34ba8a80a814fba76787e",
+        "a47954ee9dd949db9073d5875b91551e",
+        "e69e5a4f0d3e44ebbeb6d3ef07188e72"
+      ],
+      "objects": [
+        {
+          "object_id": "0aebbcfee46e473987d00d2ba4657f19",
+          "qualified_name": "sales.transfer",
+          "type": "table"
+        },
+        {
+          "object_id": "7ab8c6402bd54405bad2107ad715d77c",
+          "qualified_name": "sales.audit_log",
+          "type": "table"
+        },
+        {
+          "object_id": "40bd3590fb7340748d82a284f8088fff",
+          "qualified_name": "sales.risk_score",
+          "type": "table"
+        },
+        {
+          "object_id": "7d18d448ba454ea48e579c5fd2e4409d",
+          "qualified_name": "sales.account_snapshot",
+          "type": "table"
+        },
+        {
+          "object_id": "a1aa76dccce44b2ca8ef6c3fdff9079f",
+          "qualified_name": "sales.customer_segment",
+          "type": "table"
+        },
+        {
+          "object_id": "8d5ea967c8614d63a128c8ad7ddfe354",
+          "qualified_name": "sales.external_rate",
+          "type": "table"
+        },
+        {
+          "object_id": "4546b484755849ceafd42f6f7a3e87f9",
+          "qualified_name": "sales.daily_balance",
+          "type": "table"
+        },
+        {
+          "object_id": "06cd4c10700048d598398cd1ec90b8ae",
+          "qualified_name": "sales.recovered_table",
+          "type": "table"
+        },
+        {
+          "object_id": "4f3123f0a0e049368b9f185adfcbf0b1",
+          "qualified_name": "sales.ix_customer_status",
+          "type": "index"
+        },
+        {
+          "object_id": "f5d0c9621f444b12970b10fbb393f04e",
+          "qualified_name": "sales.ix_account_customer",
+          "type": "index"
+        },
+        {
+          "object_id": "b64f49f9ea84495a81a545f2f0576cef",
+          "qualified_name": "sales.hix_account",
+          "type": "hash_index"
+        },
+        {
+          "object_id": "51c11bdfe1ef44dd91a39f2b52bdb7ee",
+          "qualified_name": "sales.hix_card",
+          "type": "hash_index"
+        },
+        {
+          "object_id": "e40a0d6ec00647e5b7ad800cc28589b7",
+          "qualified_name": "sales.jix_order",
+          "type": "join_index"
+        },
+        {
+          "object_id": "823dfd1f946c47c39b3be6d16f9a9d49",
+          "qualified_name": "sales.customer_alias",
+          "type": "synonym"
+        },
+        {
+          "object_id": "2f681217726c4b1c8d1f74340f177ca7",
+          "qualified_name": "teradata-testpack.zip/load_script.sql",
+          "type": "script"
+        },
+        {
+          "object_id": "9bf7f16fd9424a23aa549e90bc430560",
+          "qualified_name": "sales.add_payment",
+          "type": "procedure"
+        },
+        {
+          "object_id": "0622588a8b24455996df7d6ddd1a5f7e",
+          "qualified_name": "sales.update_balance",
+          "type": "procedure"
+        },
+        {
+          "object_id": "4925f10eedc34ba8a80a814fba76787e",
+          "qualified_name": "sales.post_transfer",
+          "type": "procedure"
+        },
+        {
+          "object_id": "a47954ee9dd949db9073d5875b91551e",
+          "qualified_name": "sales.capture_snapshot",
+          "type": "procedure"
+        },
+        {
+          "object_id": "e69e5a4f0d3e44ebbeb6d3ef07188e72",
+          "qualified_name": "sales.repair_payment",
+          "type": "procedure"
+        }
+      ],
+      "outputs": {
+        "escalation": "batch-1-escalation.json",
+        "voter_a": "batch-1-voter_a.json",
+        "voter_b": "batch-1-voter_b.json",
+        "voter_c": "batch-1-voter_c.json"
+      }
+    },
+    {
+      "batch": 2,
+      "object_ids": [
+        "6bb55814804547ff9f2ff0f818cff60c",
+        "2c2fa38760594f7ea8a8795941419703",
+        "1722a504ffe44591ba180a0cc589a7a5",
+        "1c4dffcc96684b818ad979170d49c279",
+        "02b79ca2037f47569ee405e049ec1eb5",
+        "b84ceab409284cf7a297de060ee33708",
+        "bdba2737d6a64e8bb662e2157afce02d",
+        "5a61edb6f433488abd71b05549442493",
+        "0a71414e3ea54929ae6a91c6dabaa293",
+        "d21dfe3fd35c4579a33f669fd3b7657b",
+        "9e251764a6b646ccb6815baeac2f9e3a",
+        "5d24db03a9ab446baf855fc79d8b9fdc",
+        "9da917628ab14fd98cba144397eda1a5",
+        "461fde588eb9493db4145a5eb39f627f",
+        "8b9c0cf760a041ffb233d07c05f7d7fd",
+        "84d47522601a4ca6992c58e3cd3dc9e7"
+      ],
+      "objects": [
+        {
+          "object_id": "6bb55814804547ff9f2ff0f818cff60c",
+          "qualified_name": "sales.refresh_daily",
+          "type": "macro"
+        },
+        {
+          "object_id": "2c2fa38760594f7ea8a8795941419703",
+          "qualified_name": "SELECT, INSERT on sales.payment",
+          "type": "grant"
+        },
+        {
+          "object_id": "1722a504ffe44591ba180a0cc589a7a5",
+          "qualified_name": "SELECT on sales.audit_log",
+          "type": "grant"
+        },
+        {
+          "object_id": "1c4dffcc96684b818ad979170d49c279",
+          "qualified_name": "EXECUTE PROCEDURE on sales.add_payment",
+          "type": "grant"
+        },
+        {
+          "object_id": "02b79ca2037f47569ee405e049ec1eb5",
+          "qualified_name": "sales.customer_accounts",
+          "type": "view"
+        },
+        {
+          "object_id": "b84ceab409284cf7a297de060ee33708",
+          "qualified_name": "sales.account_payments",
+          "type": "view"
+        },
+        {
+          "object_id": "bdba2737d6a64e8bb662e2157afce02d",
+          "qualified_name": "sales.customer_loans",
+          "type": "view"
+        },
+        {
+          "object_id": "5a61edb6f433488abd71b05549442493",
+          "qualified_name": "sales.order_detail",
+          "type": "view"
+        },
+        {
+          "object_id": "0a71414e3ea54929ae6a91c6dabaa293",
+          "qualified_name": "sales.card_activity",
+          "type": "view"
+        },
+        {
+          "object_id": "d21dfe3fd35c4579a33f669fd3b7657b",
+          "qualified_name": "sales.transfer_activity",
+          "type": "view"
+        },
+        {
+          "object_id": "9e251764a6b646ccb6815baeac2f9e3a",
+          "qualified_name": "sales.customer_risk",
+          "type": "view"
+        },
+        {
+          "object_id": "5d24db03a9ab446baf855fc79d8b9fdc",
+          "qualified_name": "sales.daily_account_balances",
+          "type": "view"
+        },
+        {
+          "object_id": "9da917628ab14fd98cba144397eda1a5",
+          "qualified_name": "sales.customer_external_rate",
+          "type": "view"
+        },
+        {
+          "object_id": "461fde588eb9493db4145a5eb39f627f",
+          "qualified_name": "sales.unuploaded_reference",
+          "type": "view"
+        },
+        {
+          "object_id": "8b9c0cf760a041ffb233d07c05f7d7fd",
+          "qualified_name": "SELECT on sales.customer_accounts",
+          "type": "grant"
+        },
+        {
+          "object_id": "84d47522601a4ca6992c58e3cd3dc9e7",
+          "qualified_name": "SELECT on sales.account_payments",
+          "type": "grant"
+        }
+      ],
+      "outputs": {
+        "escalation": "batch-2-escalation.json",
+        "voter_a": "batch-2-voter_a.json",
+        "voter_b": "batch-2-voter_b.json",
+        "voter_c": "batch-2-voter_c.json"
+      }
+    }
+  ],
+  "run_id": "run1",
+  "sessions": [
+    {
+      "acus": null,
+      "batch": 0,
+      "file": "batch-0-escalation.json",
+      "objects": 9,
+      "role": "escalation",
+      "session_id": "replay-run1-escalation-1",
+      "url": "replay://run1/escalation/1"
+    },
+    {
+      "acus": null,
+      "batch": 0,
+      "file": "batch-0-voter_a.json",
+      "objects": 20,
+      "role": "voter_a",
+      "session_id": "replay-run1-voter_a-1",
+      "url": "replay://run1/voter_a/1"
+    },
+    {
+      "acus": null,
+      "batch": 0,
+      "file": "batch-0-voter_b.json",
+      "objects": 20,
+      "role": "voter_b",
+      "session_id": "replay-run1-voter_b-1",
+      "url": "replay://run1/voter_b/1"
+    },
+    {
+      "acus": null,
+      "batch": 0,
+      "file": "batch-0-voter_c.json",
+      "objects": 20,
+      "role": "voter_c",
+      "session_id": "replay-run1-voter_c-1",
+      "url": "replay://run1/voter_c/1"
+    },
+    {
+      "acus": null,
+      "batch": 1,
+      "file": "batch-1-escalation.json",
+      "objects": 7,
+      "role": "escalation",
+      "session_id": "replay-run1-escalation-2",
+      "url": "replay://run1/escalation/2"
+    },
+    {
+      "acus": null,
+      "batch": 1,
+      "file": "batch-1-voter_a.json",
+      "objects": 20,
+      "role": "voter_a",
+      "session_id": "replay-run1-voter_a-2",
+      "url": "replay://run1/voter_a/2"
+    },
+    {
+      "acus": null,
+      "batch": 1,
+      "file": "batch-1-voter_b.json",
+      "objects": 20,
+      "role": "voter_b",
+      "session_id": "replay-run1-voter_b-2",
+      "url": "replay://run1/voter_b/2"
+    },
+    {
+      "acus": null,
+      "batch": 1,
+      "file": "batch-1-voter_c.json",
+      "objects": 20,
+      "role": "voter_c",
+      "session_id": "replay-run1-voter_c-2",
+      "url": "replay://run1/voter_c/2"
+    },
+    {
+      "acus": null,
+      "batch": 2,
+      "file": "batch-2-escalation.json",
+      "objects": 2,
+      "role": "escalation",
+      "session_id": "replay-run1-escalation-3",
+      "url": "replay://run1/escalation/3"
+    },
+    {
+      "acus": null,
+      "batch": 2,
+      "file": "batch-2-voter_a.json",
+      "objects": 16,
+      "role": "voter_a",
+      "session_id": "replay-run1-voter_a-3",
+      "url": "replay://run1/voter_a/3"
+    },
+    {
+      "acus": null,
+      "batch": 2,
+      "file": "batch-2-voter_b.json",
+      "objects": 16,
+      "role": "voter_b",
+      "session_id": "replay-run1-voter_b-3",
+      "url": "replay://run1/voter_b/3"
+    },
+    {
+      "acus": null,
+      "batch": 2,
+      "file": "batch-2-voter_c.json",
+      "objects": 16,
+      "role": "voter_c",
+      "session_id": "replay-run1-voter_c-3",
+      "url": "replay://run1/voter_c/3"
+    }
+  ]
+}

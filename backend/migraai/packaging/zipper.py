@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from pathlib import PurePosixPath, PureWindowsPath
 from typing import Any
 
+from migraai.packaging.acu import total_acus
 from migraai.packaging.model import PackageInput
 from migraai.packaging.naming import converted_files, sanitize_package_name
 
@@ -88,12 +89,33 @@ def _manifest(package: PackageInput, files: dict[str, bytes]) -> bytes:
             "excluded": len(package.excluded()),
             "external": len(package.external),
         },
+        "egress": (
+            {"total_acus": total_acus(package.sessions)} if package.egress is not None else None
+        ),
         "objects": [_object_manifest(item) for item in package.objects],
         "excluded": excluded,
         "external": list(package.external),
         "needs_review": review,
         "sha256": {path: hashlib.sha256(data).hexdigest() for path, data in sorted(files.items())},
     }
+    if package.base_run_id is not None:
+        content["base_run_id"] = package.base_run_id
+        content["reconverted_object_ids"] = list(package.reconverted_object_ids)
+        content["kept_base_object_ids"] = dict(package.kept_base_object_ids)
+    if package.sessions and (
+        package.base_run_id is not None or any(s.replayed for s in package.sessions)
+    ):
+        content["sessions"] = [
+            {
+                "run_id": item.run_id,
+                "role": item.role,
+                "batch_index": item.batch_index,
+                "state": "replayed, nothing sent" if item.replayed else item.state,
+                "acus": item.acus,
+                "url": item.url,
+            }
+            for item in package.sessions
+        ]
     return (
         json.dumps(content, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n"
     ).encode("utf-8")

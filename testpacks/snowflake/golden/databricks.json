@@ -1,0 +1,768 @@
+{
+  "conversion": {
+    "objects": [
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "90_loads.sql",
+        "type": "script"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics",
+        "type": "database"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated",
+        "type": "schema"
+      },
+      {
+        "checks": {
+          "dependency": "failed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.agg_daily_sales",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "failed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.agg_return_rates",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.fn_tax",
+        "type": "function"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.mv_monthly_revenue",
+        "type": "materialized_view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "analytics.curated.p_refresh",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.p_transform_js",
+        "type": "procedure"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.seq_batch_id",
+        "type": "sequence"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.seq_order_id",
+        "type": "sequence"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.task_orders",
+        "type": "task"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.task_rebuild",
+        "type": "task"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "analytics.curated.task_stage",
+        "type": "task"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.v_customer_orders",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.v_event_items",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.v_external_legacy",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.v_inventory_risk",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.curated.v_monthly_revenue",
+        "type": "view"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw",
+        "type": "schema"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.addresses",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.currencies",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "analytics.raw.customers",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.discounts",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.events",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.ff_csv",
+        "type": "file_format"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.inventory",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.order_lines",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "failed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.orders",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.payments",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "failed"
+        },
+        "name": "analytics.raw.pipe_orders",
+        "type": "pipe"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.products",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.recovery_survivor",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.regions",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.returns",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.shipping",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.stage_ingest",
+        "type": "stage"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.stream_orders",
+        "type": "stream"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.raw.suppliers",
+        "type": "table"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.security",
+        "type": "schema"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.security.mask_email",
+        "type": "policy"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.security.row_region",
+        "type": "policy"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.security.sensitivity",
+        "type": "tag"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "analytics.wh_etl",
+        "type": "warehouse"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "apply masking policy on analytics.raw.customers",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "role on role_loader",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "role_analyst",
+        "type": "role"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "role_engineer",
+        "type": "role"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "role_loader",
+        "type": "role"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "passed",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "select on analytics.curated.v_customer_orders",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "share_partner",
+        "type": "share"
+      },
+      {
+        "checks": {
+          "dependency": "passed",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "failed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "usage on analytics",
+        "type": "grant"
+      },
+      {
+        "checks": {
+          "dependency": "not_applicable",
+          "lint": "passed",
+          "object_reference": "not_applicable",
+          "rule": "passed",
+          "security": "passed",
+          "semantic": "passed",
+          "syntax": "passed"
+        },
+        "name": "user_service",
+        "type": "user"
+      }
+    ],
+    "status_counts": {
+      "cancelled": 0,
+      "converted": 52,
+      "expert_review": 1,
+      "failed": 0
+    }
+  },
+  "entries_sha256": {
+    "migraai-snowflake-to-databricks-converted/converted/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-databricks-converted/converted/00_foundation-converted.sql": "a7cf4718ef8eb8aa9309b71696f92c39247e1ddda0ae0c79a4f6294a6188241a",
+    "migraai-snowflake-to-databricks-converted/converted/10_sources-converted.sql": "dceb9789d31b73a36cea2c51bc6cb315ebefa3f3df2aa0de53d938f26aeee67f",
+    "migraai-snowflake-to-databricks-converted/converted/20_curated-converted.sql": "db3d31e6e4b38798c2d9194f2f768fc1da400c3ed0764ea56b04a61641470ebf",
+    "migraai-snowflake-to-databricks-converted/converted/30_security-converted.sql": "644267f7fc4d9e385a52a7bee59e7680127c2eb0046db85226bf04f9a8fb71ae",
+    "migraai-snowflake-to-databricks-converted/converted/40_pipelines-converted.sql": "2a679886b5ad469c3d7f29191a92b11c5512aaddff0a26f0e5d9db3d590977cc",
+    "migraai-snowflake-to-databricks-converted/converted/60_grants-converted.sql": "8628461cafafbfc368d69797fba69ef39e2cc5a4bf25bf9b03099de49c02b606",
+    "migraai-snowflake-to-databricks-converted/converted/90_loads-converted.sql": "6b58e8df80a87b9653feb9d2c78bccc8fe3b4d18329d52567f0a383986e549bd",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/README.md": "b155f9a5172a0a2c7e33051dad00a9f8aa1ed2538051ec693cac3b584ef02626",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/order.txt": "fa47c91bcc45c134d0aadb38ca4cbb0013a8da1c19c563c449da722b9c37a5af",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/run.ps1": "3ba33d45618c5b9e5b73b328d394f279384f06981f005e8c3c118ada36e00bc5",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/run.sh": "6dd4791f5506f07d5c50cf7aa9cbb841734b28d6d1f0805ec2013d6cf03a148b",
+    "migraai-snowflake-to-databricks-converted/manifest.json": "213599593cb43e6f854b122c0107b99c949f7cbd34b1b530f4cdbb25ebb265c4",
+    "migraai-snowflake-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/data_types.csv": "f4e47e2d71a2be74d59a80b7a7225bc8f2f3404f15015874804b790fc81c02d8",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/objects.csv": "fc6254e54b2043fe9b896c2c056b248dc2519be032749b0a0f353209ca6eb044",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/security.csv": "339f8d9d56ca284f415891719f65fb34081efc8298ae2dd63b13b40ccc8d4573",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/syntax.csv": "7d064785318921e859b87956b51064b60f2564bebb67cb1ecd34d2d252ba55b7",
+    "migraai-snowflake-to-databricks-converted/mapping/mapping-workbook.xlsx": "a766f581b88afdb6bb0d33b8542b1e5c7a88643e867030eb1db2db1a75d56581",
+    "migraai-snowflake-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "migraai-snowflake-to-databricks-converted/report/session-report.md": "91401bcc4d8fd77313f072a1eb3d3458673da5848f6a71b7a26e97e696f7200b",
+    "migraai-snowflake-to-databricks-converted/report/session-report.pdf": "d00680d78d7dc1c7462f420b26e97d852bcb973771d06bbbc697d78692e7ce46"
+  },
+  "inventory": {
+    "external": 1,
+    "objects": 54
+  },
+  "manifest_counts": {
+    "converted": 52,
+    "excluded": 0,
+    "expert_review": 1,
+    "external": 1,
+    "included": 53,
+    "total": 53
+  },
+  "zip_entries": [
+    "migraai-snowflake-to-databricks-converted/converted/",
+    "migraai-snowflake-to-databricks-converted/converted/00_foundation-converted.sql",
+    "migraai-snowflake-to-databricks-converted/converted/10_sources-converted.sql",
+    "migraai-snowflake-to-databricks-converted/converted/20_curated-converted.sql",
+    "migraai-snowflake-to-databricks-converted/converted/30_security-converted.sql",
+    "migraai-snowflake-to-databricks-converted/converted/40_pipelines-converted.sql",
+    "migraai-snowflake-to-databricks-converted/converted/60_grants-converted.sql",
+    "migraai-snowflake-to-databricks-converted/converted/90_loads-converted.sql",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/README.md",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/order.txt",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/run.ps1",
+    "migraai-snowflake-to-databricks-converted/execution/databricks/run.sh",
+    "migraai-snowflake-to-databricks-converted/manifest.json",
+    "migraai-snowflake-to-databricks-converted/mapping/",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/data_types.csv",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/functions.csv",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/objects.csv",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/security.csv",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/syntax.csv",
+    "migraai-snowflake-to-databricks-converted/mapping/mapping-workbook.xlsx",
+    "migraai-snowflake-to-databricks-converted/report/",
+    "migraai-snowflake-to-databricks-converted/report/session-report.md",
+    "migraai-snowflake-to-databricks-converted/report/session-report.pdf"
+  ],
+  "zip_sha256": "fd833fe1807821e1f1810da158e1460cdccc6d2f73ff6c59f855de74e825f01f"
+}

@@ -105,6 +105,30 @@ def test_matching_source_grant_is_not_widened(make_context, make_object) -> None
     assert security.validate(obj, context) == []
 
 
+def test_snowflake_execute_procedure_is_equivalent_to_usage_and_role_matches(
+    make_context, make_object
+) -> None:
+    context = make_context(
+        target="snowflake",
+        source_grants={"src.schema.object": {("ROLE OPERATOR'", "EXECUTE PROCEDURE")}},
+    )
+    obj = make_object(content="GRANT USAGE ON PROCEDURE prod.sales.account TO ROLE OPERATOR")
+
+    assert security.validate(obj, context) == []
+
+
+def test_snowflake_select_is_not_equivalent_to_source_execute(make_context, make_object) -> None:
+    context = make_context(
+        target="snowflake",
+        source_grants={"src.schema.object": {("operator", "EXECUTE PROCEDURE")}},
+    )
+    obj = make_object(content="GRANT SELECT ON TABLE prod.sales.account TO operator")
+
+    assert [finding.rule_id for finding in security.validate(obj, context)] == [
+        "security.privilege_widening"
+    ]
+
+
 def test_grant_without_source_grants_is_a_warning(make_context, make_object) -> None:
     obj = make_object(content="GRANT SELECT ON TABLE prod.sales.account TO role_a")
 
