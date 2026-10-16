@@ -68,10 +68,12 @@ def confirm_session(payload: SessionConfirm, request: Request) -> SessionConfirm
     session_dir: Path = create_session_dir(request.app.state.data_dir)
     session_id = session_dir.name
     cipher = SessionCipher()
+    kb_store = getattr(request.app.state, "kb_store", None)
     current_session = {
         "session_id": session_id,
         "source": payload.source,
         "target": payload.target,
+        "kb_version": getattr(kb_store, "current_version", None),
         "store": EncryptedFileStore(session_dir, cipher),
         "cipher": cipher,
         "inventory": Inventory(),

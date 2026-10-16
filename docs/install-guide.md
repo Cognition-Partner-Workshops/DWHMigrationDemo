@@ -68,7 +68,7 @@ Open **Settings**. The dialog has these fields:
 | API base URL | `devin_api_base_url` | Default `https://api.devin.ai`. Use your enterprise API domain if it is different. |
 | Confidence threshold | `confidence_threshold` | 0.5 to 1.0, default 0.85. |
 | Max concurrent sessions | `max_concurrent_sessions` | 1 to 50, default 4. |
-| ACU cap per run | `acu_cap_per_run` | Empty means "No cap". See the operations guide: conversion sessions are currently started without an ACU limit. |
+| ACU cap per run | `acu_cap_per_run` | Empty means "No cap". When set, the cap is divided into integer per-session limits (minimum 1 ACU); see the operations guide. |
 
 Select **Save settings**. Token types:
 

@@ -113,7 +113,7 @@ Sessions answered from a local replay (the test-only `MIGRAAI_TEST_REPLAY_DEVIN`
 |---|---|---|---|---|
 | `confidence_threshold` | Confidence threshold | 0.85 | 0.5–1.0 | Objects below it are escalated, and are sent to expert review if still below it |
 | `max_concurrent_sessions` | Max concurrent sessions | 4 | 1–50 | Maximum Devin sessions running at once in a conversion run |
-| `acu_cap_per_run` | ACU cap per run | none | > 0 | Saved, but conversion sessions are currently started without an ACU limit |
+| `acu_cap_per_run` | ACU cap per run | none | > 0 | Divided across the maximum session count to set an integer per-session limit (minimum 1 ACU); the estimate may exceed the cap when it is below the session count |
 | `conversion_batch_size` | API only | 20 | 1–50 | Objects per conversion batch |
 | `conversion_session_timeout_minutes` | API only | 45 | 5–240 | A conversion session is stopped after this time |
 | `plan_acu_cap` | API only | 10 | 1–100 | ACU limit sent with the planning session |
@@ -256,6 +256,6 @@ The Microsoft Visual C++ runtime licence is in `app\third-party-notices\msvc-run
 
 - No restart persistence: uploads, inventory and conversion runs are lost when the app stops.
 - Windows testing has been done only on Windows Server 2022 with an Administrator account, starting `start.cmd` without elevation. Windows 10/11 and standard-user accounts are not yet tested.
-- `ACU cap per run` is saved but not applied to conversion sessions.
+- If the cap is below the maximum session count, every session receives a 1 ACU limit and the estimated run maximum can exceed the cap.
 - There is no built-in audit-chain verification command, and the logs are never rotated.
 - Proxy auto-configuration (PAC) is not supported.

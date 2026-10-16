@@ -87,7 +87,7 @@ The session report is generated once per package, as Markdown and as PDF with th
 
 - **Source platform** and **Target platform**: platform IDs.
 - **Confidence threshold**: below this confidence an object goes to expert review. Set in Settings; the default is 85%.
-- **KB version**: The package snapshot reads `session["kb_version"]`, but nothing currently sets that session key. Packages therefore show `n/a` in the report and an empty Summary cell in the workbook, even when a KB is installed. The plan PDF does show the KB version.
+- **KB version**: The version active when the session is confirmed is recorded in the package. The session report shows it (or `n/a` when no KB is available), and the workbook Summary shows the version or an empty cell.
 
 ### 3. Scope and inventory
 
@@ -265,9 +265,10 @@ These keys appear only in some packages:
 | `base_run_id` | After "Re-convert selected" | Run whose results were carried over |
 | `reconverted_object_ids` | After "Re-convert selected" | IDs of the objects selected for re-conversion |
 | `kept_base_object_ids` | After "Re-convert selected" | Selected objects that kept their earlier result because re-conversion was cancelled or gave no usable candidate; maps object ID to the reason (secrets masked). Can be `{}` |
+| `acu_limit_per_session` | When an ACU cap is configured | Integer ACU limit applied to each conversion session |
 | `sessions` | After "Re-convert selected", or when a session was replayed | One entry per session: `run_id`, `role`, `batch_index`, `state` (`replayed, nothing sent` for replayed sessions), `acus` and `url` |
 
-The sample is a first run with no replay, so none of these four keys is present. Run state is kept in memory only: "Re-convert selected" can merge with an earlier run only while the app stays open.
+The sample is a first run with no replay or ACU cap, so none of these keys is present. Run state is kept in memory only: "Re-convert selected" can merge with an earlier run only while the app stays open.
 
 ## How the samples are produced and kept up to date
 

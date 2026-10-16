@@ -39,6 +39,7 @@ class ConversionJob(threading.Thread):
         timeout_minutes: int = 45,
         max_concurrent_sessions: int = 4,
         confidence_threshold: float = 0.85,
+        max_acu_limit: int | None = None,
         devin_host: str = "",
         client_factory: Callable[[str], Any] | None = None,
         pack: TargetPack | None = None,
@@ -57,6 +58,7 @@ class ConversionJob(threading.Thread):
         self.timeout_minutes = timeout_minutes
         self.max_concurrent_sessions = max_concurrent_sessions
         self.confidence_threshold = confidence_threshold
+        self.max_acu_limit = max_acu_limit
         self.devin_host = devin_host
         self.pack = pack or load_pack(self.target)
         self.base = base
@@ -704,6 +706,7 @@ class ConversionJob(threading.Thread):
                         all_edges=self.edges,
                         order=self.order,
                         confidence_threshold=self.confidence_threshold,
+                        max_acu_limit=self.max_acu_limit,
                         timeout_s=self.timeout_minutes * 60,
                         cancel=self.cancel_event,
                         session_semaphore=semaphore,

@@ -60,6 +60,7 @@ class MockDevinClient:
         self.attachments: dict[str, str] = {}
         self.sessions: dict[str, dict[str, Any]] = {}
         self.termination_calls: list[str] = []
+        self.max_acu_limits: list[int | None] = []
         self.closed = False
         self._next_attachment = 1
         self._next_session = 1
@@ -89,6 +90,7 @@ class MockDevinClient:
         title: str,
         tags: list[str],
     ) -> tuple[str, str]:
+        self.max_acu_limits.append(max_acu_limit)
         attempt = self._next_session
         self._next_session += 1
         try:

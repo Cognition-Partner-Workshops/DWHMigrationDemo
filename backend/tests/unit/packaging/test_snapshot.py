@@ -7,6 +7,8 @@ from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
 
+from openpyxl import load_workbook
+
 from migraai.agents.job import ConversionJob
 from migraai.core.audit import AuditLog
 from migraai.core.crypto import EncryptedFileStore, SessionCipher
@@ -17,6 +19,7 @@ from migraai.discovery.pipeline import discover_files
 from migraai.discovery.uploads import UploadRow
 from migraai.packaging.naming import default_package_name
 from migraai.packaging.snapshot import _upload_paths, build_package_input
+from migraai.packaging.workbook import build_workbook
 from migraai.packaging.zipper import build_zip
 from migraai.platforms.pack import load_pack
 from migraai.reports.session_report import _md, build_report_md
@@ -102,6 +105,26 @@ def test_teradata_snowflake_mock_snapshot_has_56_included_objects(tmp_path: Path
     assert package.egress.objects_sent == 56
     assert package.egress.devin_host == "local mock"
     assert package.objects[0].object_id == str(job.batches[0].objects[0]["id"])
+
+
+def test_snapshot_propagates_kb_version_to_report_and_workbook(tmp_path: Path) -> None:
+    session = _session(
+        tmp_path / "kb-version",
+        {"a.sql": b"CREATE TABLE sales.a (id INTEGER);"},
+    )
+    session["kb_version"] = 7
+    job = _run(session, tmp_path / "kb-version")
+
+    package = build_package_input(job, session, "")
+
+    assert package.kb_version == "7"
+    assert "- KB version: 7" in build_report_md(package)
+    workbook = load_workbook(BytesIO(build_workbook(package)))
+    summary = {
+        workbook["Summary"].cell(row, 1).value: workbook["Summary"].cell(row, 2).value
+        for row in range(2, workbook["Summary"].max_row + 1)
+    }
+    assert summary["KB version"] == "7"
 
 
 def test_selected_run_merges_objects_sessions_report_and_manifest(tmp_path: Path) -> None:

@@ -111,6 +111,20 @@ def test_zip_layout_manifest_review_headers_hashes_and_determinism() -> None:
         assert "***" not in manifest_text.replace("***MASKED***", "")
 
 
+def test_manifest_includes_acu_limit_only_when_set() -> None:
+    package = sample_package()
+    manifest_path = f"{package.package_name}-converted/manifest.json"
+    with zipfile.ZipFile(BytesIO(build_zip(package, {}))) as archive:
+        uncapped = json.loads(archive.read(manifest_path))
+    assert "acu_limit_per_session" not in uncapped
+
+    capped_package = replace(package, acu_limit_per_session=3)
+    manifest_path = f"{capped_package.package_name}-converted/manifest.json"
+    with zipfile.ZipFile(BytesIO(build_zip(capped_package, {}))) as archive:
+        capped = json.loads(archive.read(manifest_path))
+    assert capped["acu_limit_per_session"] == 3
+
+
 @pytest.mark.parametrize(
     ("missing_indexes", "expected"),
     [

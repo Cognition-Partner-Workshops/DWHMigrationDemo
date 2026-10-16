@@ -37,6 +37,8 @@ const estimate: ConvertEstimate = {
   devin_configured: true,
   devin_host: "api.devin.ai",
   acu_cap: null,
+  acu_limit_per_session: null,
+  max_acus: null,
 };
 
 const row: ConversionRow = {
@@ -128,8 +130,10 @@ describe("Convert Objects", () => {
     const dialog = screen.getByRole("dialog");
     expect(screen.getByRole("heading", { name: "Send code to Devin?" })).toBeInTheDocument();
     expect(dialog).toHaveTextContent(
-      "Converting sends the source code of 2 selected objects to Devin at api.devin.ai, in 6 sessions (up to 8 if low-confidence objects need escalation). These sessions have no ACU limit. Each one stops after 45 minutes, or when you cancel. Nothing else from your files, your settings or your Devin key is sent. Your consent is recorded in the audit log.",
+      "Converting sends the source code of 2 selected objects to Devin at api.devin.ai, in 6 sessions (up to 8 if low-confidence objects need escalation). ACU limit: no ACU cap. Each one stops after 45 minutes, or when you cancel. Nothing else from your files, your settings or your Devin key is sent. Your consent is recorded in the audit log.",
     );
+    expect(screen.getByText("no ACU cap")).toBeInTheDocument();
+    expect(screen.queryByText(/below 1 ACU per session/)).not.toBeInTheDocument();
     const send = screen.getByRole("button", { name: "Send to Devin" });
     expect(screen.getByLabelText("I understand that this code leaves this computer")).not.toBeChecked();
     expect(send).toBeDisabled();
@@ -137,6 +141,44 @@ describe("Convert Objects", () => {
     expect(send).toBeEnabled();
     await user.click(send);
     await waitFor(() => expect(apiMocks.startConversion).toHaveBeenCalledOnce());
+  });
+
+  it("shows the configured ACU limit in the toolbar and consent dialog", async () => {
+    const user = userEvent.setup();
+    apiMocks.postConvertEstimate.mockResolvedValue({
+      ...estimate,
+      acu_cap: 40,
+      acu_limit_per_session: 5,
+      max_acus: 40,
+    });
+    render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
+
+    expect(
+      await screen.findByText(/≤ 5 ACU per session \(up to 40 ACUs, cap 40\)/),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Convert Items" }));
+
+    expect(screen.getByRole("dialog")).toHaveTextContent(
+      "ACU limit: ≤ 5 ACU per session (up to 40 ACUs, cap 40).",
+    );
+    expect(screen.queryByText(/below 1 ACU per session/)).not.toBeInTheDocument();
+  });
+
+  it("warns when the per-session minimum can exceed the run cap", async () => {
+    const user = userEvent.setup();
+    const warning =
+      "The cap is below 1 ACU per session, so each session is limited to 1 ACU and the run can use up to 8 ACUs.";
+    apiMocks.postConvertEstimate.mockResolvedValue({
+      ...estimate,
+      acu_cap: 3,
+      acu_limit_per_session: 1,
+      max_acus: 8,
+    });
+    render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
+
+    expect(await screen.findByText(warning)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Convert Items" }));
+    expect(screen.getAllByText(warning)).toHaveLength(2);
   });
 
   it("explains that Convert Items is waiting for its estimate", async () => {

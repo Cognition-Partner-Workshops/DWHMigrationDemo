@@ -617,6 +617,7 @@ def build_package_input(
         sessions=session_summaries,
         egress=egress,
         kb_version=str(session["kb_version"]) if session.get("kb_version") is not None else None,
+        acu_limit_per_session=getattr(job, "max_acu_limit", None),
         notes=tuple(
             f"{key.replace('_', ' ')}: {int(value)}"
             for key, value in sorted(counts.items())

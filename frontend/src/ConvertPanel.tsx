@@ -14,6 +14,7 @@ import {
   type ConversionRow,
   type ConvertEstimate,
 } from "./api";
+import { acuCapWarning, formatAcuCap } from "./acuCap";
 import { ConvertConsentDialog } from "./ConvertConsentDialog";
 import { ConversionDetail } from "./ConversionDetail";
 
@@ -341,7 +342,11 @@ export function ConvertPanel({
           {estimate ? (
             <>
               <strong>{estimate.objects}</strong> objects · {estimate.batches} batches · up to{" "}
-              {estimate.max_sessions} sessions · no ACU cap
+              {estimate.max_sessions} sessions ·{" "}
+              <span>{formatAcuCap(estimate)}</span>
+              {acuCapWarning(estimate) && (
+                <span className="acu-cap-warning">{acuCapWarning(estimate)}</span>
+              )}
             </>
           ) : confirmed && loadingEstimate ? (
             "Estimating selected objects…"

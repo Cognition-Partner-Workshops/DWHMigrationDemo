@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { ConvertEstimate } from "./api";
+import { acuCapWarning, formatAcuCap } from "./acuCap";
 
 export function ConvertConsentDialog({
   estimate,
@@ -46,11 +47,14 @@ export function ConvertConsentDialog({
         <p>
           Converting sends the source code of {estimate.objects} selected objects to Devin at{" "}
           {estimate.devin_host}, in {estimate.voter_sessions} sessions (up to {estimate.max_sessions}{" "}
-          if low-confidence objects need escalation). These sessions have no ACU limit. Each one
+          if low-confidence objects need escalation). ACU limit: {formatAcuCap(estimate)}. Each one
           stops after {estimate.session_timeout_minutes} minutes, or when you cancel. Nothing else
           from your files, your settings or your Devin key is sent. Your consent is recorded in the
           audit log.
         </p>
+        {acuCapWarning(estimate) && (
+          <p className="acu-cap-warning">{acuCapWarning(estimate)}</p>
+        )}
         <label className="consent-check">
           <input
             checked={checked}
