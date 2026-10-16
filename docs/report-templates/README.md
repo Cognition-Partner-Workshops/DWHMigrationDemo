@@ -87,7 +87,7 @@ The session report is generated once per package, as Markdown and as PDF with th
 
 - **Source platform** and **Target platform**: platform IDs.
 - **Confidence threshold**: below this confidence an object goes to expert review. Set in Settings; the default is 85%.
-- **KB version**: KB version recorded for the session, or `n/a` if none was recorded. It shows `n/a` in this sample (see the PR notes).
+- **KB version**: The package snapshot reads `session["kb_version"]`, but nothing currently sets that session key. Packages therefore show `n/a` in the report and an empty Summary cell in the workbook, even when a KB is installed. The plan PDF does show the KB version.
 
 ### 3. Scope and inventory
 

@@ -93,7 +93,7 @@ A section can carry a badge such as `Platform-level estimate` (written before an
 
 ### Devin plan or local draft
 
-When a Devin key is configured, MigraAI starts a Devin session to write the plan as soon as you press `Confirm`; there is no consent dialog for planning. It sends the platform pair and a context file built from MigraAI's knowledge base for that pair. No uploaded source code is sent for planning. While the plan is being written you can press `Cancel`.
+When a Devin key is configured, MigraAI starts a Devin session to write the plan as soon as you press `Confirm`; there is no consent dialog for planning. The request includes the platform pair and a context file built from MigraAI's knowledge base for that pair. Once an inventory exists, including when you use `Regenerate with inventory`, the request also includes aggregate counts only: object counts by type, parse-status counts, file counts by detected type, total dependencies and counts by kind, external-reference count, issue counts by severity, and total source lines. It does not include source code or object names. While the plan is being written you can press `Cancel`.
 
 If Devin is not configured, or the Devin session fails, times out or returns an unusable plan, MigraAI shows a plan built locally from its knowledge base, marked `Local draft (Devin unavailable)` together with the reason. Press `Retry` to ask Devin again.
 
@@ -346,13 +346,13 @@ An object at or above the `Confidence threshold` (default 85%) is `converted`. B
 ### FAQ
 
 **What leaves my laptop?**
-Without a Devin key, nothing is sent and the plan is a local draft. With a key, two things go to Devin. The plan request sends the platform pair and knowledge-base context, with no uploaded source code. Each conversion, after you consent, sends the selected objects' source code with secrets masked, their metadata, the naming map and dependency signatures. Your other files, settings and Devin key are not sent.
+Without a Devin key, nothing is sent and the plan is a local draft. With a key, the plan request sends the platform pair and knowledge-base context. Once an inventory exists, including for `Regenerate with inventory`, it also sends aggregate counts only: object counts by type, parse-status counts, file counts by detected type, total dependencies and counts by kind, external-reference count, issue counts by severity, and total source lines. The planning request does not include source code or object names. Each conversion, after you consent, sends the selected objects' source code with secrets masked, their metadata, the naming map and dependency signatures. Your other files, settings and Devin key are not sent.
 
 **Is my consent recorded?**
 Yes. Every consent is written to the local audit log.
 
 **What does a conversion cost?**
-Each batch uses up to four Devin sessions. The Devin API does not return an ACU figure, so the report and manifest show ACUs as "not reported by the Devin API". Check usage in your Devin organization. The `ACU cap per run` setting is not applied to conversions.
+Each batch uses up to four Devin sessions. The Devin v1 API (legacy `apk_` keys) returns no ACU figure, so the report shows "Total ACUs: not reported by the Devin API" and `n/a` per session. When the API returns `acus_consumed` for a session, the report shows it and the total. Check usage in your Devin organization. The `ACU cap per run` setting is not applied to conversions.
 
 **Where is my data kept, and when is it deleted?**
 Uploads and results are kept in a temporary session folder on this machine. It is deleted when you press `Confirm` for a new session and when the app exits. Download the ZIP before you close the app.

@@ -63,7 +63,7 @@ Open **Settings**. The dialog has these fields:
 
 | Field in Settings | API field (`PUT /api/settings`) | Notes |
 |---|---|---|
-| Devin personal access token | `devin_pat` | Write-only. After saving, the dialog shows "Current token: ••••" plus the last four characters. Tick **Clear saved token** to remove it. |
+| Devin personal access token | `devin_pat` | Write-only. After saving, the dialog shows only the last four characters of the saved token. Tick **Clear saved token** to remove it. |
 | Organization ID | `devin_org_id` | Required for `cog_` tokens and must start with `org-`. "Not needed for legacy `apk_` keys". |
 | API base URL | `devin_api_base_url` | Default `https://api.devin.ai`. Use your enterprise API domain if it is different. |
 | Confidence threshold | `confidence_threshold` | 0.5 to 1.0, default 0.85. |
@@ -94,7 +94,7 @@ MigraAI\
     kb\kb-v1.db              seed knowledge base
     third-party-notices\     msvc-runtime-LICENSE.txt
   web\                       built React UI
-  docs\                      PDF copies of the guides (added in Phase 7)
+  docs\                      guide PDFs and Report-Templates.pdf, diagrams\ (PNG), report-samples\
 ```
 
 All data written at run time goes under `%LOCALAPPDATA%\MigraAI`:
@@ -148,10 +148,10 @@ Run this on the customer laptop with a standard (non-admin) Windows account. It 
    Repeat with `-after` file names, then compare, for example:
 
    ```powershell
-   Compare-Object (Import-Csv "$out\services-before.csv") (Import-Csv "$out\services-after.csv") -Property Name
-   Compare-Object (Import-Csv "$out\tasks-before.csv") (Import-Csv "$out\tasks-after.csv") -Property TaskName
+   Compare-Object (Import-Csv "$out\services-before.csv" | ForEach-Object Name) (Import-Csv "$out\services-after.csv" | ForEach-Object Name)
+   Compare-Object (Import-Csv "$out\tasks-before.csv" | ForEach-Object TaskName) (Import-Csv "$out\tasks-after.csv" | ForEach-Object TaskName)
    Compare-Object (Get-Content "$out\run-before.txt") (Get-Content "$out\run-after.txt")
-   Compare-Object (Import-Csv "$out\firewall-before.csv") (Import-Csv "$out\firewall-after.csv") -Property Name
+   Compare-Object (Import-Csv "$out\firewall-before.csv" | ForEach-Object Name) (Import-Csv "$out\firewall-after.csv" | ForEach-Object Name)
    ```
 
    Every comparison should print nothing. MigraAI listens on `127.0.0.1` only, so Windows Firewall should not ask to allow it.
