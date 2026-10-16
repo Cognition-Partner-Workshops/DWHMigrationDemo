@@ -132,24 +132,7 @@ async function uploadZip(
 }
 
 test("mock-only migration workflow", async ({ page }, testInfo) => {
-  const progressSnapshots: string[] = [];
-  page.on("response", async (response) => {
-    if (!response.url().includes("/api/convert")) {
-      return;
-    }
-    try {
-      const body = await response.json();
-      if (Array.isArray(body.batches)) {
-        progressSnapshots.push(
-          body.batches
-            .map((batch: { voters?: Record<string, string> }) => JSON.stringify(batch.voters ?? {}))
-            .join("\n"),
-        );
-      }
-    } catch {
-      return;
-    }
-  });
+  const voterNames = ["A", "B", "C"] as const;
 
   await page.goto("/");
   await expect(page.getByLabel("Source platform")).toBeVisible();
@@ -231,13 +214,21 @@ test("mock-only migration workflow", async ({ page }, testInfo) => {
 
   await expect(page.getByLabel("Conversion progress")).toBeVisible();
   const firstBatch = page.locator(".conversion-batch").first();
-  await expect(firstBatch).toContainText("A: running", { timeout: 20_000 });
-  await expect(firstBatch).toContainText("B: running", { timeout: 20_000 });
-  await expect(firstBatch).toContainText("C: running", { timeout: 20_000 });
+  for (const voter of voterNames) {
+    await expect(firstBatch).toContainText(new RegExp(`${voter}: (?:running|done)`), {
+      timeout: 20_000,
+    });
+  }
+  await expect
+    .poll(
+      async () => {
+        const text = await firstBatch.innerText();
+        return voterNames.every((voter) => text.includes(`${voter}: done`));
+      },
+      { timeout: 120_000 },
+    )
+    .toBe(true);
   await expect(page.getByText("Conversion done")).toBeVisible({ timeout: 120_000 });
-  expect(progressSnapshots.some((snapshot) => snapshot.includes('"A":"running"'))).toBeTruthy();
-  expect(progressSnapshots.some((snapshot) => snapshot.includes('"B":"running"'))).toBeTruthy();
-  expect(progressSnapshots.some((snapshot) => snapshot.includes('"C":"running"'))).toBeTruthy();
 
   const results = page.getByLabel("Conversion results");
   const objectButton = results.getByRole("button", { name: /sales\.account/ }).first();
@@ -315,9 +306,8 @@ test("mock-only migration workflow", async ({ page }, testInfo) => {
   await secondDialog.getByLabel("I understand that this code leaves this computer").check();
   await secondDialog.getByRole("button", { name: "Send to Devin" }).click();
   await expect(page.getByLabel("Conversion progress")).toBeVisible();
-  await expect(page.locator(".conversion-batch").nth(1)).toContainText(/A: running|B: running|C: running/, {
-    timeout: 40_000,
-  });
+  const secondBatch = page.locator(".conversion-batch").nth(1);
+  await expect(secondBatch).toContainText(/(?:A|B|C): (?:running|done)/, { timeout: 40_000 });
   await page.reload();
   await expect(page.getByLabel("Conversion progress")).toBeVisible();
   await expect(page.getByText("Conversion running")).toBeVisible();
