@@ -10,6 +10,7 @@ SYSTEM_DLLS = frozenset(
         "bcrypt.dll",
         "bcryptprimitives.dll",
         "cfgmgr32.dll",
+        "cabinet.dll",
         "clbcatq.dll",
         "combase.dll",
         "comctl32.dll",
@@ -19,6 +20,7 @@ SYSTEM_DLLS = frozenset(
         "dbghelp.dll",
         "dnsapi.dll",
         "dwmapi.dll",
+        "dxgi.dll",
         "gdi32.dll",
         "gdi32full.dll",
         "imm32.dll",
@@ -26,6 +28,7 @@ SYSTEM_DLLS = frozenset(
         "kernel32.dll",
         "kernelbase.dll",
         "mpr.dll",
+        "msi.dll",
         "msctf.dll",
         "msvcp_win.dll",
         "msvcrt.dll",
@@ -39,9 +42,11 @@ SYSTEM_DLLS = frozenset(
         "oleacc.dll",
         "oleaut32.dll",
         "opengl32.dll",
+        "pdh.dll",
         "powrprof.dll",
         "profapi.dll",
         "psapi.dll",
+        "propsys.dll",
         "rpcrt4.dll",
         "sechost.dll",
         "secur32.dll",
@@ -113,8 +118,7 @@ def scan_bundle(bundle_root: Path, pefile_module: Any = None) -> list[str]:
                 pe.close()
         except parse_errors as error:
             failures.append(
-                f"{relative_path}: could not read PE imports "
-                f"({type(error).__name__}: {error})"
+                f"{relative_path}: could not read PE imports ({type(error).__name__}: {error})"
             )
             continue
 

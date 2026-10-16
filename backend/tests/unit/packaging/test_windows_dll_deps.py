@@ -30,6 +30,11 @@ def test_scan_bundle_accepts_bundled_and_windows_system_imports(tmp_path: Path) 
     FakePE.imports_by_name = {
         "onnxruntime_pybind11_state.pyd": [
             b"kernel32.dll",
+            b"pdh.dll",
+            b"dxgi.dll",
+            b"cabinet.dll",
+            b"msi.dll",
+            b"propsys.dll",
             b"MSVCP140_1.DLL",
             b"api-ms-win-core-libraryloader-l1-2-0.dll",
             b"ext-ms-win-kernel32-file-l1-1-0.dll",
