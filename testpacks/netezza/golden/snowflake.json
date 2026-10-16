@@ -33,7 +33,7 @@
           "lint": "passed",
           "object_reference": "passed",
           "rule": "passed",
-          "security": "failed",
+          "security": "passed",
           "semantic": "passed",
           "syntax": "passed"
         },
@@ -671,5 +671,5 @@
     "migraai-netezza-to-snowflake-converted/report/session-report.md",
     "migraai-netezza-to-snowflake-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "9b86d51b41721ddfaba9af3571f6f8d86cd5b4f3551331abca26c10e66841c40"
+  "zip_sha256": "975933418326b70e40763b7564585d84be9e163f23c03d509ff5dbdbc9dc7559"
 }

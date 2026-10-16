@@ -14,6 +14,7 @@ from typing import get_args
 import reportlab.rl_config
 from xhtml2pdf import pisa
 
+from migraai.packaging.acu import total_acus
 from migraai.packaging.model import PackagedObject, PackageInput
 from migraai.planning.pdf import render_markdown
 from migraai.validation.findings import CheckName
@@ -143,13 +144,12 @@ def build_report_md(pkg: PackageInput) -> str:
         out.append("No data was sent to Devin.")
     else:
         eg = pkg.egress
-        total_acus = sum(s.acus for s in pkg.sessions if s.acus is not None)
         out.append(f"- Consent given at: {_md(eg.consent_at)}")
         out.append(f"- Devin host: {_md(eg.devin_host)}")
         out.append(f"- Objects sent: {eg.objects_sent}")
         out.append(f"- Batches: {eg.batches}")
         out.append(f"- Sessions: {eg.sessions}")
-        out.append(f"- Total ACUs: {total_acus:.2f}")
+        out.append(f"- Total ACUs: {total_acus(pkg.sessions)}")
         out.append(f"- Blocked batches: {eg.blocked_batches}")
         if eg.blocked_batches > 0:
             out.append("")

@@ -439,6 +439,78 @@ def test_confidence_uses_weighted_object_counts() -> None:
     assert overall_score([0.5, 0.9], [1, 3]) == pytest.approx(0.8)
 
 
+def test_single_file_candidates_use_source_path_for_agreement() -> None:
+    from migraai.agents.workflow import _as_candidate
+
+    source_path = "teradata-testpack.zip/tables.sql"
+    content = "CREATE TABLE sales.card (card_id INTEGER);"
+    candidates = {
+        voter: _as_candidate(
+            voter,
+            "card",
+            {
+                "files": [
+                    {
+                        "rel_path": candidate_path,
+                        "language": "sql",
+                        "content": content,
+                    }
+                ]
+            },
+            "snowflake",
+            source_rel_path=source_path,
+        )
+        for voter, candidate_path in (
+            ("A", "tables/sales.card.sql"),
+            ("B", "tables/SALES.CARD.sql"),
+        )
+    }
+
+    assert candidates["A"] is not None
+    assert candidates["B"] is not None
+    assert candidates["A"].files[0]["rel_path"] == source_path
+    assert candidates["B"].files[0]["rel_path"] == source_path
+    assert choose(candidates, target="snowflake").agreement == 1.0
+
+
+def test_procedure_dependency_context_includes_parameter_signatures(tmp_path: Path) -> None:
+    session = _inventory_session(tmp_path, TERADATA_PACK, "teradata")
+    inventory_rows = session["inventory"].page(page_size=300)["items"]
+    grant = next(
+        row
+        for row in inventory_rows
+        if row["qualified_name"] == "EXECUTE PROCEDURE on sales.add_payment"
+    )
+
+    attachment, _ = build_batch(
+        session,
+        Batch(index=0, objects=[grant]),
+        "teradata",
+        "snowflake",
+        _target_pack("snowflake"),
+        {},
+    )
+
+    assert '"sales.add_payment"' in attachment
+    assert '"name": "p_account"' in attachment
+    assert '"type": "BIGINT"' in attachment
+    assert '"direction": "in"' in attachment
+    assert '"name": "p_amount"' in attachment
+    assert '"type": "DECIMAL(12, 2)"' in attachment
+
+
+def test_conversion_prompts_preserve_path_and_data_type_rules() -> None:
+    from migraai.devin.prompts import ESCALATION, VOTER_BASE
+
+    assert (
+        "For a single-file object, set rel_path to the object's source rel_path exactly as given "
+        "in the attachment; use other paths only for the extra files an ETL output format "
+        "requires. Use the data types from the type mappings exactly as written, and keep the "
+        "source precision and scale unless a mapping says otherwise."
+    ) in VOTER_BASE
+    assert "naming, rel_path and data-type rules as the candidates." in ESCALATION
+
+
 def test_langsmith_tracing_is_forced_off(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LANGSMITH_TRACING", "true")
     monkeypatch.setenv("LANGCHAIN_TRACING_V2", "true")

@@ -77,8 +77,19 @@ def test_summary_counts_and_acus() -> None:
 def test_acu_sum_ignores_none() -> None:
     pkg = sample_package()
     sessions = (dataclasses.replace(pkg.sessions[0], acus=None),) + pkg.sessions[1:]
-    md = build_report_md(dataclasses.replace(pkg, sessions=sessions))
-    assert "- Total ACUs: 3.20" in md
+    pkg = dataclasses.replace(pkg, sessions=sessions)
+    md = build_report_md(pkg)
+    assert "- Total ACUs: 3.20 (partial)" in md
+    assert "Total ACUs: 3.20 (partial)" in _pdf_text(build_report_pdf(pkg))
+
+
+def test_missing_acus_are_reported_as_unavailable_in_md_and_pdf() -> None:
+    pkg = sample_package()
+    sessions = tuple(dataclasses.replace(session, acus=None) for session in pkg.sessions)
+    pkg = dataclasses.replace(pkg, sessions=sessions)
+
+    assert "- Total ACUs: not reported by the Devin API" in build_report_md(pkg)
+    assert "Total ACUs: not reported by the Devin API" in _pdf_text(build_report_pdf(pkg))
 
 
 def test_section_7_failed_and_review_items() -> None:

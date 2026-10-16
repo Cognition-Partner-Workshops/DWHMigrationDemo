@@ -1,0 +1,484 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Source has no SET/MULTISET keyword or PRIMARY INDEX; if the Teradata session ran in Teradata mode the table was implicitly SET with a NUPI on id — duplicate-row rejection would not carry over."
+      ],
+      "explanations": [
+        "Straight DDL conversion using the naming-map name; no Teradata-specific clauses present."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE TABLE sales.recovered_after_error -> CREATE TABLE SALES.RECOVERED_AFTER_ERROR; INTEGER kept as INTEGER (NUMBER(38,0))\n-- Reason: Plain Teradata table (MULTISET by default in ANSI mode, SET in Teradata mode) with no index clause; only the name needs the naming-map form\nCREATE TABLE SALES.RECOVERED_AFTER_ERROR (\n  id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "maintenance/sales.recovered_after_error.sql"
+        }
+      ],
+      "object_id": "a7aae32295d64aec941dcd916b1f5720",
+      "qualified_name": "sales.recovered_after_error",
+      "self_confidence": 0.95,
+      "type": "table",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Role is created by a role with CREATE ROLE privilege (e.g. USERADMIN), not ACCOUNTADMIN.",
+        "No privileges are granted in this object; object-level privileges (e.g. GRANT SELECT ON TABLE ... TO ROLE READER) must be granted explicitly — none were in the source batch."
+      ],
+      "explanations": [
+        "Teradata role reader becomes Snowflake account role READER.",
+        "Consider granting custom roles to SYSADMIN to keep a single role hierarchy (not added because it is not in the source)."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE ROLE reader -> CREATE ROLE IF NOT EXISTS READER (unquoted, resolves uppercase)\n-- Reason: Roles are account-level in Snowflake and may already exist; IF NOT EXISTS keeps the deployment re-runnable without dropping existing grants\nCREATE ROLE IF NOT EXISTS READER;\n",
+          "language": "sql",
+          "rel_path": "security/roles/reader.sql"
+        }
+      ],
+      "object_id": "a3dc1ff9f6c14b83a5bb9ee4b819c9e8",
+      "qualified_name": "reader",
+      "self_confidence": 0.97,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Role is created by a role with CREATE ROLE privilege (e.g. USERADMIN), not ACCOUNTADMIN.",
+        "No privileges are granted in this object; object-level privileges (e.g. GRANT SELECT ON TABLE ... TO ROLE OPERATOR) must be granted explicitly — none were in the source batch."
+      ],
+      "explanations": [
+        "Teradata role operator becomes Snowflake account role OPERATOR.",
+        "Consider granting custom roles to SYSADMIN to keep a single role hierarchy (not added because it is not in the source)."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE ROLE operator -> CREATE ROLE IF NOT EXISTS OPERATOR (unquoted, resolves uppercase)\n-- Reason: Roles are account-level in Snowflake and may already exist; IF NOT EXISTS keeps the deployment re-runnable without dropping existing grants\nCREATE ROLE IF NOT EXISTS OPERATOR;\n",
+          "language": "sql",
+          "rel_path": "security/roles/operator.sql"
+        }
+      ],
+      "object_id": "9368b37c5bfb40218bdddd18df63c027",
+      "qualified_name": "operator",
+      "self_confidence": 0.97,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Role is created by a role with CREATE ROLE privilege (e.g. USERADMIN), not ACCOUNTADMIN.",
+        "No privileges are granted in this object; object-level privileges (e.g. GRANT SELECT ON TABLE ... TO ROLE AUDITOR) must be granted explicitly — none were in the source batch."
+      ],
+      "explanations": [
+        "Teradata role auditor becomes Snowflake account role AUDITOR.",
+        "Consider granting custom roles to SYSADMIN to keep a single role hierarchy (not added because it is not in the source)."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE ROLE auditor -> CREATE ROLE IF NOT EXISTS AUDITOR (unquoted, resolves uppercase)\n-- Reason: Roles are account-level in Snowflake and may already exist; IF NOT EXISTS keeps the deployment re-runnable without dropping existing grants\nCREATE ROLE IF NOT EXISTS AUDITOR;\n",
+          "language": "sql",
+          "rel_path": "security/roles/auditor.sql"
+        }
+      ],
+      "object_id": "d8766f138b304b4f90ab85a8e4260024",
+      "qualified_name": "auditor",
+      "self_confidence": 0.97,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "analyst is a human analyst user (TYPE = PERSON).",
+        "Role READER is created earlier in this batch and granted to ANALYST by the following grant object; DEFAULT_ROLE may reference it before the grant exists.",
+        "User is created by a role with CREATE USER privilege (e.g. USERADMIN)."
+      ],
+      "explanations": [
+        "Teradata user analyst becomes Snowflake user ANALYST.",
+        "Credential and space clauses removed; see unsupported for the out-of-band follow-ups."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE USER analyst -> CREATE USER IF NOT EXISTS ANALYST TYPE = PERSON with DEFAULT_ROLE = READER; removed PASSWORD, PERM = 0, FROM sales and DEFAULT DATABASE\n-- Reason: Plaintext passwords must not be embedded (snowflake.security.no_plaintext_credentials) — set credentials out-of-band or via SSO; PERM space and the FROM owner hierarchy have no Snowflake equivalent; DEFAULT_ROLE points the user at the role granted to it\nCREATE USER IF NOT EXISTS ANALYST\n  TYPE = PERSON\n  DEFAULT_ROLE = READER\n  COMMENT = 'Migrated from Teradata user analyst (DEFAULT DATABASE = sales)';\n",
+          "language": "sql",
+          "rel_path": "security/users/analyst.sql"
+        }
+      ],
+      "object_id": "64c54c7c980b4b03a1318f025881d865",
+      "qualified_name": "analyst",
+      "self_confidence": 0.78,
+      "type": "user",
+      "unsupported": [
+        "PERM = 0 (Teradata permanent space quota) has no per-user Snowflake equivalent; storage is not allocated per user.",
+        "FROM sales (Teradata owner/parent hierarchy) has no Snowflake equivalent; users are account-level objects.",
+        "DEFAULT DATABASE = sales not converted: SALES maps to a schema inside an unspecified deployment database; set DEFAULT_NAMESPACE = '<database>.SALES' once the database name is known.",
+        "PASSWORD ***MASKED*** in source) not migrated; set an initial password ***MASKED*** MUST_CHANGE_PASSWORD = TRUE out-of-band or use SSO/SAML."
+      ]
+    },
+    {
+      "assumptions": [
+        "loader is a non-human ETL/load account (TYPE = SERVICE).",
+        "Role OPERATOR is created earlier in this batch and granted to LOADER by the following grant object; DEFAULT_ROLE may reference it before the grant exists.",
+        "User is created by a role with CREATE USER privilege (e.g. USERADMIN)."
+      ],
+      "explanations": [
+        "Teradata user loader becomes Snowflake user LOADER.",
+        "Credential and space clauses removed; see unsupported for the out-of-band follow-ups."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE USER loader -> CREATE USER IF NOT EXISTS LOADER TYPE = SERVICE with DEFAULT_ROLE = OPERATOR; removed PASSWORD, PERM = 0, FROM sales and DEFAULT DATABASE\n-- Reason: loader is a service/ETL account: Snowflake service users use key-pair authentication instead of passwords (and TYPE = SERVICE disallows password ***MASKED***); PERM space and the FROM owner hierarchy have no Snowflake equivalent\nCREATE USER IF NOT EXISTS LOADER\n  TYPE = SERVICE\n  DEFAULT_ROLE = OPERATOR\n  COMMENT = 'Migrated from Teradata user loader (DEFAULT DATABASE = sales)';\n",
+          "language": "sql",
+          "rel_path": "security/users/loader.sql"
+        }
+      ],
+      "object_id": "542b236d7e3c4511a38f3e3ed02c6f4c",
+      "qualified_name": "loader",
+      "self_confidence": 0.78,
+      "type": "user",
+      "unsupported": [
+        "PERM = 0 (Teradata permanent space quota) has no per-user Snowflake equivalent; storage is not allocated per user.",
+        "FROM sales (Teradata owner/parent hierarchy) has no Snowflake equivalent; users are account-level objects.",
+        "DEFAULT DATABASE = sales not converted: SALES maps to a schema inside an unspecified deployment database; set DEFAULT_NAMESPACE = '<database>.SALES' once the database name is known.",
+        "PASSWORD ***MASKED*** in source) not migrated; register the service's public key with ALTER USER LOADER SET RSA_PUBLIC_KEY = '<public key>' out-of-band."
+      ]
+    },
+    {
+      "assumptions": [
+        "Role READER and user ANALYST are created earlier in this batch.",
+        "Teradata WITH ADMIN OPTION was not present, so no grant delegation is given."
+      ],
+      "explanations": [
+        "Role-to-user grant preserved; the grantor needs ownership of READER or MANAGE GRANTS."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT reader TO analyst -> GRANT ROLE READER TO USER ANALYST\n-- Reason: Snowflake requires the explicit ROLE and USER keywords when granting a role to a user\nGRANT ROLE READER TO USER ANALYST;\n",
+          "language": "sql",
+          "rel_path": "security/grants/grant_reader_to_analyst.sql"
+        }
+      ],
+      "object_id": "5116bc548cd8484e8701a5f25b127e39",
+      "qualified_name": "ROLE on reader",
+      "self_confidence": 0.95,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Role OPERATOR and user LOADER are created earlier in this batch.",
+        "Teradata WITH ADMIN OPTION was not present, so no grant delegation is given."
+      ],
+      "explanations": [
+        "Role-to-user grant preserved; the grantor needs ownership of OPERATOR or MANAGE GRANTS."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT operator TO loader -> GRANT ROLE OPERATOR TO USER LOADER\n-- Reason: Snowflake requires the explicit ROLE and USER keywords when granting a role to a user\nGRANT ROLE OPERATOR TO USER LOADER;\n",
+          "language": "sql",
+          "rel_path": "security/grants/grant_operator_to_loader.sql"
+        }
+      ],
+      "object_id": "aa86464cb6ba48208d12f68526e8c47d",
+      "qualified_name": "ROLE on operator",
+      "self_confidence": 0.95,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching.",
+        "customer_id is the business key of CUSTOMER: SALES.\"ACCOUNT\" declares a FOREIGN KEY to it, and Snowflake (like Teradata) requires the referenced columns to be a PRIMARY KEY/UNIQUE constraint; the added PK is informational (NOT ENFORCED, NORELY by default)."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.CUSTOMER.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns.",
+        "CHAR(1) DEFAULT 'A' kept; Snowflake CHAR is stored without trailing-blank padding, which is identical for single-character values.",
+        "NOT NULL constraints kept (Snowflake enforces NOT NULL); the added PRIMARY KEY is metadata only and does not reject duplicates."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (customer_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s); added informational CONSTRAINT PK_CUSTOMER PRIMARY KEY (customer_id)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added; the PK lets SALES.\"ACCOUNT\" declare its FOREIGN KEY (Snowflake requires referenced PK/UNIQUE) and is not enforced so results are unchanged\nCREATE TABLE SALES.CUSTOMER (\n  customer_id INTEGER NOT NULL,\n  customer_name VARCHAR(80) NOT NULL,\n  status CHAR(1) DEFAULT 'A',\n  CONSTRAINT PK_CUSTOMER PRIMARY KEY (customer_id)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.customer.sql"
+        }
+      ],
+      "object_id": "76c6a88f0b1845d48f8ccef3dd8087ec",
+      "qualified_name": "sales.customer",
+      "self_confidence": 0.88,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching.",
+        "SALES.CUSTOMER is created first with PRIMARY KEY (customer_id) so the FK reference compiles."
+      ],
+      "explanations": [
+        "MULTISET TABLE converted to a standard Snowflake table using the naming-map name SALES.\"ACCOUNT\".",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns.",
+        "Table name is the quoted uppercase identifier \"ACCOUNT\" because ACCOUNT is reserved in Snowflake; always reference it as SALES.\"ACCOUNT\".",
+        "Inline REFERENCES kept as a named foreign key for lineage/BI tooling; Snowflake does not enforce it."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: MULTISET TABLE -> standard permanent table; dropped PRIMARY INDEX (account_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s); kept REFERENCES as named informational FOREIGN KEY FK_ACCOUNT_CUSTOMER\n-- Reason: MULTISET already allows duplicates, matching Snowflake; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added; ACCOUNT is a Snowflake reserved word so the naming map requires the quoted identifier \"ACCOUNT\"\nCREATE TABLE SALES.\"ACCOUNT\" (\n  account_id BIGINT NOT NULL,\n  customer_id INTEGER CONSTRAINT FK_ACCOUNT_CUSTOMER REFERENCES SALES.CUSTOMER (customer_id),\n  balance NUMBER(14,2) DEFAULT 0\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.account.sql"
+        }
+      ],
+      "object_id": "2d42cac86fec4be5ae92250db28c7d89",
+      "qualified_name": "sales.account",
+      "self_confidence": 0.85,
+      "type": "table",
+      "unsupported": [
+        "FOREIGN KEY referential integrity is not enforced on Snowflake standard tables (the constraint is kept as metadata only); orphan customer_id values will not be rejected."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.BRANCH.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (branch_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.BRANCH (\n  branch_id INTEGER,\n  branch_name VARCHAR(80)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.branch.sql"
+        }
+      ],
+      "object_id": "18aa2df625f8453cbb1d3b3f4d72d7f7",
+      "qualified_name": "sales.branch",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.EMPLOYEE.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (employee_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.EMPLOYEE (\n  employee_id INTEGER,\n  branch_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.employee.sql"
+        }
+      ],
+      "object_id": "0c7937505cef42e1b588e29ead90c760",
+      "qualified_name": "sales.employee",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.PRODUCT.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (product_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.PRODUCT (\n  product_id INTEGER,\n  product_name VARCHAR(80)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.product.sql"
+        }
+      ],
+      "object_id": "dfe4df7731be47e69190a1f6d11b6e60",
+      "qualified_name": "sales.product",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.ORDER_HEADER.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (order_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.ORDER_HEADER (\n  order_id BIGINT,\n  customer_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.order_header.sql"
+        }
+      ],
+      "object_id": "6db6baea46a24a9b92ab31882fdf28e4",
+      "qualified_name": "sales.order_header",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.ORDER_LINE.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (order_id, product_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.ORDER_LINE (\n  order_id BIGINT,\n  product_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.order_line.sql"
+        }
+      ],
+      "object_id": "fdf84ace6c28487facdd6b1b6ca109f9",
+      "qualified_name": "sales.order_line",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.PAYMENT.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (payment_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.PAYMENT (\n  payment_id BIGINT,\n  account_id BIGINT,\n  amount NUMBER(12,2)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.payment.sql"
+        }
+      ],
+      "object_id": "5b92ee8a397f430d8e59d379ea1c6727",
+      "qualified_name": "sales.payment",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.LOAN.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (loan_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.LOAN (\n  loan_id BIGINT,\n  customer_id INTEGER,\n  principal NUMBER(14,2)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.loan.sql"
+        }
+      ],
+      "object_id": "c612fd963a0142fc8dbfa4de93e3ba57",
+      "qualified_name": "sales.loan",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.LOAN_PAYMENT.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns.",
+        "DATE maps directly to Snowflake DATE."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (loan_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.LOAN_PAYMENT (\n  loan_id BIGINT,\n  payment_date DATE,\n  amount NUMBER(12,2)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.loan_payment.sql"
+        }
+      ],
+      "object_id": "87ecc30da83e4555a55b47c4aa74c70c",
+      "qualified_name": "sales.loan_payment",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.CARD.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (card_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.CARD (\n  card_id BIGINT,\n  account_id BIGINT\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.card.sql"
+        }
+      ],
+      "object_id": "27a996d8077c44508be2f69c941d61e8",
+      "qualified_name": "sales.card",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata database `sales` maps to Snowflake schema SALES in the current deployment database, per the naming map (two-part names).",
+        "Teradata default NOT CASESPECIFIC VARCHAR/CHAR comparisons become case-sensitive in Snowflake; no collation added — review queries that relied on case-insensitive matching."
+      ],
+      "explanations": [
+        "SET TABLE converted to a standard Snowflake table using the naming-map name SALES.CARD_TXN.",
+        "PRIMARY INDEX removed: distribution is automatic in Snowflake; add CLUSTER BY only if the table grows to multi-TB and is filtered on the PI columns."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: SET TABLE -> standard permanent table; dropped PRIMARY INDEX (txn_id); INTEGER/BIGINT kept as Snowflake INTEGER/BIGINT (aliases of NUMBER(38,0), a superset of Teradata int32/int64 range); DECIMAL(p,s) kept as NUMBER(p,s)\n-- Reason: Snowflake has no SET/MULTISET table kinds; all tables allow duplicate rows; Teradata PRIMARY INDEX controls AMP hash distribution; Snowflake partitions storage automatically and recommends clustering keys only for very large tables, so no CLUSTER BY is added\nCREATE TABLE SALES.CARD_TXN (\n  txn_id BIGINT,\n  card_id BIGINT,\n  amount NUMBER(12,2)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/sales.card_txn.sql"
+        }
+      ],
+      "object_id": "0ab1e99f2d1b4db9ae89094ba12dda69",
+      "qualified_name": "sales.card_txn",
+      "self_confidence": 0.92,
+      "type": "table",
+      "unsupported": [
+        "SET table duplicate-row rejection (Teradata silently discards/raises on duplicate full rows) has no Snowflake equivalent; enforce in load logic (e.g. INSERT ... SELECT DISTINCT or MERGE) if required"
+      ]
+    }
+  ]
+}

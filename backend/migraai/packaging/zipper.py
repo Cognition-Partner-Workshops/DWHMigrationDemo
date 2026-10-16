@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from pathlib import PurePosixPath, PureWindowsPath
 from typing import Any
 
+from migraai.packaging.acu import total_acus
 from migraai.packaging.model import PackageInput
 from migraai.packaging.naming import converted_files, sanitize_package_name
 
@@ -88,6 +89,9 @@ def _manifest(package: PackageInput, files: dict[str, bytes]) -> bytes:
             "excluded": len(package.excluded()),
             "external": len(package.external),
         },
+        "egress": (
+            {"total_acus": total_acus(package.sessions)} if package.egress is not None else None
+        ),
         "objects": [_object_manifest(item) for item in package.objects],
         "excluded": excluded,
         "external": list(package.external),

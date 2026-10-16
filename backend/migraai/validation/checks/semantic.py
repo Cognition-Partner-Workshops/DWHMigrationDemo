@@ -167,6 +167,8 @@ def validate(obj: ObjectUnderTest, ctx: ValidationContext) -> list[Finding]:
             table_aliases: dict[str, str] = {}
             for table in statement.find_all(exp.Table):
                 name = _table_name(table)
+                if name.startswith("@") or "/" in name or "://" in name:
+                    continue
                 normalized = normalize_name(name)
                 if not normalized or (
                     not table.catalog and not table.db and table.name.casefold() in cte_names

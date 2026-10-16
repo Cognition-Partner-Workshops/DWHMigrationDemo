@@ -1,0 +1,391 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "EXECUTE AS OWNER was chosen over CALLER to match Teradata macro semantics, where referenced objects are accessed with the immediate owner's rights. Switch to EXECUTE AS CALLER if the target security model requires caller rights.",
+        "CURRENT_DATE() is evaluated in the Snowflake session TIMEZONE, while Teradata used the session/system time zone. Align TIMEZONE if day boundaries matter.",
+        "SALES.DAILY_BALANCE.AMOUNT and SALES.\"ACCOUNT\".BALANCE are assumed to have the same DECIMAL precision and scale in the converted DDL, as in the source. Teradata bare DECIMAL is DECIMAL(5,0).",
+        "Called in autocommit mode (not inside an open explicit transaction), so the INSERT commits or rolls back as a single statement, like a single-statement Teradata macro request.",
+        "Callers must change EXEC sales.refresh_daily[(...)] to CALL SALES.REFRESH_DAILY([...]); Teradata's positional empty-argument syntax (e.g. EXEC m(,)) has no equivalent. Omit the argument to get the default.",
+        "Returning SQLROWCOUNT stands in for Teradata ACTIVITY_COUNT. The macro itself returned no result set."
+      ],
+      "explanations": [
+        "Teradata macro converted to a Snowflake Scripting procedure (LANGUAGE SQL, EXECUTE AS OWNER) with a defaulted DATE argument.",
+        "The single INSERT ... SELECT is unchanged apart from object names and the :P_DAY bind reference; no new casts are needed because P_DAY is DATE and the other columns copy across unchanged.",
+        "The EXCEPTION WHEN OTHER THEN RAISE handler keeps Teradata's fail-and-roll-back behaviour visible to the caller.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE MACRO sales.refresh_daily(p_day DATE DEFAULT CURRENT_DATE) rewritten as Snowflake Scripting stored procedure SALES.REFRESH_DAILY with an optional DATE argument P_DAY DEFAULT CURRENT_DATE(); EXECUTE AS OWNER declared; returns the inserted row count.\n-- Reason: Snowflake has no macros; a SQL stored procedure is the closest equivalent. Teradata macros access referenced objects with the privileges of the macro's immediate owner, so EXECUTE AS OWNER keeps that privilege model. The DEFAULT is only applied when the argument is omitted, so an explicit NULL is still inserted as NULL, as in Teradata. Invoke with CALL SALES.REFRESH_DAILY(); or CALL SALES.REFRESH_DAILY(TO_DATE('2025-01-31', 'YYYY-MM-DD')); instead of EXEC.\nCREATE PROCEDURE SALES.REFRESH_DAILY(P_DAY DATE DEFAULT CURRENT_DATE())\nRETURNS NUMBER(38,0)\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n  -- Converted: INSERT ... SELECT p_day, account_id, balance FROM sales.account converted to Snowflake with fully qualified target names, the bind variable :P_DAY and the reserved-word table SALES.\"ACCOUNT\".\n  -- Reason: Snowflake Scripting references procedure arguments inside SQL with a colon prefix; ACCOUNT is reserved in Snowflake and is mapped to SALES.\"ACCOUNT\". P_DAY is already DATE and BALANCE_DATE is DATE, so no implicit conversion takes place.\n  INSERT INTO SALES.DAILY_BALANCE (BALANCE_DATE, ACCOUNT_ID, AMOUNT)\n  SELECT :P_DAY, ACCOUNT_ID, BALANCE\n  FROM SALES.\"ACCOUNT\";\n  RETURN SQLROWCOUNT;\nEXCEPTION\n  -- Converted: Added an EXCEPTION handler that re-raises the original error.\n  -- Reason: A Teradata macro aborts and rolls back its request when a statement fails. The single INSERT runs as one autocommit statement, so it rolls back on its own, and re-raising passes the original error to the caller without swallowing it.\n  WHEN OTHER THEN\n    RAISE;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "snowflake/routines/SALES.REFRESH_DAILY.sql"
+        }
+      ],
+      "object_id": "6bb55814804547ff9f2ff0f818cff60c",
+      "qualified_name": "sales.refresh_daily",
+      "self_confidence": 0.8,
+      "type": "macro",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata grantee 'operator' is assumed to be a role, created in Snowflake as role OPERATOR. If it was a Teradata user, grant this privilege to a role and grant that role to the user, because Snowflake grants object privileges only to roles.",
+        "Role OPERATOR also needs USAGE on the target database and on schema SALES to use this privilege. Teradata has no such requirement. Those grants are not generated here, to avoid widening privileges beyond the source grant."
+      ],
+      "explanations": [
+        "Direct one-to-one privilege mapping; only the grantee clause and the object name change.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT SELECT, INSERT ON TABLE sales.payment TO operator converted to GRANT SELECT, INSERT ON TABLE SALES.PAYMENT TO ROLE OPERATOR.\n-- Reason: Snowflake grants object privileges to roles, so the grantee needs the ROLE keyword. The privilege list is kept exactly as in the source (no ALL, no PUBLIC, no WITH GRANT OPTION).\nGRANT SELECT, INSERT ON TABLE SALES.PAYMENT TO ROLE OPERATOR;\n",
+          "language": "sql",
+          "rel_path": "snowflake/security/grant_select_insert_on_SALES.PAYMENT.sql"
+        }
+      ],
+      "object_id": "2c2fa38760594f7ea8a8795941419703",
+      "qualified_name": "SELECT, INSERT on sales.payment",
+      "self_confidence": 0.88,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata grantee 'auditor' is assumed to be a role, created in Snowflake as role AUDITOR. If it was a Teradata user, grant this privilege to a role and grant that role to the user, because Snowflake grants object privileges only to roles.",
+        "Role AUDITOR also needs USAGE on the target database and on schema SALES to use this privilege. Teradata has no such requirement. Those grants are not generated here, to avoid widening privileges beyond the source grant."
+      ],
+      "explanations": [
+        "Direct one-to-one privilege mapping.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT SELECT ON TABLE sales.audit_log TO auditor converted to GRANT SELECT ON TABLE SALES.AUDIT_LOG TO ROLE AUDITOR.\n-- Reason: Snowflake grants object privileges to roles, so the grantee needs the ROLE keyword. The privilege is kept at SELECT only.\nGRANT SELECT ON TABLE SALES.AUDIT_LOG TO ROLE AUDITOR;\n",
+          "language": "sql",
+          "rel_path": "snowflake/security/grant_select_on_SALES.AUDIT_LOG.sql"
+        }
+      ],
+      "object_id": "1722a504ffe44591ba180a0cc589a7a5",
+      "qualified_name": "SELECT on sales.audit_log",
+      "self_confidence": 0.88,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "SALES.ADD_PAYMENT has already been converted and created as a Snowflake procedure in schema SALES, under the unquoted name ADD_PAYMENT, before this grant runs.",
+        "Teradata does not overload procedure names, so exactly one SALES.ADD_PAYMENT is expected. The block raises error -20001 otherwise.",
+        "Teradata grantee 'operator' is assumed to be a role, created in Snowflake as role OPERATOR. If it was a Teradata user, grant this privilege to a role and grant that role to the user, because Snowflake grants object privileges only to roles.",
+        "Role OPERATOR also needs USAGE on the target database and on schema SALES to use this privilege. Teradata has no such requirement. Those grants are not generated here, to avoid widening privileges beyond the source grant.",
+        "If SALES.ADD_PAYMENT is created EXECUTE AS OWNER, USAGE on the procedure alone lets OPERATOR run it, which matches Teradata's owner-rights procedure execution. If it is EXECUTE AS CALLER, OPERATOR also needs privileges on the objects the procedure touches.",
+        "The format of the SHOW PROCEDURES \"arguments\" column ('NAME(TYPES) RETURN TYPE') is a Snowflake output convention, not a contract. Check it on the target account."
+      ],
+      "explanations": [
+        "Teradata EXECUTE PROCEDURE maps to Snowflake USAGE ON PROCEDURE, which needs the argument-type signature.",
+        "The signature of SALES.ADD_PAYMENT is not in the batch, so it is resolved at run time from SHOW PROCEDURES (the \"arguments\" column, e.g. 'ADD_PAYMENT(NUMBER, NUMBER) RETURN VARCHAR'). The RETURN clause is stripped, and so are the brackets Snowflake shows around optional arguments.",
+        "The exact-name filter (\"name\" = 'ADD_PAYMENT') is applied because '_' is a single-character wildcard in SHOW ... LIKE.",
+        "If the signature is known at deployment time, the block can be replaced with a static statement, e.g. GRANT USAGE ON PROCEDURE SALES.ADD_PAYMENT(NUMBER, NUMBER) TO ROLE OPERATOR;",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT EXECUTE PROCEDURE ON sales.add_payment TO operator converted to GRANT USAGE ON PROCEDURE SALES.ADD_PAYMENT(<argument types>) TO ROLE OPERATOR, run from an anonymous Snowflake Scripting block that reads the procedure's argument signature from SHOW PROCEDURES.\n-- Reason: Snowflake's equivalent of Teradata EXECUTE PROCEDURE is USAGE on the procedure, and it must name the full argument-type signature, which the batch does not include (sales.add_payment has no columns/parameters in its signature). Reading the signature from the catalog avoids guessing types. The block fails with an explicit error unless exactly one ADD_PAYMENT procedure exists in SALES, so the grant never targets the wrong overload.\nEXECUTE IMMEDIATE $$\nDECLARE\n  v_count INTEGER DEFAULT 0;\n  v_signature VARCHAR;\n  e_signature_not_unique EXCEPTION (-20001, 'Expected exactly one procedure SALES.ADD_PAYMENT; grant not applied.');\nBEGIN\n  SHOW PROCEDURES LIKE 'ADD_PAYMENT' IN SCHEMA SALES;\n  SELECT COUNT(*),\n         MAX(REPLACE(REPLACE(TRIM(SPLIT_PART(\"arguments\", ' RETURN ', 1)), '[', ''), ']', ''))\n    INTO :v_count, :v_signature\n    FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\n   WHERE \"name\" = 'ADD_PAYMENT';\n  IF (v_count <> 1) THEN\n    RAISE e_signature_not_unique;\n  END IF;\n  -- Converted: The privilege is applied with GRANT USAGE ON PROCEDURE SALES.<signature> TO ROLE OPERATOR.\n  -- Reason: USAGE is the only privilege Snowflake defines for executing a procedure. The signature comes from the catalog rather than user input, and identifiers cannot be bound with USING in GRANT, so the statement text is concatenated.\n  EXECUTE IMMEDIATE 'GRANT USAGE ON PROCEDURE SALES.' || v_signature || ' TO ROLE OPERATOR';\n  RETURN 'GRANT USAGE ON PROCEDURE SALES.' || v_signature || ' TO ROLE OPERATOR';\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "snowflake/security/grant_usage_on_procedure_SALES.ADD_PAYMENT.sql"
+        }
+      ],
+      "object_id": "1c4dffcc96684b818ad979170d49c279",
+      "qualified_name": "EXECUTE PROCEDURE on sales.add_payment",
+      "self_confidence": 0.6,
+      "type": "grant",
+      "unsupported": [
+        "The source names no argument signature for sales.add_payment, and Snowflake requires one for procedure grants. It is resolved dynamically at run time instead of statically."
+      ]
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either.",
+        "The join is on INTEGER customer_id columns, so Teradata NOT CASESPECIFIC string comparison semantics do not apply."
+      ],
+      "explanations": [
+        "Direct conversion; sales.account maps to SALES.\"ACCOUNT\" because ACCOUNT is reserved in Snowflake.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.customer_accounts converted to Snowflake CREATE VIEW SALES.CUSTOMER_ACCOUNTS with fully qualified target object names from the naming map, explicit AS on table aliases.\n-- Reason: The query is ANSI SQL that Snowflake accepts unchanged. Only object names change to the target naming map (unquoted names resolve in uppercase). OR REPLACE is not added, so re-creation still fails if the view exists, as in Teradata. The projected column names, types, join semantics and NULL behaviour of inner joins are unchanged.\nCREATE VIEW SALES.CUSTOMER_ACCOUNTS AS\nSELECT c.customer_id, c.customer_name, a.account_id, a.balance\nFROM SALES.CUSTOMER AS c\nJOIN SALES.\"ACCOUNT\" AS a ON c.customer_id = a.customer_id;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.CUSTOMER_ACCOUNTS.sql"
+        }
+      ],
+      "object_id": "02b79ca2037f47569ee405e049ec1eb5",
+      "qualified_name": "sales.customer_accounts",
+      "self_confidence": 0.92,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either.",
+        "The join is on BIGINT account_id columns, so there are no string-collation differences."
+      ],
+      "explanations": [
+        "Direct conversion; sales.account maps to SALES.\"ACCOUNT\".",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.account_payments converted to Snowflake CREATE VIEW SALES.ACCOUNT_PAYMENTS with fully qualified target object names from the naming map, explicit AS on table aliases.\n-- Reason: The query is ANSI SQL that Snowflake accepts unchanged. Only object names change to the target naming map (unquoted names resolve in uppercase). OR REPLACE is not added, so re-creation still fails if the view exists, as in Teradata. The projected column names, types, join semantics and NULL behaviour of inner joins are unchanged.\nCREATE VIEW SALES.ACCOUNT_PAYMENTS AS\nSELECT a.account_id, p.payment_id, p.amount\nFROM SALES.\"ACCOUNT\" AS a\nJOIN SALES.PAYMENT AS p ON a.account_id = p.account_id;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.ACCOUNT_PAYMENTS.sql"
+        }
+      ],
+      "object_id": "b84ceab409284cf7a297de060ee33708",
+      "qualified_name": "sales.account_payments",
+      "self_confidence": 0.92,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either."
+      ],
+      "explanations": [
+        "Direct conversion.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.customer_loans converted to Snowflake CREATE VIEW SALES.CUSTOMER_LOANS with fully qualified target object names from the naming map, explicit AS on table aliases.\n-- Reason: The query is ANSI SQL that Snowflake accepts unchanged. Only object names change to the target naming map (unquoted names resolve in uppercase). OR REPLACE is not added, so re-creation still fails if the view exists, as in Teradata. The projected column names, types, join semantics and NULL behaviour of inner joins are unchanged.\nCREATE VIEW SALES.CUSTOMER_LOANS AS\nSELECT c.customer_id, l.loan_id, l.principal\nFROM SALES.CUSTOMER AS c\nJOIN SALES.LOAN AS l ON c.customer_id = l.customer_id;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.CUSTOMER_LOANS.sql"
+        }
+      ],
+      "object_id": "bdba2737d6a64e8bb662e2157afce02d",
+      "qualified_name": "sales.customer_loans",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either."
+      ],
+      "explanations": [
+        "Direct conversion of a three-way inner join.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.order_detail converted to Snowflake CREATE VIEW SALES.ORDER_DETAIL with fully qualified target object names from the naming map, explicit AS on table aliases.\n-- Reason: The query is ANSI SQL that Snowflake accepts unchanged. Only object names change to the target naming map (unquoted names resolve in uppercase). OR REPLACE is not added, so re-creation still fails if the view exists, as in Teradata. The projected column names, types, join semantics and NULL behaviour of inner joins are unchanged.\nCREATE VIEW SALES.ORDER_DETAIL AS\nSELECT h.order_id, l.product_id, p.product_name\nFROM SALES.ORDER_HEADER AS h\nJOIN SALES.ORDER_LINE AS l ON h.order_id = l.order_id\nJOIN SALES.PRODUCT AS p ON l.product_id = p.product_id;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.ORDER_DETAIL.sql"
+        }
+      ],
+      "object_id": "5a61edb6f433488abd71b05549442493",
+      "qualified_name": "sales.order_detail",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either."
+      ],
+      "explanations": [
+        "Direct conversion.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.card_activity converted to Snowflake CREATE VIEW SALES.CARD_ACTIVITY with fully qualified target object names from the naming map, explicit AS on table aliases.\n-- Reason: The query is ANSI SQL that Snowflake accepts unchanged. Only object names change to the target naming map (unquoted names resolve in uppercase). OR REPLACE is not added, so re-creation still fails if the view exists, as in Teradata. The projected column names, types, join semantics and NULL behaviour of inner joins are unchanged.\nCREATE VIEW SALES.CARD_ACTIVITY AS\nSELECT c.card_id, t.txn_id, t.amount\nFROM SALES.CARD AS c\nJOIN SALES.CARD_TXN AS t ON c.card_id = t.card_id;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.CARD_ACTIVITY.sql"
+        }
+      ],
+      "object_id": "0a71414e3ea54929ae6a91c6dabaa293",
+      "qualified_name": "sales.card_activity",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either."
+      ],
+      "explanations": [
+        "Direct conversion of a single-table projection.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.transfer_activity converted to Snowflake CREATE VIEW SALES.TRANSFER_ACTIVITY with fully qualified target object names from the naming map.\n-- Reason: The query is ANSI SQL that Snowflake accepts unchanged. Only object names change to the target naming map (unquoted names resolve in uppercase). OR REPLACE is not added, so re-creation still fails if the view exists, as in Teradata. The projected column names, types, join semantics and NULL behaviour of inner joins are unchanged.\nCREATE VIEW SALES.TRANSFER_ACTIVITY AS\nSELECT transfer_id, from_account, to_account\nFROM SALES.TRANSFER;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.TRANSFER_ACTIVITY.sql"
+        }
+      ],
+      "object_id": "d21dfe3fd35c4579a33f669fd3b7657b",
+      "qualified_name": "sales.transfer_activity",
+      "self_confidence": 0.94,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either."
+      ],
+      "explanations": [
+        "Direct conversion of a three-way inner join.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.customer_risk converted to Snowflake CREATE VIEW SALES.CUSTOMER_RISK with fully qualified target object names from the naming map, explicit AS on table aliases.\n-- Reason: The query is ANSI SQL that Snowflake accepts unchanged. Only object names change to the target naming map (unquoted names resolve in uppercase). OR REPLACE is not added, so re-creation still fails if the view exists, as in Teradata. The projected column names, types, join semantics and NULL behaviour of inner joins are unchanged.\nCREATE VIEW SALES.CUSTOMER_RISK AS\nSELECT c.customer_id, r.score, s.segment_code\nFROM SALES.CUSTOMER AS c\nJOIN SALES.RISK_SCORE AS r ON c.customer_id = r.customer_id\nJOIN SALES.CUSTOMER_SEGMENT AS s ON c.customer_id = s.customer_id;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.CUSTOMER_RISK.sql"
+        }
+      ],
+      "object_id": "9e251764a6b646ccb6815baeac2f9e3a",
+      "qualified_name": "sales.customer_risk",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either."
+      ],
+      "explanations": [
+        "Direct conversion of a single-table projection.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.daily_account_balances converted to Snowflake CREATE VIEW SALES.DAILY_ACCOUNT_BALANCES with fully qualified target object names from the naming map.\n-- Reason: The query is ANSI SQL that Snowflake accepts unchanged. Only object names change to the target naming map (unquoted names resolve in uppercase). OR REPLACE is not added, so re-creation still fails if the view exists, as in Teradata. The projected column names, types, join semantics and NULL behaviour of inner joins are unchanged.\nCREATE VIEW SALES.DAILY_ACCOUNT_BALANCES AS\nSELECT account_id, amount\nFROM SALES.DAILY_BALANCE;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.DAILY_ACCOUNT_BALANCES.sql"
+        }
+      ],
+      "object_id": "5d24db03a9ab446baf855fc79d8b9fdc",
+      "qualified_name": "sales.daily_account_balances",
+      "self_confidence": 0.94,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The base tables already exist in Snowflake with the column names and types from the dependency signatures, created by earlier batches.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour. Use CREATE OR REPLACE VIEW ... COPY GRANTS only if the runner has to be re-runnable.",
+        "No ORDER BY is added. The Teradata view had no defined row order, and Snowflake doesn't either.",
+        "The cross-join-like predicate (no customer correlation) is assumed to be intentional in the source and is not 'fixed'. Review with the data owner.",
+        "rate_date is a DATE column (as in the dependency signature), so the comparison does no time-component truncation."
+      ],
+      "explanations": [
+        "The DATE literal was converted with an explicit format mask; the rest is a direct conversion.",
+        "Semantics are preserved: the ON clause makes the join a filtered cross join (one row per customer per EXTERNAL_RATE row dated 2025-01-01, and no rows if that date is missing).",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.customer_external_rate converted to Snowflake CREATE VIEW SALES.CUSTOMER_EXTERNAL_RATE with fully qualified names; Teradata ANSI DATE literal DATE '2025-01-01' replaced by TO_DATE('2025-01-01', 'YYYY-MM-DD').\n-- Reason: An explicit format in TO_DATE makes the literal independent of the session DATE_INPUT_FORMAT, which is the defensive choice (DATE '2025-01-01' is also valid Snowflake syntax). The join predicate only filters SALES.EXTERNAL_RATE and does not relate it to SALES.CUSTOMER, so every customer is paired with every rate row for that date. This is kept exactly as in the source. OR REPLACE is not added, so Teradata's fail-if-exists behaviour is kept.\nCREATE VIEW SALES.CUSTOMER_EXTERNAL_RATE AS\nSELECT c.customer_id, e.rate\nFROM SALES.CUSTOMER AS c\nJOIN SALES.EXTERNAL_RATE AS e ON e.rate_date = TO_DATE('2025-01-01', 'YYYY-MM-DD');\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.CUSTOMER_EXTERNAL_RATE.sql"
+        }
+      ],
+      "object_id": "9da917628ab14fd98cba144397eda1a5",
+      "qualified_name": "sales.customer_external_rate",
+      "self_confidence": 0.88,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "sales.customer_archive is assumed to be migrated or provided separately as SALES.CUSTOMER_ARCHIVE (unquoted, uppercase), with a column named ID.",
+        "Plain CREATE VIEW, without OR REPLACE, is used to keep Teradata's fail-if-exists behaviour."
+      ],
+      "explanations": [
+        "Syntactic conversion only; the referenced object is outside the migration scope and has no known signature.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE VIEW sales.unuploaded_reference converted to Snowflake CREATE VIEW SALES.UNUPLOADED_REFERENCE selecting ID from SALES.CUSTOMER_ARCHIVE.\n-- Reason: The query is plain ANSI SQL. sales.customer_archive is an external dependency that is not in this migration's object set or naming map, so it is mapped to the default uppercase name SALES.CUSTOMER_ARCHIVE, and its column list (including ID) cannot be verified. Creating the view fails unless that object exists in Snowflake with an ID column.\nCREATE VIEW SALES.UNUPLOADED_REFERENCE AS\nSELECT id\nFROM SALES.CUSTOMER_ARCHIVE;\n",
+          "language": "sql",
+          "rel_path": "snowflake/views/SALES.UNUPLOADED_REFERENCE.sql"
+        }
+      ],
+      "object_id": "461fde588eb9493db4145a5eb39f627f",
+      "qualified_name": "sales.unuploaded_reference",
+      "self_confidence": 0.4,
+      "type": "view",
+      "unsupported": [
+        "Dependency sales.customer_archive is marked external, has no column signature and no naming-map entry. Neither the target name SALES.CUSTOMER_ARCHIVE nor the column ID can be verified, so the view cannot be guaranteed to compile."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata grantee 'reader' is assumed to be a role, created in Snowflake as role READER. If it was a Teradata user, grant this privilege to a role and grant that role to the user, because Snowflake grants object privileges only to roles.",
+        "Role READER also needs USAGE on the target database and on schema SALES to use this privilege. Teradata has no such requirement. Those grants are not generated here, to avoid widening privileges beyond the source grant.",
+        "SALES.CUSTOMER_ACCOUNTS has been created (view batch above) before this grant runs.",
+        "Snowflake views read base tables with the view owner's privileges, so READER does not need SELECT on SALES.CUSTOMER or SALES.\"ACCOUNT\". This matches Teradata, where the view's owning database holds the base-table rights."
+      ],
+      "explanations": [
+        "Direct privilege mapping; the object kind changed from TABLE to VIEW to match the converted object.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT SELECT ON TABLE sales.customer_accounts TO reader converted to GRANT SELECT ON VIEW SALES.CUSTOMER_ACCOUNTS TO ROLE READER.\n-- Reason: sales.customer_accounts is a view, so the Snowflake object type is VIEW. Snowflake grants object privileges to roles, so the grantee needs the ROLE keyword. The privilege is kept at SELECT only.\nGRANT SELECT ON VIEW SALES.CUSTOMER_ACCOUNTS TO ROLE READER;\n",
+          "language": "sql",
+          "rel_path": "snowflake/security/grant_select_on_SALES.CUSTOMER_ACCOUNTS.sql"
+        }
+      ],
+      "object_id": "8b9c0cf760a041ffb233d07c05f7d7fd",
+      "qualified_name": "SELECT on sales.customer_accounts",
+      "self_confidence": 0.88,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata grantee 'reader' is assumed to be a role, created in Snowflake as role READER. If it was a Teradata user, grant this privilege to a role and grant that role to the user, because Snowflake grants object privileges only to roles.",
+        "Role READER also needs USAGE on the target database and on schema SALES to use this privilege. Teradata has no such requirement. Those grants are not generated here, to avoid widening privileges beyond the source grant.",
+        "SALES.ACCOUNT_PAYMENTS has been created (view batch above) before this grant runs.",
+        "Snowflake views read base tables with the view owner's privileges, so READER does not need SELECT on SALES.\"ACCOUNT\" or SALES.PAYMENT."
+      ],
+      "explanations": [
+        "Direct privilege mapping; the object kind changed from TABLE to VIEW to match the converted object.",
+        "Object names follow the naming map (SALES.* unquoted, SALES.\"ACCOUNT\" quoted because ACCOUNT is a Snowflake reserved word); the database is not named in the naming map so names are schema-qualified and resolve against the current database."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT SELECT ON TABLE sales.account_payments TO reader converted to GRANT SELECT ON VIEW SALES.ACCOUNT_PAYMENTS TO ROLE READER.\n-- Reason: sales.account_payments is a view, so the Snowflake object type is VIEW. Snowflake grants object privileges to roles, so the grantee needs the ROLE keyword. The privilege is kept at SELECT only.\nGRANT SELECT ON VIEW SALES.ACCOUNT_PAYMENTS TO ROLE READER;\n",
+          "language": "sql",
+          "rel_path": "snowflake/security/grant_select_on_SALES.ACCOUNT_PAYMENTS.sql"
+        }
+      ],
+      "object_id": "84d47522601a4ca6992c58e3cd3dc9e7",
+      "qualified_name": "SELECT on sales.account_payments",
+      "self_confidence": 0.88,
+      "type": "grant",
+      "unsupported": []
+    }
+  ]
+}

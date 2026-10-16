@@ -189,14 +189,20 @@ def _validation_context(state: WorkflowState) -> ValidationContext:
     )
 
 
-def _as_candidate(voter: str, object_id: str, value: Any, target: str) -> Candidate | None:
+def _as_candidate(
+    voter: str,
+    object_id: str,
+    value: Any,
+    target: str,
+    source_rel_path: str | None = None,
+) -> Candidate | None:
     if not isinstance(value, dict):
         return None
     files = value.get("files")
     if not isinstance(files, list):
         return None
     normalized_files = [
-        file
+        dict(file)
         for file in files
         if isinstance(file, dict)
         and isinstance(file.get("rel_path"), str)
@@ -205,6 +211,8 @@ def _as_candidate(voter: str, object_id: str, value: Any, target: str) -> Candid
     ]
     if not normalized_files:
         return None
+    if len(normalized_files) == 1 and source_rel_path:
+        normalized_files[0]["rel_path"] = source_rel_path
     try:
         confidence = float(value.get("self_confidence", 0.0))
     except (TypeError, ValueError):
@@ -352,7 +360,13 @@ def _vote(state: WorkflowState) -> dict[str, Any]:
                 ),
                 None,
             )
-            candidates[object_id][voter] = _as_candidate(voter, object_id, entry, state["target"])
+            candidates[object_id][voter] = _as_candidate(
+                voter,
+                object_id,
+                entry,
+                state["target"],
+                str(source_object.get("rel_path", "")),
+            )
     return {"voter_outcomes": outcomes, "candidates": candidates}
 
 
@@ -510,6 +524,9 @@ def _run_escalation(state: WorkflowState) -> dict[str, Any]:
     revised: dict[str, Candidate | None] = {}
     output = outcome.structured_output
     entries = output.get("objects", []) if isinstance(output, dict) else []
+    source_rel_paths = {
+        item["object_id"]: str(item.get("rel_path", "")) for item in state["conversion_objects"]
+    }
     for object_id in state["to_escalate"]:
         entry = next(
             (
@@ -525,6 +542,7 @@ def _run_escalation(state: WorkflowState) -> dict[str, Any]:
                 object_id,
                 entry,
                 state["target"],
+                source_rel_paths.get(object_id),
             )
             if outcome.state == "done"
             else None

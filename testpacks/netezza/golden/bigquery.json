@@ -33,7 +33,7 @@
           "lint": "passed",
           "object_reference": "passed",
           "rule": "passed",
-          "security": "failed",
+          "security": "passed",
           "semantic": "passed",
           "syntax": "passed"
         },
@@ -671,5 +671,5 @@
     "migraai-netezza-to-bigquery-converted/report/session-report.md",
     "migraai-netezza-to-bigquery-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "7d9425b0ee9f49014460520318bff912c128eaa08ff7c3b12dff3ed170d6a5b9"
+  "zip_sha256": "cf47db378a7cf5f47c12c8b1af5b2d59df7e243ae0a9306946494d41bd2a0ccf"
 }

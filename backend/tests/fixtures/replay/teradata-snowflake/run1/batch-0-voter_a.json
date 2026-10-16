@@ -1,0 +1,504 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "The source has no SET/MULTISET keyword. Teradata picks SET or MULTISET from the session mode; Snowflake tables always allow duplicate rows (MULTISET behaviour).",
+        "Schema SALES exists in the target database, and the current database is set when the script runs (the naming map gives two-part schema.object names)."
+      ],
+      "explanations": [
+        "Only the table name changed, to the naming-map name. The DDL is otherwise identical to the source."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: object name taken from the naming map (sales.recovered_after_error -> SALES.RECOVERED_AFTER_ERROR); column and type kept as written\n-- Reason: CREATE TABLE ... (id INTEGER) is valid Snowflake syntax and the identifier stays unquoted so it resolves in uppercase\nCREATE TABLE SALES.RECOVERED_AFTER_ERROR (id INTEGER);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/maintenance.sql"
+        }
+      ],
+      "object_id": "a7aae32295d64aec941dcd916b1f5720",
+      "qualified_name": "sales.recovered_after_error",
+      "self_confidence": 0.95,
+      "type": "table",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The script runs as a role with the CREATE ROLE privilege (for example USERADMIN), not ACCOUNTADMIN.",
+        "The role name READER is not a Snowflake reserved keyword, so it stays unquoted."
+      ],
+      "explanations": [
+        "Teradata CREATE ROLE reader maps directly to Snowflake CREATE ROLE reader. No syntax change was needed."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: no change; CREATE ROLE reader kept as written\n-- Reason: CREATE ROLE <name> is valid Snowflake syntax; the unquoted name resolves to READER\nCREATE ROLE reader;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "a3dc1ff9f6c14b83a5bb9ee4b819c9e8",
+      "qualified_name": "reader",
+      "self_confidence": 0.95,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The script runs as a role with the CREATE ROLE privilege (for example USERADMIN), not ACCOUNTADMIN.",
+        "The role name OPERATOR is not a Snowflake reserved keyword, so it stays unquoted."
+      ],
+      "explanations": [
+        "Teradata CREATE ROLE operator maps directly to Snowflake CREATE ROLE operator. No syntax change was needed."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: no change; CREATE ROLE operator kept as written\n-- Reason: CREATE ROLE <name> is valid Snowflake syntax; the unquoted name resolves to OPERATOR\nCREATE ROLE operator;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "9368b37c5bfb40218bdddd18df63c027",
+      "qualified_name": "operator",
+      "self_confidence": 0.95,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The script runs as a role with the CREATE ROLE privilege (for example USERADMIN), not ACCOUNTADMIN.",
+        "The role name AUDITOR is not a Snowflake reserved keyword, so it stays unquoted."
+      ],
+      "explanations": [
+        "Teradata CREATE ROLE auditor maps directly to Snowflake CREATE ROLE auditor. No syntax change was needed."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: no change; CREATE ROLE auditor kept as written\n-- Reason: CREATE ROLE <name> is valid Snowflake syntax; the unquoted name resolves to AUDITOR\nCREATE ROLE auditor;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "d8766f138b304b4f90ab85a8e4260024",
+      "qualified_name": "auditor",
+      "self_confidence": 0.95,
+      "type": "role",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "DEFAULT_NAMESPACE = SALES is read by Snowflake as a database name. If SALES is a schema inside a deployment database (the naming map uses two-part SALES.<object> names), change it to <database>.SALES. Snowflake does not check the namespace when the user is created, so the statement still runs either way.",
+        "The script runs as a role with the CREATE USER privilege (for example USERADMIN)."
+      ],
+      "explanations": [
+        "CREATE USER is kept and the Teradata user options are mapped to Snowflake equivalents where one exists.",
+        "DEFAULT DATABASE = sales -> DEFAULT_NAMESPACE = SALES.",
+        "PASSWORD ***MASKED*** removed: the value is masked (***MASKED***) and rule snowflake.security.no_plaintext_credentials forbids putting credentials in DDL."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE USER analyst FROM sales AS PERM = 0, PASSWORD = ***MASKED***, DEFAULT DATABASE = sales -> Snowflake CREATE USER analyst DEFAULT_NAMESPACE = SALES; removed FROM sales, PERM = 0 and PASSWORD\n***MASKED*** Reason: Snowflake users are account-level objects with no parent database and no perm-space quota. DEFAULT DATABASE maps to DEFAULT_NAMESPACE. The password ***MASKED*** masked in the source, and the target rules forbid embedding credentials, so authentication is set up outside this script (key-pair via ALTER USER analyst SET RSA_PUBLIC_KEY = '<public key>', or SSO/password ***MASKED*** through the identity process)\nCREATE USER analyst DEFAULT_NAMESPACE = SALES;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "64c54c7c980b4b03a1318f025881d865",
+      "qualified_name": "analyst",
+      "self_confidence": 0.75,
+      "type": "user",
+      "unsupported": [
+        "FROM sales (Teradata owning-database hierarchy): Snowflake users have no parent database.",
+        "PERM = 0 (Teradata permanent-space quota): Snowflake has no per-user storage quota.",
+        "PASSWORD = ***MASKED***: the credential is not migrated and must be provisioned separately (key-pair RSA_PUBLIC_KEY or a SECRET/identity process)."
+      ]
+    },
+    {
+      "assumptions": [
+        "DEFAULT_NAMESPACE = SALES is read by Snowflake as a database name. If SALES is a schema inside a deployment database (the naming map uses two-part SALES.<object> names), change it to <database>.SALES. Snowflake does not check the namespace when the user is created, so the statement still runs either way.",
+        "The script runs as a role with the CREATE USER privilege (for example USERADMIN).",
+        "TYPE = SERVICE was not added because the source has no such attribute (stance: stay literal). Consider adding it once key-pair authentication is configured."
+      ],
+      "explanations": [
+        "CREATE USER is kept and the Teradata user options are mapped to Snowflake equivalents where one exists.",
+        "DEFAULT DATABASE = sales -> DEFAULT_NAMESPACE = SALES.",
+        "PASSWORD ***MASKED*** removed: the value is masked (***MASKED***) and rule snowflake.security.no_plaintext_credentials forbids putting credentials in DDL. For a service/loader user, the guidance is key-pair authentication (RSA_PUBLIC_KEY)."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE USER loader FROM sales AS PERM = 0, PASSWORD = ***MASKED***, DEFAULT DATABASE = sales -> Snowflake CREATE USER loader DEFAULT_NAMESPACE = SALES; removed FROM sales, PERM = 0 and PASSWORD\n***MASKED*** Reason: Snowflake users are account-level objects with no parent database and no perm-space quota. DEFAULT DATABASE maps to DEFAULT_NAMESPACE. The password ***MASKED*** masked in the source, and the target rules forbid embedding credentials, so authentication is set up outside this script (key-pair via ALTER USER loader SET RSA_PUBLIC_KEY = '<public key>' for this service user)\nCREATE USER loader DEFAULT_NAMESPACE = SALES;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "542b236d7e3c4511a38f3e3ed02c6f4c",
+      "qualified_name": "loader",
+      "self_confidence": 0.75,
+      "type": "user",
+      "unsupported": [
+        "FROM sales (Teradata owning-database hierarchy): Snowflake users have no parent database.",
+        "PERM = 0 (Teradata permanent-space quota): Snowflake has no per-user storage quota.",
+        "PASSWORD = ***MASKED***: the credential is not migrated and must be provisioned separately (key-pair RSA_PUBLIC_KEY or a SECRET/identity process)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Role reader and user analyst are created by their own converted objects before this grant runs (dependency order).",
+        "The grant goes to a specific user, never to PUBLIC, and no administrative role is involved."
+      ],
+      "explanations": [
+        "In Teradata, granting role reader to user analyst needs no keywords. Snowflake syntax is GRANT ROLE <role> TO USER <user>."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT reader TO analyst -> GRANT ROLE reader TO USER analyst\n-- Reason: Snowflake requires the ROLE keyword for the granted role and the USER keyword for the grantee\nGRANT ROLE reader TO USER analyst;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "5116bc548cd8484e8701a5f25b127e39",
+      "qualified_name": "ROLE on reader",
+      "self_confidence": 0.92,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Role operator and user loader are created by their own converted objects before this grant runs (dependency order).",
+        "The grant goes to a specific user, never to PUBLIC, and no administrative role is involved."
+      ],
+      "explanations": [
+        "In Teradata, granting role operator to user loader needs no keywords. Snowflake syntax is GRANT ROLE <role> TO USER <user>."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT operator TO loader -> GRANT ROLE operator TO USER loader\n-- Reason: Snowflake requires the ROLE keyword for the granted role and the USER keyword for the grantee\nGRANT ROLE operator TO USER loader;\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/security.sql"
+        }
+      ],
+      "object_id": "aa86464cb6ba48208d12f68526e8c47d",
+      "qualified_name": "ROLE on operator",
+      "self_confidence": 0.92,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs.",
+        "VARCHAR/CHAR lengths are kept as written. Snowflake strings are UTF-8 and compare case-sensitively, while Teradata-mode columns default to NOT CASESPECIFIC; queries that depend on case-insensitive comparison need review."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.CUSTOMER, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.customer -> SALES.CUSTOMER (naming map); removed PRIMARY INDEX (customer_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.CUSTOMER (\n  customer_id INTEGER NOT NULL,\n  customer_name VARCHAR(80) NOT NULL,\n  status CHAR(1) DEFAULT 'A'\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "76c6a88f0b1845d48f8ccef3dd8087ec",
+      "qualified_name": "sales.customer",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (customer_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.CUSTOMER CLUSTER BY (customer_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs.",
+        "ACCOUNT is a Snowflake reserved keyword, so the table name is double-quoted as SALES.\"ACCOUNT\" (uppercase), as the naming map specifies. Every reference must use the same quoted, uppercase name.",
+        "The inline REFERENCES constraint is kept as in the source and points to SALES.CUSTOMER from the naming map. Snowflake records the foreign key but does not enforce it (only NOT NULL is enforced), so referential integrity must be checked in ETL.",
+        "SALES.CUSTOMER is created first (dependency order). The source does not declare a PRIMARY KEY/UNIQUE constraint on customer_id, and Teradata also expects one on the referenced column. If Snowflake rejects the foreign key because the parent has no primary/unique key, add a PRIMARY KEY (customer_id) on SALES.CUSTOMER or remove the REFERENCES clause."
+      ],
+      "explanations": [
+        "CREATE MULTISET TABLE becomes CREATE TABLE SALES.\"ACCOUNT\", using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE MULTISET TABLE -> CREATE TABLE; sales.account -> SALES.\"ACCOUNT\" (naming map); removed PRIMARY INDEX (account_id); column definitions and REFERENCES clause kept as written\n-- Reason: Snowflake has no MULTISET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.\"ACCOUNT\" (\n  account_id BIGINT NOT NULL,\n  customer_id INTEGER REFERENCES SALES.CUSTOMER (customer_id),\n  balance DECIMAL(14, 2) DEFAULT 0\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "2d42cac86fec4be5ae92250db28c7d89",
+      "qualified_name": "sales.account",
+      "self_confidence": 0.8,
+      "type": "table",
+      "unsupported": [
+        "PRIMARY INDEX (account_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.\"ACCOUNT\" CLUSTER BY (account_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs.",
+        "VARCHAR/CHAR lengths are kept as written. Snowflake strings are UTF-8 and compare case-sensitively, while Teradata-mode columns default to NOT CASESPECIFIC; queries that depend on case-insensitive comparison need review."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.BRANCH, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.branch -> SALES.BRANCH (naming map); removed PRIMARY INDEX (branch_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.BRANCH (\n  branch_id INTEGER,\n  branch_name VARCHAR(80)\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "18aa2df625f8453cbb1d3b3f4d72d7f7",
+      "qualified_name": "sales.branch",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (branch_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.BRANCH CLUSTER BY (branch_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.EMPLOYEE, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.employee -> SALES.EMPLOYEE (naming map); removed PRIMARY INDEX (employee_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.EMPLOYEE (\n  employee_id INTEGER,\n  branch_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "0c7937505cef42e1b588e29ead90c760",
+      "qualified_name": "sales.employee",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (employee_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.EMPLOYEE CLUSTER BY (employee_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs.",
+        "VARCHAR/CHAR lengths are kept as written. Snowflake strings are UTF-8 and compare case-sensitively, while Teradata-mode columns default to NOT CASESPECIFIC; queries that depend on case-insensitive comparison need review."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.PRODUCT, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.product -> SALES.PRODUCT (naming map); removed PRIMARY INDEX (product_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.PRODUCT (\n  product_id INTEGER,\n  product_name VARCHAR(80)\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "dfe4df7731be47e69190a1f6d11b6e60",
+      "qualified_name": "sales.product",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (product_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.PRODUCT CLUSTER BY (product_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.ORDER_HEADER, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.order_header -> SALES.ORDER_HEADER (naming map); removed PRIMARY INDEX (order_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.ORDER_HEADER (\n  order_id BIGINT,\n  customer_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "6db6baea46a24a9b92ab31882fdf28e4",
+      "qualified_name": "sales.order_header",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (order_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.ORDER_HEADER CLUSTER BY (order_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.ORDER_LINE, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.order_line -> SALES.ORDER_LINE (naming map); removed PRIMARY INDEX (order_id, product_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.ORDER_LINE (\n  order_id BIGINT,\n  product_id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "fdf84ace6c28487facdd6b1b6ca109f9",
+      "qualified_name": "sales.order_line",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (order_id, product_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.ORDER_LINE CLUSTER BY (order_id, product_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.PAYMENT, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.payment -> SALES.PAYMENT (naming map); removed PRIMARY INDEX (payment_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.PAYMENT (\n  payment_id BIGINT,\n  account_id BIGINT,\n  amount DECIMAL(12, 2)\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "5b92ee8a397f430d8e59d379ea1c6727",
+      "qualified_name": "sales.payment",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (payment_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.PAYMENT CLUSTER BY (payment_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.LOAN, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.loan -> SALES.LOAN (naming map); removed PRIMARY INDEX (loan_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.LOAN (\n  loan_id BIGINT,\n  customer_id INTEGER,\n  principal DECIMAL(14, 2)\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "c612fd963a0142fc8dbfa4de93e3ba57",
+      "qualified_name": "sales.loan",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (loan_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.LOAN CLUSTER BY (loan_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs.",
+        "DATE maps to Snowflake DATE (type map). Teradata date FORMAT defaults affect only display/casting, not storage."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.LOAN_PAYMENT, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.loan_payment -> SALES.LOAN_PAYMENT (naming map); removed PRIMARY INDEX (loan_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.LOAN_PAYMENT (\n  loan_id BIGINT,\n  payment_date DATE,\n  amount DECIMAL(12, 2)\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "87ecc30da83e4555a55b47c4aa74c70c",
+      "qualified_name": "sales.loan_payment",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (loan_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.LOAN_PAYMENT CLUSTER BY (loan_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.CARD, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.card -> SALES.CARD (naming map); removed PRIMARY INDEX (card_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.CARD (\n  card_id BIGINT,\n  account_id BIGINT\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "27a996d8077c44508be2f69c941d61e8",
+      "qualified_name": "sales.card",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (card_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.CARD CLUSTER BY (card_id) later if the table is large and filtered on these columns."
+      ]
+    },
+    {
+      "assumptions": [
+        "INTEGER and BIGINT are kept as written; in Snowflake both are synonyms for NUMBER(38,0), so the value range is wider than Teradata's 32-bit/64-bit integers (the type map lists no direct equivalent). Existing data fits without loss.",
+        "Schema SALES exists in the target database, and the current database is set when the script runs."
+      ],
+      "explanations": [
+        "CREATE SET TABLE becomes CREATE TABLE SALES.CARD_TXN, using the naming-map name.",
+        "Columns, data types, NOT NULL, DEFAULT values and column order are unchanged.",
+        "PRIMARY INDEX is removed because Snowflake has no equivalent clause."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; sales.card_txn -> SALES.CARD_TXN (naming map); removed PRIMARY INDEX (txn_id); column definitions kept as written\n-- Reason: Snowflake has no SET / PRIMARY INDEX syntax. Micro-partitioning replaces Teradata hash distribution, and a clustering key is only worth adding for large tables after measuring. Column types, NOT NULL and DEFAULT are valid Snowflake syntax as written\nCREATE TABLE SALES.CARD_TXN (\n  txn_id BIGINT,\n  card_id BIGINT,\n  amount DECIMAL(12, 2)\n);\n",
+          "language": "sql",
+          "rel_path": "teradata-testpack.zip/tables.sql"
+        }
+      ],
+      "object_id": "0ab1e99f2d1b4db9ae89094ba12dda69",
+      "qualified_name": "sales.card_txn",
+      "self_confidence": 0.9,
+      "type": "table",
+      "unsupported": [
+        "SET table semantics (Teradata silently rejects duplicate rows): Snowflake tables always allow duplicates (MULTISET behaviour). Load processes must de-duplicate if they relied on this.",
+        "PRIMARY INDEX (txn_id): Snowflake has no primary-index/hash-distribution concept. It is dropped, not turned into CLUSTER BY, to stay literal; add ALTER TABLE SALES.CARD_TXN CLUSTER BY (txn_id) later if the table is large and filtered on these columns."
+      ]
+    }
+  ]
+}

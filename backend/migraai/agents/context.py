@@ -205,6 +205,36 @@ def _columns_from_parsed(parsed: ParsedObject | None) -> list[dict[str, str]]:
     return _node_summary(parsed.node)["columns"]
 
 
+def _type_text(value: ast.DataType | None) -> str:
+    if value is None:
+        return ""
+    name = (
+        ".".join(part.value for part in value.name.parts)
+        if isinstance(value.name, ast.QualifiedName)
+        else str(value.name)
+    )
+    parameters = [
+        str(item.value) if isinstance(item, ast.Literal) else str(item) for item in value.params
+    ]
+    return f"{name}({', '.join(parameters)})" if parameters else name
+
+
+def _parameters_from_parsed(parsed: ParsedObject | None) -> list[dict[str, str]]:
+    if parsed is None:
+        return []
+    parameters = getattr(parsed.node, "params", [])
+    if not isinstance(parameters, list):
+        return []
+    return [
+        {
+            "name": parameter.name.value,
+            "type": _type_text(parameter.type),
+            "direction": str(parameter.mode or "in"),
+        }
+        for parameter in parameters
+    ]
+
+
 def get_relevant_mappings(
     source: str,
     target: str,
@@ -385,6 +415,7 @@ def build_batch(
                 "name": name,
                 "external": dependency["external"],
                 "columns": _columns_from_parsed(dependency_object),
+                "parameters": _parameters_from_parsed(dependency_object),
             }
             dependency_signatures.append(signature)
             dependency_context[name] = signature
@@ -408,6 +439,7 @@ def build_batch(
         )
         item_context = {
             "object_id": object_id,
+            "source_qualified_name": qualified_name,
             "rel_path": str(row.get("file", "")),
             "language": language,
             "object_type": object_type,

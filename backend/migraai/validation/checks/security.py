@@ -15,6 +15,18 @@ from migraai.validation.dialects import sqlglot_dialect
 from migraai.validation.findings import Finding
 from migraai.validation.names import identifier_parts, normalize_name
 
+_GRANTEE_KIND_PREFIX = re.compile(
+    r"^(?:(?:DATABASE|APPLICATION)\s+ROLE|ROLE|USER|GROUP)\s+",
+    re.IGNORECASE,
+)
+_TARGET_PRIVILEGE_EQUIVALENTS = {
+    "snowflake": {
+        "EXECUTE PROCEDURE": {"USAGE"},
+        "EXECUTE FUNCTION": {"USAGE"},
+        "EXECUTE": {"USAGE"},
+    }
+}
+
 
 def _line(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
@@ -112,11 +124,17 @@ def _normalized_grants(ctx: ValidationContext, obj: ObjectUnderTest) -> set[tupl
     )
     return {
         (
-            ".".join(identifier_parts(grantee)).upper(),
+            _normalize_grantee(grantee),
             " ".join(privilege.upper().split()),
         )
         for grantee, privilege in source
     }
+
+
+def _normalize_grantee(value: str) -> str:
+    normalized = value.strip().strip("\"'`[]")
+    normalized = _GRANTEE_KIND_PREFIX.sub("", normalized).strip().strip("\"'`[]")
+    return ".".join(identifier_parts(normalized)).upper()
 
 
 def _grant_findings(
@@ -130,7 +148,7 @@ def _grant_findings(
 
     for privilege, grantee, line in grants:
         normalized_privilege = " ".join(privilege.upper().split())
-        normalized_grantee = ".".join(identifier_parts(grantee)).upper()
+        normalized_grantee = _normalize_grantee(grantee)
         if normalized_privilege in {"ALL", "ALL PRIVILEGES"}:
             findings.append(
                 Finding(
@@ -152,7 +170,16 @@ def _grant_findings(
                 )
             )
         if source_grants:
-            if (normalized_grantee, normalized_privilege) not in source_grants:
+            allowed_privileges = {
+                source_privilege
+                for source_grantee, source_privilege in source_grants
+                if source_grantee == normalized_grantee
+            }
+            equivalents = _TARGET_PRIVILEGE_EQUIVALENTS.get(ctx.target.casefold(), {})
+            if normalized_privilege not in allowed_privileges and not any(
+                normalized_privilege in equivalents.get(source_privilege, set())
+                for source_privilege in allowed_privileges
+            ):
                 findings.append(
                     Finding(
                         check="security",

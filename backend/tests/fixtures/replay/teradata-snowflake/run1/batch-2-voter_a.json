@@ -1,0 +1,347 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "Callers change from EXEC sales.refresh_daily(...) to CALL SALES.REFRESH_DAILY(...).",
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "EXECUTE AS CALLER chosen so the insert runs with the caller's privileges, matching Teradata macro execution under the invoking user when the macro owner rights are not relied on."
+      ],
+      "explanations": [
+        "Macro converted to a Snowflake Scripting procedure; the body is the original INSERT ... SELECT with only identifier and bind-variable syntax changed.",
+        "Optional argument with DEFAULT keeps the Teradata call style EXEC sales.refresh_daily; -> CALL SALES.REFRESH_DAILY();",
+        "RETURNS NUMBER / RETURN SQLROWCOUNT added because a Snowflake procedure must declare a return type; it returns the inserted row count (equivalent of Teradata ACTIVITY_COUNT)."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: Teradata CREATE MACRO -> Snowflake Scripting stored procedure (LANGUAGE SQL) with EXECUTE AS CALLER; parameter default CURRENT_DATE -> CURRENT_DATE(); p_day referenced as bind variable :P_DAY; sales.account -> SALES.\"ACCOUNT\", sales.daily_balance -> SALES.DAILY_BALANCE.\n-- Reason: Snowflake has no macros; procedural logic is ported to Snowflake Scripting, every procedure must declare EXECUTE AS, ACCOUNT is a reserved word and is quoted per the naming map, and the macro's single INSERT is kept unchanged otherwise.\nCREATE PROCEDURE SALES.REFRESH_DAILY(P_DAY DATE DEFAULT CURRENT_DATE())\nRETURNS NUMBER\nLANGUAGE SQL\nEXECUTE AS CALLER\nAS\n$$\nBEGIN\n  INSERT INTO SALES.DAILY_BALANCE (balance_date, account_id, amount)\n  SELECT :P_DAY, account_id, balance FROM SALES.\"ACCOUNT\";\n  RETURN SQLROWCOUNT;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "routines/SALES.REFRESH_DAILY.sql"
+        }
+      ],
+      "object_id": "6bb55814804547ff9f2ff0f818cff60c",
+      "qualified_name": "sales.refresh_daily",
+      "self_confidence": 0.85,
+      "type": "macro",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata grantee 'operator' maps to a Snowflake role named OPERATOR that already exists."
+      ],
+      "explanations": [
+        "Same specific privileges (SELECT, INSERT) kept; no ALL or PUBLIC grant introduced."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: grantee operator -> ROLE OPERATOR; sales.payment -> SALES.PAYMENT.\n-- Reason: Snowflake grants object privileges to roles, so the grantee must be named with the ROLE keyword; privileges and object type are unchanged.\nGRANT SELECT, INSERT ON TABLE SALES.PAYMENT TO ROLE OPERATOR;\n",
+          "language": "sql",
+          "rel_path": "security/GRANT_SELECT_INSERT_SALES.PAYMENT.sql"
+        }
+      ],
+      "object_id": "2c2fa38760594f7ea8a8795941419703",
+      "qualified_name": "SELECT, INSERT on sales.payment",
+      "self_confidence": 0.9,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata grantee 'auditor' maps to a Snowflake role named AUDITOR that already exists."
+      ],
+      "explanations": [
+        "Privilege kept as SELECT only."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: grantee auditor -> ROLE AUDITOR; sales.audit_log -> SALES.AUDIT_LOG.\n-- Reason: Snowflake grants object privileges to roles, so the grantee must be named with the ROLE keyword; privilege and object type are unchanged.\nGRANT SELECT ON TABLE SALES.AUDIT_LOG TO ROLE AUDITOR;\n",
+          "language": "sql",
+          "rel_path": "security/GRANT_SELECT_SALES.AUDIT_LOG.sql"
+        }
+      ],
+      "object_id": "1722a504ffe44591ba180a0cc589a7a5",
+      "qualified_name": "SELECT on sales.audit_log",
+      "self_confidence": 0.9,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "SALES.ADD_PAYMENT was converted with three numeric arguments mirroring SALES.PAYMENT (payment_id BIGINT, account_id BIGINT, amount DECIMAL -> NUMBER, NUMBER, NUMBER). If the converted procedure has a different signature, the type list must be adjusted.",
+        "Teradata grantee 'operator' maps to a Snowflake role named OPERATOR that already exists."
+      ],
+      "explanations": [
+        "EXECUTE PROCEDURE mapped to USAGE ON PROCEDURE, the Snowflake privilege needed to CALL a procedure.",
+        "Snowflake requires the argument type list in the grant; it is not in the batch metadata (dependency signature for sales.add_payment has no columns)."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: GRANT EXECUTE PROCEDURE ON sales.add_payment TO operator -> GRANT USAGE ON PROCEDURE SALES.ADD_PAYMENT(NUMBER, NUMBER, NUMBER) TO ROLE OPERATOR.\n-- Reason: Snowflake has no EXECUTE PROCEDURE privilege; calling a procedure requires USAGE, the procedure must be identified by ***MASKED*** argument type signature, and grantees are roles.\nGRANT USAGE ON PROCEDURE SALES.ADD_PAYMENT(NUMBER, NUMBER, NUMBER) TO ROLE OPERATOR;\n",
+          "language": "sql",
+          "rel_path": "security/GRANT_USAGE_PROCEDURE_SALES.ADD_PAYMENT.sql"
+        }
+      ],
+      "object_id": "1c4dffcc96684b818ad979170d49c279",
+      "qualified_name": "EXECUTE PROCEDURE on sales.add_payment",
+      "self_confidence": 0.55,
+      "type": "grant",
+      "unsupported": [
+        "Procedure argument signature for SALES.ADD_PAYMENT is unknown in this batch; the grant uses an inferred signature."
+      ]
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.customer -> SALES.CUSTOMER, sales.account -> SALES.\"ACCOUNT\", sales.customer_accounts -> SALES.CUSTOMER_ACCOUNTS.\n-- Reason: ACCOUNT is a Snowflake reserved word and must be quoted per the naming map; the SELECT is otherwise valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.CUSTOMER_ACCOUNTS AS\nSELECT c.customer_id, c.customer_name, a.account_id, a.balance\nFROM SALES.CUSTOMER c JOIN SALES.\"ACCOUNT\" a ON c.customer_id = a.customer_id;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.CUSTOMER_ACCOUNTS.sql"
+        }
+      ],
+      "object_id": "02b79ca2037f47569ee405e049ec1eb5",
+      "qualified_name": "sales.customer_accounts",
+      "self_confidence": 0.92,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.account -> SALES.\"ACCOUNT\", sales.payment -> SALES.PAYMENT, sales.account_payments -> SALES.ACCOUNT_PAYMENTS.\n-- Reason: ACCOUNT is a Snowflake reserved word and must be quoted per the naming map; the SELECT is otherwise valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.ACCOUNT_PAYMENTS AS\nSELECT a.account_id, p.payment_id, p.amount\nFROM SALES.\"ACCOUNT\" a JOIN SALES.PAYMENT p ON a.account_id = p.account_id;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.ACCOUNT_PAYMENTS.sql"
+        }
+      ],
+      "object_id": "b84ceab409284cf7a297de060ee33708",
+      "qualified_name": "sales.account_payments",
+      "self_confidence": 0.92,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.customer -> SALES.CUSTOMER, sales.loan -> SALES.LOAN, sales.customer_loans -> SALES.CUSTOMER_LOANS.\n-- Reason: Object names follow the naming map; the SELECT is valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.CUSTOMER_LOANS AS\nSELECT c.customer_id, l.loan_id, l.principal\nFROM SALES.CUSTOMER c JOIN SALES.LOAN l ON c.customer_id = l.customer_id;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.CUSTOMER_LOANS.sql"
+        }
+      ],
+      "object_id": "bdba2737d6a64e8bb662e2157afce02d",
+      "qualified_name": "sales.customer_loans",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.order_header -> SALES.ORDER_HEADER, sales.order_line -> SALES.ORDER_LINE, sales.product -> SALES.PRODUCT, sales.order_detail -> SALES.ORDER_DETAIL.\n-- Reason: Object names follow the naming map; the SELECT is valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.ORDER_DETAIL AS\nSELECT h.order_id, l.product_id, p.product_name\nFROM SALES.ORDER_HEADER h\nJOIN SALES.ORDER_LINE l ON h.order_id = l.order_id\nJOIN SALES.PRODUCT p ON l.product_id = p.product_id;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.ORDER_DETAIL.sql"
+        }
+      ],
+      "object_id": "5a61edb6f433488abd71b05549442493",
+      "qualified_name": "sales.order_detail",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.card -> SALES.CARD, sales.card_txn -> SALES.CARD_TXN, sales.card_activity -> SALES.CARD_ACTIVITY.\n-- Reason: Object names follow the naming map; the SELECT is valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.CARD_ACTIVITY AS\nSELECT c.card_id, t.txn_id, t.amount\nFROM SALES.CARD c JOIN SALES.CARD_TXN t ON c.card_id = t.card_id;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.CARD_ACTIVITY.sql"
+        }
+      ],
+      "object_id": "0a71414e3ea54929ae6a91c6dabaa293",
+      "qualified_name": "sales.card_activity",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.transfer -> SALES.TRANSFER, sales.transfer_activity -> SALES.TRANSFER_ACTIVITY.\n-- Reason: Object names follow the naming map; the SELECT is valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.TRANSFER_ACTIVITY AS\nSELECT transfer_id, from_account, to_account FROM SALES.TRANSFER;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.TRANSFER_ACTIVITY.sql"
+        }
+      ],
+      "object_id": "d21dfe3fd35c4579a33f669fd3b7657b",
+      "qualified_name": "sales.transfer_activity",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.customer -> SALES.CUSTOMER, sales.risk_score -> SALES.RISK_SCORE, sales.customer_segment -> SALES.CUSTOMER_SEGMENT, sales.customer_risk -> SALES.CUSTOMER_RISK.\n-- Reason: Object names follow the naming map; the SELECT is valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.CUSTOMER_RISK AS\nSELECT c.customer_id, r.score, s.segment_code\nFROM SALES.CUSTOMER c\nJOIN SALES.RISK_SCORE r ON c.customer_id = r.customer_id\nJOIN SALES.CUSTOMER_SEGMENT s ON c.customer_id = s.customer_id;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.CUSTOMER_RISK.sql"
+        }
+      ],
+      "object_id": "9e251764a6b646ccb6815baeac2f9e3a",
+      "qualified_name": "sales.customer_risk",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.daily_balance -> SALES.DAILY_BALANCE, sales.daily_account_balances -> SALES.DAILY_ACCOUNT_BALANCES.\n-- Reason: Object names follow the naming map; the SELECT is valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.DAILY_ACCOUNT_BALANCES AS\nSELECT account_id, amount FROM SALES.DAILY_BALANCE;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.DAILY_ACCOUNT_BALANCES.sql"
+        }
+      ],
+      "object_id": "5d24db03a9ab446baf855fc79d8b9fdc",
+      "qualified_name": "sales.daily_account_balances",
+      "self_confidence": 0.93,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "The current database is set in the session context; objects are qualified as SCHEMA.OBJECT per the naming map.",
+        "Unquoted lowercase column names resolve to the uppercase column names of the migrated tables."
+      ],
+      "explanations": [
+        "Only object names were changed to the naming-map targets; columns, aliases and join logic are unchanged.",
+        "The join condition does not reference SALES.CUSTOMER, so it behaves as a filtered cross join; this source semantics is preserved as-is."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.customer -> SALES.CUSTOMER, sales.external_rate -> SALES.EXTERNAL_RATE, sales.customer_external_rate -> SALES.CUSTOMER_EXTERNAL_RATE; DATE '2025-01-01' literal kept.\n-- Reason: Object names follow the naming map; the ANSI DATE literal and the join (which only filters external_rate and pairs every customer with the 2025-01-01 rate) are valid Snowflake SQL and are kept unchanged.\nCREATE VIEW SALES.CUSTOMER_EXTERNAL_RATE AS\nSELECT c.customer_id, e.rate FROM SALES.CUSTOMER c\nJOIN SALES.EXTERNAL_RATE e ON e.rate_date = DATE '2025-01-01';\n",
+          "language": "sql",
+          "rel_path": "views/SALES.CUSTOMER_EXTERNAL_RATE.sql"
+        }
+      ],
+      "object_id": "9da917628ab14fd98cba144397eda1a5",
+      "qualified_name": "sales.customer_external_rate",
+      "self_confidence": 0.9,
+      "type": "view",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "SALES.CUSTOMER_ARCHIVE exists in Snowflake (created outside this migration batch) and has a column named ID.",
+        "The current database is set in the session context."
+      ],
+      "explanations": [
+        "Converted literally; sales.customer_archive is an external dependency that was not uploaded, so its columns could not be checked."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: sales.customer_archive -> SALES.CUSTOMER_ARCHIVE, sales.unuploaded_reference -> SALES.UNUPLOADED_REFERENCE.\n-- Reason: Object names follow the naming convention of the naming map (sales.customer_archive is not in the map, so the same SCHEMA.UPPER_CASE pattern is applied); the SELECT is valid Snowflake SQL and is kept unchanged.\nCREATE VIEW SALES.UNUPLOADED_REFERENCE AS\nSELECT id FROM SALES.CUSTOMER_ARCHIVE;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.UNUPLOADED_REFERENCE.sql"
+        }
+      ],
+      "object_id": "461fde588eb9493db4145a5eb39f627f",
+      "qualified_name": "sales.unuploaded_reference",
+      "self_confidence": 0.6,
+      "type": "view",
+      "unsupported": [
+        "Dependency sales.customer_archive is external/not uploaded: no signature or target name available, so the column 'id' and the target name SALES.CUSTOMER_ARCHIVE are unverified."
+      ]
+    },
+    {
+      "assumptions": [
+        "Teradata grantee 'reader' maps to a Snowflake role named READER that already exists.",
+        "SALES.CUSTOMER_ACCOUNTS is created before this grant (dependency order)."
+      ],
+      "explanations": [
+        "Privilege kept as SELECT only; object type changed from TABLE to VIEW because the grant target is a view."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: ON TABLE sales.customer_accounts -> ON VIEW SALES.CUSTOMER_ACCOUNTS; grantee reader -> ROLE READER.\n-- Reason: SALES.CUSTOMER_ACCOUNTS is a view in Snowflake, so the object type in the grant is VIEW; Snowflake grants object privileges to roles, so the grantee is named with the ROLE keyword. The privilege is unchanged.\nGRANT SELECT ON VIEW SALES.CUSTOMER_ACCOUNTS TO ROLE READER;\n",
+          "language": "sql",
+          "rel_path": "security/GRANT_SELECT_SALES.CUSTOMER_ACCOUNTS.sql"
+        }
+      ],
+      "object_id": "8b9c0cf760a041ffb233d07c05f7d7fd",
+      "qualified_name": "SELECT on sales.customer_accounts",
+      "self_confidence": 0.9,
+      "type": "grant",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Teradata grantee 'reader' maps to a Snowflake role named READER that already exists.",
+        "SALES.ACCOUNT_PAYMENTS is created before this grant (dependency order)."
+      ],
+      "explanations": [
+        "Privilege kept as SELECT only; object type changed from TABLE to VIEW because the grant target is a view."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: ON TABLE sales.account_payments -> ON VIEW SALES.ACCOUNT_PAYMENTS; grantee reader -> ROLE READER.\n-- Reason: SALES.ACCOUNT_PAYMENTS is a view in Snowflake, so the object type in the grant is VIEW; Snowflake grants object privileges to roles, so the grantee is named with the ROLE keyword. The privilege is unchanged.\nGRANT SELECT ON VIEW SALES.ACCOUNT_PAYMENTS TO ROLE READER;\n",
+          "language": "sql",
+          "rel_path": "security/GRANT_SELECT_SALES.ACCOUNT_PAYMENTS.sql"
+        }
+      ],
+      "object_id": "84d47522601a4ca6992c58e3cd3dc9e7",
+      "qualified_name": "SELECT on sales.account_payments",
+      "self_confidence": 0.9,
+      "type": "grant",
+      "unsupported": []
+    }
+  ]
+}

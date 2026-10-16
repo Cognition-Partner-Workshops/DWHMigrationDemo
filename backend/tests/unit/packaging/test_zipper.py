@@ -81,6 +81,7 @@ def test_zip_layout_manifest_review_headers_hashes_and_determinism() -> None:
         assert manifest["counts"]["included"] == 4
         assert manifest["counts"]["excluded"] == 1
         assert manifest["counts"]["external"] == 1
+        assert manifest["egress"]["total_acus"] == "4.40"
         assert any(
             item["id"] == "obj-4" and item["status"] == "failed" for item in manifest["excluded"]
         )
@@ -108,6 +109,26 @@ def test_zip_layout_manifest_review_headers_hashes_and_determinism() -> None:
             assert "***" not in text.replace("***MASKED***", "")
         manifest_text = archive.read(f"{root}manifest.json").decode("utf-8")
         assert "***" not in manifest_text.replace("***MASKED***", "")
+
+
+@pytest.mark.parametrize(
+    ("missing_indexes", "expected"),
+    [
+        ((0,), "3.20 (partial)"),
+        ((0, 1, 2, 3), "not reported by the Devin API"),
+    ],
+)
+def test_manifest_reports_partial_or_unavailable_acus(missing_indexes, expected) -> None:
+    package = sample_package()
+    sessions = tuple(
+        replace(session, acus=None) if index in missing_indexes else session
+        for index, session in enumerate(package.sessions)
+    )
+    package = replace(package, sessions=sessions)
+    with zipfile.ZipFile(BytesIO(build_zip(package, {}))) as archive:
+        manifest = json.loads(archive.read(f"{package.package_name}-converted/manifest.json"))
+
+    assert manifest["egress"]["total_acus"] == expected
 
 
 def test_zipper_rejects_traversal_and_non_contract_part_paths() -> None:

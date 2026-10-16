@@ -1,0 +1,502 @@
+{
+  "objects": [
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Teradata NOT CASESPECIFIC character comparison semantics are not reproduced; Snowflake string comparisons are case-sensitive by default."
+      ],
+      "explanations": [
+        "Dropped SET qualifier: Snowflake tables are always multiset.",
+        "Dropped PRIMARY INDEX (transfer_id): it only controls AMP hash distribution in Teradata; Snowflake micro-partitions automatically. A clustering key was not added because no large-table pruning requirement is known.",
+        "Column types are preserved with identical precision/scale; INTEGER/BIGINT map to Snowflake NUMBER(38,0) synonyms."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; removed the SET qualifier and PRIMARY INDEX (transfer_id); types mapped to Snowflake (BIGINT/INTEGER kept as NUMBER(38,0) aliases, DECIMAL -> NUMBER).\n-- Reason: Snowflake has no SET/MULTISET tables or primary indexes; data distribution is handled automatically by micro-partitioning, so no clustering key is added for a hash-distribution index.\nCREATE TABLE SALES.TRANSFER (\n    transfer_id BIGINT,\n    from_account BIGINT,\n    to_account BIGINT\n);\n",
+          "language": "sql",
+          "rel_path": "tables/SALES.TRANSFER.sql"
+        }
+      ],
+      "object_id": "0aebbcfee46e473987d00d2ba4657f19",
+      "qualified_name": "sales.transfer",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "Teradata SET-table duplicate-row rejection has no Snowflake equivalent; duplicate rows are accepted (de-duplicate in the load/DML path if required)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Teradata NOT CASESPECIFIC character comparison semantics are not reproduced; Snowflake string comparisons are case-sensitive by default."
+      ],
+      "explanations": [
+        "Dropped SET qualifier: Snowflake tables are always multiset.",
+        "Dropped PRIMARY INDEX (event_id): it only controls AMP hash distribution in Teradata; Snowflake micro-partitions automatically. A clustering key was not added because no large-table pruning requirement is known.",
+        "Column types are preserved with identical precision/scale; INTEGER/BIGINT map to Snowflake NUMBER(38,0) synonyms."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; removed the SET qualifier and PRIMARY INDEX (event_id); types mapped to Snowflake (BIGINT/INTEGER kept as NUMBER(38,0) aliases, DECIMAL -> NUMBER).\n-- Reason: Snowflake has no SET/MULTISET tables or primary indexes; data distribution is handled automatically by micro-partitioning, so no clustering key is added for a hash-distribution index.\nCREATE TABLE SALES.AUDIT_LOG (\n    event_id BIGINT,\n    event_type VARCHAR(40)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/SALES.AUDIT_LOG.sql"
+        }
+      ],
+      "object_id": "7ab8c6402bd54405bad2107ad715d77c",
+      "qualified_name": "sales.audit_log",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "Teradata SET-table duplicate-row rejection has no Snowflake equivalent; duplicate rows are accepted (de-duplicate in the load/DML path if required)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Teradata NOT CASESPECIFIC character comparison semantics are not reproduced; Snowflake string comparisons are case-sensitive by default."
+      ],
+      "explanations": [
+        "Dropped SET qualifier: Snowflake tables are always multiset.",
+        "Dropped PRIMARY INDEX (customer_id): it only controls AMP hash distribution in Teradata; Snowflake micro-partitions automatically. A clustering key was not added because no large-table pruning requirement is known.",
+        "Column types are preserved with identical precision/scale; INTEGER/BIGINT map to Snowflake NUMBER(38,0) synonyms."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; removed the SET qualifier and PRIMARY INDEX (customer_id); types mapped to Snowflake (BIGINT/INTEGER kept as NUMBER(38,0) aliases, DECIMAL -> NUMBER).\n-- Reason: Snowflake has no SET/MULTISET tables or primary indexes; data distribution is handled automatically by micro-partitioning, so no clustering key is added for a hash-distribution index.\nCREATE TABLE SALES.RISK_SCORE (\n    customer_id INTEGER,\n    score NUMBER(5, 2)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/SALES.RISK_SCORE.sql"
+        }
+      ],
+      "object_id": "40bd3590fb7340748d82a284f8088fff",
+      "qualified_name": "sales.risk_score",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "Teradata SET-table duplicate-row rejection has no Snowflake equivalent; duplicate rows are accepted (de-duplicate in the load/DML path if required)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Teradata NOT CASESPECIFIC character comparison semantics are not reproduced; Snowflake string comparisons are case-sensitive by default."
+      ],
+      "explanations": [
+        "Dropped SET qualifier: Snowflake tables are always multiset.",
+        "Dropped PRIMARY INDEX (account_id): it only controls AMP hash distribution in Teradata; Snowflake micro-partitions automatically. A clustering key was not added because no large-table pruning requirement is known.",
+        "Column types are preserved with identical precision/scale; INTEGER/BIGINT map to Snowflake NUMBER(38,0) synonyms."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; removed the SET qualifier and PRIMARY INDEX (account_id); types mapped to Snowflake (BIGINT/INTEGER kept as NUMBER(38,0) aliases, DECIMAL -> NUMBER).\n-- Reason: Snowflake has no SET/MULTISET tables or primary indexes; data distribution is handled automatically by micro-partitioning, so no clustering key is added for a hash-distribution index.\nCREATE TABLE SALES.ACCOUNT_SNAPSHOT (\n    snapshot_date DATE,\n    account_id BIGINT\n);\n",
+          "language": "sql",
+          "rel_path": "tables/SALES.ACCOUNT_SNAPSHOT.sql"
+        }
+      ],
+      "object_id": "7d18d448ba454ea48e579c5fd2e4409d",
+      "qualified_name": "sales.account_snapshot",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "Teradata SET-table duplicate-row rejection has no Snowflake equivalent; duplicate rows are accepted (de-duplicate in the load/DML path if required)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Teradata NOT CASESPECIFIC character comparison semantics are not reproduced; Snowflake string comparisons are case-sensitive by default."
+      ],
+      "explanations": [
+        "Dropped SET qualifier: Snowflake tables are always multiset.",
+        "Dropped PRIMARY INDEX (customer_id): it only controls AMP hash distribution in Teradata; Snowflake micro-partitions automatically. A clustering key was not added because no large-table pruning requirement is known.",
+        "Column types are preserved with identical precision/scale; INTEGER/BIGINT map to Snowflake NUMBER(38,0) synonyms."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; removed the SET qualifier and PRIMARY INDEX (customer_id); types mapped to Snowflake (BIGINT/INTEGER kept as NUMBER(38,0) aliases, DECIMAL -> NUMBER).\n-- Reason: Snowflake has no SET/MULTISET tables or primary indexes; data distribution is handled automatically by micro-partitioning, so no clustering key is added for a hash-distribution index.\nCREATE TABLE SALES.CUSTOMER_SEGMENT (\n    customer_id INTEGER,\n    segment_code VARCHAR(12)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/SALES.CUSTOMER_SEGMENT.sql"
+        }
+      ],
+      "object_id": "a1aa76dccce44b2ca8ef6c3fdff9079f",
+      "qualified_name": "sales.customer_segment",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "Teradata SET-table duplicate-row rejection has no Snowflake equivalent; duplicate rows are accepted (de-duplicate in the load/DML path if required)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Teradata NOT CASESPECIFIC character comparison semantics are not reproduced; Snowflake string comparisons are case-sensitive by default."
+      ],
+      "explanations": [
+        "Dropped SET qualifier: Snowflake tables are always multiset.",
+        "Dropped PRIMARY INDEX (rate_date): it only controls AMP hash distribution in Teradata; Snowflake micro-partitions automatically. A clustering key was not added because no large-table pruning requirement is known.",
+        "Column types are preserved with identical precision/scale; INTEGER/BIGINT map to Snowflake NUMBER(38,0) synonyms."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; removed the SET qualifier and PRIMARY INDEX (rate_date); types mapped to Snowflake (BIGINT/INTEGER kept as NUMBER(38,0) aliases, DECIMAL -> NUMBER).\n-- Reason: Snowflake has no SET/MULTISET tables or primary indexes; data distribution is handled automatically by micro-partitioning, so no clustering key is added for a hash-distribution index.\nCREATE TABLE SALES.EXTERNAL_RATE (\n    rate_date DATE,\n    rate NUMBER(6, 4)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/SALES.EXTERNAL_RATE.sql"
+        }
+      ],
+      "object_id": "8d5ea967c8614d63a128c8ad7ddfe354",
+      "qualified_name": "sales.external_rate",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "Teradata SET-table duplicate-row rejection has no Snowflake equivalent; duplicate rows are accepted (de-duplicate in the load/DML path if required)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Teradata NOT CASESPECIFIC character comparison semantics are not reproduced; Snowflake string comparisons are case-sensitive by default."
+      ],
+      "explanations": [
+        "Dropped SET qualifier: Snowflake tables are always multiset.",
+        "Dropped PRIMARY INDEX (account_id): it only controls AMP hash distribution in Teradata; Snowflake micro-partitions automatically. A clustering key was not added because no large-table pruning requirement is known.",
+        "Column types are preserved with identical precision/scale; INTEGER/BIGINT map to Snowflake NUMBER(38,0) synonyms."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; removed the SET qualifier and PRIMARY INDEX (account_id); types mapped to Snowflake (BIGINT/INTEGER kept as NUMBER(38,0) aliases, DECIMAL -> NUMBER).\n-- Reason: Snowflake has no SET/MULTISET tables or primary indexes; data distribution is handled automatically by micro-partitioning, so no clustering key is added for a hash-distribution index.\nCREATE TABLE SALES.DAILY_BALANCE (\n    balance_date DATE,\n    account_id BIGINT,\n    amount NUMBER(14, 2)\n);\n",
+          "language": "sql",
+          "rel_path": "tables/SALES.DAILY_BALANCE.sql"
+        }
+      ],
+      "object_id": "4546b484755849ceafd42f6f7a3e87f9",
+      "qualified_name": "sales.daily_balance",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "Teradata SET-table duplicate-row rejection has no Snowflake equivalent; duplicate rows are accepted (de-duplicate in the load/DML path if required)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Teradata NOT CASESPECIFIC character comparison semantics are not reproduced; Snowflake string comparisons are case-sensitive by default."
+      ],
+      "explanations": [
+        "Dropped SET qualifier: Snowflake tables are always multiset.",
+        "No primary index in source; Teradata would default one, which is irrelevant in Snowflake.",
+        "Column types are preserved with identical precision/scale; INTEGER/BIGINT map to Snowflake NUMBER(38,0) synonyms."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SET TABLE -> CREATE TABLE; removed the SET qualifier; types mapped to Snowflake (BIGINT/INTEGER kept as NUMBER(38,0) aliases, DECIMAL -> NUMBER).\n-- Reason: Snowflake has no SET/MULTISET tables or primary indexes; data distribution is handled automatically by micro-partitioning, so no clustering key is added for a hash-distribution index.\nCREATE TABLE SALES.RECOVERED_TABLE (\n    id INTEGER\n);\n",
+          "language": "sql",
+          "rel_path": "tables/SALES.RECOVERED_TABLE.sql"
+        }
+      ],
+      "object_id": "06cd4c10700048d598398cd1ec90b8ae",
+      "qualified_name": "sales.recovered_table",
+      "self_confidence": 0.93,
+      "type": "table",
+      "unsupported": [
+        "Teradata SET-table duplicate-row rejection has no Snowflake equivalent; duplicate rows are accepted (de-duplicate in the load/DML path if required)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "SALES.CUSTOMER is a standard (non-hybrid) table and has no other clustering key; ALTER TABLE ... CLUSTER BY replaces any existing key.",
+        "Clustering is only cost-effective if SALES.CUSTOMER is large (multi-TB scale); for small tables the statement can be skipped with no result difference."
+      ],
+      "explanations": [
+        "Teradata secondary index replaced by a clustering key, per snowflake.rule.no_create_index.",
+        "No Snowflake object named IX_CUSTOMER_STATUS is created; the index name has no target object."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE INDEX (Teradata NUSI on status) -> clustering key on SALES.CUSTOMER (status).\n-- Reason: Snowflake CREATE INDEX applies only to hybrid tables; status is a low-cardinality filter column, which suits micro-partition pruning via a clustering key better than search optimization (meant for selective point lookups).\nALTER TABLE SALES.CUSTOMER CLUSTER BY (status);\n",
+          "language": "sql",
+          "rel_path": "indexes/SALES.IX_CUSTOMER_STATUS.sql"
+        }
+      ],
+      "object_id": "4f3123f0a0e049368b9f185adfcbf0b1",
+      "qualified_name": "sales.ix_customer_status",
+      "self_confidence": 0.85,
+      "type": "index",
+      "unsupported": [
+        "Secondary-index access-path semantics (named index object) have no Snowflake equivalent on standard tables."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Search optimization requires Snowflake Enterprise Edition or higher.",
+        "RELY is only appropriate if the load process guarantees uniqueness; otherwise drop RELY to avoid incorrect join eliminations."
+      ],
+      "explanations": [
+        "USI split into an informational UNIQUE constraint (key metadata) and search optimization (point-lookup access path).",
+        "ACCOUNT is a Snowflake reserved word, so the table is referenced as SALES.\"ACCOUNT\" per the naming map.",
+        "Uniqueness must be validated in the load pipeline, e.g. SELECT customer_id FROM SALES.\"ACCOUNT\" GROUP BY customer_id HAVING COUNT(*) > 1."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE UNIQUE INDEX (Teradata USI on customer_id) -> informational UNIQUE constraint named IX_ACCOUNT_CUSTOMER.\n-- Reason: Snowflake standard tables do not support CREATE INDEX; the UNIQUE constraint documents the key for tools and the optimizer (RELY) but is not enforced.\nALTER TABLE SALES.\"ACCOUNT\" ADD CONSTRAINT IX_ACCOUNT_CUSTOMER UNIQUE (customer_id) RELY;\n\n-- Converted: unique-index lookup path -> search optimization for equality predicates on customer_id.\n-- Reason: search optimization is the Snowflake service for selective point lookups, which is what a USI provides in Teradata.\nALTER TABLE SALES.\"ACCOUNT\" ADD SEARCH OPTIMIZATION ON EQUALITY(customer_id);\n",
+          "language": "sql",
+          "rel_path": "indexes/SALES.IX_ACCOUNT_CUSTOMER.sql"
+        }
+      ],
+      "object_id": "f5d0c9621f444b12970b10fbb393f04e",
+      "qualified_name": "sales.ix_account_customer",
+      "self_confidence": 0.8,
+      "type": "index",
+      "unsupported": [
+        "Enforcement of uniqueness on customer_id (Teradata rejects duplicates; Snowflake does not enforce UNIQUE on standard tables)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Search optimization requires Enterprise Edition or higher.",
+        "SALES.\"ACCOUNT\" has no other clustering key; the clustering key is only worthwhile if the table is large."
+      ],
+      "explanations": [
+        "Hash index lookup path mapped to search optimization; its BY-clause distribution mapped to a clustering key.",
+        "No Snowflake object named HIX_ACCOUNT is created."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE HASH INDEX (account_id) BY (customer_id) -> search optimization on account_id.\n-- Reason: a hash index provides a fast lookup structure on account_id; search optimization is the Snowflake equivalent for selective equality lookups.\nALTER TABLE SALES.\"ACCOUNT\" ADD SEARCH OPTIMIZATION ON EQUALITY(account_id);\n\n-- Converted: hash index row distribution BY (customer_id) -> clustering key on customer_id.\n-- Reason: BY (customer_id) co-locates index rows by customer; a clustering key co-locates micro-partitions by customer_id in large tables.\nALTER TABLE SALES.\"ACCOUNT\" CLUSTER BY (customer_id);\n",
+          "language": "sql",
+          "rel_path": "indexes/SALES.HIX_ACCOUNT.sql"
+        }
+      ],
+      "object_id": "b64f49f9ea84495a81a545f2f0576cef",
+      "qualified_name": "sales.hix_account",
+      "self_confidence": 0.8,
+      "type": "hash_index",
+      "unsupported": [
+        "Hash index as a separately maintained, optimizer-selected covering structure has no Snowflake equivalent."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Search optimization requires Enterprise Edition or higher."
+      ],
+      "explanations": [
+        "Hash index replaced with search optimization; no object named HIX_CARD is created."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE HASH INDEX (card_id) ON sales.card -> search optimization for equality lookups on card_id.\n-- Reason: Snowflake has no hash indexes on standard tables; search optimization accelerates selective point lookups on card_id.\nALTER TABLE SALES.CARD ADD SEARCH OPTIMIZATION ON EQUALITY(card_id);\n",
+          "language": "sql",
+          "rel_path": "indexes/SALES.HIX_CARD.sql"
+        }
+      ],
+      "object_id": "51c11bdfe1ef44dd91a39f2b52bdb7ee",
+      "qualified_name": "sales.hix_card",
+      "self_confidence": 0.85,
+      "type": "hash_index",
+      "unsupported": [
+        "Hash index as a separately maintained covering structure has no Snowflake equivalent."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "Consumers did not depend on the optimizer transparently rewriting queries to use the join index."
+      ],
+      "explanations": [
+        "Join index converted to a standard view preserving the join and projection.",
+        "If precomputation is required for performance, a DYNAMIC TABLE with TARGET_LAG and a WAREHOUSE can replace the view; omitted because the warehouse name is not known."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE JOIN INDEX -> CREATE OR REPLACE VIEW with explicit join and column list; table aliases kept.\n-- Reason: Snowflake materialized views cannot contain joins and there are no join indexes; a view returns the same rows and is always current.\nCREATE OR REPLACE VIEW SALES.JIX_ORDER AS\nSELECT\n    h.order_id,\n    l.product_id\nFROM SALES.ORDER_HEADER AS h\nINNER JOIN SALES.ORDER_LINE AS l\n    ON h.order_id = l.order_id;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.JIX_ORDER.sql"
+        }
+      ],
+      "object_id": "e40a0d6ec00647e5b7ad800cc28589b7",
+      "qualified_name": "sales.jix_order",
+      "self_confidence": 0.8,
+      "type": "join_index",
+      "unsupported": [
+        "Transparent optimizer rewrite of base-table queries to a join index; Snowflake does not rewrite queries to use views or dynamic tables with joins.",
+        "Physical materialization of the join result (no warehouse specified for a dynamic table)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "The synonym is only used for reads; Snowflake views are not updatable.",
+        "SALES.CUSTOMER has exactly the columns customer_id, customer_name, status (from the dependency signature); new columns added later need the view recreated."
+      ],
+      "explanations": [
+        "Synonym replaced with a view over SALES.CUSTOMER using the dependency-signature column list."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE SYNONYM -> CREATE OR REPLACE VIEW selecting all columns of SALES.CUSTOMER explicitly.\n-- Reason: Snowflake has no synonyms; a pass-through view gives the same read results, and columns are listed per snowflake.lint.no_select_star.\nCREATE OR REPLACE VIEW SALES.CUSTOMER_ALIAS AS\nSELECT\n    customer_id,\n    customer_name,\n    status\nFROM SALES.CUSTOMER;\n",
+          "language": "sql",
+          "rel_path": "views/SALES.CUSTOMER_ALIAS.sql"
+        }
+      ],
+      "object_id": "823dfd1f946c47c39b3be6d16f9a9d49",
+      "qualified_name": "sales.customer_alias",
+      "self_confidence": 0.88,
+      "type": "synonym",
+      "unsupported": [
+        "DML (INSERT/UPDATE/DELETE) through the alias; Snowflake views are read-only."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "The script is executed with SnowSQL or Snowflake CLI (GET/REMOVE on a local path are client-side commands).",
+        "The intended output is comma-delimited CSV without a header row (BTEQ export mode was not specified; .csv extension used as the signal).",
+        "The naming map target '\"ZIP/LOAD_SCRIPT\".SQL' is a path artifact, so the file is emitted as scripts/load_script.sql."
+      ],
+      "explanations": [
+        "BTEQ session commands removed; connection and output options belong to the Snowflake client.",
+        "Export implemented as COPY INTO user stage + GET + REMOVE, producing /tmp/customer.csv.",
+        "MAX_FILE_SIZE raised to the 5 GB maximum so SINGLE = TRUE does not fail on larger tables."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: .LOGON ***MASKED*** / .LOGOFF -> removed; the connection is made by the client (SnowSQL / Snowflake CLI) from its connection profile.\n-- Reason: credentials must not be embedded in scripts; use key-pair authentication for the service user (snowflake.security.no_plaintext_credentials).\n-- Converted: .SET QUIET ON -> removed; run the client with quiet output (e.g. snowsql -o quiet=true).\n-- Reason: BTEQ dot commands are not SQL; output verbosity is a client option in Snowflake.\n\n-- Converted: .EXPORT FILE = /tmp/customer.csv + SEL ... -> COPY INTO the user stage as a single uncompressed CSV file.\n-- Reason: Snowflake unloads query results to a stage with COPY INTO <location>; SEL is Teradata shorthand for SELECT.\nCOPY INTO @~/exports/customer.csv\nFROM (\n    SELECT\n        customer_id,\n        customer_name\n    FROM SALES.CUSTOMER\n)\nFILE_FORMAT = (TYPE = CSV COMPRESSION = NONE FIELD_OPTIONALLY_ENCLOSED_BY = '\"' NULL_IF = (''))\nSINGLE = TRUE\nOVERWRITE = TRUE\nHEADER = FALSE\nMAX_FILE_SIZE = 5368709120;\n\n-- Converted: export destination /tmp/customer.csv -> GET from the user stage to the local /tmp directory.\n-- Reason: COPY INTO writes to a stage; GET (SnowSQL / Snowflake CLI client command) downloads the file to the local file system.\nGET @~/exports/customer.csv file:///tmp/;\n\n-- Converted: .EXPORT RESET -> remove the staged export file.\n-- Reason: closes out the export and avoids leaving data in the user stage.\nREMOVE @~/exports/customer.csv;\n",
+          "language": "sql",
+          "rel_path": "scripts/load_script.sql"
+        }
+      ],
+      "object_id": "2f681217726c4b1c8d1f74340f177ca7",
+      "qualified_name": "teradata-testpack.zip/load_script.sql",
+      "self_confidence": 0.75,
+      "type": "script",
+      "unsupported": [
+        "BTEQ DATA/REPORT-mode exact byte format (record-length prefixes or fixed-width report columns) is not reproduced; output is standard CSV."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "DECIMAL(12,2) parameter mapped to NUMBER(12, 2)."
+      ],
+      "explanations": [
+        "SQL SECURITY OWNER mapped to EXECUTE AS OWNER.",
+        "DYNAMIC RESULT SETS 1 removed: the source never opens a WITH RETURN cursor, so no result set is returned; the procedure returns 'OK'.",
+        "Multi-statement body wrapped in BEGIN TRANSACTION/COMMIT with an EXCEPTION handler that rolls back and re-raises, so both inserts succeed or fail together (Teradata could leave a partial result after the first insert).",
+        "Hard-coded key values (payment_id = 1, event_id = 1) preserved as in source."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE (Teradata SPL) -> CREATE OR REPLACE PROCEDURE ... LANGUAGE SQL Snowflake Scripting block with RETURNS VARCHAR and EXECUTE AS OWNER (from SQL SECURITY OWNER).\n-- Reason: Snowflake procedures require a RETURNS clause and an explicit EXECUTE AS (snowflake.rule.procedure_execute_as); parameters are referenced with a colon prefix inside SQL.\nCREATE OR REPLACE PROCEDURE SALES.ADD_PAYMENT(p_account BIGINT, p_amount NUMBER(12, 2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: two implicit-transaction INSERTs -> one explicit transaction with rollback on error.\n    -- Reason: keeps the payment and its audit row atomic; only DML is inside the transaction.\n    BEGIN TRANSACTION;\n    -- Converted: parameter references p_account/p_amount -> bind references :p_account/:p_amount.\n    -- Reason: Snowflake Scripting variables in SQL statements are referenced with a colon prefix.\n    INSERT INTO SALES.PAYMENT (payment_id, account_id, amount)\n        VALUES (1, :p_account, :p_amount);\n    -- Converted: unchanged INSERT, target name from naming map.\n    -- Reason: standard SQL INSERT is identical in Snowflake.\n    INSERT INTO SALES.AUDIT_LOG (event_id, event_type)\n        VALUES (1, 'PAYMENT');\n    COMMIT;\n    RETURN 'OK';\nEXCEPTION\n    WHEN OTHER THEN\n        ROLLBACK;\n        RAISE;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.ADD_PAYMENT.sql"
+        }
+      ],
+      "object_id": "9bf7f16fd9424a23aa549e90bc430560",
+      "qualified_name": "sales.add_payment",
+      "self_confidence": 0.85,
+      "type": "procedure",
+      "unsupported": [
+        "Teradata SET-table duplicate-row error on SALES.AUDIT_LOG (repeat calls insert identical rows) is not reproduced; Snowflake accepts the duplicate."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "SALES.\"ACCOUNT\".balance is numeric (DECIMAL in the dependency signature)."
+      ],
+      "explanations": [
+        "Default Teradata SQL SECURITY (DEFINER) mapped to EXECUTE AS OWNER.",
+        "Single UPDATE kept as an auto-committed statement; returns the affected row count as text."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE (Teradata SPL) -> CREATE OR REPLACE PROCEDURE ... LANGUAGE SQL Snowflake Scripting block with RETURNS VARCHAR and EXECUTE AS OWNER (Teradata default definer rights).\n-- Reason: Snowflake procedures require a RETURNS clause and an explicit EXECUTE AS (snowflake.rule.procedure_execute_as); parameters are referenced with a colon prefix inside SQL.\nCREATE OR REPLACE PROCEDURE SALES.UPDATE_BALANCE(p_account BIGINT, p_amount NUMBER(12, 2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: UPDATE with parameter references -> bind references :p_amount/:p_account; table name SALES.\"ACCOUNT\" from naming map.\n    -- Reason: Snowflake Scripting requires the colon prefix for variables in SQL; ACCOUNT is a reserved word and must be quoted.\n    UPDATE SALES.\"ACCOUNT\"\n        SET balance = balance + :p_amount\n        WHERE account_id = :p_account;\n    RETURN 'Rows updated: ' || SQLROWCOUNT;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.UPDATE_BALANCE.sql"
+        }
+      ],
+      "object_id": "0622588a8b24455996df7d6ddd1a5f7e",
+      "qualified_name": "sales.update_balance",
+      "self_confidence": 0.92,
+      "type": "procedure",
+      "unsupported": []
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "DECIMAL(12,2) parameter mapped to NUMBER(12, 2)."
+      ],
+      "explanations": [
+        "Default Teradata SQL SECURITY (DEFINER) mapped to EXECUTE AS OWNER.",
+        "Multi-statement body wrapped in BEGIN TRANSACTION/COMMIT with an EXCEPTION handler that rolls back and re-raises, so both inserts succeed or fail together (Teradata could leave a partial result after the first insert).",
+        "p_amount is accepted but unused, exactly as in the source.",
+        "Hard-coded key values (transfer_id = 1, event_id = 2) preserved."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE (Teradata SPL) -> CREATE OR REPLACE PROCEDURE ... LANGUAGE SQL Snowflake Scripting block with RETURNS VARCHAR and EXECUTE AS OWNER (Teradata default definer rights).\n-- Reason: Snowflake procedures require a RETURNS clause and an explicit EXECUTE AS (snowflake.rule.procedure_execute_as); parameters are referenced with a colon prefix inside SQL.\nCREATE OR REPLACE PROCEDURE SALES.POST_TRANSFER(p_from BIGINT, p_to BIGINT, p_amount NUMBER(12, 2))\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: two implicit-transaction INSERTs -> one explicit transaction with rollback on error.\n    -- Reason: keeps the transfer and its audit row atomic; only DML is inside the transaction.\n    BEGIN TRANSACTION;\n    -- Converted: parameter references p_from/p_to -> bind references :p_from/:p_to.\n    -- Reason: Snowflake Scripting variables in SQL statements are referenced with a colon prefix.\n    INSERT INTO SALES.TRANSFER (transfer_id, from_account, to_account)\n        VALUES (1, :p_from, :p_to);\n    -- Converted: unchanged INSERT, target name from naming map.\n    -- Reason: standard SQL INSERT is identical in Snowflake.\n    INSERT INTO SALES.AUDIT_LOG (event_id, event_type)\n        VALUES (2, 'TRANSFER');\n    COMMIT;\n    RETURN 'OK';\nEXCEPTION\n    WHEN OTHER THEN\n        ROLLBACK;\n        RAISE;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.POST_TRANSFER.sql"
+        }
+      ],
+      "object_id": "4925f10eedc34ba8a80a814fba76787e",
+      "qualified_name": "sales.post_transfer",
+      "self_confidence": 0.85,
+      "type": "procedure",
+      "unsupported": [
+        "Teradata SET-table duplicate-row errors on SALES.TRANSFER / SALES.AUDIT_LOG for repeated calls are not reproduced."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "CURRENT_DATE() is evaluated in the Snowflake session TIMEZONE, which is assumed to match the Teradata session time zone."
+      ],
+      "explanations": [
+        "Default Teradata SQL SECURITY (DEFINER) mapped to EXECUTE AS OWNER.",
+        "INSERT ... SELECT kept as a single auto-committed statement; returns the inserted row count."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE (Teradata SPL) -> CREATE OR REPLACE PROCEDURE ... LANGUAGE SQL Snowflake Scripting block with RETURNS VARCHAR and EXECUTE AS OWNER (Teradata default definer rights).\n-- Reason: Snowflake procedures require a RETURNS clause and an explicit EXECUTE AS (snowflake.rule.procedure_execute_as); parameters are referenced with a colon prefix inside SQL.\nCREATE OR REPLACE PROCEDURE SALES.CAPTURE_SNAPSHOT()\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: CURRENT_DATE -> CURRENT_DATE(); table names from naming map (SALES.\"ACCOUNT\" quoted).\n    -- Reason: Snowflake function-call form; ACCOUNT is a reserved word in Snowflake.\n    INSERT INTO SALES.ACCOUNT_SNAPSHOT (snapshot_date, account_id)\n        SELECT CURRENT_DATE(), account_id\n        FROM SALES.\"ACCOUNT\";\n    RETURN 'Rows inserted: ' || SQLROWCOUNT;\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.CAPTURE_SNAPSHOT.sql"
+        }
+      ],
+      "object_id": "a47954ee9dd949db9073d5875b91551e",
+      "qualified_name": "sales.capture_snapshot",
+      "self_confidence": 0.88,
+      "type": "procedure",
+      "unsupported": [
+        "Teradata SET-table silent duplicate elimination on INSERT ... SELECT into SALES.ACCOUNT_SNAPSHOT is not reproduced (same-day re-runs add duplicate rows)."
+      ]
+    },
+    {
+      "assumptions": [
+        "Object names follow the naming map (SCHEMA.OBJECT); the database is resolved from the session/connection context.",
+        "The malformed statement is a source-extraction defect (possibly truncated or masked text) rather than intended logic."
+      ],
+      "explanations": [
+        "Default Teradata SQL SECURITY (DEFINER) mapped to EXECUTE AS OWNER.",
+        "The malformed 'SELECT FROM ;' statement was dropped; only the audit INSERT is converted."
+      ],
+      "files": [
+        {
+          "content": "-- Converted: CREATE PROCEDURE (Teradata SPL) -> CREATE OR REPLACE PROCEDURE ... LANGUAGE SQL Snowflake Scripting block with RETURNS VARCHAR and EXECUTE AS OWNER (Teradata default definer rights).\n-- Reason: Snowflake procedures require a RETURNS clause and an explicit EXECUTE AS (snowflake.rule.procedure_execute_as); parameters are referenced with a colon prefix inside SQL.\nCREATE OR REPLACE PROCEDURE SALES.REPAIR_PAYMENT()\nRETURNS VARCHAR\nLANGUAGE SQL\nEXECUTE AS OWNER\nAS\n$$\nBEGIN\n    -- Converted: invalid statement 'SELECT FROM ;' -> removed (kept here as a comment only).\n    -- Reason: the source statement has no select list and no table, so it cannot be compiled in Teradata or Snowflake; its intent is unknown.\n    -- SELECT FROM ;\n    -- Converted: unchanged INSERT, target name from naming map.\n    -- Reason: standard SQL INSERT is identical in Snowflake.\n    INSERT INTO SALES.AUDIT_LOG (event_id, event_type)\n        VALUES (3, 'REPAIR');\n    RETURN 'OK';\nEND;\n$$;\n",
+          "language": "sql",
+          "rel_path": "procedures/SALES.REPAIR_PAYMENT.sql"
+        }
+      ],
+      "object_id": "e69e5a4f0d3e44ebbeb6d3ef07188e72",
+      "qualified_name": "sales.repair_payment",
+      "self_confidence": 0.45,
+      "type": "procedure",
+      "unsupported": [
+        "Statement 'SELECT FROM ;' is syntactically invalid with no recoverable intent; the repair logic it stood for must be supplied from the original source.",
+        "Teradata SET-table duplicate-row error on SALES.AUDIT_LOG for repeated calls is not reproduced."
+      ]
+    }
+  ]
+}

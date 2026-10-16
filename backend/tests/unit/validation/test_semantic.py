@@ -1,3 +1,5 @@
+import pytest
+
 from migraai.validation.checks import semantic
 
 
@@ -29,6 +31,20 @@ def test_unknown_table_is_an_error(make_context, make_object) -> None:
 
     assert [finding.rule_id for finding in findings] == ["semantic.unknown_table"]
     assert findings[0].severity == "error"
+
+
+@pytest.mark.parametrize(
+    "stage",
+    ["@~/migraai_export/customer.csv", "@my_stage/path"],
+)
+def test_copy_into_stage_files_are_not_unknown_tables(stage, make_context, make_object) -> None:
+    obj = make_object(content=f"COPY INTO sales.customer FROM {stage}")
+    context = make_context(
+        target="snowflake",
+        name_map={"SRC.SCHEMA.OBJECT": "sales.customer"},
+    )
+
+    assert semantic.validate(obj, context) == []
 
 
 def test_unknown_qualified_column_is_a_warning(make_context, make_object) -> None:

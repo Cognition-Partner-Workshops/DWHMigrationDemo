@@ -222,6 +222,11 @@ class DevinV1Client:
 
 
 def build_devin_client(base_url: str, org_id: str, pat: str) -> Any | None:
+    replay_directory = os.environ.get("MIGRAAI_TEST_REPLAY_DEVIN")
+    if replay_directory:
+        from migraai.devin.replay import ReplayDevinClient
+
+        return ReplayDevinClient(replay_directory)
     if os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1":
         from migraai.devin.mock import MockDevinClient, MockScenario
 
