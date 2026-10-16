@@ -182,6 +182,26 @@ def test_no_credentials_or_absolute_paths(target: str) -> None:
             assert host in ALLOWED_DOC_HOSTS, f"{key}: unexpected host {host}"
 
 
+def nonascii_pkg(target: str):
+    """Sample package plus a runnable file with a non-ASCII package_path."""
+    return with_files(
+        sample_package(target),
+        0,
+        [PackagedFile("teradata-testpack/tâbles-converted.sql", "sql", "SELECT 1;\n")],
+    )
+
+
+@pytest.mark.parametrize("target", TARGETS)
+def test_nonascii_path_bom(target: str) -> None:
+    """Only run.ps1 may carry a BOM; run.sh must keep its #! first line."""
+    out = build_execution_scripts(nonascii_pkg(target))
+    assert out[f"{target}/run.sh"].startswith(b"#!")
+    assert out[f"{target}/run.ps1"].startswith(b"\xef\xbb\xbf")
+    assert not out[f"{target}/order.txt"].startswith(b"\xef\xbb\xbf")
+    assert not out[f"{target}/README.md"].startswith(b"\xef\xbb\xbf")
+    assert "tâbles-converted.sql" in out[f"{target}/run.sh"].decode()
+
+
 @pytest.mark.parametrize("target", TARGETS)
 def test_masked_listed(target: str) -> None:
     pkg = sample_package(target)

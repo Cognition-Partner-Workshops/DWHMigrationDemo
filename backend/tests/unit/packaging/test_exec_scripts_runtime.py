@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from test_exec_scripts import materialize, spec_for, with_files
+from test_exec_scripts import materialize, nonascii_pkg, spec_for, with_files
 
 from migraai.packaging.model import PackagedFile
 from migraai.packaging.sample import sample_package
@@ -39,6 +39,9 @@ NEEDS_BASH = pytest.mark.skipif(
 PWSH = shutil.which("pwsh")
 POWERSHELL = shutil.which("powershell")
 PS_SHELLS = [s for s in (PWSH, POWERSHELL) if s]
+PS_SHELL_PARAMS = [pytest.param(s, id=Path(s).name) for s in PS_SHELLS] or [
+    pytest.param("none", id="none")
+]
 NEEDS_PS = pytest.mark.skipif(not PS_SHELLS, reason="no PowerShell interpreter found")
 
 
@@ -236,6 +239,25 @@ def test_bash_missing_cli(tmp_path: Path, target: str) -> None:
 
 
 @NEEDS_BASH
+def test_bash_nonascii_path(tmp_path: Path) -> None:
+    target = "snowflake"
+    pkg = nonascii_pkg(target)
+    spec = spec_for(target)
+    exe_dir, _, _ = run_dir(tmp_path, target, pkg)
+    env = fake_env(tmp_path, fake_bin(tmp_path, spec["cli"]), False)
+    r = subprocess.run(
+        [BASH, "run.sh", "--execute"],
+        cwd=exe_dir,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=TIMEOUT,
+    )
+    assert r.returncode == 0, r.stderr
+    assert calls(tmp_path)[1][-1].endswith("converted/teradata-testpack/tâbles-converted.sql")
+
+
+@NEEDS_BASH
 def test_bash_space_and_quote_path(tmp_path: Path) -> None:
     target = "snowflake"
     pkg = with_files(
@@ -312,11 +334,9 @@ def ps_run(shell: str, args: list[str], cwd: Path, env: dict | None = None, time
 
 
 @pytest.mark.parametrize("target", TARGETS)
-@pytest.mark.parametrize("shell", [pytest.param(s, id=Path(s).name) for s in PS_SHELLS] or ["none"])
+@pytest.mark.parametrize("shell", PS_SHELL_PARAMS)
 @NEEDS_PS
 def test_ps_parse(tmp_path: Path, target: str, shell: str) -> None:
-    if shell == "none":
-        pytest.skip("no PowerShell")
     exe_dir, _, _ = run_dir(tmp_path, target)
     parser = tmp_path / "parse.ps1"
     parser.write_text(PARSE_PS1)
@@ -326,9 +346,9 @@ def test_ps_parse(tmp_path: Path, target: str, shell: str) -> None:
 
 
 @pytest.mark.parametrize("target", TARGETS)
+@pytest.mark.parametrize("shell", PS_SHELL_PARAMS)
 @NEEDS_PS
-def test_ps_dry_run_and_execute(tmp_path: Path, target: str) -> None:
-    shell = PS_SHELLS[0]
+def test_ps_dry_run_and_execute(tmp_path: Path, target: str, shell: str) -> None:
     spec = spec_for(target)
     exe_dir, _, _ = run_dir(tmp_path, target)
     env = fake_env(tmp_path, fake_bin(tmp_path, spec["cli"]), spec.get("stdin", False))
@@ -352,9 +372,9 @@ def test_ps_dry_run_and_execute(tmp_path: Path, target: str) -> None:
 
 
 @pytest.mark.parametrize("target", TARGETS)
+@pytest.mark.parametrize("shell", PS_SHELL_PARAMS)
 @NEEDS_PS
-def test_ps_failure_and_masked(tmp_path: Path, target: str) -> None:
-    shell = PS_SHELLS[0]
+def test_ps_failure_and_masked(tmp_path: Path, target: str, shell: str) -> None:
     spec = spec_for(target)
     exe_dir, _, _ = run_dir(tmp_path, target)
     env = fake_env(tmp_path, fake_bin(tmp_path, spec["cli"]), spec.get("stdin", False), fail_at=2)
@@ -370,3 +390,38 @@ def test_ps_failure_and_masked(tmp_path: Path, target: str) -> None:
     r = ps_run(shell, ["-File", "run.ps1", "-Execute"], exe_dir2, env2)
     assert r.returncode == 3
     assert "replace the masked secret" in r.stderr
+
+
+@pytest.mark.parametrize("shell", PS_SHELL_PARAMS)
+@NEEDS_PS
+def test_ps_space_and_quote_path(tmp_path: Path, shell: str) -> None:
+    target = "snowflake"
+    pkg = with_files(
+        sample_package(target),
+        0,
+        [PackagedFile("my pack/it's tables-converted.sql", "sql", "SELECT 1;\n")],
+    )
+    spec = spec_for(target)
+    exe_dir, _, _ = run_dir(tmp_path, target, pkg)
+    env = fake_env(tmp_path, fake_bin(tmp_path, spec["cli"]), False)
+    r = ps_run(shell, ["-File", "run.ps1", "-Execute"], exe_dir, env)
+    assert r.returncode == 0, r.stderr
+    assert calls(tmp_path)[1][-1].endswith("converted/my pack/it's tables-converted.sql")
+
+
+@pytest.mark.parametrize("shell", PS_SHELL_PARAMS)
+@NEEDS_PS
+def test_ps_passthrough_command_mode(tmp_path: Path, shell: str) -> None:
+    """-Command invocation binds -CliArgs as an array (unlike -File)."""
+    target = "snowflake"
+    spec = spec_for(target)
+    exe_dir, _, _ = run_dir(tmp_path, target)
+    env = fake_env(tmp_path, fake_bin(tmp_path, spec["cli"]), False)
+    ps_path = str(exe_dir / "run.ps1").replace("'", "''")
+    command = f"& '{ps_path}' -Execute -CliArgs '-c','myconn'"
+    r = ps_run(shell, ["-Command", command], exe_dir, env)
+    assert r.returncode == 0, r.stderr
+    assert "myconn" not in r.stdout and "myconn" not in r.stderr
+    first = calls(tmp_path)[0]
+    # 'snow sql -c myconn --enable-templating NONE -f <file>'
+    assert first[1:4] == ["sql", "-c", "myconn"]

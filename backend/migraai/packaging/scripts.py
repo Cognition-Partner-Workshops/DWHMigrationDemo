@@ -246,11 +246,15 @@ def _readme(pkg: PackageInput, spec: dict, col: _Collected) -> str:
         "### PowerShell",
         "",
         "```",
+        "# one-off, no admin rights needed:",
         "powershell -NoProfile -ExecutionPolicy Bypass -File .\\run.ps1",
         "powershell -NoProfile -ExecutionPolicy Bypass -File .\\run.ps1 -Execute",
         "powershell -NoProfile -ExecutionPolicy Bypass -File .\\run.ps1 -Execute -IncludeReview",
-        "powershell -NoProfile -ExecutionPolicy Bypass -File .\\run.ps1 -Execute "
-        "-CliArgs '<arg1>','<arg2>'",
+        "",
+        "# passing CLI arguments (e.g. a connection/profile name) -",
+        "# run from a PowerShell window:",
+        "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass",
+        ".\\run.ps1 -Execute -CliArgs '-c','<connection>'",
         "```",
         "",
         "If the ZIP was downloaded, run `Unblock-File .\\run.ps1` first (or unblock the "
@@ -369,7 +373,7 @@ def build_execution_scripts(pkg: PackageInput) -> dict[str, bytes]:
 
     return {
         f"{target}/order.txt": _order_txt(pkg, col).encode("utf-8"),
-        f"{target}/run.sh": _encode(run_sh),
+        f"{target}/run.sh": run_sh.encode("utf-8"),
         f"{target}/run.ps1": _encode(run_ps1),  # BOM if non-ASCII paths require it
         f"{target}/README.md": _readme(pkg, spec, col).encode("utf-8"),
     }
