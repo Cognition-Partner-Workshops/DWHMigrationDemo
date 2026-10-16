@@ -398,8 +398,8 @@ def test_ps_dry_run_and_execute(tmp_path: Path, target: str, shell: str) -> None
     log = calls(tmp_path)
     assert len(log) == 3
     if spec.get("stdin"):
-        # PS 5.1 pipes a BOM to native stdin; pwsh does not.
-        assert (tmp_path / "fake.stdin").read_text().lstrip("\ufeff").startswith("-- Converted")
+        # PS 5.1 pipes a UTF-8 BOM to native stdin; utf-8-sig drops it.
+        assert (tmp_path / "fake.stdin").read_bytes().decode("utf-8-sig").startswith("-- Converted")
     else:
         assert log[0][-1].endswith(
             os.path.join("converted", "teradata-testpack", "tables-converted.sql")
