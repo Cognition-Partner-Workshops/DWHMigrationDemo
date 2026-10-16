@@ -51,6 +51,7 @@ export function ConvertPanel({
   source,
   target,
   refreshKey,
+  settingsRevision = 0,
   uploadCount = 0,
   uploadRoots,
 }: {
@@ -58,6 +59,7 @@ export function ConvertPanel({
   source: string;
   target: string;
   refreshKey: number;
+  settingsRevision?: number;
   uploadCount?: number;
   uploadRoots?: string[];
 }) {
@@ -117,7 +119,7 @@ export function ConvertPanel({
     return () => {
       active = false;
     };
-  }, [confirmed, refreshKey, source, target]);
+  }, [confirmed, refreshKey, settingsRevision, source, target]);
 
   useEffect(() => {
     const savedId = window.localStorage.getItem(ACTIVE_JOB_KEY);
@@ -233,18 +235,29 @@ export function ConvertPanel({
     };
   }, [selectedId, listRevision]);
 
-  function openConsent() {
+  async function openConsent() {
     setError("");
     if (!estimate || estimate.objects < 1) {
       return;
     }
-    if (!estimate.devin_configured) {
-      setError(NO_DEVIN_MESSAGE);
-      return;
+    try {
+      const nextEstimate = await postConvertEstimate();
+      setEstimate(nextEstimate);
+      if (nextEstimate.objects < 1) {
+        return;
+      }
+      if (!nextEstimate.devin_configured) {
+        setError(NO_DEVIN_MESSAGE);
+        return;
+      }
+      setDialogEstimate(nextEstimate);
+      setConversionObjectIds(undefined);
+      setDialogOpen(true);
+    } catch (estimateError) {
+      setError(
+        estimateError instanceof Error ? estimateError.message : "Could not estimate conversion.",
+      );
     }
-    setDialogEstimate(estimate);
-    setConversionObjectIds(undefined);
-    setDialogOpen(true);
   }
 
   async function openSelectedConsent() {
