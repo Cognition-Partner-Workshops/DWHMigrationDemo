@@ -145,6 +145,10 @@ def test_selected_conversion_uses_finished_job_as_merge_base(
     assert job.base is base
     assert job.base_run_id == first.json()["job_id"]
     assert job.reconverted_object_ids == (object_id,)
+    job.kept_base_object_ids[object_id] = "cancelled"
+    status = client.get(f"/api/convert/jobs/{job.run_id}", headers=headers)
+    assert status.status_code == 200
+    assert status.json()["kept_base_object_ids"] == {object_id: "cancelled"}
 
     audit_events = [
         json.loads(line)

@@ -110,6 +110,7 @@ class PackageInput:
     notes: tuple[str, ...] = field(default_factory=tuple)
     base_run_id: str | None = None
     reconverted_object_ids: tuple[str, ...] = ()
+    kept_base_object_ids: dict[str, str] = field(default_factory=dict)
 
     def included(self) -> tuple[PackagedObject, ...]:
         """Objects that go into the ZIP: converted and expert_review, in execution order."""

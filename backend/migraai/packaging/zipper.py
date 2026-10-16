@@ -101,6 +101,7 @@ def _manifest(package: PackageInput, files: dict[str, bytes]) -> bytes:
     if package.base_run_id is not None:
         content["base_run_id"] = package.base_run_id
         content["reconverted_object_ids"] = list(package.reconverted_object_ids)
+        content["kept_base_object_ids"] = dict(package.kept_base_object_ids)
     if package.sessions and (
         package.base_run_id is not None or any(s.replayed for s in package.sessions)
     ):

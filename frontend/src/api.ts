@@ -251,6 +251,7 @@ export type ConversionJobStatus = {
   object_count: number;
   batch_count: number;
   reason: string | null;
+  kept_base_object_ids?: Record<string, string>;
 };
 
 export type ConversionRow = {

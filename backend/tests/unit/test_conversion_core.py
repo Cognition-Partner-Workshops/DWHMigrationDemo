@@ -862,6 +862,11 @@ def test_conversion_job_continues_after_voter_failure_and_cancels_running_sessio
     cancel_job.join(timeout=30)
     assert not cancel_job.is_alive()
     assert cancel_job.snapshot()["state"] == "cancelled"
+    assert all(
+        status != "queued"
+        for batch in cancel_job.snapshot()["progress"]["batches"].values()
+        for status in batch["voters"].values()
+    )
     assert all(client.termination_calls for client in slow_clients if client.sessions)
     package = build_package_input(cancel_job, cancel_session, "")
     assert package.egress is not None

@@ -452,6 +452,12 @@ export function ConvertPanel({
               </span>
             ))}
           </div>
+          {Object.keys(job.kept_base_object_ids ?? {}).length > 0 && (
+            <div className="conversion-kept-base-note" role="note">
+              {Object.keys(job.kept_base_object_ids ?? {}).length} selected objects kept their
+              earlier result (re-conversion cancelled or not usable)
+            </div>
+          )}
           <div className="conversion-batch-grid">
             {job.batches.map((batch) => (
               <div className="conversion-batch" key={batch.index}>

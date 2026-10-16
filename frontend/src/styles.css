@@ -2076,6 +2076,14 @@ th {
   color: #173865;
 }
 
+.conversion-kept-base-note {
+  margin: 3px 0 6px;
+  padding: 4px 9px;
+  color: #516a8a;
+  background: #f1f6fd;
+  font-size: 9px;
+}
+
 .conversion-batch-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));

@@ -156,6 +156,20 @@ def build_report_md(pkg: PackageInput) -> str:
                 f"Re-converted {len(pkg.reconverted_object_ids)} selected objects in run "
                 f"{pkg.run_id}; other results carried over from run {pkg.base_run_id}."
             )
+            if pkg.kept_base_object_ids:
+                names_by_id = {item.object_id: item.source_qualified_name for item in pkg.objects}
+                names = [
+                    _md(names_by_id.get(object_id, object_id))
+                    for object_id, _ in sorted(
+                        pkg.kept_base_object_ids.items(),
+                        key=lambda item: names_by_id.get(item[0], item[0]),
+                    )
+                ]
+                out.append(
+                    f"{len(pkg.kept_base_object_ids)} of them kept their earlier result "
+                    "because the re-conversion was cancelled or produced no usable "
+                    f"candidate: {', '.join(names)}"
+                )
         if eg.blocked_batches > 0:
             out.append("")
             out.append(

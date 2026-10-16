@@ -458,6 +458,43 @@ describe("Convert Objects", () => {
     await waitFor(() => expect(apiMocks.startConversion).toHaveBeenCalledWith(["object-1"]));
   });
 
+  it("shows the kept-base result note when the job reports retained objects", async () => {
+    window.localStorage.setItem("migraai.activeConversionJob", "job-1");
+    apiMocks.getConversionJob.mockResolvedValue(
+      runningJob({
+        state: "done",
+        kept_base_object_ids: { "object-1": "cancelled" },
+      }),
+    );
+    render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
+
+    expect(
+      await screen.findByText(
+        "1 selected objects kept their earlier result (re-conversion cancelled or not usable)",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("shows cancelled voter states from the job payload", async () => {
+    window.localStorage.setItem("migraai.activeConversionJob", "job-1");
+    apiMocks.getConversionJob.mockResolvedValue(
+      runningJob({
+        state: "cancelled",
+        batches: [{
+          ...runningJob().batches[0],
+          status: "cancelled",
+          voters: { A: "cancelled", B: "cancelled", C: "cancelled", escalation: "cancelled" },
+        }],
+      }),
+    );
+    render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
+
+    expect(await screen.findByText("A: cancelled")).toBeInTheDocument();
+    expect(screen.getByText("B: cancelled")).toBeInTheDocument();
+    expect(screen.getByText("C: cancelled")).toBeInTheDocument();
+    expect(screen.getByText("escalation: cancelled")).toBeInTheDocument();
+  });
+
   it("enables Download for completed included objects and shows a 409 inline", async () => {
     const user = userEvent.setup();
     const complete = runningJob({

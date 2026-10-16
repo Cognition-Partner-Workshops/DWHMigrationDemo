@@ -624,6 +624,7 @@ def build_package_input(
         ),
         base_run_id=getattr(job, "base_run_id", None),
         reconverted_object_ids=tuple(getattr(job, "reconverted_object_ids", ())),
+        kept_base_object_ids=dict(getattr(job, "kept_base_object_ids", {})),
     )
 
 
