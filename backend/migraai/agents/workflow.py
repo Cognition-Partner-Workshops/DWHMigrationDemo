@@ -65,6 +65,17 @@ def _runtime(state: WorkflowState) -> dict[str, Any]:
         return _RUNTIME_CONTEXTS[state["run_key"]]
 
 
+def _update_session_progress(
+    state: WorkflowState,
+    role: str,
+    status: str,
+    session_id: str | None = None,
+) -> None:
+    callback = _runtime(state).get("session_status_callback")
+    if callback is not None:
+        callback(state["batch_index"], role, status, session_id)
+
+
 @contextmanager
 def _quiet_sqlglot_logs():
     global _SQLGLOT_LOG_LEVEL, _SQLGLOT_LOG_USERS
@@ -266,7 +277,9 @@ def _build_context(state: WorkflowState) -> dict[str, Any]:
 def _run_voter(state: WorkflowState, voter: str) -> tuple[str, SessionOutcome]:
     runtime = _runtime(state)
     if runtime["cancel"].is_set():
-        return voter, SessionOutcome(None, None, "cancelled", None, None, "Session cancelled.")
+        outcome = SessionOutcome(None, None, "cancelled", None, None, "Session cancelled.")
+        _update_session_progress(state, voter, outcome.state)
+        return voter, outcome
     client = None
     prompt = VOTER_BASE.format(
         source=state["source"],
@@ -293,6 +306,9 @@ def _run_voter(state: WorkflowState, voter: str) -> tuple[str, SessionOutcome]:
                 cancel=runtime["cancel"],
                 poll_initial=0.1,
                 poll_max=3,
+                on_session_started=lambda session_id: _update_session_progress(
+                    state, voter, "running", session_id
+                ),
             )
     except Exception as error:
         outcome = SessionOutcome(
@@ -310,6 +326,7 @@ def _run_voter(state: WorkflowState, voter: str) -> tuple[str, SessionOutcome]:
                 close()
             except Exception:
                 pass
+    _update_session_progress(state, voter, outcome.state, outcome.session_id)
     return voter, outcome
 
 
@@ -469,6 +486,9 @@ def _run_escalation(state: WorkflowState) -> dict[str, Any]:
                 cancel=runtime["cancel"],
                 poll_initial=0.1,
                 poll_max=3,
+                on_session_started=lambda session_id: _update_session_progress(
+                    state, "escalation", "running", session_id
+                ),
             )
     except Exception as error:
         outcome = SessionOutcome(
@@ -486,6 +506,7 @@ def _run_escalation(state: WorkflowState) -> dict[str, Any]:
                 close()
             except Exception:
                 pass
+    _update_session_progress(state, "escalation", outcome.state, outcome.session_id)
     revised: dict[str, Candidate | None] = {}
     output = outcome.structured_output
     entries = output.get("objects", []) if isinstance(output, dict) else []
@@ -616,6 +637,7 @@ def run_batch_workflow(
     cancel: threading.Event,
     session_semaphore: threading.Semaphore,
     client_factory: Callable[[str], Any],
+    session_status_callback: Callable[[int, str, str, str | None], None] | None = None,
     workflow: Any | None = None,
     run_id: str = "conversion",
 ) -> WorkflowState:
@@ -632,6 +654,7 @@ def run_batch_workflow(
         "cancel": cancel,
         "session_semaphore": session_semaphore,
         "client_factory": client_factory,
+        "session_status_callback": session_status_callback,
     }
     with _RUNTIME_LOCK:
         _RUNTIME_CONTEXTS[run_key] = runtime

@@ -31,6 +31,7 @@ class ConversionJob(threading.Thread):
         timeout_minutes: int = 45,
         max_concurrent_sessions: int = 4,
         confidence_threshold: float = 0.85,
+        devin_host: str = "",
         client_factory: Callable[[str], Any] | None = None,
         pack: TargetPack | None = None,
         consent: bool = True,
@@ -45,6 +46,7 @@ class ConversionJob(threading.Thread):
         self.timeout_minutes = timeout_minutes
         self.max_concurrent_sessions = max_concurrent_sessions
         self.confidence_threshold = confidence_threshold
+        self.devin_host = devin_host
         self.pack = pack or load_pack(self.target)
         self.client_factory = client_factory or (
             lambda voter: build_devin_client(base_url, org_id, devin_pat)
@@ -79,7 +81,12 @@ class ConversionJob(threading.Thread):
             batch.index: {
                 "status": "queued",
                 "objects": [str(self._value(item, "id", "")) for item in batch.objects],
-                "voters": {voter: "queued" for voter in ("A", "B", "C")},
+                "voters": {
+                    "A": "queued",
+                    "B": "queued",
+                    "C": "queued",
+                    "escalation": "not_needed",
+                },
                 "escalated": False,
             }
             for batch in self.batches
@@ -152,6 +159,8 @@ class ConversionJob(threading.Thread):
 
     def _audit(self, action: str, details: dict[str, Any] | None = None) -> None:
         if self.audit is not None:
+            if action == "convert.consent" and self.devin_host:
+                details = {**(details or {}), "devin_host": self.devin_host}
             self.audit.append("user", action, self.run_id, details or {})
 
     def _publish(self, event: str, data: dict[str, Any]) -> None:
@@ -160,12 +169,20 @@ class ConversionJob(threading.Thread):
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
+            batches = {
+                index: {
+                    **batch,
+                    "objects": list(batch["objects"]),
+                    "voters": dict(batch["voters"]),
+                }
+                for index, batch in self.batch_status.items()
+            }
             return {
                 "run_id": self.run_id,
                 "state": self.state,
                 "progress": {
                     "elapsed_s": round(time.monotonic() - self.started_at, 1),
-                    "batches": self.batch_status,
+                    "batches": batches,
                 },
                 "counts": dict(self.counts),
                 "overall_confidence": overall_score(
@@ -176,6 +193,31 @@ class ConversionJob(threading.Thread):
                 "batch_count": len(self.batches),
                 "reason": self.reason,
             }
+
+    def _update_session_status(
+        self,
+        batch_index: int,
+        role: str,
+        status: str,
+        session_id: str | None = None,
+    ) -> None:
+        with self.lock:
+            batch = self.batch_status[batch_index]
+            if batch["voters"].get(role) == status:
+                return
+            batch["voters"][role] = status
+            if role == "escalation" and status not in {"queued", "not_needed"}:
+                batch["escalated"] = True
+            event_data = {
+                "batch_index": batch_index,
+                "object_ids": list(batch["objects"]),
+                "voter": role,
+                "state": status,
+                "session_id": session_id,
+                "voters": dict(batch["voters"]),
+                "escalated": batch["escalated"],
+            }
+        self._publish("convert.batch", event_data)
 
     def event_stream(self) -> Iterator[str]:
         while True:
@@ -218,7 +260,7 @@ class ConversionJob(threading.Thread):
         workflow_results = result.get("results", {})
         outcome_by_voter = result.get("voter_outcomes", {})
         inventory = self.session["inventory"]
-        with inventory.lock, inventory.connection:
+        with self.lock, inventory.lock, inventory.connection:
             for voter, outcome in outcome_by_voter.items():
                 for object_id, candidates in result.get("candidates", {}).items():
                     candidate = candidates.get(voter)
@@ -364,7 +406,7 @@ class ConversionJob(threading.Thread):
 
     def _save_failed_batch(self, batch: Any, error: str | None = None) -> None:
         inventory = self.session["inventory"]
-        with inventory.lock, inventory.connection:
+        with self.lock, inventory.lock, inventory.connection:
             for item in batch.objects:
                 object_id = str(self._value(item, "id", ""))
                 inventory.connection.execute(
@@ -413,6 +455,7 @@ class ConversionJob(threading.Thread):
                         cancel=self.cancel_event,
                         session_semaphore=semaphore,
                         client_factory=self.client_factory,
+                        session_status_callback=self._update_session_status,
                         workflow=workflow,
                         run_id=self.run_id,
                     )

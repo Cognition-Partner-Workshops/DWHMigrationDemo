@@ -13,6 +13,8 @@ import type {
 
 const apiMocks = vi.hoisted(() => ({
   cancelConversionJob: vi.fn(),
+  downloadConvertedPackage: vi.fn(),
+  downloadReport: vi.fn(),
   getConversionDetail: vi.fn(),
   getConversionJob: vi.fn(),
   getConversions: vi.fn(),
@@ -84,14 +86,14 @@ function runningJob(overrides: Partial<ConversionJobStatus> = {}): ConversionJob
     progress: {
       elapsed_s: 2,
       batches: {
-        "0": { status: "running", objects: ["object-1"], voters: { A: "done", B: "working", C: "queued", escalation: "queued" }, escalated: false },
+        "0": { status: "running", objects: ["object-1"], voters: { A: "done", B: "running", C: "queued", escalation: "not_needed" }, escalated: false },
       },
     },
     batches: [{
       index: 0,
       status: "running",
       objects: ["object-1"],
-      voters: { A: "done", B: "working", C: "queued", escalation: "queued" },
+      voters: { A: "done", B: "running", C: "queued", escalation: "not_needed" },
       escalated: false,
       object_count: 1,
       counts: { converted: 0, escalated: 0, expert_review: 0, failed: 0 },
@@ -112,6 +114,8 @@ describe("Convert Objects", () => {
     apiMocks.startConversion.mockResolvedValue({ job_id: "job-1" });
     apiMocks.getConversionJob.mockResolvedValue(runningJob());
     apiMocks.cancelConversionJob.mockResolvedValue(runningJob({ state: "cancelled" }));
+    apiMocks.downloadConvertedPackage.mockResolvedValue(undefined);
+    apiMocks.downloadReport.mockResolvedValue(undefined);
     apiMocks.getConversions.mockResolvedValue({ items: [row], page: 1, page_size: 200, total: 1 });
     apiMocks.getConversionDetail.mockResolvedValue(detail);
   });
@@ -176,10 +180,39 @@ describe("Convert Objects", () => {
     await user.click(screen.getByRole("button", { name: "Send to Devin" }));
 
     expect(await screen.findByText("A: done")).toBeInTheDocument();
+    expect(screen.getByText("B: running")).toBeInTheDocument();
+    expect(screen.getByText("C: queued")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.getByRole("alertdialog")).toHaveTextContent("Cancel this conversion?");
     await user.click(screen.getByRole("button", { name: "Cancel conversion" }));
     await waitFor(() => expect(apiMocks.cancelConversionJob).toHaveBeenCalledWith("job-1"));
+  });
+
+  it("closes the cancellation confirmation when a job becomes terminal", async () => {
+    const user = userEvent.setup();
+    apiMocks.getConversionJob
+      .mockResolvedValueOnce(runningJob())
+      .mockResolvedValue(runningJob({ state: "done" }));
+    render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
+
+    await user.click(await screen.findByRole("button", { name: "Convert Items" }));
+    await user.click(
+      screen.getByRole("checkbox", { name: "I understand that this code leaves this computer" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Send to Devin" }));
+    await screen.findByText("A: done");
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.getByRole("alertdialog")).toHaveTextContent("Cancel this conversion?");
+
+    await waitFor(
+      () => {
+        expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Keep converting" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Cancel conversion" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Cancel" })).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
   });
 
   it("passes the status, type, failed-check and search filters to the results API", async () => {
@@ -339,13 +372,107 @@ describe("Convert Objects", () => {
     expect(screen.getByLabelText("new.py B diff").querySelectorAll(".diff-added")).toHaveLength(0);
   });
 
-  it("keeps Download disabled with the packaging tooltip", async () => {
+  it("keeps Download disabled and explains why before a conversion exists", async () => {
     render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
     const download = await screen.findByRole("button", { name: /Download Converted Files/ });
     expect(download).toBeDisabled();
+    expect(download).toHaveAttribute("title", "Run a conversion before downloading.");
+  });
+
+  it("keeps Download disabled after a run with no included objects", async () => {
+    window.localStorage.setItem("migraai.activeConversionJob", "job-1");
+    apiMocks.getConversionJob.mockResolvedValue(
+      runningJob({
+        state: "done",
+        counts: { converted: 0, escalated: 0, expert_review: 0, failed: 1 },
+      }),
+    );
+    render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
+
+    const download = await screen.findByRole("button", { name: /Download Converted Files/ });
+    await waitFor(() => expect(download).toBeDisabled());
     expect(download).toHaveAttribute(
       "title",
-      "Download arrives with packaging in the next phase.",
+      "No converted or expert-review objects are available to download.",
+    );
+  });
+
+  it("shows the optional package name only for multiple uploads", async () => {
+    const { rerender } = render(
+      <ConvertPanel
+        confirmed
+        refreshKey={1}
+        source="teradata"
+        target="snowflake"
+        uploadCount={1}
+      />,
+    );
+    expect(screen.queryByRole("textbox", { name: "Package name" })).not.toBeInTheDocument();
+
+    rerender(
+      <ConvertPanel
+        confirmed
+        refreshKey={1}
+        source="teradata"
+        target="snowflake"
+        uploadCount={2}
+      />,
+    );
+    expect(await screen.findByRole("textbox", { name: "Package name" })).toHaveValue(
+      "migraai-teradata-to-snowflake",
+    );
+    expect(screen.getByRole("link", { name: "Report (MD)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Report (PDF)" })).toBeInTheDocument();
+  });
+
+  it("enables Download for completed included objects and shows a 409 inline", async () => {
+    const user = userEvent.setup();
+    const complete = runningJob({
+      state: "done",
+      counts: { converted: 1, escalated: 0, expert_review: 0, failed: 0 },
+    });
+    window.localStorage.setItem("migraai.activeConversionJob", "job-1");
+    apiMocks.getConversionJob.mockResolvedValue(complete);
+    apiMocks.downloadConvertedPackage.mockRejectedValue(
+      new Error("The conversion has no converted or expert-review objects to download."),
+    );
+    render(
+      <ConvertPanel
+        confirmed
+        refreshKey={1}
+        source="teradata"
+        target="snowflake"
+        uploadCount={2}
+      />,
+    );
+
+    const download = await screen.findByRole("button", { name: /Download Converted Files/ });
+    await waitFor(() => expect(download).toBeEnabled());
+    await user.click(download);
+    expect(apiMocks.downloadConvertedPackage).toHaveBeenCalledWith(
+      "migraai-teradata-to-snowflake",
+    );
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The conversion has no converted or expert-review objects to download.",
+    );
+  });
+
+  it("shows a report 503 inline", async () => {
+    const user = userEvent.setup();
+    apiMocks.downloadReport.mockRejectedValue(new Error("Report generator not available yet."));
+    render(
+      <ConvertPanel
+        confirmed
+        refreshKey={1}
+        source="teradata"
+        target="snowflake"
+        uploadCount={2}
+      />,
+    );
+
+    await user.click(screen.getByRole("link", { name: "Report (MD)" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Report generator not available yet.",
     );
   });
 });
