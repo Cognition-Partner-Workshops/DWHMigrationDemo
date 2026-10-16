@@ -5,9 +5,9 @@ import time
 from urllib.parse import urlsplit
 
 from migraai.core.audit import AuditLog
+from migraai.devin.client import DevinClient, DevinV1Client
 from migraai.kb.store import KBStore
 from migraai.planning.context import PlanContext, build_context
-from migraai.planning.devin_client import DevinClient, DevinV1Client
 from migraai.planning.local_draft import build_local_draft
 from migraai.planning.prompt import build_prompt
 from migraai.planning.schema import SCHEMA, Plan
@@ -215,18 +215,14 @@ class PlanJob(threading.Thread):
     def run(self) -> None:
         context = None
         try:
-            if self.pat.startswith("apk_"):
-                self.client = (
-                    self.client_factory(self.base_url, self.org_id, self.pat)
-                    if self.client_factory
-                    else DevinV1Client(self.base_url, self.pat)
-                )
+            if self.client_factory and self.pat.startswith("apk_"):
+                self.client = self.client_factory(self.base_url, self.org_id, self.pat)
+            elif self.client_factory and self.pat.startswith("cog_") and self.org_id:
+                self.client = self.client_factory(self.base_url, self.org_id, self.pat)
+            elif self.pat.startswith("apk_"):
+                self.client = DevinV1Client(self.base_url, self.pat)
             elif self.pat.startswith("cog_") and self.org_id:
-                self.client = (
-                    self.client_factory(self.base_url, self.org_id, self.pat)
-                    if self.client_factory
-                    else DevinClient(self.base_url, self.org_id, self.pat)
-                )
+                self.client = DevinClient(self.base_url, self.org_id, self.pat)
             else:
                 self._fallback(context, "Devin token not configured")
                 return

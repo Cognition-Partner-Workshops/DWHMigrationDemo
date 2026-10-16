@@ -16,10 +16,10 @@ from fastapi.testclient import TestClient
 from pypdf import PdfReader
 
 from migraai.core.audit import AuditLog
+from migraai.devin.client import DevinClient, DevinV1Client, normalize_base_url
 from migraai.kb.embed import HashEmbedder
 from migraai.kb.store import KBStore, connect, insert_chunk
 from migraai.planning.context import build_context
-from migraai.planning.devin_client import DevinClient, DevinV1Client, normalize_base_url
 from migraai.planning.job import PlanJob
 from migraai.planning.local_draft import build_local_draft
 from migraai.planning.pdf import render_markdown, render_plan_pdf
@@ -426,6 +426,79 @@ def test_devin_v1_client_request_shapes_and_string_attachment_response() -> None
         == "https://files.test/dict"
     )
     dict_response_client.close()
+
+
+def test_devin_clients_omit_uncapped_session_limit() -> None:
+    create_requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "POST" and request.url.path.endswith("/sessions"):
+            create_requests.append(request)
+            return httpx.Response(
+                200,
+                json={"session_id": "devin-test", "url": "https://devin.test/session"},
+                request=request,
+            )
+        return httpx.Response(204, request=request)
+
+    clients = [
+        DevinClient(
+            "https://api.example.test",
+            "org-test",
+            "cog_key",
+            transport=httpx.MockTransport(handler),
+        ),
+        DevinV1Client(
+            "https://api.example.test",
+            "apk_key",
+            transport=httpx.MockTransport(handler),
+        ),
+    ]
+    for client in clients:
+        client.create_session(
+            "Convert this.",
+            schema={"type": "object"},
+            max_acu_limit=None,
+            title="Conversion",
+            tags=["migraai"],
+        )
+        client.close()
+
+    assert len(create_requests) == 2
+    assert all("max_acu_limit" not in json.loads(request.content) for request in create_requests)
+
+
+def test_devin_v3_reads_documented_acu_usage_and_v1_has_none() -> None:
+    def v3_handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={"status": "running", "acus_consumed": 2.5},
+            request=request,
+        )
+
+    v3_client = DevinClient(
+        "https://api.example.test",
+        "org-test",
+        "cog_key",
+        transport=httpx.MockTransport(v3_handler),
+    )
+    assert v3_client.get_session("devin-test")["acus"] == 2.5
+    v3_client.close()
+
+    def v1_handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={"status": "Working", "status_enum": "working"},
+            request=request,
+        )
+
+    v1_client = DevinV1Client(
+        "https://api.example.test",
+        "apk_key",
+        transport=httpx.MockTransport(v1_handler),
+    )
+    assert "acus" not in v1_client.get_session("legacy-session")
+    v1_client.close()
 
 
 def test_shared_prompt_requires_structured_output() -> None:
@@ -1116,6 +1189,7 @@ def test_plan_job_selects_client_from_token_prefix(
 ) -> None:
     import migraai.planning.job as job_module
 
+    monkeypatch.setenv("MIGRAAI_TEST_MOCK_DEVIN", "1")
     selected: list[str] = []
     monkeypatch.setattr(
         job_module,

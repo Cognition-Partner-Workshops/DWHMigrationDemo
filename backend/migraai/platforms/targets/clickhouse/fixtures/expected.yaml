@@ -1,0 +1,21 @@
+query_antipatterns.sql:
+  - clickhouse.lint.no_select_star
+  - clickhouse.lint.no_table_hints
+  - clickhouse.lint.no_source_dialect_functions
+table_without_engine.sql:
+  - clickhouse.rule.create_table_requires_engine
+mergetree_without_sort_key.sql:
+  - clickhouse.rule.mergetree_requires_order_by
+legacy_mutations.sql:
+  - clickhouse.rule.no_create_index
+  - clickhouse.rule.no_alter_update_mutation
+  - clickhouse.rule.no_alter_delete_mutation
+  - clickhouse.rule.delete_requires_where
+multi_statement_transaction.sql:
+  - clickhouse.rule.no_multi_statement_transactions
+security_grants.sql:
+  - clickhouse.security.no_plaintext_password
+  - clickhouse.security.no_inline_storage_credentials
+  - clickhouse.security.no_grant_all
+  - clickhouse.security.no_ownership_widening
+  - clickhouse.security.no_public_grants

@@ -1,0 +1,23 @@
+query_antipatterns.sql:
+  - bigquery.lint.no_select_star
+  - bigquery.lint.no_table_hints
+  - bigquery.lint.no_source_dialect_functions
+  - bigquery.rule.backtick_identifiers
+unfiltered_mutations.sql:
+  - bigquery.rule.update_requires_where
+  - bigquery.rule.delete_requires_where
+unsupported_ddl_and_schema.sql:
+  - bigquery.rule.backtick_identifiers
+  - bigquery.rule.no_nested_arrays
+  - bigquery.rule.no_create_index
+  - bigquery.rule.max_four_cluster_columns
+  - bigquery.rule.primary_key_not_enforced
+merge_without_dedup.sql:
+  - bigquery.rule.merge_dedup_source
+permanent_ddl_transaction.sql:
+  - bigquery.rule.no_permanent_ddl_in_transaction
+security_grants.sql:
+  - bigquery.security.no_plaintext_credentials
+  - bigquery.security.no_basic_roles
+  - bigquery.security.no_ownership_widening
+  - bigquery.security.no_public_principals

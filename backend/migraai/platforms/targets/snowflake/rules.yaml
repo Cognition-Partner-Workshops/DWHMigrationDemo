@@ -1,0 +1,183 @@
+target: snowflake
+rules:
+  - id: snowflake.lint.no_select_star
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bselect\s+(?:distinct\s+)?\*'
+    severity: error
+    message: List columns explicitly instead of SELECT *.
+    replacement: Name the projected columns.
+  - id: snowflake.lint.no_table_hints
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bwith\s*\(\s*(?:nolock|readuncommitted|rowlock|tablock)\s*\)'
+    severity: error
+    message: Source-dialect table hints such as WITH (NOLOCK) are not Snowflake SQL.
+    replacement: Remove the table hint.
+  - id: snowflake.lint.no_bracket_identifiers
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '\[[A-Za-z_][A-Za-z0-9_ ]*\]\s*\.\s*\[?[A-Za-z_]'
+    severity: error
+    message: Square-bracket identifiers are a source-dialect quoting style; Snowflake quotes identifiers with double quotes.
+    replacement: '"Identifier" or an unquoted UPPER_CASE name'
+    claim:
+      text: Snowflake delimited identifiers are enclosed in double quotes.
+      url: https://docs.snowflake.com/en/sql-reference/identifiers-syntax
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.lint.no_source_dialect_functions
+    check: lint
+    languages: [sql]
+    kind: forbid_function
+    functions: [getutcdate, sysdatetime, newid]
+    severity: error
+    message: Source-dialect function call; use CURRENT_TIMESTAMP(), or UUID_STRING().
+    replacement: CURRENT_TIMESTAMP() / UUID_STRING()
+  - id: snowflake.rule.no_create_index
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+(?:or\s+replace\s+)?(?:unique\s+)?(?:(?:non)?clustered\s+)?index\b'
+    severity: error
+    message: CREATE INDEX only applies to hybrid tables; use a clustering key or search optimization for standard tables.
+    replacement: ALTER TABLE <name> CLUSTER BY (<columns>)
+    claim:
+      text: Snowflake CREATE INDEX creates a secondary index on an existing hybrid table.
+      url: https://docs.snowflake.com/en/sql-reference/sql/create-index
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.rule.top_requires_order_by
+    check: rule
+    languages: [sql]
+    object_types: [procedure, function, script]
+    kind: forbid_regex
+    pattern: '(?is)\bselect\s+(?:distinct\s+)?top\s+\d+\b(?:(?!\border\s+by\b)[^;])*;'
+    severity: error
+    message: TOP without ORDER BY returns non-deterministic rows; add ORDER BY.
+    replacement: SELECT TOP <n> ... ORDER BY <keys>
+    claim:
+      text: An ORDER BY clause is not required with TOP n, but without one the results are non-deterministic.
+      url: https://docs.snowflake.com/en/sql-reference/constructs/top_n
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.rule.use_qualify
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\b(?:row_number|rank|dense_rank)\s*\(\s*\)\s*over\s*\([^)]*\)\s*(?:as\s+)?(\w+)\b.*?\)\s*(?:as\s+)?\w*\s*where\s+(?:\w+\.)?\1\s*(?:=|<=|<)\s*\d'
+    severity: error
+    message: Filter ranking window functions with QUALIFY instead of wrapping them in a filtered subquery.
+    replacement: QUALIFY ROW_NUMBER() OVER (...) = 1
+    claim:
+      text: In a Snowflake SELECT statement, the QUALIFY clause filters the results of window functions.
+      url: https://docs.snowflake.com/en/sql-reference/constructs/qualify
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.rule.use_variant_for_semi_structured
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?im)^\s*"?[A-Za-z_]\w*"?\s+(?:jsonb?|xml|super)\b'
+    severity: error
+    message: Declare JSON/XML-style columns as VARIANT (or OBJECT/ARRAY).
+    replacement: <column> VARIANT
+    claim:
+      text: Snowflake's semi-structured data types are VARIANT, OBJECT and ARRAY, and a VARIANT can contain a value of any other data type.
+      url: https://docs.snowflake.com/en/sql-reference/data-types-semistructured
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.rule.transient_staging_tables
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+(?:or\s+replace\s+)?table\s+(?:if\s+not\s+exists\s+)?(?:"?\w+"?\.){0,2}"?(?:stg|tmp|wrk)_\w*'
+    severity: error
+    message: Staging/work tables (stg_, tmp_, wrk_) should be TRANSIENT or TEMPORARY to avoid Fail-safe storage.
+    replacement: CREATE TRANSIENT TABLE <db>.<schema>.stg_<name>
+    claim:
+      text: Transient tables are similar to permanent tables except that they do not have a Fail-safe period.
+      url: https://docs.snowflake.com/en/user-guide/tables-temp-transient
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.rule.no_ddl_in_explicit_transaction
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bbegin\s+transaction\b(?:(?!\b(?:commit|rollback)\b).)*?\b(?:create|alter|drop|truncate)\s+'
+    severity: error
+    message: Keep DDL out of explicit transactions; Snowflake DDL implicitly commits the open transaction.
+    replacement: Run DDL before BEGIN TRANSACTION or after COMMIT.
+    claim:
+      text: Snowflake explicit transactions should contain only DML statements and query statements, because DDL statements implicitly commit active transactions.
+      url: https://docs.snowflake.com/en/sql-reference/transactions
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.rule.procedure_execute_as
+    check: rule
+    languages: [sql]
+    kind: require_regex
+    pattern: '(?is)\A(?!.*\bcreate\s+(?:or\s+replace\s+)?(?:secure\s+)?procedure\b)|\bexecute\s+as\s+(?:owner|caller|restricted\s+caller)\b'
+    severity: error
+    message: Stored procedures must state EXECUTE AS OWNER, CALLER or RESTRICTED CALLER explicitly.
+    replacement: EXECUTE AS CALLER
+    claim:
+      text: Snowflake CREATE PROCEDURE accepts an EXECUTE AS { OWNER | CALLER | RESTRICTED CALLER } clause.
+      url: https://docs.snowflake.com/en/sql-reference/sql/create-procedure
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.security.no_plaintext_credentials
+    check: security
+    languages: [sql, python]
+    kind: forbid_regex
+    pattern: '(?i)\b(?:password|passwd|pwd|aws_key_id|aws_secret_key|aws_token|azure_sas_token|secret_?key|private_key|api_?key|token)\b["'']?\s*(?:=>|=|:)?\s*["''][^"''\s]{3,}["'']|\bAKIA[0-9A-Z]{16}\b'
+    severity: error
+    message: Do not embed passwords, keys or tokens; use a storage integration, a SECRET object or key-pair authentication.
+    replacement: STORAGE_INTEGRATION = <integration> / CREATE SECRET
+    claim:
+      text: Snowflake storage integrations are named objects that avoid the need for passing explicit cloud provider credentials such as secret keys or access tokens.
+      url: https://docs.snowflake.com/en/user-guide/data-load-s3-config-storage-integration
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.security.no_grant_all
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+all\b'
+    severity: error
+    message: Grant specific privileges instead of ALL [PRIVILEGES].
+    replacement: GRANT SELECT ON TABLE <name> TO ROLE <role>
+    claim:
+      text: Snowflake GRANT <privileges> accepts ALL [ PRIVILEGES ] to grant every applicable privilege on the object type.
+      url: https://docs.snowflake.com/en/sql-reference/sql/grant-privilege
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.security.no_ownership_widening
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+role\s+(?:accountadmin|securityadmin|sysadmin)\s+to\b|\bgrant\s+ownership\b[^;]*\bto\s+role\s+(?:public|accountadmin)\b'
+    severity: error
+    message: Do not hand out administrative roles or move ownership to PUBLIC/ACCOUNTADMIN.
+    replacement: Grant a narrowly scoped custom role.
+    claim:
+      text: The ACCOUNTADMIN system role is the most powerful role in a Snowflake account.
+      url: https://docs.snowflake.com/en/user-guide/security-access-control-considerations
+      accessed: 2026-10-15
+      confidence: high
+  - id: snowflake.security.no_public_grants
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\b[^;]*\bto\s+(?:role\s+)?public\b'
+    severity: error
+    message: Do not grant privileges to PUBLIC; it is granted to every user and role.
+    replacement: GRANT ... TO ROLE <specific role>
+    claim:
+      text: PUBLIC is a pseudo-role that is automatically granted to every user and every role in a Snowflake account.
+      url: https://docs.snowflake.com/en/user-guide/security-access-control-overview
+      accessed: 2026-10-15
+      confidence: high

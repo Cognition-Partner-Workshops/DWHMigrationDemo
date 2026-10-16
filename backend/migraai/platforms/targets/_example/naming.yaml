@@ -1,0 +1,47 @@
+target: _example
+identifier_case: lower
+quote_char: "`"
+max_identifier_length: 255
+qualification: two_part
+reserved_words:
+  - SELECT
+  - FROM
+  - WHERE
+  - JOIN
+  - INNER
+  - OUTER
+  - LEFT
+  - RIGHT
+  - FULL
+  - GROUP
+  - BY
+  - ORDER
+  - HAVING
+  - LIMIT
+  - OFFSET
+  - AS
+  - WITH
+  - INSERT
+  - UPDATE
+  - DELETE
+  - MERGE
+  - CREATE
+  - ALTER
+  - DROP
+  - TABLE
+  - VIEW
+  - DATABASE
+  - SCHEMA
+  - CATALOG
+  - GRANT
+  - REVOKE
+  - USER
+claims:
+  - text: Example-only identifier evidence placeholder.
+    url: https://docs.example.com/naming
+    accessed: 2025-01-01
+    confidence: low
+  - text: Example-only reserved-word evidence placeholder.
+    url: https://docs.example.com/reserved-words
+    accessed: 2025-01-01
+    confidence: low

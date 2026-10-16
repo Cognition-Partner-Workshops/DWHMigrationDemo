@@ -63,6 +63,7 @@ export function UploadPanel({
 }) {
   const [selectedFiles, setSelectedFiles] = useState<LocalFile[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [filesExpanded, setFilesExpanded] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [discovery, setDiscovery] = useState<DiscoveryStatus | null>(null);
   const [error, setError] = useState("");
@@ -124,6 +125,7 @@ export function UploadPanel({
 
   function addFiles(fileList: FileList | File[]) {
     const incoming = Array.from(fileList);
+    setFilesExpanded(false);
     setSelectedFiles((current) => {
       const seen = new Set(current.map(({ file }) => `${file.name}:${file.size}`));
       const additions = incoming
@@ -163,6 +165,7 @@ export function UploadPanel({
       .filter(({ file, message }) => !message && file.size <= MAX_FILE_BYTES)
       .map(({ file }) => file);
     if (!confirmed || validFiles.length === 0 || uploading) return;
+    setFilesExpanded(false);
     setUploading(true);
     setProgress(0);
     setError("");
@@ -228,15 +231,27 @@ export function UploadPanel({
   const uploadsFinished =
     uploads.length > 0 &&
     uploads.every((row) => ["done", "partial", "unparsed", "rejected"].includes(row.status));
+  const hasRejectedOrFailedFiles =
+    selectedFiles.some(({ message }) => Boolean(message)) ||
+    uploads.some((row) => ["rejected", "failed"].includes(row.status));
+  const discoveryComplete = discovery?.state === "done" || uploadsFinished;
+  const canCollapseFiles =
+    discoveryComplete &&
+    uploads.length > 0 &&
+    selectedFiles.length === 0 &&
+    !uploading &&
+    !hasRejectedOrFailedFiles;
+  const showFiles = !canCollapseFiles || filesExpanded;
+  const fileCount = uploads.length + selectedFiles.length;
   const noticeMessage =
     discovery?.state === "failed"
       ? "Discovery failed."
-      : discovery?.state === "done" || uploadsFinished
+      : discoveryComplete
         ? "Discovery complete."
         : notice;
 
   return (
-    <div className="upload-workspace">
+    <div className={`upload-workspace${showFiles ? "" : " upload-workspace--collapsed"}`}>
       <div
         className="drop-zone discovery-drop-zone"
         onDragOver={(event) => event.preventDefault()}
@@ -305,12 +320,33 @@ export function UploadPanel({
         </div>
       )}
       {(error || (noticeMessage && !replacementNotice)) && (
-        <p className={error ? "inline-notice error-banner" : "inline-notice"} role={error ? "alert" : "status"}>
+        <p
+          className={error ? "inline-notice error-banner" : "inline-notice"}
+          hidden={!error && canCollapseFiles}
+          role={error ? "alert" : "status"}
+        >
           {error || noticeMessage}
         </p>
       )}
-      <div className="table-scroll inventory-scroll discovery-upload-table-scroll">
-        <table>
+      {canCollapseFiles && (
+        <button
+          aria-expanded={showFiles}
+          className="upload-summary"
+          onClick={() => setFilesExpanded((expanded) => !expanded)}
+          type="button"
+        >
+          {fileCount} {fileCount === 1 ? "file" : "files"} · Discovery complete ·{" "}
+          {showFiles ? "Hide files ▴" : "Show files ▾"}
+        </button>
+      )}
+      {showFiles && (
+        <div
+          aria-label="Uploaded files"
+          className="table-scroll inventory-scroll discovery-upload-table-scroll"
+          role="region"
+          tabIndex={0}
+        >
+          <table>
           <thead>
             <tr>
               <th scope="col">Select</th>
@@ -395,8 +431,9 @@ export function UploadPanel({
               </tr>
             )}
           </tbody>
-        </table>
-      </div>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

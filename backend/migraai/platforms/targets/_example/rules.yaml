@@ -1,0 +1,37 @@
+target: _example
+rules:
+  - id: _example.lint.no_select_star
+    check: lint
+    languages: [sql]
+    object_types: [view]
+    kind: forbid_regex
+    pattern: '(?is)\bselect\s+\*'
+    functions: []
+    severity: error
+    message: Views must list columns explicitly.
+    replacement: List the columns.
+  - id: _example.rule.require_from
+    check: rule
+    languages: [sql]
+    kind: require_regex
+    pattern: '(?i)\bfrom\b'
+    functions: []
+    severity: error
+    message: Queries must name their source.
+    claim:
+      text: Example-only evidence placeholder.
+      url: https://docs.example.com/rules
+      accessed: 2025-01-01
+      confidence: low
+  - id: _example.security.no_unsafe_udf
+    check: security
+    languages: [sql]
+    kind: forbid_function
+    functions: [unsafe_udf]
+    severity: error
+    message: Unsafe UDF calls are not permitted.
+    claim:
+      text: Example-only evidence placeholder.
+      url: https://docs.example.com/security
+      accessed: 2025-01-01
+      confidence: low

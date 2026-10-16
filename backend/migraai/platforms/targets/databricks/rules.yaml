@@ -1,0 +1,169 @@
+target: databricks
+rules:
+  - id: databricks.lint.no_select_star
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bselect\s+(?:distinct\s+)?\*'
+    severity: error
+    message: List columns explicitly instead of SELECT *.
+    replacement: Name the projected columns.
+  - id: databricks.lint.no_top_clause
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bselect\s+(?:distinct\s+)?top\s*\(?\s*\d'
+    severity: error
+    message: TOP is a source-dialect row limit; use ORDER BY with LIMIT.
+    replacement: ORDER BY <keys> LIMIT <n>
+    claim:
+      text: Databricks SQL constrains the number of rows returned by a query with the LIMIT clause, and LIMIT is generally used with ORDER BY for deterministic results.
+      url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-limit
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.lint.no_table_hints
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bwith\s*\(\s*(?:nolock|readuncommitted|rowlock|tablock)\s*\)'
+    severity: error
+    message: Source-dialect table hints such as WITH (NOLOCK) are not Databricks SQL.
+    replacement: Remove the table hint.
+  - id: databricks.lint.no_source_dialect_functions
+    check: lint
+    languages: [sql]
+    kind: forbid_function
+    functions: [getutcdate, sysdatetime, newid, len]
+    severity: error
+    message: Source-dialect function call; use current_timestamp(), uuid() or length().
+    replacement: current_timestamp() / uuid() / length()
+  - id: databricks.rule.no_create_index
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+(?:unique\s+)?(?:(?:non)?clustered\s+)?index\b'
+    severity: error
+    message: Databricks tables have no secondary indexes; use liquid clustering (CLUSTER BY) instead of CREATE INDEX.
+    replacement: CLUSTER BY (<filter columns>)
+    claim:
+      text: Liquid clustering replaces table partitioning and ZORDER to simplify data layout decisions and optimize query performance, and Databricks recommends it for all new tables.
+      url: https://docs.databricks.com/aws/en/tables/clustering
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.rule.identity_syntax
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bidentity\s*\(\s*\d+\s*,\s*\d+\s*\)|\bauto_?increment\b'
+    severity: error
+    message: Use GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY instead of IDENTITY(seed, step) or AUTO_INCREMENT.
+    replacement: BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1)
+    claim:
+      text: Databricks identity columns are declared with GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( [ START WITH start ] [ INCREMENT BY step ] ) ].
+      url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.rule.identity_bigint_only
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\b(?:int|integer|smallint|tinyint|decimal|numeric)(?:\s*\([^)]*\))?\s+generated\s+(?:always|by\s+default)\s+as\s+identity\b'
+    severity: error
+    message: Identity columns must be BIGINT.
+    replacement: BIGINT GENERATED ALWAYS AS IDENTITY
+    claim:
+      text: Databricks identity columns are only supported for Delta tables and the column type must be BIGINT.
+      url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.rule.no_hive_format_tables
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bstored\s+as\s+\w+|\brow\s+format\s+(?:delimited|serde)\b'
+    severity: error
+    message: Do not create Hive-format tables; create Delta tables (the default) instead.
+    replacement: Drop STORED AS / ROW FORMAT and let the table default to Delta.
+    claim:
+      text: Delta Lake is the default format for all operations on Databricks, and unless otherwise specified all tables on Databricks are Delta Lake tables.
+      url: https://docs.databricks.com/aws/en/delta/
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.rule.no_partition_with_cluster_by
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bpartitioned\s+by\b[^;]*\bcluster\s+by\b|\bcluster\s+by\b[^;]*\bpartitioned\s+by\b'
+    severity: error
+    message: Liquid clustering cannot be combined with PARTITIONED BY.
+    replacement: Keep CLUSTER BY and remove PARTITIONED BY.
+    claim:
+      text: Liquid clustering is not compatible with partitioning or ZORDER.
+      url: https://docs.databricks.com/aws/en/tables/clustering
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.rule.three_part_table_names
+    check: rule
+    languages: [sql]
+    kind: require_regex
+    pattern: '(?is)\A(?!.*\bcreate\s+(?:or\s+replace\s+)?table\b)|\bcreate\s+(?:or\s+replace\s+)?table\s+(?:if\s+not\s+exists\s+)?`?\w+`?\.`?\w+`?\.`?\w+`?'
+    severity: error
+    message: Create Unity Catalog tables with a three-part catalog.schema.table name.
+    replacement: CREATE TABLE <catalog>.<schema>.<table>
+    claim:
+      text: A Databricks table name can be qualified with a schema name, and that schema name can itself be qualified with a catalog name.
+      url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-names
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.security.no_plaintext_credentials
+    check: security
+    languages: [sql, python]
+    kind: forbid_regex
+    pattern: '(?i)\b(?:password|passwd|pwd|secret_?key|access_?key(?:_id)?|api_?key|client_secret|token)\b["'']?\s*(?:=>|=|:)?\s*["''][^"''\s]{3,}["'']|\bAKIA[0-9A-Z]{16}\b'
+    severity: error
+    message: Do not embed passwords, keys or tokens; read them with secret(scope, key) or dbutils.secrets.get.
+    replacement: secret('<scope>', '<key>')
+    claim:
+      text: Databricks recommends storing credentials as secrets and referencing them, rather than entering credentials directly into notebooks or code in plain text.
+      url: https://docs.databricks.com/aws/en/security/secrets/
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.security.no_grant_all
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+all\b'
+    severity: error
+    message: Grant specific privileges instead of ALL PRIVILEGES.
+    replacement: GRANT SELECT ON TABLE <name> TO `<group>`
+    claim:
+      text: Unity Catalog best practices state that assigning powerful privileges like ALL PRIVILEGES and MANAGE requires care.
+      url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/best-practices
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.security.no_ownership_widening
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+manage\b|\bowner\s+to\s+`?(?:account\s+users|users)`?'
+    severity: error
+    message: Do not grant MANAGE or transfer ownership to all users; assign ownership to a dedicated group.
+    replacement: ALTER TABLE <name> SET OWNER TO `<owning group>`
+    claim:
+      text: Object owners have all privileges on the object, including the ability to grant privileges to other principals.
+      url: https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/ownership
+      accessed: 2026-10-15
+      confidence: high
+  - id: databricks.security.no_public_grants
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\b[^;]*\bto\s+`?(?:account\s+users|users|public)`?\s*(?:;|$)'
+    severity: error
+    message: Do not grant to every account user; grant to a specific group.
+    replacement: GRANT ... TO `<specific group>`
+    claim:
+      text: The account users principal is the root group that contains all users in the account.
+      url: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-principal
+      accessed: 2026-10-15
+      confidence: high

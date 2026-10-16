@@ -17,6 +17,7 @@ import {
   type UploadRecord,
 } from "./api";
 import { KnowledgeBaseSettings } from "./KnowledgeBaseSettings";
+import { ConvertPanel } from "./ConvertPanel";
 import { InventoryView } from "./InventoryView";
 import { PlanningPanel } from "./PlanningPanel";
 import { ResourcesPanel } from "./ResourcesPanel";
@@ -32,9 +33,6 @@ const EMPTY_SETTINGS: SettingsResponse = {
   max_concurrent_sessions: 4,
   acu_cap_per_run: null,
 };
-
-// Enable when a later phase produces real converted output.
-const downloadAvailable = false;
 
 function SectionTitle({
   number,
@@ -250,7 +248,6 @@ export default function App() {
   const [uploads, setUploads] = useState<UploadRecord[]>([]);
   const [inventoryRevision, setInventoryRevision] = useState(0);
   const [workspaceTab, setWorkspaceTab] = useState<"planning" | "inventory">("planning");
-  const [converted, setConverted] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -273,7 +270,6 @@ export default function App() {
       })
       .catch(() => undefined);
   }, []);
-  const hasUploaded = uploads.some((row) => row.status !== "rejected");
   const objectCount = uploads.reduce(
     (total, row) => total + (row.selected ? row.object_count : 0),
     0,
@@ -367,7 +363,6 @@ export default function App() {
       setUploads([]);
       setInventoryRevision((current) => current + 1);
       setWorkspaceTab("planning");
-      setConverted(false);
       requestAnimationFrame(() => {
         const main = mainRef.current;
         const planningSection = planningSectionRef.current;
@@ -388,22 +383,16 @@ export default function App() {
     }
   }
 
-  function previewConversion() {
-    if (!hasUploaded) {
-      return;
-    }
-    setConverted(true);
-    setNotice("This Phase 1 preview does not generate converted files.");
-  }
-
   async function saveSettings(updates: SettingsUpdate) {
     const updated = await apiRequest<SettingsResponse>("/api/settings", {
       method: "PUT",
       body: updates,
     });
     setSettings(updated);
+    const updatedHealth = await apiRequest<HealthResponse>("/api/health").catch(() => null);
     setHealth((current) =>
-      current ? { ...current, devin_configured: updated.devin_pat.configured } : current,
+      updatedHealth ??
+        (current ? { ...current, devin_configured: updated.devin_pat.configured } : current),
     );
   }
 
@@ -597,31 +586,6 @@ export default function App() {
               number="4"
               title="Convert Objects"
             />
-            <div className="convert-actions">
-              <button
-                className="button primary"
-                disabled={!hasUploaded || converted}
-                onClick={previewConversion}
-                title={
-                  !hasUploaded
-                    ? "Upload files first"
-                    : converted
-                      ? "Preview already complete"
-                      : undefined
-                }
-                type="button"
-              >
-                <span aria-hidden="true">⚙</span> Convert Items
-              </button>
-              <button
-                className="button download-button"
-                disabled={!downloadAvailable}
-                title="Available once conversion is implemented in a later phase"
-                type="button"
-              >
-                <span aria-hidden="true">⇩</span> Download Converted Files
-              </button>
-            </div>
           </div>
           <p className="egress-banner">
             <svg aria-hidden="true" className="egress-icon" viewBox="0 0 16 16">
@@ -629,13 +593,23 @@ export default function App() {
               <path d="M8 7.2v3.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
               <circle cx="8" cy="4.75" r=".8" fill="currentColor" />
             </svg>
-            Converted objects and their context are sent to Devin cloud for conversion.
+            {health?.conversion_configured
+              ? health.devin_configured
+                ? "Converted objects and their context are sent to Devin cloud for conversion."
+                : "Local mock mode is active; conversion code stays on this machine."
+              : "Add a Devin API key to enable conversion; code is not sent before consent."}
           </p>
           <UploadPanel
             confirmed={sessionConfirmed}
             onInventoryChanged={refreshInventory}
             onUploadsChange={updateUploads}
             uploads={uploads}
+          />
+          <ConvertPanel
+            confirmed={sessionConfirmed}
+            refreshKey={inventoryRevision}
+            source={session?.source ?? ""}
+            target={session?.target ?? ""}
           />
           {notice && <p className="inline-notice" role="status">{notice}</p>}
         </section>
@@ -649,8 +623,8 @@ export default function App() {
           <span><i className="status-dot" /> Ready</span>
           <span><i className="status-dot" /> Local Mode</span>
           <span>
-            <i className={`status-dot ${health?.devin_configured ? "" : "muted-dot"}`} />
-            Devin: {health?.devin_configured ? "configured" : "not configured"}
+            <i className={`status-dot ${health?.conversion_configured ? "" : "muted-dot"}`} />
+            Devin: {health?.conversion_configured ? "configured" : "not configured"}
           </span>
           <span className="footer-note">Uploads are deleted on exit</span>
         </div>

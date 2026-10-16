@@ -1,0 +1,182 @@
+target: clickhouse
+rules:
+  - id: clickhouse.lint.no_select_star
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bselect\s+(?:distinct\s+)?\*'
+    severity: error
+    message: List columns explicitly instead of SELECT *; ClickHouse is column-oriented.
+    replacement: Name the projected columns.
+  - id: clickhouse.lint.no_table_hints
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bwith\s*\(\s*(?:nolock|readuncommitted|rowlock|tablock)\s*\)'
+    severity: error
+    message: Source-dialect table hints such as WITH (NOLOCK) are not ClickHouse SQL.
+    replacement: Remove the table hint.
+  - id: clickhouse.lint.no_source_dialect_functions
+    check: lint
+    languages: [sql]
+    kind: forbid_function
+    functions: [getdate, getutcdate, sysdatetime, newid]
+    severity: error
+    message: Source-dialect function call; use now() or generateUUIDv4().
+    replacement: now() / generateUUIDv4()
+  - id: clickhouse.rule.create_table_requires_engine
+    check: rule
+    languages: [sql]
+    kind: require_regex
+    pattern: '(?is)\A(?!.*\bcreate\s+(?:or\s+replace\s+)?(?:temporary\s+)?table\b)|\bengine\s*='
+    severity: error
+    message: CREATE TABLE must declare a table engine, e.g. ENGINE = MergeTree.
+    replacement: ENGINE = MergeTree ORDER BY (<keys>)
+    claim:
+      text: ClickHouse CREATE TABLE syntax includes an ENGINE = engine clause that selects the table engine.
+      url: https://clickhouse.com/docs/reference/statements/create/table
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.rule.mergetree_requires_order_by
+    check: rule
+    languages: [sql]
+    kind: require_regex
+    pattern: '(?is)\A(?!.*\bengine\s*=\s*\w*mergetree\b)|\bengine\s*=\s*\w*mergetree\b(?:\([^)]*\))?.*?\border\s+by\b'
+    severity: error
+    message: MergeTree-family tables need an ORDER BY sorting key; use ORDER BY tuple() when no sorting is wanted.
+    replacement: ORDER BY (<keys>)
+    claim:
+      text: MergeTree tables are defined with an ORDER BY sorting key, and ORDER BY tuple() can be used when no sorting is required.
+      url: https://clickhouse.com/docs/reference/engines/table-engines/mergetree-family/mergetree
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.rule.no_create_index
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+(?:unique\s+)?(?:(?:non)?clustered\s+)?index\b'
+    severity: error
+    message: Replace secondary B-tree indexes with the ORDER BY sorting key or ALTER TABLE ... ADD INDEX ... TYPE skipping indexes.
+    replacement: ALTER TABLE <t> ADD INDEX <name> <expr> TYPE minmax GRANULARITY 1
+    claim:
+      text: ClickHouse data skipping indexes are added with ALTER TABLE ... ADD INDEX name expression TYPE type [GRANULARITY value].
+      url: https://clickhouse.com/docs/reference/statements/alter/skipping-index
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.rule.no_alter_update_mutation
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\balter\s+table\b[^;]*?\bupdate\b[^;]*?\bwhere\b'
+    severity: error
+    message: ALTER TABLE ... UPDATE is a heavy mutation; redesign as INSERT into a ReplacingMergeTree or use lightweight UPDATE where enabled.
+    replacement: INSERT new row versions into a ReplacingMergeTree table.
+    claim:
+      text: ClickHouse ALTER TABLE ... UPDATE is implemented as a mutation, which is a heavy operation not designed for frequent use.
+      url: https://clickhouse.com/docs/reference/statements/alter/update
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.rule.no_alter_delete_mutation
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\balter\s+table\b[^;]*?\bdelete\s+where\b'
+    severity: error
+    message: ALTER TABLE ... DELETE is a heavyweight mutation; use lightweight DELETE FROM ... WHERE on MergeTree tables.
+    replacement: DELETE FROM <table> WHERE <condition>
+    claim:
+      text: Lightweight DELETE FROM ... WHERE is available for MergeTree-family tables, whereas ALTER TABLE ... DELETE is a heavyweight mutation.
+      url: https://clickhouse.com/docs/reference/statements/delete
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.rule.delete_requires_where
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bdelete\s+from\s+[\w.`"]+\s*;'
+    severity: error
+    message: DELETE FROM requires a WHERE filter; use TRUNCATE TABLE to empty a table.
+    replacement: DELETE FROM <table> WHERE <condition>
+    claim:
+      text: The ClickHouse lightweight DELETE statement has the form DELETE FROM [db.]table WHERE expr.
+      url: https://clickhouse.com/docs/reference/statements/delete
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.rule.no_multi_statement_transactions
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?im)\b(?:begin|start)\s+transaction\b|^\s*(?:commit|rollback)(?:\s+work)?\s*;'
+    severity: error
+    message: Do not rely on multi-statement transactions; make loads idempotent and atomic per INSERT block.
+    replacement: Use a single INSERT ... SELECT, or a staging table plus EXCHANGE/REPLACE PARTITION.
+    claim:
+      text: ClickHouse support for transactions across multiple statements is experimental, while inserts of a single block into a MergeTree-family table are atomic.
+      url: https://clickhouse.com/docs/concepts/features/operations/insert/transactions
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.security.no_plaintext_password
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bplaintext_password\b|\bidentified\s+(?:with\s+(?:sha256_password|double_sha1_password)\s+)?by\s+'''
+    severity: error
+    message: Do not create users with plaintext passwords in SQL; use sha256_hash/bcrypt_hash or external authentication.
+    replacement: IDENTIFIED WITH sha256_hash BY '<hash>' SALT '<salt>'
+    claim:
+      text: ClickHouse stores a plaintext_password in a SQL text file, so it is not a good idea to use plaintext_password.
+      url: https://clickhouse.com/docs/reference/statements/create/user
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.security.no_inline_storage_credentials
+    check: security
+    languages: [sql, python]
+    kind: forbid_regex
+    pattern: '(?i)\b(?:aws_access_key_id|aws_secret_access_key|access_key_id|secret_access_key|password|api_?key|token)\b["'']?\s*(?:=>|=|:)?\s*["''][^"''\s]{3,}["'']|\bAKIA[0-9A-Z]{16}\b'
+    severity: error
+    message: Do not embed access keys or secrets in table functions or engines; use named collections or role-based access.
+    replacement: s3(<named_collection>, ...) or extra_credentials(role_arn = ...)
+    claim:
+      text: The ClickHouse S3 table engine accepts optional long-term aws_access_key_id and aws_secret_access_key credentials, and an extra_credentials role_arn option for role-based access in ClickHouse Cloud.
+      url: https://clickhouse.com/docs/reference/engines/table-engines/integrations/s3
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.security.no_grant_all
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+all\b|\bgrant\b[^;]*\bon\s+\*\.\*'
+    severity: error
+    message: Grant specific privileges on specific databases or tables, not ALL or *.*.
+    replacement: GRANT SELECT ON <db>.<table> TO <role>
+    claim:
+      text: ClickHouse documentation uses GRANT ALL ON *.* ... WITH GRANT OPTION to create an administrator account.
+      url: https://clickhouse.com/docs/concepts/features/security/access-rights
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.security.no_ownership_widening
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bwith\s+(?:grant|admin)\s+option\b|\bgrant\s+access\s+management\b'
+    severity: error
+    message: Do not pass on grant/admin rights from converted code.
+    replacement: Remove WITH GRANT OPTION; manage administrators separately.
+    claim:
+      text: The ClickHouse WITH GRANT OPTION clause grants a user or role permission to execute the GRANT query.
+      url: https://clickhouse.com/docs/reference/statements/grant
+      accessed: 2026-10-15
+      confidence: high
+  - id: clickhouse.security.no_public_grants
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\b[^;]*\bto\s+(?:default|public|all)\b'
+    severity: error
+    message: Do not grant to the default user or to all users; grant to a named role.
+    replacement: GRANT ... TO <named role>
+    claim:
+      text: The ClickHouse default user account has all rights and permissions, and the documentation recommends restricting its permissions.
+      url: https://clickhouse.com/docs/concepts/features/security/access-rights
+      accessed: 2026-10-15
+      confidence: high

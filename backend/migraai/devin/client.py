@@ -12,7 +12,9 @@ V3 terminate: https://docs.devin.ai/api-reference/v3/sessions/delete-organizatio
 
 from __future__ import annotations
 
+import os
 import re
+from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
 import httpx
@@ -69,24 +71,26 @@ class DevinClient:
         prompt: str,
         *,
         schema: dict,
-        max_acu_limit: int,
+        max_acu_limit: int | None,
         title: str,
         tags: list[str],
     ) -> tuple[str, str]:
         attachment_match = re.search(r'^ATTACHMENT:"(https?://[^"]+)"$', prompt, re.MULTILINE)
         attachment_urls = [attachment_match.group(1)] if attachment_match else []
+        payload = {
+            "prompt": prompt,
+            "attachment_urls": attachment_urls,
+            "structured_output_schema": schema,
+            "structured_output_required": True,
+            "resumable": False,
+            "title": title,
+            "tags": tags,
+        }
+        if max_acu_limit is not None:
+            payload["max_acu_limit"] = max_acu_limit
         response = self.client.post(
             f"/v3/organizations/{self.org_id}/sessions",
-            json={
-                "prompt": prompt,
-                "attachment_urls": attachment_urls,
-                "structured_output_schema": schema,
-                "structured_output_required": True,
-                "max_acu_limit": max_acu_limit,
-                "resumable": False,
-                "title": title,
-                "tags": tags,
-            },
+            json=payload,
         )
         response.raise_for_status()
         result = response.json()
@@ -111,11 +115,15 @@ class DevinClient:
             state = "failed"
         else:
             state = "working"
-        return {
+        session = {
             "state": state,
             "detail": _status_detail(status, detail),
             "structured_output": result.get("structured_output"),
         }
+        acus_consumed = result.get("acus_consumed")
+        if isinstance(acus_consumed, (int, float)) and not isinstance(acus_consumed, bool):
+            session["acus"] = float(acus_consumed)
+        return session
 
     def terminate_session(self, session_id: str) -> None:
         response = self.client.delete(self._session_path(session_id))
@@ -163,20 +171,22 @@ class DevinV1Client:
         prompt: str,
         *,
         schema: dict,
-        max_acu_limit: int,
+        max_acu_limit: int | None,
         title: str,
         tags: list[str],
     ) -> tuple[str, str]:
+        payload = {
+            "prompt": prompt,
+            "structured_output_schema": schema,
+            "title": title,
+            "tags": tags,
+            "idempotent": False,
+        }
+        if max_acu_limit is not None:
+            payload["max_acu_limit"] = max_acu_limit
         response = self.client.post(
             "/v1/sessions",
-            json={
-                "prompt": prompt,
-                "structured_output_schema": schema,
-                "max_acu_limit": max_acu_limit,
-                "title": title,
-                "tags": tags,
-                "idempotent": False,
-            },
+            json=payload,
         )
         response.raise_for_status()
         result = response.json()
@@ -209,3 +219,20 @@ class DevinV1Client:
 
     def close(self) -> None:
         self.client.close()
+
+
+def build_devin_client(base_url: str, org_id: str, pat: str) -> Any | None:
+    if os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1":
+        from migraai.devin.mock import MockDevinClient, MockScenario
+
+        scenario = MockScenario(
+            different_candidate_per_stance=(
+                os.environ.get("MIGRAAI_TEST_MOCK_DEVIN_DIFFERENT_CANDIDATE") == "1"
+            )
+        )
+        return MockDevinClient(scenario=scenario)
+    if pat.startswith("apk_"):
+        return DevinV1Client(base_url, pat)
+    if pat.startswith("cog_") and org_id:
+        return DevinClient(base_url, org_id, pat)
+    return None

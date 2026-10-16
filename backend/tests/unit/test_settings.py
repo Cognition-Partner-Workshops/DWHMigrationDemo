@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+from pydantic import ValidationError
+
 from migraai.core.secrets import DevFileKeyProtector
 from migraai.core.settings_store import SettingsStore, SettingsUpdate
 
@@ -13,6 +16,8 @@ def test_settings_defaults_and_encrypted_pat_storage(tmp_path: Path) -> None:
     assert store.read().max_concurrent_sessions == 4
     assert store.read().plan_acu_cap == 10
     assert store.read().plan_timeout_minutes == 30
+    assert store.read().conversion_batch_size == 20
+    assert store.read().conversion_session_timeout_minutes == 45
     assert store.read().token_kind == "none"
     assert store.read().devin_api_base_url == "https://api.devin.ai"
     assert not store.read().devin_pat.configured
@@ -26,6 +31,8 @@ def test_settings_defaults_and_encrypted_pat_storage(tmp_path: Path) -> None:
             acu_cap_per_run=50,
             plan_acu_cap=25,
             plan_timeout_minutes=45,
+            conversion_batch_size=35,
+            conversion_session_timeout_minutes=60,
         )
     )
     assert changed == {
@@ -36,6 +43,8 @@ def test_settings_defaults_and_encrypted_pat_storage(tmp_path: Path) -> None:
         "acu_cap_per_run",
         "plan_acu_cap",
         "plan_timeout_minutes",
+        "conversion_batch_size",
+        "conversion_session_timeout_minutes",
     }
     result = store.read()
     assert result.devin_pat.configured
@@ -45,6 +54,8 @@ def test_settings_defaults_and_encrypted_pat_storage(tmp_path: Path) -> None:
     assert result.max_concurrent_sessions == 8
     assert result.plan_acu_cap == 25
     assert result.plan_timeout_minutes == 45
+    assert result.conversion_batch_size == 35
+    assert result.conversion_session_timeout_minutes == 60
 
     store.update(SettingsUpdate(devin_pat=""))
     assert not store.read().devin_pat.configured
@@ -68,3 +79,17 @@ def test_settings_normalize_api_base_url_and_classify_token_prefix(tmp_path: Pat
     assert store.read().token_kind == "none"
     store.update(SettingsUpdate(devin_pat=""))
     assert store.read().token_kind == "none"
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("conversion_batch_size", 0),
+        ("conversion_batch_size", 51),
+        ("conversion_session_timeout_minutes", 4),
+        ("conversion_session_timeout_minutes", 241),
+    ],
+)
+def test_conversion_settings_api_validation_ranges(field: str, value: int) -> None:
+    with pytest.raises(ValidationError):
+        SettingsUpdate(**{field: value})

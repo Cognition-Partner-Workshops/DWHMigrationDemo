@@ -1,0 +1,24 @@
+query_antipatterns.sql:
+  - snowflake.rule.top_requires_order_by
+  - snowflake.lint.no_select_star
+  - snowflake.lint.no_table_hints
+  - snowflake.lint.no_bracket_identifiers
+  - snowflake.lint.no_source_dialect_functions
+legacy_index.sql:
+  - snowflake.rule.no_create_index
+legacy_payload_and_staging.sql:
+  - snowflake.rule.use_variant_for_semi_structured
+  - snowflake.rule.transient_staging_tables
+top_without_order.sql:
+  - snowflake.rule.top_requires_order_by
+window_filter_without_qualify.sql:
+  - snowflake.rule.use_qualify
+transaction_ddl.sql:
+  - snowflake.rule.no_ddl_in_explicit_transaction
+procedure_without_execute_as.sql:
+  - snowflake.rule.procedure_execute_as
+security_grants.sql:
+  - snowflake.security.no_plaintext_credentials
+  - snowflake.security.no_grant_all
+  - snowflake.security.no_ownership_widening
+  - snowflake.security.no_public_grants

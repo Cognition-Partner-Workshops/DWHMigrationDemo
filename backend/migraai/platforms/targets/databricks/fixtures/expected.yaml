@@ -1,0 +1,20 @@
+query_antipatterns.sql:
+  - databricks.lint.no_select_star
+  - databricks.lint.no_top_clause
+  - databricks.lint.no_table_hints
+  - databricks.lint.no_source_dialect_functions
+legacy_index.sql:
+  - databricks.rule.no_create_index
+legacy_identity.sql:
+  - databricks.rule.identity_syntax
+  - databricks.rule.identity_bigint_only
+hive_table.sql:
+  - databricks.rule.no_hive_format_tables
+  - databricks.rule.three_part_table_names
+partitioned_clustered_table.sql:
+  - databricks.rule.no_partition_with_cluster_by
+security_grants.sql:
+  - databricks.security.no_plaintext_credentials
+  - databricks.security.no_grant_all
+  - databricks.security.no_ownership_widening
+  - databricks.security.no_public_grants

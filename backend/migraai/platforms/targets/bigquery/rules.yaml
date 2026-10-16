@@ -1,0 +1,200 @@
+target: bigquery
+rules:
+  - id: bigquery.lint.no_select_star
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bselect\s+(?:distinct\s+)?\*'
+    severity: error
+    message: List columns explicitly instead of SELECT *; it reads every column.
+    replacement: Name the projected columns.
+    claim:
+      text: BigQuery performance best practices recommend avoiding SELECT * and querying only the columns you need.
+      url: https://docs.cloud.google.com/bigquery/docs/best-practices-performance-compute
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.lint.no_table_hints
+    check: lint
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bwith\s*\(\s*(?:nolock|readuncommitted|rowlock|tablock)\s*\)'
+    severity: error
+    message: Source-dialect table hints such as WITH (NOLOCK) are not GoogleSQL.
+    replacement: Remove the table hint.
+  - id: bigquery.lint.no_source_dialect_functions
+    check: lint
+    languages: [sql]
+    kind: forbid_function
+    functions: [getdate, getutcdate, sysdatetime, newid]
+    severity: error
+    message: Source-dialect function call; use CURRENT_TIMESTAMP() or GENERATE_UUID().
+    replacement: CURRENT_TIMESTAMP() / GENERATE_UUID()
+  - id: bigquery.rule.backtick_identifiers
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '"[A-Za-z_][\w-]*"\s*\.\s*"?[A-Za-z_]|\[[A-Za-z_][\w ]*\]\s*\.'
+    severity: error
+    message: Quote identifiers with backticks; double quotes delimit string literals in GoogleSQL.
+    replacement: '`project.dataset.table`'
+    claim:
+      text: GoogleSQL quoted identifiers are enclosed by backtick characters, while double-quoted text is a string literal.
+      url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/lexical
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.rule.update_requires_where
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bupdate\s+(?!set\b)[`\w.-]+(?:\s+(?:as\s+)?(?!set\b)\w+)?\s+set\b(?:(?!\bwhere\b)[^;])*;'
+    severity: error
+    message: UPDATE statements must include WHERE; use WHERE TRUE to update every row deliberately.
+    replacement: UPDATE <table> SET ... WHERE <condition>
+    claim:
+      text: Each BigQuery UPDATE statement must include the WHERE keyword followed by a condition; to update all rows, use WHERE true.
+      url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.rule.delete_requires_where
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bdelete\s+(?:from\s+)?[`\w.-]+(?:\s+(?:as\s+)?(?!where\b)\w+)?\s*;'
+    severity: error
+    message: DELETE statements must include WHERE.
+    replacement: DELETE FROM <table> WHERE <condition>
+    claim:
+      text: The WHERE keyword is mandatory for any BigQuery DELETE statement.
+      url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.rule.merge_dedup_source
+    check: rule
+    languages: [sql]
+    kind: require_regex
+    pattern: '(?is)\A(?!.*\bmerge\b)|\bmerge\b.*?\busing\s*\(.*?\b(?:qualify|distinct|group\s+by)\b'
+    severity: error
+    message: MERGE sources must be de-duplicated (QUALIFY, DISTINCT or GROUP BY) so each target row matches at most one source row.
+    replacement: USING (SELECT ... QUALIFY ROW_NUMBER() OVER (PARTITION BY <key> ORDER BY <ts> DESC) = 1)
+    claim:
+      text: BigQuery raises the runtime error "UPDATE/MERGE must match at most one source row for each target row" when a target row matches multiple source rows.
+      url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.rule.no_nested_arrays
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\barray\s*<\s*array\b'
+    severity: error
+    message: ARRAY<ARRAY<...>> is not allowed; wrap the inner array in a STRUCT.
+    replacement: ARRAY<STRUCT<items ARRAY<...>>>
+    claim:
+      text: GoogleSQL does not allow arrays of arrays; an array of arrays can be expressed as an ARRAY of STRUCT values that contain arrays.
+      url: https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.rule.no_create_index
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcreate\s+(?:unique\s+)?(?:(?:non)?clustered\s+)?index\b'
+    severity: error
+    message: BigQuery has no B-tree indexes; use partitioning and CLUSTER BY instead of CREATE INDEX.
+    replacement: PARTITION BY <date column> CLUSTER BY <columns>
+    claim:
+      text: BigQuery clustered tables sort storage blocks by up to four clustering columns, which can improve query performance and reduce costs for filtered queries.
+      url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.rule.max_four_cluster_columns
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bcluster\s+by\s+[^,;\n]+(?:,[^,;\n]+){4,}'
+    severity: error
+    message: BigQuery tables support at most four clustering columns.
+    replacement: Keep the four most selective filter columns.
+    claim:
+      text: A BigQuery table can be clustered by up to four columns.
+      url: https://docs.cloud.google.com/bigquery/docs/clustered-tables
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.rule.no_permanent_ddl_in_transaction
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?is)\bbegin\s+transaction\b(?:(?!\b(?:commit|rollback)\b).)*?\b(?:create|drop)\s+(?:or\s+replace\s+)?(?:table|view|schema|function)\b'
+    severity: error
+    message: DDL that creates or drops permanent entities is not supported inside a transaction; only temporary entities are allowed.
+    replacement: Use CREATE TEMP TABLE inside the transaction, or move the DDL outside it.
+    claim:
+      text: DDL statements that create or drop permanent entities, such as datasets, tables and functions, are not supported inside BigQuery multi-statement transactions.
+      url: https://docs.cloud.google.com/bigquery/docs/transactions
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.rule.primary_key_not_enforced
+    check: rule
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\b(?:primary\s+key|foreign\s+key)\s*\([^)]*\)(?!\s*(?:references\s+[`\w.-]+\s*\([^)]*\)\s*)?not\s+enforced)'
+    severity: error
+    message: Primary and foreign keys must be declared NOT ENFORCED; BigQuery does not enforce them.
+    replacement: PRIMARY KEY (<columns>) NOT ENFORCED
+    claim:
+      text: BigQuery primary key and foreign key constraints are not enforced.
+      url: https://docs.cloud.google.com/bigquery/docs/primary-foreign-keys
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.security.no_plaintext_credentials
+    check: security
+    languages: [sql, python]
+    kind: forbid_regex
+    pattern: '(?i)\b(?:password|passwd|pwd|secret_?key|private_key|access_?key(?:_id)?|api_?key|client_secret|token)\b["'']?\s*(?:=>|=|:)?\s*["''][^"''\s]{3,}["'']|\bAKIA[0-9A-Z]{16}\b|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+    severity: error
+    message: Do not embed passwords, keys or tokens; store them in Secret Manager and use connections or service accounts.
+    replacement: Reference a Secret Manager secret or a BigQuery connection.
+    claim:
+      text: Secret Manager lets you store, manage and access secrets such as API keys, user names, passwords and certificates.
+      url: https://docs.cloud.google.com/secret-manager/docs/overview
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.security.no_basic_roles
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+all\b|\bgrant\s+`?roles/(?:owner|editor|viewer)\b'
+    severity: error
+    message: Do not grant ALL or basic roles; grant a predefined BigQuery role on the narrowest resource.
+    replacement: GRANT `roles/bigquery.dataViewer` ON TABLE <table> TO "group:<group>"
+    claim:
+      text: Google Cloud cautions to avoid using basic roles because they predate IAM and grant excessive and uneven access.
+      url: https://docs.cloud.google.com/bigquery/docs/access-control-basic-roles
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.security.no_ownership_widening
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\bgrant\s+`?roles/bigquery\.(?:admin|dataowner)\b'
+    severity: error
+    message: Do not grant BigQuery Admin or Data Owner from converted code; ownership changes need a reviewed IAM change.
+    replacement: Grant roles/bigquery.dataViewer or roles/bigquery.dataEditor.
+    claim:
+      text: When granted on a dataset, the BigQuery Data Owner role (roles/bigquery.dataOwner) grants all permissions for the dataset and all resources within it.
+      url: https://docs.cloud.google.com/bigquery/docs/access-control
+      accessed: 2026-10-15
+      confidence: high
+  - id: bigquery.security.no_public_principals
+    check: security
+    languages: [sql]
+    kind: forbid_regex
+    pattern: '(?i)\b(?:allusers|allauthenticatedusers)\b'
+    severity: error
+    message: Do not grant to allUsers or allAuthenticatedUsers.
+    replacement: Grant to a specific "group:" or "serviceAccount:" principal.
+    claim:
+      text: allUsers represents anyone on the internet, authenticated or unauthenticated, and allAuthenticatedUsers represents all users and service accounts authenticated with a Google Account.
+      url: https://docs.cloud.google.com/iam/docs/principals-overview
+      accessed: 2026-10-15
+      confidence: high

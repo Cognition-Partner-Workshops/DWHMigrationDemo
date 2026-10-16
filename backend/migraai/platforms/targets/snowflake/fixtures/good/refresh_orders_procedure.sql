@@ -1,0 +1,16 @@
+-- Converted: order aggregation is exposed as a SQL procedure
+-- Reason: caller privileges are sufficient for the scheduled refresh
+CREATE OR REPLACE PROCEDURE ANALYTICS.SALES.REFRESH_ORDERS()
+RETURNS VARCHAR
+LANGUAGE SQL
+EXECUTE AS CALLER
+AS
+$$
+BEGIN
+  INSERT INTO ANALYTICS.SALES.DAILY_ORDER_TOTALS (ORDER_DATE, ORDER_COUNT)
+  SELECT ORDER_DATE, COUNT(*)
+  FROM ANALYTICS.SALES.ORDERS
+  GROUP BY ORDER_DATE;
+  RETURN 'refreshed';
+END;
+$$;

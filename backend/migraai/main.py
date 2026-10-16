@@ -18,6 +18,7 @@ from fastapi.responses import FileResponse, Response
 
 from migraai.api import (
     auth,
+    convert,
     health,
     inventory,
     kb,
@@ -222,6 +223,8 @@ def create_app(
         app.state.plan_store = PlanStore(resolved_data_dir / "app.db")
         app.state.plan_store.initialize()
         app.state.plan_job = None
+        app.state.convert_job = None
+        app.state.convert_lock = threading.Lock()
         app.state.kb_refresh_job = None
         app.state.kb_job_lock = threading.Lock()
         try:
@@ -281,6 +284,7 @@ def create_app(
     app.include_router(session.router)
     app.include_router(kb.router)
     app.include_router(plan.router)
+    app.include_router(convert.router)
     app.include_router(resources.router)
     app.include_router(uploads.router)
     app.include_router(inventory.router)

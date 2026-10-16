@@ -1,0 +1,73 @@
+target: clickhouse
+identifier_case: preserve
+quote_char: "`"
+# Conservative project limit; ClickHouse documentation opened for this pack states no identifier maximum.
+max_identifier_length: 255
+qualification: two_part
+reserved_words:
+  - "SELECT"
+  - "FROM"
+  - "WHERE"
+  - "PREWHERE"
+  - "GROUP"
+  - "BY"
+  - "ORDER"
+  - "HAVING"
+  - "LIMIT"
+  - "OFFSET"
+  - "JOIN"
+  - "INNER"
+  - "LEFT"
+  - "RIGHT"
+  - "FULL"
+  - "CROSS"
+  - "ARRAY"
+  - "ON"
+  - "USING"
+  - "AS"
+  - "WITH"
+  - "UNION"
+  - "INSERT"
+  - "INTO"
+  - "VALUES"
+  - "CREATE"
+  - "ALTER"
+  - "DROP"
+  - "TABLE"
+  - "DATABASE"
+  - "VIEW"
+  - "ENGINE"
+  - "PARTITION"
+  - "FINAL"
+  - "SAMPLE"
+  - "SETTINGS"
+  - "FORMAT"
+  - "QUALIFY"
+  - "NOT"
+  - "NULL"
+  - "AND"
+  - "OR"
+  - "IN"
+  - "IS"
+  - "LIKE"
+  - "CASE"
+  - "WHEN"
+  - "THEN"
+  - "ELSE"
+  - "END"
+  - "DISTINCT"
+  - "ALL"
+  - "ANY"
+claims:
+  - text: ClickHouse keywords are not reserved and are treated as keywords only in the corresponding context; identifiers with the same name as keywords must be enclosed in double quotes or backticks.
+    url: https://clickhouse.com/docs/reference/syntax
+    accessed: 2026-10-15
+    confidence: high
+  - text: Non-quoted ClickHouse identifiers must match the regex ^[a-zA-Z_][0-9a-zA-Z_]*$, and keywords other than SQL-standard ones, including function names, are case-sensitive.
+    url: https://clickhouse.com/docs/reference/syntax
+    accessed: 2026-10-15
+    confidence: high
+  - text: ClickHouse CREATE TABLE names a table as [db.]table_name.
+    url: https://clickhouse.com/docs/reference/statements/create/table
+    accessed: 2026-10-15
+    confidence: high

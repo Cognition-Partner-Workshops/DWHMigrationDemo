@@ -21,6 +21,8 @@ dependencies = [
   "xhtml2pdf>=0.2.16",
   "defusedxml>=0.7.1",
   "python-multipart>=0.0.32",
+  "sqlglot>=30",
+  "langgraph>=1",
 ]
 
 [dependency-groups]
