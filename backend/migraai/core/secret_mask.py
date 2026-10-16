@@ -3,9 +3,14 @@ from __future__ import annotations
 import re
 
 MASKED_SECRET_PLACEHOLDER = "***MASKED***"
+MASKED_PLACEHOLDER_TOKEN = "MASKED_PLACEHOLDER"
 _MASKED = MASKED_SECRET_PLACEHOLDER
-_QUOTED_VALUE = r"""(?P<quote>['"])(?!\*\*\*MASKED\*\*\*)(?:\\.|(?!(?P=quote)).)*(?P=quote)"""
-_BARE_VALUE = r"""(?!(?:\*\*\*MASKED\*\*\*|['"]))[^\s,;)}\]]+"""
+_MASKED_VALUE_PATTERN = rf"(?:\*\*\*MASKED\*\*\*|{re.escape(MASKED_PLACEHOLDER_TOKEN)})"
+_QUOTED_VALUE = (
+    rf"""(?P<quote>['"])(?!{_MASKED_VALUE_PATTERN}(?P=quote))"""
+    r"""(?:\\.|(?!(?P=quote)).)*(?P=quote)"""
+)
+_BARE_VALUE = rf"""(?!(?:{_MASKED_VALUE_PATTERN}|['"]))[^\s,;)}}\]]+"""
 _VALUE = rf"(?P<value>{_QUOTED_VALUE}|{_BARE_VALUE})"
 _VALUE_PATTERNS = (
     re.compile(rf"(?i)(?P<prefix>\bPASSWORD\b\s+)(?!=)\s*{_VALUE}"),
@@ -19,7 +24,14 @@ _VALUE_PATTERNS = (
     re.compile(rf"(?i)(?P<prefix>(?<!\S)-[pP](?:w)?\s+){_VALUE}"),
     re.compile(rf"(?i)(?P<prefix>\bCONNECT\s+TO\b[^\r\n;]*?\bUSING\s+){_VALUE}"),
 )
-_LOGON_PATTERN = re.compile(r"(?im)(?P<prefix>^\s*\.LOGON\s+)(?!\*\*\*MASKED\*\*\*)[^\r\n]+")
+_LOGON_MASKED_VALUE = (
+    rf"""(?:'{_MASKED_VALUE_PATTERN}'|"{_MASKED_VALUE_PATTERN}"|{_MASKED_VALUE_PATTERN})"""
+)
+_LOGON_PATTERN = re.compile(
+    rf"(?im)(?P<prefix>^\s*\.LOGON\s+)"
+    rf"(?=[^,\r\n]*,\s*(?!{_LOGON_MASKED_VALUE}(?=\s|$|[;,]))\S+)"
+    r"[^\r\n]+"
+)
 _AWS_PATTERN = re.compile(r"\bAKIA[0-9A-Z]{16}\b")
 _PEM_PATTERN = re.compile(
     r"-----BEGIN [A-Z ]*PRIVATE KEY-----.*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)",
@@ -60,9 +72,7 @@ def mask_secrets(text: str) -> str:
 
 
 def blank_masked_secret_placeholders(text: str) -> str:
-    quoted_placeholder = re.compile(rf"""(['"]){re.escape(MASKED_SECRET_PLACEHOLDER)}\1""")
-    text = quoted_placeholder.sub(lambda match: " " * len(match.group()), text)
-    return text.replace(MASKED_SECRET_PLACEHOLDER, " " * len(MASKED_SECRET_PLACEHOLDER))
+    return text.replace(MASKED_SECRET_PLACEHOLDER, MASKED_PLACEHOLDER_TOKEN)
 
 
 def contains_secret(text: str) -> bool:
@@ -71,6 +81,7 @@ def contains_secret(text: str) -> bool:
 
 __all__ = [
     "MASKED_SECRET_PLACEHOLDER",
+    "MASKED_PLACEHOLDER_TOKEN",
     "SecretAttachmentError",
     "_SECRET_PATTERNS",
     "blank_masked_secret_placeholders",

@@ -1,6 +1,14 @@
+from pathlib import Path
+
 import pytest
 
-from migraai.core.secret_mask import _SECRET_PATTERNS, contains_secret, mask_secrets
+from migraai.core.secret_mask import (
+    _SECRET_PATTERNS,
+    MASKED_PLACEHOLDER_TOKEN,
+    blank_masked_secret_placeholders,
+    contains_secret,
+    mask_secrets,
+)
 
 
 @pytest.mark.parametrize(
@@ -46,3 +54,21 @@ def test_mask_secrets(source: str, expected: str) -> None:
     assert not any(pattern.search(mask_secrets(source)) for pattern in _SECRET_PATTERNS)
     assert contains_secret(source)
     assert not contains_secret(mask_secrets(source))
+
+
+def test_neutral_mask_placeholder_does_not_match_secret_patterns() -> None:
+    masked = blank_masked_secret_placeholders("PASSWORD = '***MASKED***'")
+
+    assert masked == f"PASSWORD = '{MASKED_PLACEHOLDER_TOKEN}'"
+    assert all(not pattern.search(MASKED_PLACEHOLDER_TOKEN) for pattern in _SECRET_PATTERNS)
+    assert all(not pattern.search(masked) for pattern in _SECRET_PATTERNS)
+
+
+def test_masked_testpacks_have_no_secret_pattern_matches() -> None:
+    testpacks = Path(__file__).resolve().parents[3] / "testpacks"
+
+    for path in testpacks.rglob("*"):
+        if not path.is_file():
+            continue
+        masked = blank_masked_secret_placeholders(mask_secrets(path.read_text(encoding="utf-8")))
+        assert not any(pattern.search(masked) for pattern in _SECRET_PATTERNS), path

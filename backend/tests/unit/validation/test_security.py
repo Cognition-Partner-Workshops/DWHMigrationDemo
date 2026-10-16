@@ -44,6 +44,19 @@ def test_masked_secret_placeholder_is_only_a_warning_and_check_passes(
     assert next(result for result in results if result.check == "security").status == "passed"
 
 
+def test_masked_logon_placeholder_is_only_a_warning_and_check_passes(
+    make_context, make_object
+) -> None:
+    obj = make_object(content=".LOGON host/user,'***MASKED***'")
+    findings = security.validate(obj, make_context())
+
+    assert [(finding.rule_id, finding.severity) for finding in findings] == [
+        ("security.masked_secret_placeholder", "warning")
+    ]
+    results = validate_object(obj, make_context())
+    assert next(result for result in results if result.check == "security").status == "passed"
+
+
 def test_real_password_remains_a_security_error(make_context, make_object) -> None:
     findings = security.validate(
         make_object(content="CREATE USER analyst PASSWORD = 'abc'"),
@@ -53,6 +66,15 @@ def test_real_password_remains_a_security_error(make_context, make_object) -> No
     assert ("security.secret_in_output", "error") in {
         (finding.rule_id, finding.severity) for finding in findings
     }
+
+
+def test_real_logon_credential_remains_a_security_error(make_context, make_object) -> None:
+    findings = security.validate(make_object(content=".LOGON host/user,realpw"), make_context())
+
+    assert ("security.secret_in_output", "error") in {
+        (finding.rule_id, finding.severity) for finding in findings
+    }
+    assert "security.masked_secret_placeholder" not in {finding.rule_id for finding in findings}
 
 
 def test_grant_all_and_public_are_errors(make_context, make_object) -> None:
