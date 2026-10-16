@@ -101,9 +101,13 @@ def test_evil_name_escaped_md_and_pdf() -> None:
     row = next(line for line in md.splitlines() if "alert" in line)
     unescaped = re.compile(r"(?<!\\)\|")
     assert len(unescaped.findall(row)) == len(unescaped.findall(header))
+    row = next(line for line in md.splitlines() if "alert" in line)
+    assert "&lt;/script&gt;" in row
+    assert "[path removed]" not in row
     html = _report_html(pkg)
     assert "<script" not in html
-    assert "alert(1)" in _pdf_text(build_report_pdf(pkg))
+    text = _pdf_text(build_report_pdf(pkg)).replace(" ", "").replace("\n", "")
+    assert "alert(1)" in text
 
 
 def test_300_objects_pdf_multipage() -> None:
@@ -160,6 +164,8 @@ def test_absolute_paths_scrubbed() -> None:
     assert "C:\\Users" not in md
     assert "/home/bob" not in md
     assert "https://devin.example/sessions/a" in md
+    assert "n/a" in md
+    assert "converted/teradata-testpack/tables-converted.sql" in md
 
 
 def test_egress_none_and_blocked_batches() -> None:
@@ -170,6 +176,18 @@ def test_egress_none_and_blocked_batches() -> None:
     md = build_report_md(dataclasses.replace(pkg, egress=blocked))
     assert "WARNING" in md
     assert "blocked" in md
+
+
+def test_report_html_entities_not_split() -> None:
+    pkg = sample_package()
+    evil = dataclasses.replace(
+        pkg.objects[0],
+        source_qualified_name="evil<script>alert(1)</script>|x" + "a" * 170,
+    )
+    pkg = dataclasses.replace(pkg, objects=(evil,) + pkg.objects[1:])
+    body = _report_html(pkg).split("<body>", 1)[1]
+    for match in re.finditer(r"&", body):
+        assert re.match(r"&[#A-Za-z0-9]+;", body[match.start() :])
 
 
 def test_long_name_wraps() -> None:

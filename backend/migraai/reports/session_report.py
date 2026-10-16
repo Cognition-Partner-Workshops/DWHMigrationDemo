@@ -20,7 +20,9 @@ from migraai.validation.findings import CheckName
 
 _TEMPLATE_DIR = Path(__file__).parent / "templates"
 
-_ABS_PATH = re.compile(r"(?<![\w:/\\])(?:[A-Za-z]:[\\/]|\\\\|/(?=[^\s/]))[^\s'\"<>|]*")
+_ABS_PATH = re.compile(
+    r"(?<![\w:/\\])(?:[A-Za-z]:[\\/]|\\\\|/[^\s/'\"<>|]+/[^\s'\"<>|]*)[^\s'\"<>|]*"
+)
 _ABS_PREFIX = re.compile(r"^(?:[A-Za-z]:[\\/]|\\\\|/)")
 _WS = re.compile(r"[\r\n\t]+")
 _SAFE_URL = re.compile(r"^https://[^\s()<>\[\]]+$")
@@ -59,7 +61,7 @@ def _link(url: str | None) -> str:
     if url is None:
         return "n/a"
     if _SAFE_URL.match(url):
-        return f"[{url}]({url})"
+        return f"[{_md(url)}]({url})"
     return _md(url)
 
 
@@ -307,7 +309,7 @@ def build_report_md(pkg: PackageInput) -> str:
         "reference for the target."
     )
     out.append(
-        f"- Run the runner in `execution/{_md(pkg.target_platform)}/` first in its "
+        f"- Run the runner in execution/{_md(pkg.target_platform)}/ first in its "
         "default dry-run mode, which prints the ordered plan without connecting; "
         "then rerun with `--execute`."
     )
@@ -319,32 +321,73 @@ def build_report_md(pkg: PackageInput) -> str:
     return "\n".join(out)
 
 
-_LONG_RUN = 40
-_TEXT_NODE = re.compile(r">([^<]+)<")
+_CELL_RUN = 16
+_CELL = re.compile(r"(<t[dh][^>]*>)(.*?)(</t[dh]>)", re.S)
+_ENTITY = re.compile(r"&[#A-Za-z0-9]+;|.")
+_TAG = re.compile(r"(<[^>]+>)")
+
+# Column widths (percent) keyed by the table's header row text.
+_COL_WIDTHS = {
+    ("Name", "Type", "Status", "Confidence %", "Agreement %", "Escalated"): (
+        34,
+        12,
+        14,
+        13,
+        13,
+        14,
+    ),
+    ("Role", "Batch", "State", "ACUs", "Link"): (16, 9, 13, 10, 52),
+    ("Name", "Status", "Reason"): (35, 15, 50),
+}
+_TABLE = re.compile(r"<table.*?</table>", re.S)
+_TH = re.compile(r"<th>(.*?)</th>")
 
 
 def _break_run(run: str) -> str:
-    """Insert wrap points into one unbroken run so PDF table cells can wrap."""
-    pieces = re.sub(r"([._/\\])", r"\1 ", run).split(" ")
+    """Insert wrap points into one unbroken run; HTML entities count as one char."""
+    if len(_ENTITY.findall(run)) <= _CELL_RUN:
+        return run
     chunked = []
-    for piece in pieces:
+    for piece in re.sub(r"([._/\\-])", r"\1 ", run).split(" "):
         if not piece:
             continue
-        while len(piece) > _LONG_RUN:
-            chunked.append(piece[:_LONG_RUN])
-            piece = piece[_LONG_RUN:]
-        chunked.append(piece)
+        tokens = _ENTITY.findall(piece)
+        while len(tokens) > _CELL_RUN:
+            chunked.append("".join(tokens[:_CELL_RUN]))
+            tokens = tokens[_CELL_RUN:]
+        chunked.append("".join(tokens))
     return " ".join(chunked)
 
 
-def _break_long_words(html: str) -> str:
-    def fix(match: re.Match[str]) -> str:
-        text = match.group(1)
-        parts = text.split(" ")
-        parts = [_break_run(p) if len(p) > _LONG_RUN else p for p in parts]
-        return ">" + " ".join(parts) + "<"
+def _break_cell(match: re.Match[str]) -> str:
+    open_tag, inner, close_tag = match.groups()
+    segments = _TAG.split(inner)
+    for i, segment in enumerate(segments):
+        if segment.startswith("<"):
+            continue
+        segments[i] = " ".join(_break_run(p) for p in segment.split(" "))
+    return open_tag + "".join(segments) + close_tag
 
-    return _TEXT_NODE.sub(fix, html)
+
+def _set_col_widths(table: str) -> str:
+    headers = tuple(_TH.findall(table))
+    widths = _COL_WIDTHS.get(headers)
+    if widths is None:
+        return table
+    index = 0
+
+    def widen(match: re.Match[str]) -> str:
+        nonlocal index
+        width = widths[index]
+        index += 1
+        return f'<th width="{width}%">{match.group(1)}</th>'
+
+    return _TH.sub(widen, table)
+
+
+def _break_long_words(html: str) -> str:
+    html = _TABLE.sub(lambda m: _set_col_widths(m.group(0)), html)
+    return _CELL.sub(_break_cell, html)
 
 
 def _report_html(pkg: PackageInput) -> str:
