@@ -1,19 +1,38 @@
 flowchart LR
   subgraph Laptop[Windows x64 laptop; no admin rights required]
-    Z[MigraAI portable folder]
-    Z --> PYDIR[python/<br/>embedded Python 3.12]
-    Z --> APP[app/<br/>site-packages, models/, kb/]
-    Z --> WEB[web/<br/>built React SPA]
-    Z --> DOCS[docs/<br/>guide PDFs, diagram PNGs,<br/>report samples when present]
-    Z --> README[README.txt]
-    Z --> SC[start.cmd]
-    APP --> PKGS[site-packages/<br/>MSVC runtime DLLs beside onnxruntime/capi]
-    APP --> MODEL[models/ and kb/kb-v1.db]
-    APP --> NOTICES[third-party-notices/]
-    SC --> PY[python/python.exe -m migraai<br/>serves web/ on 127.0.0.1]
+    direction TB
+    subgraph Bundle[MigraAI portable folder]
+      direction TB
+      Z[MigraAI/]
+      Z --> PYDIR[python/<br/>embedded Python 3.12]
+      Z --> APP[app/<br/>site-packages, models/, kb/]
+      Z --> WEB[web/<br/>built React SPA]
+      Z --> DOCS[docs/<br/>guide PDFs, diagram PNGs,<br/>report samples when present]
+      Z --> README[README.txt]
+      Z --> SC[start.cmd]
+      APP --> PKGS[site-packages/<br/>MSVC runtime DLLs beside onnxruntime/capi]
+      APP --> MODEL[models/ and kb/kb-v1.db]
+      APP --> NOTICES[third-party-notices/]
+      SC --> PY[python/python.exe -m migraai<br/>serves web/ on 127.0.0.1]
+    end
+    subgraph Runtime[Local runtime]
+      direction LR
+      CONV[Conversion client]
+      PLAN[Planning client]
+      KBREF[Optional KB refresh]
+    end
     PY --> PORT[_free_port binds port 0<br/>OS selects an available port]
     PY --> BR[Opens browser with one-time launch token]
-    PY --> DATA[Default: %LOCALAPPDATA%\MigraAI<br/>MIGRAAI_DATA_DIR can override<br/>app.db, kb/, logs/, sessions/ wiped at start/exit]
+    PY --> CONV
+    PY --> PLAN
+    PY --> KBREF
+    PY -. stores local app data .-> DATA[Default: %LOCALAPPDATA%\MigraAI<br/>MIGRAAI_DATA_DIR can override<br/>app.db, kb/, logs/, sessions/ wiped at start/exit]
   end
-  PY -->|HTTPS 443; conversion code after consent,<br/>planning may send a summary on confirmation| DEVIN[Configured Devin API domain]
-  PY -->|HTTPS 443 for optional KB refresh| VD[Vendor documentation sites]
+  subgraph External[Internet services, outbound HTTPS]
+    direction TB
+    DEVIN[Configured Devin API domain]
+    VD[Vendor documentation sites]
+  end
+  CONV -->|conversion code after consent| DEVIN
+  PLAN -->|planning: aggregate inventory counts only| DEVIN
+  KBREF -. optional KB refresh .-> VD

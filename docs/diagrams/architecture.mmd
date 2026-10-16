@@ -1,26 +1,45 @@
+%%{init: {"themeVariables": {"fontSize": "18px"}, "flowchart": {"nodeSpacing": 42, "rankSpacing": 58}}}%%
 flowchart TB
   USER[Enterprise user] --> BROWSER[Browser: React SPA]
   BROWSER -->|loopback HTTP and one-time launch token| API[FastAPI + Uvicorn<br/>127.0.0.1:ephemeral port]
+
   subgraph LocalApp[Local MigraAI process]
-    API --> AUTH[AuthState and security middleware<br/>launch token, session cookie, CSRF]
-    API --> SESSION[Session API and in-memory inventory]
-    API --> DISC[Upload API and DiscoveryRunner]
-    API --> PLAN[Planning API<br/>local draft or PlanJob]
-    API --> CONV[ConversionJob]
-    API --> PACK[Package snapshot, ZIP, and report builders]
-    DISC --> STORE[Encrypted upload files<br/>temporary session directory]
-    CONV --> WF[LangGraph batch workflow<br/>context, vote, consensus, validation, score]
-    WF --> KB[(Versioned SQLite knowledge base<br/>FTS5 and sqlite-vec)]
-    WF --> VALID[SQL and object validation checks]
-    WF --> CLIENT[Devin session client<br/>create, poll, cancel]
-    CLIENT -->|conversion source context after explicit consent| DV[(Devin API)]
-    WF -->|low-confidence objects in a batch| ESC[One escalation session for that batch]
-    ESC --> DV
-    PLAN -->|plan prompt and inventory summary when configured| DV
-    PACK -->|GET /api/download| ZIP[Converted ZIP]
-    PACK -->|GET /api/report.md or /api/report.pdf| REPORT[Session reports]
+    direction TB
+    subgraph ApiLayer[API layer]
+      direction LR
+      API --> AUTH[AuthState and security middleware<br/>launch token, session cookie, CSRF]
+      API --> SESSION[Session API and in-memory inventory]
+    end
+    subgraph ServiceLayer[Services and workflows]
+      direction TB
+      DISC[Upload API and DiscoveryRunner]
+      PLAN[Planning API<br/>local draft or PlanJob]
+      CONV[ConversionJob]
+      PACK[Package snapshot, ZIP, and report builders]
+      DISC --> STORE[Encrypted upload files<br/>temporary session directory]
+      CONV --> WF[LangGraph batch workflow<br/>context, vote, consensus, validation, score]
+      WF --> KB[(Versioned SQLite knowledge base<br/>FTS5 and sqlite-vec)]
+      WF --> VALID[SQL and object validation checks]
+      WF --> CLIENT[Devin session client<br/>create, poll, cancel]
+      WF -->|low-confidence objects in a batch| ESC[One escalation session for that batch]
+      PACK --> ZIP[Converted ZIP]
+      PACK --> REPORT[Session reports]
+    end
+    API --> DISC
+    API --> PLAN
+    API --> CONV
+    API --> PACK
     API --> DATA[(Default: %LOCALAPPDATA%\MigraAI<br/>MIGRAAI_DATA_DIR can override<br/>app.db, kb/, logs/, sessions/ wiped at start/exit)]
   end
-  KB -. optional KB refresh .-> DOCS[Vendor documentation sites]
+
+  subgraph External[Internet services, outbound HTTPS]
+    direction TB
+    DV[(Devin API)]
+    DOCS[Vendor documentation sites]
+  end
+  CLIENT -->|conversion source context after explicit consent| DV
+  ESC -->|batch escalation after consent| DV
+  PLAN -->|"plan prompt with aggregate inventory counts only,<br/>when Devin planning is configured"| DV
+  KB -. optional KB refresh .-> DOCS
   ZIP --> BROWSER
   REPORT --> BROWSER
