@@ -55,7 +55,15 @@ def _session(directory: Path, files: dict[str, bytes]) -> dict:
     }
 
 
-def _run(session: dict, directory: Path, scenario: MockScenario | None = None) -> ConversionJob:
+def _run(
+    session: dict,
+    directory: Path,
+    scenario: MockScenario | None = None,
+    *,
+    object_ids: list[str] | None = None,
+    base: ConversionJob | None = None,
+    replayed: bool = False,
+) -> ConversionJob:
     job = ConversionJob(
         session=session,
         audit=AuditLog(directory / "audit.jsonl"),
@@ -65,6 +73,9 @@ def _run(session: dict, directory: Path, scenario: MockScenario | None = None) -
         client_factory=lambda _: MockDevinClient(scenario),
         pack=load_pack("snowflake"),
         devin_host="local mock",
+        object_ids=object_ids,
+        base=base,
+        replayed=replayed,
     )
     job.start()
     job.join(timeout=180)
@@ -91,6 +102,82 @@ def test_teradata_snowflake_mock_snapshot_has_56_included_objects(tmp_path: Path
     assert package.egress.objects_sent == 56
     assert package.egress.devin_host == "local mock"
     assert package.objects[0].object_id == str(job.batches[0].objects[0]["id"])
+
+
+def test_selected_run_merges_objects_sessions_report_and_manifest(tmp_path: Path) -> None:
+    session = _session(
+        tmp_path / "merge",
+        {
+            "a.sql": b"CREATE TABLE sales.a (id INTEGER);",
+            "b.sql": b"CREATE TABLE sales.b (id INTEGER);",
+        },
+    )
+    base = _run(session, tmp_path / "merge")
+    selected_id = str(base.objects[0]["id"])
+    carried_id = str(base.objects[1]["id"])
+    base.results[selected_id]["confidence"] = 0.314159
+    base.results[carried_id]["confidence"] = 0.271828
+    base.started_sessions["cancelled-base-session"] = {
+        "role": "A",
+        "batch_index": 0,
+        "state": "cancelled",
+        "url": None,
+        "acus": None,
+    }
+
+    merged = _run(
+        session,
+        tmp_path / "merge",
+        object_ids=[selected_id],
+        base=base,
+    )
+    package = build_package_input(merged, session, "")
+    objects = {item.object_id: item for item in package.objects}
+
+    assert len(package.objects) == 2
+    assert objects[carried_id].confidence == 0.271828
+    assert objects[selected_id].confidence == merged.results[selected_id]["confidence"]
+    assert package.base_run_id == base.run_id
+    assert package.reconverted_object_ids == (selected_id,)
+    assert package.egress is not None
+    assert package.egress.objects_sent == 3
+    assert package.egress.batches == len(base.batches) + len(merged.batches)
+    expected_sessions = set(base.started_sessions) | set(merged.started_sessions)
+    assert package.egress.sessions == len(expected_sessions)
+    assert any(
+        item.run_id == base.run_id and item.state == "cancelled" for item in package.sessions
+    )
+
+    expected_note = (
+        f"Re-converted 1 selected objects in run {merged.run_id}; "
+        f"other results carried over from run {base.run_id}."
+    )
+    assert expected_note in build_report_md(package)
+    with zipfile.ZipFile(BytesIO(build_zip(package, {}))) as archive:
+        manifest = json.loads(archive.read(f"{package.package_name}-converted/manifest.json"))
+    assert manifest["base_run_id"] == base.run_id
+    assert manifest["reconverted_object_ids"] == [selected_id]
+    assert len(manifest["objects"]) == 2
+
+
+def test_replayed_sessions_are_labeled_and_excluded_from_egress(tmp_path: Path) -> None:
+    session = _session(
+        tmp_path / "replayed",
+        {"a.sql": b"CREATE TABLE sales.a (id INTEGER);"},
+    )
+    job = _run(session, tmp_path / "replayed", replayed=True)
+    package = build_package_input(job, session, "")
+
+    assert package.egress is not None
+    assert package.egress.objects_sent == 0
+    assert package.egress.batches == 0
+    assert package.egress.sessions == 0
+    assert all(item.replayed for item in package.sessions)
+    assert "replayed, nothing sent" in build_report_md(package)
+    with zipfile.ZipFile(BytesIO(build_zip(package, {}))) as archive:
+        manifest = json.loads(archive.read(f"{package.package_name}-converted/manifest.json"))
+    assert manifest["sessions"]
+    assert {item["state"] for item in manifest["sessions"]} == {"replayed, nothing sent"}
 
 
 def test_failed_object_source_text_is_not_in_snapshot(tmp_path: Path) -> None:

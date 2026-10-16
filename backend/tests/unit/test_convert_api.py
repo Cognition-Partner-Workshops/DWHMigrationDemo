@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import uuid
 from pathlib import Path
 
@@ -75,6 +76,83 @@ def test_estimate_requires_pair_and_selected_objects(
     response = client.post("/api/convert/estimate", json={}, headers=headers)
     assert response.status_code == 409
     assert "selected parsed objects" in response.json()["detail"]
+
+
+def test_selected_estimate_and_validation(client: TestClient, app, data_dir: Path) -> None:
+    csrf = _launch(client)
+    object_id = _add_conversion_session(app, data_dir)
+    headers = _csrf_headers(csrf)
+
+    estimate = client.post(
+        "/api/convert/estimate",
+        params=[("object_ids", object_id)],
+        json={},
+        headers=headers,
+    )
+    assert estimate.status_code == 200
+    assert estimate.json()["objects"] == 1
+    assert estimate.json()["batches"] == 1
+
+    for object_ids in ([], [object_id, object_id], ["unknown-object"]):
+        response = client.post(
+            "/api/convert",
+            json={"consent": True, "object_ids": object_ids},
+            headers=headers,
+        )
+        assert response.status_code == 400
+
+    no_base = client.post(
+        "/api/convert",
+        json={"consent": True, "object_ids": [object_id]},
+        headers=headers,
+    )
+    assert no_base.status_code == 409
+    assert no_base.json()["detail"] == (
+        "Convert selected objects needs a finished conversion to merge with."
+    )
+
+
+def test_selected_conversion_uses_finished_job_as_merge_base(
+    client: TestClient,
+    app,
+    data_dir: Path,
+    monkeypatch,
+) -> None:
+    csrf = _launch(client)
+    object_id = _add_conversion_session(app, data_dir)
+    monkeypatch.setenv("MIGRAAI_TEST_MOCK_DEVIN", "1")
+    headers = _csrf_headers(csrf)
+
+    first = client.post("/api/convert", json={"consent": True}, headers=headers)
+    assert first.status_code == 200
+    base = app.state.convert_job
+    base.join(timeout=30)
+    assert not base.is_alive()
+
+    second = client.post(
+        "/api/convert",
+        json={"consent": True, "object_ids": [object_id]},
+        headers=headers,
+    )
+    assert second.status_code == 200
+    job = app.state.convert_job
+    job.join(timeout=30)
+    assert not job.is_alive()
+    assert job.base is base
+    assert job.base_run_id == first.json()["job_id"]
+    assert job.reconverted_object_ids == (object_id,)
+
+    audit_events = [
+        json.loads(line)
+        for line in app.state.audit_log.path.read_text(encoding="utf-8").splitlines()
+    ]
+    consent = next(
+        event
+        for event in audit_events
+        if event["action"] == "convert.consent" and event["target"] == job.run_id
+    )
+    assert consent["details"]["object_count"] == 1
+    assert consent["details"]["base_run_id"] == base.run_id
 
 
 def test_convert_requires_explicit_consent(client: TestClient, app, data_dir: Path) -> None:

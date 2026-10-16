@@ -268,47 +268,71 @@ def _mapping_refs(
     return tuple(dict.fromkeys(refs))
 
 
+def _job_history(job: Any) -> list[Any]:
+    history: list[Any] = []
+    seen: set[str] = set()
+    current = job
+    while current is not None and str(current.run_id) not in seen:
+        seen.add(str(current.run_id))
+        history.append(current)
+        current = getattr(current, "base", None)
+    return list(reversed(history))
+
+
 def _session_summaries(
-    job: Any,
+    jobs: list[Any],
     sessions: list[dict[str, Any]],
 ) -> tuple[SessionSummary, ...]:
-    batch_for_object = {
-        str(_value(item, "id", "")): batch.index for batch in job.batches for item in batch.objects
+    jobs_by_run = {str(item.run_id): item for item in jobs}
+    batch_by_run = {
+        run_id: {
+            str(_value(item, "id", "")): batch.index
+            for batch in job.batches
+            for item in batch.objects
+        }
+        for run_id, job in jobs_by_run.items()
     }
     role_names = {"A": "voter_a", "B": "voter_b", "C": "voter_c", "escalation": "escalation"}
-    grouped: dict[tuple[str, int, str], dict[str, Any]] = {}
-    known_session_ids = {str(row.get("session_id")) for row in sessions if row.get("session_id")}
+    grouped: dict[tuple[str, str, int, str], dict[str, Any]] = {}
+    known_session_ids = {
+        (str(row.get("run_id", "")), str(row.get("session_id")))
+        for row in sessions
+        if row.get("session_id")
+    }
     for row in sessions:
         if "role" not in row:
             continue
         role = role_names.get(str(row["role"]))
         if role is None:
             continue
+        run_id = str(row.get("run_id", ""))
         batch_index = (
             int(row["batch_index"])
             if row.get("batch_index") is not None
-            else batch_for_object.get(str(row.get("object_id", "")), 0)
+            else batch_by_run.get(run_id, {}).get(str(row.get("object_id", "")), 0)
         )
         session_id = str(row.get("session_id") or "")
-        key = (role, batch_index, session_id or str(row.get("state", "")))
+        key = (run_id, role, batch_index, session_id or str(row.get("state", "")))
         grouped.setdefault(key, row)
-    for session_id, info in getattr(job, "started_sessions", {}).items():
-        if session_id in known_session_ids or not isinstance(info, dict):
-            continue
-        role = role_names.get(str(info.get("role", "")))
-        if role is None:
-            continue
-        grouped.setdefault(
-            (role, int(info.get("batch_index", 0)), str(session_id)),
-            {
-                "role": info.get("role"),
-                "batch_index": info.get("batch_index", 0),
-                "session_id": session_id,
-                "state": info.get("state", "unknown"),
-                "url": info.get("url"),
-                "acus": info.get("acus"),
-            },
-        )
+    for job in jobs:
+        run_id = str(job.run_id)
+        for session_id, info in getattr(job, "started_sessions", {}).items():
+            if (run_id, str(session_id)) in known_session_ids or not isinstance(info, dict):
+                continue
+            role = role_names.get(str(info.get("role", "")))
+            if role is None:
+                continue
+            grouped.setdefault(
+                (run_id, role, int(info.get("batch_index", 0)), str(session_id)),
+                {
+                    "role": info.get("role"),
+                    "batch_index": info.get("batch_index", 0),
+                    "session_id": session_id,
+                    "state": info.get("state", "unknown"),
+                    "url": info.get("url"),
+                    "acus": info.get("acus"),
+                },
+            )
     return tuple(
         SessionSummary(
             role=role,  # type: ignore[arg-type]
@@ -316,8 +340,10 @@ def _session_summaries(
             state=str(row.get("state", "unknown")),
             acus=float(row["acus"]) if row.get("acus") is not None else None,
             url=str(row["url"]) if row.get("url") else None,
+            run_id=run_id,
+            replayed=bool(getattr(jobs_by_run.get(run_id), "replayed", False)),
         )
-        for (role, batch_index, _), row in sorted(grouped.items())
+        for (run_id, role, batch_index, _), row in sorted(grouped.items())
     )
 
 
@@ -338,14 +364,25 @@ def build_package_input(
     package_name: str,
 ) -> PackageInput:
     """Freeze a completed job and its safe generated outputs into a package snapshot."""
-    run_row, records = _conversion_rows(session, job.run_id)
-    object_records = {
-        row["object_id"]: row for row in records if "object_id" in row and "code_path" in row
-    }
-    session_records = [row for row in records if "role" in row]
+    jobs = _job_history(job)
+    run_rows: dict[str, dict[str, Any]] = {}
+    object_records: dict[str, dict[str, Any]] = {}
+    session_records: list[dict[str, Any]] = []
+    audits_by_run: list[tuple[Any, list[dict[str, Any]]]] = []
+    for historical_job in jobs:
+        run_row, records = _conversion_rows(session, historical_job.run_id)
+        run_rows[str(historical_job.run_id)] = run_row
+        object_records.update(
+            {row["object_id"]: row for row in records if "object_id" in row and "code_path" in row}
+        )
+        session_records.extend(row for row in records if "role" in row)
+        audits_by_run.append((historical_job, _audit_records(historical_job)))
+    run_row = run_rows.get(str(job.run_id), {})
     inventory_rows = _inventory_rows(session)
     inventory_by_id = {str(row["id"]): row for row in inventory_rows}
-    ordered_items = [item for batch in job.batches for item in batch.objects]
+    ordered_items = [
+        item for batch in getattr(job, "all_batches", job.batches) for item in batch.objects
+    ]
     upload_by_path = {upload.rel_path: upload for upload in session.get("uploads", {}).values()}
     parsed = _parsed_objects(session, job.source, inventory_rows, upload_by_path)
     parsed_by_id = {
@@ -496,11 +533,22 @@ def build_package_input(
             )
         )
 
-    audits = _audit_records(job)
-    consent = next((record for record in audits if record.get("action") == "convert.consent"), {})
+    audits = [record for _, records in audits_by_run for record in records]
+    consent_records = [
+        (historical_job, record)
+        for historical_job, records in audits_by_run
+        for record in records
+        if record.get("action") == "convert.consent"
+    ]
+    consent_job, consent = next(
+        (item for item in consent_records if not getattr(item[0], "replayed", False)),
+        consent_records[0] if consent_records else (job, {}),
+    )
     consent_details = consent.get("details", {})
-    consent_at = _utc_time(consent.get("ts")) or _created_at(run_row.get("created_at"), None)
-    session_summaries = _session_summaries(job, session_records)
+    consent_at = _utc_time(consent.get("ts")) or _created_at(
+        run_rows.get(str(consent_job.run_id), {}).get("created_at"), None
+    )
+    session_summaries = _session_summaries(jobs, session_records)
     external = tuple(
         str(row.get("qualified_name", ""))
         for row in inventory_rows
@@ -508,16 +556,45 @@ def build_package_input(
     )
     created_at = _created_at(run_row.get("created_at"), consent_at)
     counts = getattr(job, "counts", {})
+    sent_jobs = [item for item in jobs if not getattr(item, "replayed", False)]
+    sent_session_ids = {
+        str(row.get("session_id"))
+        for row in session_records
+        if row.get("session_id")
+        and any(str(item.run_id) == str(row.get("run_id")) for item in sent_jobs)
+    }
+    for historical_job in sent_jobs:
+        sent_session_ids.update(getattr(historical_job, "started_sessions", {}))
+    objects_sent = sum(
+        int(
+            record.get("details", {}).get(
+                "object_count",
+                len(getattr(item, "selected_objects", getattr(item, "objects", ()))),
+            )
+        )
+        for item, records in audits_by_run
+        if not getattr(item, "replayed", False)
+        for record in records
+        if record.get("action") == "convert.consent"
+    )
+    if not consent_records:
+        objects_sent = sum(
+            len(getattr(item, "selected_objects", getattr(item, "objects", ())))
+            for item in sent_jobs
+        )
     egress = EgressSummary(
         consent_at=consent_at,
-        objects_sent=int(consent_details.get("object_count", len(job.objects))),
-        batches=len(job.batches),
-        sessions=len(
-            {str(row.get("session_id")) for row in session_records if row.get("session_id")}
-            | set(getattr(job, "started_sessions", {}))
-        ),
+        objects_sent=objects_sent,
+        batches=sum(len(item.batches) for item in sent_jobs),
+        sessions=len(sent_session_ids),
         blocked_batches=sum(record.get("action") == "convert.blocked_secret" for record in audits),
-        devin_host=str(consent_details.get("devin_host") or getattr(job, "devin_host", "")),
+        devin_host=str(
+            consent_details.get("devin_host")
+            or next(
+                (getattr(item, "devin_host", "") for item in sent_jobs if item.devin_host),
+                getattr(job, "devin_host", ""),
+            )
+        ),
     )
     resolved_name = normalize_package_name(
         package_name,
@@ -542,6 +619,8 @@ def build_package_input(
             for key, value in sorted(counts.items())
             if isinstance(value, (int, float))
         ),
+        base_run_id=getattr(job, "base_run_id", None),
+        reconverted_object_ids=tuple(getattr(job, "reconverted_object_ids", ())),
     )
 
 

@@ -151,6 +151,11 @@ def build_report_md(pkg: PackageInput) -> str:
         out.append(f"- Sessions: {eg.sessions}")
         out.append(f"- Total ACUs: {total_acus(pkg.sessions)}")
         out.append(f"- Blocked batches: {eg.blocked_batches}")
+        if pkg.base_run_id is not None:
+            out.append(
+                f"Re-converted {len(pkg.reconverted_object_ids)} selected objects in run "
+                f"{pkg.run_id}; other results carried over from run {pkg.base_run_id}."
+            )
         if eg.blocked_batches > 0:
             out.append("")
             out.append(
@@ -158,13 +163,15 @@ def build_report_md(pkg: PackageInput) -> str:
                 "they contained secrets and were not sent."
             )
         out += ["", ""]
+        show_run = pkg.base_run_id is not None or any(item.replayed for item in pkg.sessions)
         out += _table(
-            ["Role", "Batch", "State", "ACUs", "Link"],
+            (["Run"] if show_run else []) + ["Role", "Batch", "State", "ACUs", "Link"],
             [
                 [
+                    *([_md(s.run_id)] if show_run else []),
                     _md(s.role),
                     str(s.batch_index),
-                    _md(s.state),
+                    _md("replayed, nothing sent" if s.replayed else s.state),
                     "n/a" if s.acus is None else f"{s.acus:.2f}",
                     _link(s.url),
                 ]

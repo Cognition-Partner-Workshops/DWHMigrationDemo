@@ -37,6 +37,9 @@ class ConversionJob(threading.Thread):
         client_factory: Callable[[str], Any] | None = None,
         pack: TargetPack | None = None,
         consent: bool = True,
+        object_ids: list[str] | None = None,
+        base: ConversionJob | None = None,
+        replayed: bool = False,
     ) -> None:
         super().__init__(daemon=True)
         self.session = session
@@ -50,6 +53,9 @@ class ConversionJob(threading.Thread):
         self.confidence_threshold = confidence_threshold
         self.devin_host = devin_host
         self.pack = pack or load_pack(self.target)
+        self.base = base
+        self.base_run_id = base.run_id if base is not None else None
+        self.replayed = replayed
         self.client_factory = client_factory or (
             lambda voter: build_devin_client(base_url, org_id, devin_pat)
         )
@@ -73,13 +79,50 @@ class ConversionJob(threading.Thread):
             item for item in self.all_objects if not self._value(item, "external", False)
         ]
         self.edges = self._inventory_edges()
-        self.batches = plan_batches(self.all_objects, self.edges, batch_size)
+        requested_ids = (
+            set(object_ids)
+            if object_ids is not None
+            else {str(self._value(item, "id", "")) for item in self.objects}
+        )
+        self.selected_objects = [
+            item for item in self.objects if str(self._value(item, "id", "")) in requested_ids
+        ]
+        self.all_batches = plan_batches(self.all_objects, self.edges, batch_size)
+        self.batches = (
+            self.all_batches
+            if object_ids is None
+            else plan_batches(self.selected_objects, self.edges, batch_size)
+        )
+        self.reconverted_object_ids = (
+            tuple(object_id for batch in self.batches for object_id in batch.object_ids)
+            if base is not None
+            else ()
+        )
         self.name_map = build_name_map(self.all_objects, self.pack)
         self.order = [
             str(self._value(item, "qualified_name", ""))
-            for batch in self.batches
+            for batch in self.all_batches
             for item in batch.objects
         ]
+        if base is not None:
+            selected_ids = set(self.reconverted_object_ids)
+            for item in self.objects:
+                object_id = str(self._value(item, "id", ""))
+                if object_id in selected_ids:
+                    continue
+                result = base.results.get(object_id)
+                if result is None:
+                    result = self._unresolved_base_result(base, object_id)
+                self.results[object_id] = result
+                if object_id in base.errors:
+                    self.errors[object_id] = base.errors[object_id]
+                status = str(result.get("status", "failed"))
+                if status in {"converted", "expert_review", "failed"}:
+                    self.counts[status] += 1
+                elif status == "cancelled":
+                    self.counts.setdefault("cancelled", 0)
+                    self.counts["cancelled"] += 1
+                self.counts["escalated"] += int(bool(result.get("escalated")))
         self.batch_status = {
             batch.index: {
                 "status": "queued",
@@ -96,7 +139,38 @@ class ConversionJob(threading.Thread):
         }
         self._create_tables()
         if consent:
-            self._audit("convert.consent", {"object_count": len(self.objects)})
+            self._audit(
+                "convert.consent",
+                {
+                    "object_count": len(self.selected_objects),
+                    "base_run_id": self.base_run_id,
+                },
+            )
+
+    @staticmethod
+    def _unresolved_base_result(base: ConversionJob, object_id: str) -> dict[str, Any]:
+        batch_state = next(
+            (
+                base.batch_status[batch.index]["status"]
+                for batch in base.batches
+                if object_id in batch.object_ids
+            ),
+            "",
+        )
+        status = (
+            "cancelled" if base.state == "cancelled" or batch_state == "cancelled" else "failed"
+        )
+        return {
+            "status": status,
+            "confidence": None,
+            "agreement": None,
+            "checks": [],
+            "candidate": None,
+            "picked_voter": None,
+            "pairwise": {},
+            "escalated": False,
+            "reason": base.errors.get(object_id),
+        }
 
     @staticmethod
     def _value(item: Any, key: str, default: Any = None) -> Any:
@@ -155,7 +229,7 @@ class ConversionJob(threading.Thread):
                     self.source,
                     self.target,
                     "queued",
-                    len(self.objects),
+                    len(self.selected_objects),
                     time.time(),
                 ),
             )
@@ -189,12 +263,14 @@ class ConversionJob(threading.Thread):
                 },
                 "counts": dict(self.counts),
                 "overall_confidence": overall_score(
-                    (item["confidence"] for item in self.results.values()),
+                    (float(item.get("confidence") or 0.0) for item in self.results.values()),
                     (1 for _ in self.results),
                 ),
-                "object_count": len(self.objects),
+                "object_count": len(self.selected_objects),
                 "batch_count": len(self.batches),
                 "reason": self.reason,
+                "base_run_id": self.base_run_id,
+                "reconverted_object_ids": list(self.reconverted_object_ids),
             }
 
     def _update_session_status(
@@ -217,6 +293,8 @@ class ConversionJob(threading.Thread):
                         "state": session_state,
                         "url": None,
                         "acus": None,
+                        "run_id": self.run_id,
+                        "replayed": self.replayed,
                     },
                 )
                 started["role"] = role
@@ -481,6 +559,17 @@ class ConversionJob(threading.Thread):
                 self.counts["failed"] += 1
                 if error:
                     self.errors[object_id] = error
+                self.results[object_id] = {
+                    "status": "failed",
+                    "confidence": None,
+                    "agreement": None,
+                    "checks": [],
+                    "candidate": None,
+                    "picked_voter": None,
+                    "pairwise": {},
+                    "escalated": False,
+                    "reason": error,
+                }
             self.batch_status[batch.index]["status"] = "failed"
             if error:
                 self.batch_status[batch.index]["error"] = error
@@ -489,7 +578,8 @@ class ConversionJob(threading.Thread):
         self.state = "running"
         self._persist_state("running")
         self._audit(
-            "convert.start", {"object_count": len(self.objects), "batch_count": len(self.batches)}
+            "convert.start",
+            {"object_count": len(self.selected_objects), "batch_count": len(self.batches)},
         )
         self._publish("convert.start", {"run_id": self.run_id, "batch_count": len(self.batches)})
         semaphore = threading.BoundedSemaphore(self.max_concurrent_sessions)
@@ -551,9 +641,11 @@ class ConversionJob(threading.Thread):
                         self.batch_status[batch.index]["status"] = "cancelled"
             else:
                 self.state = "done" if not self.reason else "failed"
+            self._mark_unfinished_results()
         except Exception as error:
             self.reason = type(error).__name__
             self.state = "failed"
+            self._mark_unfinished_results()
         self._persist_state(self.state)
         self._audit("convert.complete", {"counts": dict(self.counts), "state": self.state})
         self._publish(
@@ -561,6 +653,29 @@ class ConversionJob(threading.Thread):
             {"run_id": self.run_id, "counts": dict(self.counts), "state": self.state},
         )
         self.events.put(None)
+
+    def _mark_unfinished_results(self) -> None:
+        status = "cancelled" if self.state == "cancelled" else "failed"
+        for item in self.selected_objects:
+            object_id = str(self._value(item, "id", ""))
+            if object_id in self.results:
+                continue
+            self.results[object_id] = {
+                "status": status,
+                "confidence": None,
+                "agreement": None,
+                "checks": [],
+                "candidate": None,
+                "picked_voter": None,
+                "pairwise": {},
+                "escalated": False,
+                "reason": self.reason,
+            }
+            if status == "cancelled":
+                self.counts.setdefault("cancelled", 0)
+                self.counts["cancelled"] += 1
+            else:
+                self.counts["failed"] += 1
 
 
 __all__ = ["ConversionJob"]

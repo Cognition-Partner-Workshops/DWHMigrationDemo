@@ -6,6 +6,7 @@ import uuid
 from collections import Counter
 from pathlib import Path
 
+import migraai.devin.client as devin_client
 from migraai.agents.job import ConversionJob
 from migraai.core.audit import AuditLog
 from migraai.core.crypto import EncryptedFileStore, SessionCipher
@@ -201,3 +202,35 @@ def test_run1_replays_over_the_teradata_pack(tmp_path) -> None:
             result["status"],
             result.get("agreement"),
         )
+
+
+def test_replay_then_live_client_factory_switches_after_first_job(monkeypatch) -> None:
+    monkeypatch.setattr(devin_client, "_REPLAY_THEN_LIVE_USED", False)
+    monkeypatch.setenv("MIGRAAI_TEST_REPLAY_DEVIN", str(FIXTURE_DIR))
+    monkeypatch.setenv("MIGRAAI_TEST_REPLAY_THEN_LIVE", "1")
+    monkeypatch.delenv("MIGRAAI_TEST_MOCK_DEVIN", raising=False)
+    calls = []
+    live_client = object()
+    monkeypatch.setattr(
+        devin_client,
+        "build_devin_client",
+        lambda *args, **kwargs: calls.append((args, kwargs)) or live_client,
+    )
+
+    replay_factory, replayed = devin_client.build_conversion_client_factory(
+        "https://api.devin.ai", "org", "pat"
+    )
+    live_factory, live_replayed = devin_client.build_conversion_client_factory(
+        "https://api.devin.ai", "org", "pat"
+    )
+
+    assert replayed is True
+    assert isinstance(replay_factory("A"), ReplayDevinClient)
+    assert live_replayed is False
+    assert live_factory("A") is live_client
+    assert calls == [
+        (
+            ("https://api.devin.ai", "org", "pat"),
+            {"allow_replay": False, "allow_mock": False},
+        )
+    ]

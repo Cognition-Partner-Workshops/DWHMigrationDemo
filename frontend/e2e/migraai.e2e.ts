@@ -257,6 +257,30 @@ test("mock-only migration workflow", async ({ page }, testInfo) => {
     await expect(copyButton).toHaveText("Copied");
   }
 
+  await results.getByRole("checkbox").first().check();
+  const reconvertButton = page.getByRole("button", { name: "Re-convert selected (1)" });
+  await expect(reconvertButton).toBeEnabled();
+  await reconvertButton.click();
+  const reconvertDialog = page.getByRole("dialog", { name: "Send code to Devin?" });
+  const reconvertSend = reconvertDialog.getByRole("button", { name: "Send to Devin" });
+  await expect(reconvertSend).toBeDisabled();
+  await reconvertDialog.getByLabel("I understand that this code leaves this computer").check();
+  const reconvertResponse = page.waitForResponse(
+    (response) => response.url().endsWith("/api/convert") && response.request().method() === "POST",
+  );
+  await reconvertSend.click();
+  const reconvertJobId = (await (await reconvertResponse).json()).job_id as string;
+  const reconvertStatus = () =>
+    page.evaluate(async (jobId) => {
+      const response = await fetch(`/api/convert/jobs/${jobId}`);
+      return await response.json() as { state: string; object_count: number };
+    }, reconvertJobId);
+  await expect.poll(
+    async () => (await reconvertStatus()).state,
+    { timeout: 90_000 },
+  ).toBe("done");
+  await expect.poll(async () => (await reconvertStatus()).object_count).toBe(1);
+
   const [download] = await Promise.all([
     page.waitForEvent("download"),
     page.getByRole("button", { name: /Download Converted Files/ }).click(),

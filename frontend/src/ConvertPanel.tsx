@@ -61,12 +61,15 @@ export function ConvertPanel({
   uploadRoots?: string[];
 }) {
   const [estimate, setEstimate] = useState<ConvertEstimate | null>(null);
+  const [dialogEstimate, setDialogEstimate] = useState<ConvertEstimate | null>(null);
+  const [conversionObjectIds, setConversionObjectIds] = useState<string[] | undefined>();
   const [loadingEstimate, setLoadingEstimate] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [starting, setStarting] = useState(false);
   const [jobId, setJobId] = useState("");
   const [job, setJob] = useState<ConversionJobStatus | null>(null);
   const [rows, setRows] = useState<ConversionRow[]>([]);
+  const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<ConversionDetailResponse | null>(null);
   const [error, setError] = useState("");
@@ -190,6 +193,9 @@ export function ConvertPanel({
       });
       const items = Array.isArray(result.items) ? result.items : [];
       setRows(items);
+      setSelectedObjectIds((current) =>
+        current.filter((objectId) => items.some((item) => item.object_id === objectId)),
+      );
       setSelectedId((current) =>
         items.some((item) => item.object_id === current)
           ? current
@@ -235,14 +241,38 @@ export function ConvertPanel({
       setError(NO_DEVIN_MESSAGE);
       return;
     }
+    setDialogEstimate(estimate);
+    setConversionObjectIds(undefined);
     setDialogOpen(true);
+  }
+
+  async function openSelectedConsent() {
+    const objectIds = [...selectedObjectIds];
+    if (objectIds.length === 0) {
+      return;
+    }
+    setError("");
+    try {
+      const nextEstimate = await postConvertEstimate(objectIds);
+      if (!nextEstimate.devin_configured) {
+        setError(NO_DEVIN_MESSAGE);
+        return;
+      }
+      setDialogEstimate(nextEstimate);
+      setConversionObjectIds(objectIds);
+      setDialogOpen(true);
+    } catch (estimateError) {
+      setError(estimateError instanceof Error ? estimateError.message : "Could not estimate conversion.");
+    }
   }
 
   async function confirmConversion() {
     setStarting(true);
     setError("");
     try {
-      const started = await startConversion();
+      const started = conversionObjectIds
+        ? await startConversion(conversionObjectIds)
+        : await startConversion();
       window.localStorage.setItem(ACTIVE_JOB_KEY, started.job_id);
       setJobId(started.job_id);
       setDialogOpen(false);
@@ -268,6 +298,7 @@ export function ConvertPanel({
   }
 
   const active = job !== null && ["queued", "running"].includes(job.state);
+  const canReconvert = job !== null && ["done", "cancelled"].includes(job.state);
   const types = Array.from(new Set(rows.map((row) => row.type))).sort();
   const includedCount = (job?.counts.converted ?? 0) + (job?.counts.expert_review ?? 0);
   const rootCount = uploadRoots?.length ?? uploadCount;
@@ -471,10 +502,28 @@ export function ConvertPanel({
           </label>
         </div>
         <div className="conversion-results-scroll">
+          <div className="conversion-selection-controls">
+            <button
+              disabled={active || !canReconvert || selectedObjectIds.length === 0}
+              onClick={() => void openSelectedConsent()}
+              type="button"
+            >
+              Re-convert selected ({selectedObjectIds.length})
+            </button>
+            <button
+              disabled={active || !canReconvert}
+              onClick={() => setSelectedObjectIds(rows
+                .filter((row) => row.status === "expert_review")
+                .map((row) => row.object_id))}
+              type="button"
+            >
+              Select objects needing review
+            </button>
+          </div>
           <table className="conversion-table">
             <thead>
               <tr>
-                <th>Object</th><th>Type</th><th>Confidence</th><th>Agreement</th>
+                <th>Select</th><th>Object</th><th>Type</th><th>Confidence</th><th>Agreement</th>
                 {CHECKS.map((check) => <th key={check}>{check.replace("_", " ")}</th>)}
                 <th>Escalated</th><th>Expert review</th>
               </tr>
@@ -487,6 +536,20 @@ export function ConvertPanel({
                   key={row.object_id}
                   onClick={() => selectResult(row.object_id)}
                 >
+                  <td>
+                    <input
+                      aria-label={`Select ${row.qualified_name} for re-conversion`}
+                      checked={selectedObjectIds.includes(row.object_id)}
+                      disabled={active || !canReconvert}
+                      onChange={(event) => {
+                        setSelectedObjectIds((current) => event.target.checked
+                          ? [...new Set([...current, row.object_id])]
+                          : current.filter((objectId) => objectId !== row.object_id));
+                      }}
+                      onClick={(event) => event.stopPropagation()}
+                      type="checkbox"
+                    />
+                  </td>
                   <td>
                     <button
                       className="conversion-object-link"
@@ -516,7 +579,7 @@ export function ConvertPanel({
                 </tr>
               ))}
               {rows.length === 0 && (
-                <tr><td className="conversion-empty-row" colSpan={CHECKS.length + 6}>No conversion results match these filters.</td></tr>
+                <tr><td className="conversion-empty-row" colSpan={CHECKS.length + 7}>No conversion results match these filters.</td></tr>
               )}
             </tbody>
           </table>
@@ -526,8 +589,12 @@ export function ConvertPanel({
         <ConversionDetail detail={detail} />
       </div>
       <ConvertConsentDialog
-        estimate={estimate}
-        onCancel={() => setDialogOpen(false)}
+        estimate={dialogEstimate ?? estimate}
+        onCancel={() => {
+          setDialogOpen(false);
+          setDialogEstimate(null);
+          setConversionObjectIds(undefined);
+        }}
         onConfirm={() => void confirmConversion()}
         open={dialogOpen}
       />
