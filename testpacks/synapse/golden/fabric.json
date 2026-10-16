@@ -696,15 +696,15 @@
     "migraai-synapse-to-fabric-converted/execution/fabric/order.txt": "64fa326431df53bb266f0ff930d3e317c024cc6801aaedf935da71d6d68d92da",
     "migraai-synapse-to-fabric-converted/execution/fabric/run.ps1": "361f0bf78a229398fead717992c36bcb39ddd3e3589e43ef1f6ede0e297d21bf",
     "migraai-synapse-to-fabric-converted/execution/fabric/run.sh": "e56663a450297a1712030c670c2896f9b739d8751fd42cfbc3159c5a32f7b9f8",
-    "migraai-synapse-to-fabric-converted/manifest.json": "0b8d1aff1d314ed1914069638d70e868768538d010bc9cab1f89b7cbe2c4ba41",
+    "migraai-synapse-to-fabric-converted/manifest.json": "19012754f2c0aa35ee7609287e0db8b2f6c92d9fde7eeb02e0f3019bf37c0458",
     "migraai-synapse-to-fabric-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-fabric-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-synapse-to-fabric-converted/mapping/csv/data_types.csv": "53c2b0761e811b1dff774c4a1fd84072634e24578d48cc9f83f28a263e3d1ecf",
+    "migraai-synapse-to-fabric-converted/mapping/csv/data_types.csv": "fdd5bfb86c3209cb9398417291ce446c98ba9b1bbeaf5e9078a431533113518e",
     "migraai-synapse-to-fabric-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-synapse-to-fabric-converted/mapping/csv/objects.csv": "4b47dd0611fa8c7ddc7ad2d74a71831329c988346add9d53c9f1eb788ebc100f",
     "migraai-synapse-to-fabric-converted/mapping/csv/security.csv": "5b4c6affb1ca4394c42a76b976bc7f5a2555b4624556a716c36d6dedee43020e",
     "migraai-synapse-to-fabric-converted/mapping/csv/syntax.csv": "7710242b2316db4337fa8246eb9bee0f0bd63ae464acd44312a10545c0f6cf24",
-    "migraai-synapse-to-fabric-converted/mapping/mapping-workbook.xlsx": "90ff651e2c5ef41aa9367b4ba5ba5f6f1fa47c518325dbda4ce857d944fd9782",
+    "migraai-synapse-to-fabric-converted/mapping/mapping-workbook.xlsx": "9c65c3663ae008a2d70776f67d616c9ad11a5f192f5a87a1840d294635174a7f",
     "migraai-synapse-to-fabric-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-fabric-converted/report/session-report.md": "042deebed035e000c84aa222b6d75c187ac37e3b4fa3600f5a97e4b71c97d4b4",
     "migraai-synapse-to-fabric-converted/report/session-report.pdf": "b3f56cc1c5c681a345362f46d90f45ebbf2f86a1b4dc60533fd86e209902cc56"
@@ -744,5 +744,5 @@
     "migraai-synapse-to-fabric-converted/report/session-report.md",
     "migraai-synapse-to-fabric-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "66ff44ac2b269e223f1681d9e4960aa796f10804aaa94405358a866e84dfdd4f"
+  "zip_sha256": "141976d38fcb6ebde3916eee084b1db2e20665d3d2908a7b7c164e7fd4e47b59"
 }

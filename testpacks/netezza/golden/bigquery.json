@@ -647,15 +647,15 @@
     "migraai-netezza-to-bigquery-converted/execution/bigquery/order.txt": "552132196e60445b7142fc237ca31f4da40e6a4e92d8d8089b342a0caf7ba561",
     "migraai-netezza-to-bigquery-converted/execution/bigquery/run.ps1": "495d5211c5bad0e92e785f31fd99b1e979b977ed444dc0fffe6ad4057bdd0ca0",
     "migraai-netezza-to-bigquery-converted/execution/bigquery/run.sh": "3e5c0daf899948a963c6304081b53c680cfdba56544271acd593be0e98b17f1b",
-    "migraai-netezza-to-bigquery-converted/manifest.json": "9bac62fcbd3ac4e981c4501f0aed32b3f52a48bf47bd30a794bf4ca97b0b4477",
+    "migraai-netezza-to-bigquery-converted/manifest.json": "899ee593f1bf6a37db587e98e621fd2d9ee645af9bcf023c75674bd0e46f8bf5",
     "migraai-netezza-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-netezza-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-netezza-to-bigquery-converted/mapping/csv/data_types.csv": "0a9f2a7e4b5290e13465bea4da29293ac11f063b3134ba10d28f7e8e16b33db6",
+    "migraai-netezza-to-bigquery-converted/mapping/csv/data_types.csv": "caa9c2f2319f462179f70ca0ad26c061d77188e563f524c4675ab05dcfab7645",
     "migraai-netezza-to-bigquery-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-netezza-to-bigquery-converted/mapping/csv/objects.csv": "87fe3f2a55611c878b3be8c05c9a0c1e5c5a15f3f5463632ef793859fc78a139",
     "migraai-netezza-to-bigquery-converted/mapping/csv/security.csv": "c27e9ee9a4264bd4a8f0fa209d9e8309636e6d39de9947fe91eba80798b33bb2",
     "migraai-netezza-to-bigquery-converted/mapping/csv/syntax.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
-    "migraai-netezza-to-bigquery-converted/mapping/mapping-workbook.xlsx": "c1c3bfd77790eda3ec16fe0fe7fb575f1e98143ec79de0ceb460daf4e345617c",
+    "migraai-netezza-to-bigquery-converted/mapping/mapping-workbook.xlsx": "dc1d209524704a597677678d2ba8e64a895ea0c3cb26498a65257fc5eedf82ab",
     "migraai-netezza-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-netezza-to-bigquery-converted/report/session-report.md": "89fcfdc02ae3f94d9f0f3cebd1c4de3517b427a878b83dce5abbde8ea3ed625f",
     "migraai-netezza-to-bigquery-converted/report/session-report.pdf": "c549911e589bb85a9483300128f95844491625994f7e8a2facb20bc08d7799cd"
@@ -698,5 +698,5 @@
     "migraai-netezza-to-bigquery-converted/report/session-report.md",
     "migraai-netezza-to-bigquery-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "cf47db378a7cf5f47c12c8b1af5b2d59df7e243ae0a9306946494d41bd2a0ccf"
+  "zip_sha256": "68bbeb405473e10339d4fd1580c0b9c07c12b790c0a35fef302b47097a2bf35e"
 }

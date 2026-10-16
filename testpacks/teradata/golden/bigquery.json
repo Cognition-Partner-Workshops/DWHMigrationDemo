@@ -751,15 +751,15 @@
     "migraai-teradata-to-bigquery-converted/execution/bigquery/order.txt": "25f25277a8a3ba9d0d5c31447665fa5e11f91235968ff1cfffd25cb2e5d1df93",
     "migraai-teradata-to-bigquery-converted/execution/bigquery/run.ps1": "2e60e088731973a98dc84d9ccae99514b1d2634f4cc3e5f861309aa6aaaed495",
     "migraai-teradata-to-bigquery-converted/execution/bigquery/run.sh": "deedda575cb961269219eaa3c2167ab7ed7c1252d6b3a0d20034b6cb1a3da02c",
-    "migraai-teradata-to-bigquery-converted/manifest.json": "af4616e8084ffe6d6595bc3da117424db15e802fc4bc0be3926251c508b0a441",
+    "migraai-teradata-to-bigquery-converted/manifest.json": "7c96440e497facad10aa48bdc4579f1c86430e11ddd3385107adaa83d44c2316",
     "migraai-teradata-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-teradata-to-bigquery-converted/mapping/csv/data_types.csv": "411e2b5ac6d0f191d0905622809bf2d962b149b0bbe507db0ebb532170b3b7b1",
+    "migraai-teradata-to-bigquery-converted/mapping/csv/data_types.csv": "73c8061d8035b1238a6d87770b053f2a1616e3a660eed55e60a967c0005d1841",
     "migraai-teradata-to-bigquery-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-teradata-to-bigquery-converted/mapping/csv/objects.csv": "fc4346e70d2f55033dcd340a0826ad19679918db27a7b2d003b5491513bea4e7",
     "migraai-teradata-to-bigquery-converted/mapping/csv/security.csv": "2d03c1d913ab37d10fcf8ee49fec6c56a50eaabbc72b63f1e0da2fefcae8159a",
     "migraai-teradata-to-bigquery-converted/mapping/csv/syntax.csv": "4d0e8324e5044b271ba18d7505054066220417ed20e1951673fc612294a35a95",
-    "migraai-teradata-to-bigquery-converted/mapping/mapping-workbook.xlsx": "adeb86f97cc306c43bf1f318cb79bf5ebd7772ba8b102df748296422fe67af05",
+    "migraai-teradata-to-bigquery-converted/mapping/mapping-workbook.xlsx": "65d5a002beeacad1b73fc9fa2d5c3022c9a12f04ea15ac0d395251a6511d3a22",
     "migraai-teradata-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-bigquery-converted/report/session-report.md": "c39925c3940e13f470946246a726efcc447864e080a668e89b783226fe4e1876",
     "migraai-teradata-to-bigquery-converted/report/session-report.pdf": "d10a28e093879463ce82751b79981e6b1d390a116afbf9a45239e8c56996773b"
@@ -802,5 +802,5 @@
     "migraai-teradata-to-bigquery-converted/report/session-report.md",
     "migraai-teradata-to-bigquery-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "269e9f9140636b480673ac76cbd264a5703716655a9a2054e2415f94314899b1"
+  "zip_sha256": "610002ab0364c54d227afa621a11625c83da925faa986f3ee9b3ee76c62d657e"
 }

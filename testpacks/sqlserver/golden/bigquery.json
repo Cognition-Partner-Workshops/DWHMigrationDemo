@@ -670,15 +670,15 @@
     "migraai-sqlserver-to-bigquery-converted/execution/bigquery/order.txt": "de3413842a2e25f93e063c997fe9838629a6c17781b04ddee0e3e8de0fdb5007",
     "migraai-sqlserver-to-bigquery-converted/execution/bigquery/run.ps1": "c6c8c7eea5fb3cab87d7c813fd774b36012641970e77b65d704ad0a5281ea5ea",
     "migraai-sqlserver-to-bigquery-converted/execution/bigquery/run.sh": "4aa49a4dd90be5c657d5df283ba8adafb43e92eda54708c712a0f477f6d1d31a",
-    "migraai-sqlserver-to-bigquery-converted/manifest.json": "536689e8e63ea177157011b70024c33e3e51b36edef9132059a111e67dca6841",
+    "migraai-sqlserver-to-bigquery-converted/manifest.json": "9f3e9d00635e2e3bc600bebf56ef385cdd85ca11b4d96bcd6465c05529a0eb2e",
     "migraai-sqlserver-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-sqlserver-to-bigquery-converted/mapping/csv/data_types.csv": "48625688cc5166e3b6eb38cba87139211617fb5183395f2d9eb459ad5fe29cca",
+    "migraai-sqlserver-to-bigquery-converted/mapping/csv/data_types.csv": "5a1f4683f5292e33b6ade1fbfd0b844e534fd0e02af4a06167b24029744cc5da",
     "migraai-sqlserver-to-bigquery-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-sqlserver-to-bigquery-converted/mapping/csv/objects.csv": "879e33f9d3a020bda2a546f00a7597e73ae29437b9657943ab35c0a9b511e8e9",
     "migraai-sqlserver-to-bigquery-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-sqlserver-to-bigquery-converted/mapping/csv/syntax.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
-    "migraai-sqlserver-to-bigquery-converted/mapping/mapping-workbook.xlsx": "2010bc83f07e43e96c5e6c888613caa6f26a89164bc5118ad60c47c1be079b7e",
+    "migraai-sqlserver-to-bigquery-converted/mapping/mapping-workbook.xlsx": "bb82b35945185cdd6ce334c98d365198f61655103cf9413cdb42a130df4214ee",
     "migraai-sqlserver-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-bigquery-converted/report/session-report.md": "53d8988dcff8fda912f876791a6872ef4ae463b29a6c64f34e0b27cfba507155",
     "migraai-sqlserver-to-bigquery-converted/report/session-report.pdf": "6b4aac1aa9e3291ebaeaee75af8b6784c54ad437e1d261c1bdce373b66bea526"
@@ -718,5 +718,5 @@
     "migraai-sqlserver-to-bigquery-converted/report/session-report.md",
     "migraai-sqlserver-to-bigquery-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "dfcbbcba81907332a2c89a65c8434497ddd86e10c0d5416990faaac4867b7922"
+  "zip_sha256": "a0a43f98e6beb90bcc1a56cf4aafbf71ab003abb38401d7197b47897c40f858f"
 }

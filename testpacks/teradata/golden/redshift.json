@@ -751,15 +751,15 @@
     "migraai-teradata-to-redshift-converted/execution/redshift/order.txt": "854c5427dbd78ccd517383ecfc75cc0949b264293f3e9dbf1188cfe70254d453",
     "migraai-teradata-to-redshift-converted/execution/redshift/run.ps1": "0477092a517d36bea41875b2710c4be917a6b8b1b5ca8f52b7e959564e831897",
     "migraai-teradata-to-redshift-converted/execution/redshift/run.sh": "2776655041d190214ca09b181a3a2abb573342362bcc5b26a39311ace6a05659",
-    "migraai-teradata-to-redshift-converted/manifest.json": "875721ef977e4357c2baf74cf20a18f2ebd159c83b082eed2370330a5115cf6f",
+    "migraai-teradata-to-redshift-converted/manifest.json": "6fe053448847a8fd531ca31d3a3c151ccf1dae460577dcc418b16359e474f6a7",
     "migraai-teradata-to-redshift-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-redshift-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-teradata-to-redshift-converted/mapping/csv/data_types.csv": "e69a51141b0ab65e4de9579afd613453da864320dcd255aa81694dc7cf66801b",
+    "migraai-teradata-to-redshift-converted/mapping/csv/data_types.csv": "73cde14e2b9a454f151ba6e79020c941ad81b59f094c4db2de15eb17fe1e12ba",
     "migraai-teradata-to-redshift-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-teradata-to-redshift-converted/mapping/csv/objects.csv": "8a22fbeb2703e516669ccb4f5228eb3422c3cc4c5ba259f02139b7c76283af72",
     "migraai-teradata-to-redshift-converted/mapping/csv/security.csv": "2d03c1d913ab37d10fcf8ee49fec6c56a50eaabbc72b63f1e0da2fefcae8159a",
     "migraai-teradata-to-redshift-converted/mapping/csv/syntax.csv": "82598bbc5588f9076a1a9b9695503b433cf41b3265500ce001e525fbd08512e7",
-    "migraai-teradata-to-redshift-converted/mapping/mapping-workbook.xlsx": "71b909c7c693c34bcd777f61fbd5a895c9cd3edd33e5c30dc0a9fd57b8bc12ac",
+    "migraai-teradata-to-redshift-converted/mapping/mapping-workbook.xlsx": "7f120b5665fec3d9435f3fec02ccc31d6a57883c603c4877081d8fe084e9a4c1",
     "migraai-teradata-to-redshift-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-redshift-converted/report/session-report.md": "d236c54f6934f1c9d28f38ba4c9e313a792d5cc295cbefe622fe53649e6da32f",
     "migraai-teradata-to-redshift-converted/report/session-report.pdf": "bb94203e15d9f69848236715505256e0a20b8f93cdac33d811758e4cc5b4f2a6"
@@ -802,5 +802,5 @@
     "migraai-teradata-to-redshift-converted/report/session-report.md",
     "migraai-teradata-to-redshift-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "5ae860a5e73a8a5799e6bfe6207263b2ba81ad607afc2a70090cb02912e3b7dc"
+  "zip_sha256": "698c8aa892c61027cd862b79eedd68dbba65c51b7d9b11811e8060c386db0a7e"
 }

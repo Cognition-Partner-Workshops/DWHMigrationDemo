@@ -670,15 +670,15 @@
     "migraai-sqlserver-to-redshift-converted/execution/redshift/order.txt": "4b121a275bd9a7d6f0de5f6ac49b37402ca497061c9e4aba78f0c06d163b0ea7",
     "migraai-sqlserver-to-redshift-converted/execution/redshift/run.ps1": "710cc28b1addfffeaa227c8c18c27bbf19bae2239dec41a7448ed8c9e63b249b",
     "migraai-sqlserver-to-redshift-converted/execution/redshift/run.sh": "90619c14c5e5b9b0bbeb37ed46f599c0b919d766d4ad42c2638b3cdb3ce7bae8",
-    "migraai-sqlserver-to-redshift-converted/manifest.json": "ade9f4b4747f108c5fce447a88aaaf870e652a4f2ccadc41de618cd6598e61df",
+    "migraai-sqlserver-to-redshift-converted/manifest.json": "8fca56f7b860b30b33a5b1976e4cd43545911698e4b08e1c8cb5b0ace4f1409a",
     "migraai-sqlserver-to-redshift-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-redshift-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-sqlserver-to-redshift-converted/mapping/csv/data_types.csv": "9a647f522c07ae93739dcd486fc27b92cba0df06b14027907dc63ab70811ff1b",
+    "migraai-sqlserver-to-redshift-converted/mapping/csv/data_types.csv": "2fa2dbe9c3ee119cf31d754214a0685215b55e93481752dff9348af1561ee6ac",
     "migraai-sqlserver-to-redshift-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-sqlserver-to-redshift-converted/mapping/csv/objects.csv": "fb018361e8757c2e6cd99e0673f37f9c41a02dbf702e28fe4bb4653655d7a5dc",
     "migraai-sqlserver-to-redshift-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-sqlserver-to-redshift-converted/mapping/csv/syntax.csv": "f7b776dc0eca11889721adeee3282c0adb29bcef7240075de9c6e0bcf8c494fd",
-    "migraai-sqlserver-to-redshift-converted/mapping/mapping-workbook.xlsx": "0f2a8766d1b2fa741d745bafe8697a8604de9997b2df76fd697ae104dffeabab",
+    "migraai-sqlserver-to-redshift-converted/mapping/mapping-workbook.xlsx": "800bfc3a573f21e671d2e7e6b115bd12dd4b7b792e6345c80f6ff7bb00c984ae",
     "migraai-sqlserver-to-redshift-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-redshift-converted/report/session-report.md": "6f60ca9c4cc16d30b7fe5e7364ba907494a1f802f245e21ed3b794405cfbcb76",
     "migraai-sqlserver-to-redshift-converted/report/session-report.pdf": "af0fee70b5c00f270510ae5d520ae1b9fd84a5af55bdeb4161a943714c5ff962"
@@ -718,5 +718,5 @@
     "migraai-sqlserver-to-redshift-converted/report/session-report.md",
     "migraai-sqlserver-to-redshift-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "9f26f1a3c1f7b699dc9a2830fa056670c744409aa9b8c625493efc894ea2291b"
+  "zip_sha256": "582a3c9626729f610277af9b733a9835e40f8f4e92213caa16cd71a3bc761c78"
 }

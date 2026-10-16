@@ -647,15 +647,15 @@
     "migraai-netezza-to-redshift-converted/execution/redshift/order.txt": "97605fd332bc368d8e753efcdb7fd06081e191ac2521907fdc8531382805df10",
     "migraai-netezza-to-redshift-converted/execution/redshift/run.ps1": "c9d961b2e42607bb0c2b958bad2e8975142369fa34185b6308dbc1e3236d5a73",
     "migraai-netezza-to-redshift-converted/execution/redshift/run.sh": "7d204168e7c8d9cf7947a47db08481159cb8cd02fcbf7fc86629755f57d470bf",
-    "migraai-netezza-to-redshift-converted/manifest.json": "e51c80cd001c504c00763ab3831832599e897035af169e90fe794cf641d22890",
+    "migraai-netezza-to-redshift-converted/manifest.json": "20387b5e58825ae8e83647d3aa50cd8b6ce835d91d4dd6604919f0cf793ba648",
     "migraai-netezza-to-redshift-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-netezza-to-redshift-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-netezza-to-redshift-converted/mapping/csv/data_types.csv": "8f86273e8f28084893271c61be0803613ff58a61a3b5ef66f1d78128ec2c8b58",
+    "migraai-netezza-to-redshift-converted/mapping/csv/data_types.csv": "534bc652532d6bfbf344c8ca2f6b0b53756f09428c603d110d4842a743c0af3d",
     "migraai-netezza-to-redshift-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-netezza-to-redshift-converted/mapping/csv/objects.csv": "fe461e53395051d29c136c6e63933a76c7cc3c2cf33f90083a8d67ad93a180e2",
     "migraai-netezza-to-redshift-converted/mapping/csv/security.csv": "9cdf88491adaae413eb8a48edded567842da0af900d14826d2617bbd3912f0f7",
     "migraai-netezza-to-redshift-converted/mapping/csv/syntax.csv": "f5d13274f13aec6dca4dd660d38652ac2e49941a6060f446864b77126dd19eb1",
-    "migraai-netezza-to-redshift-converted/mapping/mapping-workbook.xlsx": "461b3056557a4f4d55750a07fa7a939cbc7685887f96e80ac9536082d57e3035",
+    "migraai-netezza-to-redshift-converted/mapping/mapping-workbook.xlsx": "06cd379a36703923cb47b9d5f0477df42fcf2937b14b76a594345c62997257be",
     "migraai-netezza-to-redshift-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-netezza-to-redshift-converted/report/session-report.md": "59f985b7ab5b30ca7099dc2ee3a0bdc69ea42a620119f35f6a72ebf9e3e76e59",
     "migraai-netezza-to-redshift-converted/report/session-report.pdf": "df5ce74eacef74863caa5ee2a722aff9a6c09bf13a5afda4344d19d151688ed7"
@@ -698,5 +698,5 @@
     "migraai-netezza-to-redshift-converted/report/session-report.md",
     "migraai-netezza-to-redshift-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "9701e5d0b17f791a5cde230f9dd5209613d546d67eb4f09cd03652f8158b348d"
+  "zip_sha256": "712f33145a4b0ac233ace91f2442648242e9886fc8434b954026498de5d18e3c"
 }

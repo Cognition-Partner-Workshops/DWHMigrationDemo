@@ -647,15 +647,15 @@
     "migraai-netezza-to-synapse-converted/execution/synapse/order.txt": "c1652ff82a730c6c3699dd4bb17a7a9e30f32d50e4e2f631421e1f20a2e3ceff",
     "migraai-netezza-to-synapse-converted/execution/synapse/run.ps1": "582be83b886fd438c06508f526b4f8a60c88a8acfef104b4e37a797fe4ffc39a",
     "migraai-netezza-to-synapse-converted/execution/synapse/run.sh": "16f6484138001a5d19c3957e627c7f37f283ac17546ea854626df265e2ba649e",
-    "migraai-netezza-to-synapse-converted/manifest.json": "3b9ba2cf7d82d58b8eeb1a1a74b5b22122fba4f307a81b3e878ac31a7f36beb3",
+    "migraai-netezza-to-synapse-converted/manifest.json": "b56a7e7a520cc3f2e2c0a2ee6c56c5dfb76903e32d14dee14195e080062fdec3",
     "migraai-netezza-to-synapse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-netezza-to-synapse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-netezza-to-synapse-converted/mapping/csv/data_types.csv": "da82500cf29195c8c8b4664451975ccc969d367bdade809d657d0564b69d0099",
+    "migraai-netezza-to-synapse-converted/mapping/csv/data_types.csv": "8a95c8fc8934ff33989a632a0c9ab2e147adae855f8bd86e9499794b09aa66f0",
     "migraai-netezza-to-synapse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-netezza-to-synapse-converted/mapping/csv/objects.csv": "1203ccc0b682b1f9fa724a2c846989befcdb22cbba62a69b2ddf5c68ce3672b5",
     "migraai-netezza-to-synapse-converted/mapping/csv/security.csv": "aa6cdf7b01c23ffae8000ccaf93ead4e7499f9ede695f55b6c0624e40d1edc32",
     "migraai-netezza-to-synapse-converted/mapping/csv/syntax.csv": "b02968a8c252590fd6b01c56519e6da8786512f37c84dce26323581fd13ffdfb",
-    "migraai-netezza-to-synapse-converted/mapping/mapping-workbook.xlsx": "2be92aa76457bc00bce4cad8657a3f83de8be1ff32a70c1e9f6d65b754541be7",
+    "migraai-netezza-to-synapse-converted/mapping/mapping-workbook.xlsx": "bb48aba3453931f475c555f357e4a68c8bfc6497392dd81dd438922b4f317a0e",
     "migraai-netezza-to-synapse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-netezza-to-synapse-converted/report/session-report.md": "fa42bc35b1c0f0edb01dc6592a958e9d4adbb9464fa4f251690cbc2f2b443925",
     "migraai-netezza-to-synapse-converted/report/session-report.pdf": "862c9890285b6493855c9f9eeb0b75360c3866ccbf2aefbaa70f75c441abec87"
@@ -698,5 +698,5 @@
     "migraai-netezza-to-synapse-converted/report/session-report.md",
     "migraai-netezza-to-synapse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "2442f57575d8708a4f5cb0cc3abaafdfa8b7a3f7e306b0a493fcb0fde321a5ad"
+  "zip_sha256": "7807ae7b2798370d7eff2e46cbd3069c8a93461158a71ae9d02d374de85428e7"
 }

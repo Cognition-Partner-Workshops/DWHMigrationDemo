@@ -670,15 +670,15 @@
     "migraai-sqlserver-to-databricks-converted/execution/databricks/order.txt": "ff05ebc60e9e1fddc10fa6033c934d34e558f34691d1864932f2e2b648997899",
     "migraai-sqlserver-to-databricks-converted/execution/databricks/run.ps1": "21ca0605df94dcd7081c86bcb7a3b2be15f00c15548b11bb1b8e8b8f753cc405",
     "migraai-sqlserver-to-databricks-converted/execution/databricks/run.sh": "bff1db3450d92a706c548bc71e779797eb461f7bd928bc7d6a607878e70c0553",
-    "migraai-sqlserver-to-databricks-converted/manifest.json": "c1d85ca57a18d23f9adc20c59c8070e9753701a73eab985f98cf4eece9551ee9",
+    "migraai-sqlserver-to-databricks-converted/manifest.json": "6654bf73a9a699af6cd2512c3c4862a2a50f5752410a7dfcf75d6c8d8a76be8d",
     "migraai-sqlserver-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-sqlserver-to-databricks-converted/mapping/csv/data_types.csv": "599756bf530f3522192128f9ea617158a4829c3c66a790c9a45308df0cc7f778",
+    "migraai-sqlserver-to-databricks-converted/mapping/csv/data_types.csv": "7e5b535677dcf8b378c87ca0d9518c1f6b37e5405e9a016acd949476769311aa",
     "migraai-sqlserver-to-databricks-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-sqlserver-to-databricks-converted/mapping/csv/objects.csv": "0c155a924711f82222c24fde01a25b3ae83f61c8313365e8ab3b45fcf22c3007",
     "migraai-sqlserver-to-databricks-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-sqlserver-to-databricks-converted/mapping/csv/syntax.csv": "12bcfc01f7e8660c77c365b27724bd337bd73f1c093b3391e7126fb8dcce298e",
-    "migraai-sqlserver-to-databricks-converted/mapping/mapping-workbook.xlsx": "2b560f3142e466c5a280d0c3c5ad75b52c8a55cef360f131cd1a5ffdcb7e0bed",
+    "migraai-sqlserver-to-databricks-converted/mapping/mapping-workbook.xlsx": "9d1151135b0b0494fad662c6e55ab9a739efca5ba0ea577721e18baad2927ab4",
     "migraai-sqlserver-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-databricks-converted/report/session-report.md": "15141fbb1f0de0b39bd15ddddfde7fd37a3d695545047aad1146521443738d1f",
     "migraai-sqlserver-to-databricks-converted/report/session-report.pdf": "65eb9bccf4deba949de95f07db94819e8d1d46b1f09804c4a5fa7c203fbb8272"
@@ -718,5 +718,5 @@
     "migraai-sqlserver-to-databricks-converted/report/session-report.md",
     "migraai-sqlserver-to-databricks-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "f7e7375bb2ee985a97743a870613a6cbe0653dbb3adbc675cb741016f7bf24ea"
+  "zip_sha256": "639aa0fa53f7e1213306ef1c2a48ab0a00e953550574853bf4968796c5028d6b"
 }

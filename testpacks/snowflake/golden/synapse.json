@@ -712,15 +712,15 @@
     "migraai-snowflake-to-synapse-converted/execution/synapse/order.txt": "0a82cd32fdc642d7cf14e45111dd1c168d0345f75ae2963138fe37c1c1edc7ff",
     "migraai-snowflake-to-synapse-converted/execution/synapse/run.ps1": "4b26ec7cd31507eacfc87a38f058178ae9cde3b4a1fd418d9015d11b144c1e62",
     "migraai-snowflake-to-synapse-converted/execution/synapse/run.sh": "ac3b720770d0404254e050a256f74b3d5a47c51bfd6d48e525fc55fd775ab6d0",
-    "migraai-snowflake-to-synapse-converted/manifest.json": "38ceb086da89b9633421ee2616f8edd2c250e79bcf55742001af80c99e40c535",
+    "migraai-snowflake-to-synapse-converted/manifest.json": "0cde7ffc6dbd9bce20d618e0f324286540b57513c693a7d097617113fbee7304",
     "migraai-snowflake-to-synapse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-snowflake-to-synapse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-snowflake-to-synapse-converted/mapping/csv/data_types.csv": "58c496a89f0d7157300ca344c03615bf360b4a979dde67e8a0374b313466cde9",
+    "migraai-snowflake-to-synapse-converted/mapping/csv/data_types.csv": "9105b80ba741bc67ff5f21c5c45984e2e8e1fe7c00410f88c3404ae37c659d85",
     "migraai-snowflake-to-synapse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-snowflake-to-synapse-converted/mapping/csv/objects.csv": "f91015d6edab4ecebe1bff7f44b2fc9a6e9ec0eccaeea1c597f3220da4e23199",
     "migraai-snowflake-to-synapse-converted/mapping/csv/security.csv": "339f8d9d56ca284f415891719f65fb34081efc8298ae2dd63b13b40ccc8d4573",
     "migraai-snowflake-to-synapse-converted/mapping/csv/syntax.csv": "02eb40c8f2fa2e243ce9659b491bcb795572fc5e7b4774115dd7e0a5200f6e18",
-    "migraai-snowflake-to-synapse-converted/mapping/mapping-workbook.xlsx": "59000343c83b926d72a2d49f11f7b87ef648d6010f3b28f6cc5cfeea1bcf0cc1",
+    "migraai-snowflake-to-synapse-converted/mapping/mapping-workbook.xlsx": "e28100d3163350dd64939690752460d1188dbbc78cf31689300f394691880d4f",
     "migraai-snowflake-to-synapse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-snowflake-to-synapse-converted/report/session-report.md": "6a1e7aa45700873d8752f1d59db65e351cbe6a3ddd22f8b91de032ca0399e427",
     "migraai-snowflake-to-synapse-converted/report/session-report.pdf": "7f7c91e115ab63699fd1f041ed0203fa884c73e41d7b51e3e8216c9d9ae177f9"
@@ -764,5 +764,5 @@
     "migraai-snowflake-to-synapse-converted/report/session-report.md",
     "migraai-snowflake-to-synapse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "cd293c56bb0571ce096b890e14935f3f9797eb4520e42a51dc71aa94f42a2464"
+  "zip_sha256": "e703b705818323c1dfcb15b04ac643feb6aef8db8b2b1672d8a9434f00f48b3c"
 }

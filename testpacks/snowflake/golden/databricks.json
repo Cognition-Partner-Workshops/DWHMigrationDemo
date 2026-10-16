@@ -712,15 +712,15 @@
     "migraai-snowflake-to-databricks-converted/execution/databricks/order.txt": "fa47c91bcc45c134d0aadb38ca4cbb0013a8da1c19c563c449da722b9c37a5af",
     "migraai-snowflake-to-databricks-converted/execution/databricks/run.ps1": "3ba33d45618c5b9e5b73b328d394f279384f06981f005e8c3c118ada36e00bc5",
     "migraai-snowflake-to-databricks-converted/execution/databricks/run.sh": "6dd4791f5506f07d5c50cf7aa9cbb841734b28d6d1f0805ec2013d6cf03a148b",
-    "migraai-snowflake-to-databricks-converted/manifest.json": "f9b9a400f2f672689e19191d065e94b151e5e6029abe477dd5a047d78c92a016",
+    "migraai-snowflake-to-databricks-converted/manifest.json": "5e9d3dfdedc920e3468e9072cd7fb52163edd4387c06acf093e4e8c9dd393898",
     "migraai-snowflake-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-snowflake-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-snowflake-to-databricks-converted/mapping/csv/data_types.csv": "0398e13d4f9acb32d0f282be19236eaa6f4fbf57865f28f44a12ce73520d54dd",
+    "migraai-snowflake-to-databricks-converted/mapping/csv/data_types.csv": "f4e47e2d71a2be74d59a80b7a7225bc8f2f3404f15015874804b790fc81c02d8",
     "migraai-snowflake-to-databricks-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-snowflake-to-databricks-converted/mapping/csv/objects.csv": "fc6254e54b2043fe9b896c2c056b248dc2519be032749b0a0f353209ca6eb044",
     "migraai-snowflake-to-databricks-converted/mapping/csv/security.csv": "339f8d9d56ca284f415891719f65fb34081efc8298ae2dd63b13b40ccc8d4573",
     "migraai-snowflake-to-databricks-converted/mapping/csv/syntax.csv": "7d064785318921e859b87956b51064b60f2564bebb67cb1ecd34d2d252ba55b7",
-    "migraai-snowflake-to-databricks-converted/mapping/mapping-workbook.xlsx": "b8fa740fa1936aec72772a9b1dd82e3175bd7363494e25dfd026f94664e548a0",
+    "migraai-snowflake-to-databricks-converted/mapping/mapping-workbook.xlsx": "a766f581b88afdb6bb0d33b8542b1e5c7a88643e867030eb1db2db1a75d56581",
     "migraai-snowflake-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-snowflake-to-databricks-converted/report/session-report.md": "faf2f5f18df2608123810f81e8143199ea6d8e0228ae5f48a778afce26d06289",
     "migraai-snowflake-to-databricks-converted/report/session-report.pdf": "7228c170a1ea918fffe7845f587d6d5a5cd567eb1bb56132393198328c195e93"
@@ -764,5 +764,5 @@
     "migraai-snowflake-to-databricks-converted/report/session-report.md",
     "migraai-snowflake-to-databricks-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "b67f6aaa0f0b92bc37e4280b6812cb040e025154c7b2b67623e1f8c8938e97b1"
+  "zip_sha256": "b75470fc3b366ede38a96916651b532d869c80fdc796dcd1fe76f606f6a49702"
 }

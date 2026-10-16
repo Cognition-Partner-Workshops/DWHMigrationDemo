@@ -787,15 +787,15 @@
     "migraai-hive-to-fabric-converted/execution/fabric/order.txt": "e7cf44a4cf3e4a624355bb52a6262e1d9912ae1bf52c99bcc7b1c9e605c4354b",
     "migraai-hive-to-fabric-converted/execution/fabric/run.ps1": "6fbfecb732fcd4f307a2b43284c6447aa79461b5a16e7f7e346b5583a2f3b650",
     "migraai-hive-to-fabric-converted/execution/fabric/run.sh": "b5c9cb0e5e21b8a77ccb05fea04a3a785f133f36bd451e3a0c73c39546503b1e",
-    "migraai-hive-to-fabric-converted/manifest.json": "68daac9cb41499eb1689fdb2e1db9e08801d534cf2291f3f34e85634217dbe3f",
+    "migraai-hive-to-fabric-converted/manifest.json": "92b1fe4c2f5ea656866ab898cc73e6bc41cf0945aa426b5185b84c0b5e014f0d",
     "migraai-hive-to-fabric-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-fabric-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-hive-to-fabric-converted/mapping/csv/data_types.csv": "ad0db127695623e75f5340b2927bcdf70e14b9f2876b50cad49a73544ff97148",
-    "migraai-hive-to-fabric-converted/mapping/csv/functions.csv": "2df4ef3b00c1ff861a240c23dd22363ffa902464d669053ff9994f00637c73df",
+    "migraai-hive-to-fabric-converted/mapping/csv/data_types.csv": "317c24b71b810e49954b921f26a4da27d48c308df5d36316810be9000f91836e",
+    "migraai-hive-to-fabric-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-hive-to-fabric-converted/mapping/csv/objects.csv": "12cf60e8f2251a0836918db9f98cf7988c963d80b094293a8a6c39070a727e90",
     "migraai-hive-to-fabric-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-hive-to-fabric-converted/mapping/csv/syntax.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
-    "migraai-hive-to-fabric-converted/mapping/mapping-workbook.xlsx": "3615c4aa5878db7885c4fdc6b73cf102fbdc924cf430c45bb18dd99da21c688d",
+    "migraai-hive-to-fabric-converted/mapping/mapping-workbook.xlsx": "46fcdef9216df0ea1ba6fcebb09464b0a1ae3a9572fb6b796cacd8b7ecbf787f",
     "migraai-hive-to-fabric-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-fabric-converted/report/session-report.md": "44731c69a2fd392196473bbbebbb069f357b3ed6f35656a10bbfd862ed2c1529",
     "migraai-hive-to-fabric-converted/report/session-report.pdf": "ff7d95aac6b6feaf9c69537e343237e16df00dc7a7dc6a5bda9035e712017375"
@@ -835,5 +835,5 @@
     "migraai-hive-to-fabric-converted/report/session-report.md",
     "migraai-hive-to-fabric-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "1010acd79466220692b6cec6c450e610176a3e5fdf3f2eaf947c346400ba064d"
+  "zip_sha256": "3b27da1700f0d2266e1a4de9cae598062717831c4278e3fcc8fe3585c0d93777"
 }

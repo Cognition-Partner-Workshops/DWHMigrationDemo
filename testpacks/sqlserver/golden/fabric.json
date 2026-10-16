@@ -670,15 +670,15 @@
     "migraai-sqlserver-to-fabric-converted/execution/fabric/order.txt": "50a2adea367f82ff8d212f2b88fb39b1849edec6b99648a770ab543d3fdf19e6",
     "migraai-sqlserver-to-fabric-converted/execution/fabric/run.ps1": "36d8a09084e3fa72e6fc09ec212b60546be83f238a97c691a8113b4fa109b024",
     "migraai-sqlserver-to-fabric-converted/execution/fabric/run.sh": "70eb12228d84b96fe502aa5c38e75d3181aa0b818de2d16e30b3dd46e972d698",
-    "migraai-sqlserver-to-fabric-converted/manifest.json": "e1bb9b9f11b125d6f56dcadc135b2b2047b838152567b085003c01ee59b0e03b",
+    "migraai-sqlserver-to-fabric-converted/manifest.json": "03fd3024aacec11455e062a7132d77493102b7191441874221ecead7d5ec8c93",
     "migraai-sqlserver-to-fabric-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-fabric-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-sqlserver-to-fabric-converted/mapping/csv/data_types.csv": "c5477066756673b1a7a5be84c9b5a0ccc517cb61a784155d44e5ac27c3e266c9",
+    "migraai-sqlserver-to-fabric-converted/mapping/csv/data_types.csv": "7e5b535677dcf8b378c87ca0d9518c1f6b37e5405e9a016acd949476769311aa",
     "migraai-sqlserver-to-fabric-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-sqlserver-to-fabric-converted/mapping/csv/objects.csv": "20cac546c0094d8b9ce63968b31b7b4c2f1f8d4f7a443028e50f6c45e3aa6470",
     "migraai-sqlserver-to-fabric-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-sqlserver-to-fabric-converted/mapping/csv/syntax.csv": "20905dd7eae6ffc922859845060cc3c981aaf3ab1a8ee84ac84eb42ba41993c8",
-    "migraai-sqlserver-to-fabric-converted/mapping/mapping-workbook.xlsx": "909c5f1c9daae8ab88f71a07b58035fd2c864309f63c92dfef4654ee85785833",
+    "migraai-sqlserver-to-fabric-converted/mapping/mapping-workbook.xlsx": "593828ae5187536f6ee4b11116065c2c8c586a8953858b5f62d6f8e3c197a4d1",
     "migraai-sqlserver-to-fabric-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-fabric-converted/report/session-report.md": "404fe0a8e9e6b7cde0a519e6d1f3f8aa040aa038ec2e181bd6b44c4fb9ae3a14",
     "migraai-sqlserver-to-fabric-converted/report/session-report.pdf": "f4988ea0945fb79d97c7159f9603bfa253135a54a454e0609da974bace7ec48f"
@@ -718,5 +718,5 @@
     "migraai-sqlserver-to-fabric-converted/report/session-report.md",
     "migraai-sqlserver-to-fabric-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "118daefbfebb8908a41238a739d58f11f988da93d45217eac87beda817cfb118"
+  "zip_sha256": "1357864c456fc6a8478fccf2925f05173bfa7050132914953b8b48e587d85968"
 }

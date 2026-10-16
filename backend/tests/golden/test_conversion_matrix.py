@@ -265,6 +265,7 @@ def test_mock_conversion_matches_golden(
 ) -> None:
     pack_dir = TESTPACKS / source
     source_files = _source_files(pack_dir)
+    monkeypatch.setenv("MIGRAAI_DATA_DIR", str(tmp_path / "isolated-data"))
     session = _session_for_pack(pack_dir, source, target, tmp_path)
     request.addfinalizer(lambda: _release_session(session))
     original_run_session = workflow.run_session

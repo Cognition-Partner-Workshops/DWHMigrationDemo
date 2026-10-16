@@ -751,15 +751,15 @@
     "migraai-teradata-to-snowflake-converted/execution/snowflake/order.txt": "fbaa776d38f3a1183a174f26960a631eedbf14f8a83e83b37d525e5cecf016be",
     "migraai-teradata-to-snowflake-converted/execution/snowflake/run.ps1": "b45d7b6232f2fa286bc403f40209be17ede4c6812e124c1949d18a7ef9ce0f4c",
     "migraai-teradata-to-snowflake-converted/execution/snowflake/run.sh": "d428336a289ee95d6c814c347b45fad0917ae16d2c26b31d0a89acfc96493bc6",
-    "migraai-teradata-to-snowflake-converted/manifest.json": "f0187604285c5733e3eca519d993c595b777963a1cde64a07dfb03e8cbe9b45c",
+    "migraai-teradata-to-snowflake-converted/manifest.json": "6a5acec687d3a5f605ca291e60560e0d7625c3e9cdc8b34d7cb335798ec7cfe6",
     "migraai-teradata-to-snowflake-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-snowflake-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-teradata-to-snowflake-converted/mapping/csv/data_types.csv": "7146d9ae1b06acea595edae0a6e08794f9391adadc9e2c33e09976a4ff6af2ff",
+    "migraai-teradata-to-snowflake-converted/mapping/csv/data_types.csv": "48a338c9e2124cbbf83058dfda96d4733fa398fe5f34f041fa7a86102c67db95",
     "migraai-teradata-to-snowflake-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-teradata-to-snowflake-converted/mapping/csv/objects.csv": "f3e8e2271ca7bea3c210bfba6dc9487aa46af3455d850a9830b1c7741f01659f",
     "migraai-teradata-to-snowflake-converted/mapping/csv/security.csv": "2d03c1d913ab37d10fcf8ee49fec6c56a50eaabbc72b63f1e0da2fefcae8159a",
     "migraai-teradata-to-snowflake-converted/mapping/csv/syntax.csv": "44a1c396cf2b4817769652a9c5282d5e5df4bdf5b03e0d269333a19a60f89601",
-    "migraai-teradata-to-snowflake-converted/mapping/mapping-workbook.xlsx": "d1ac3a440e99ce5ee4d8450520635b73bc86d19a7e0227defa095d9d4068e6a5",
+    "migraai-teradata-to-snowflake-converted/mapping/mapping-workbook.xlsx": "f868d855eb3e9e0df7a84279db98957e4ed92f7f94c95d6576293a0015af4a08",
     "migraai-teradata-to-snowflake-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-snowflake-converted/report/session-report.md": "c25d8bc41392191473814bd0cc235570cdc5210df8cf064bc9ebd03430de5ac9",
     "migraai-teradata-to-snowflake-converted/report/session-report.pdf": "8e5ec42acf57ecda39d32db3fc33a617b64fc2828d63764b69d3f3759b1ded16"
@@ -802,5 +802,5 @@
     "migraai-teradata-to-snowflake-converted/report/session-report.md",
     "migraai-teradata-to-snowflake-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "24263b1284bc32dfad33213873a15e46ce75f5b27d4196843fc33fd7d43db790"
+  "zip_sha256": "0942d645821e406b1196175c62c55ed922bfe8cafe293e9b3dda63510bf7ae80"
 }

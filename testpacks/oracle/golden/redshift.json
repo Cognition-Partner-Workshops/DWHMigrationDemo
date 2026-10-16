@@ -787,15 +787,15 @@
     "migraai-oracle-to-redshift-converted/execution/redshift/order.txt": "a3f863c6bb3151097ce22e487edf629a2c8f5d316610d64893c9e3c220153d3e",
     "migraai-oracle-to-redshift-converted/execution/redshift/run.ps1": "08a62b0172e5980fa7908d96b20f648a8bc2c9c7c583ac4937bff8b1278d5dcf",
     "migraai-oracle-to-redshift-converted/execution/redshift/run.sh": "9aaa0cfa7953c082635e636e4929302025c424f591aed8991fae5beac9e17d00",
-    "migraai-oracle-to-redshift-converted/manifest.json": "ee0eeb85823807d08fbca6ce195459efc5c96fe7a8f802e55a151f3e8515f533",
+    "migraai-oracle-to-redshift-converted/manifest.json": "4bb93c34cbf1a02f3c90ec9be061c9bd6da0b9e3294c6dca30926e3109ba739c",
     "migraai-oracle-to-redshift-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-oracle-to-redshift-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-oracle-to-redshift-converted/mapping/csv/data_types.csv": "b53011c1627a92755a0baeb81e0d3bef3a878ab89db6a816b734f681174b9011",
-    "migraai-oracle-to-redshift-converted/mapping/csv/functions.csv": "5385e93bdfec9e91acd0bf79c7e0d35d141252f9beb43ddd3c417173b53d72fc",
+    "migraai-oracle-to-redshift-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-oracle-to-redshift-converted/mapping/csv/objects.csv": "9277acbf3bc009996edcee53718d0443974c428aa1b77481c50c51d1e6b21a36",
     "migraai-oracle-to-redshift-converted/mapping/csv/security.csv": "03b3f879c1b107a36b5ab1ab5fedd141494cff120aff5114dac1378e2bd2a784",
     "migraai-oracle-to-redshift-converted/mapping/csv/syntax.csv": "8222b295c8f5529752ebfbd0d0a7d943134eeb28d2ef8b1dcad18e35f2a563f0",
-    "migraai-oracle-to-redshift-converted/mapping/mapping-workbook.xlsx": "6f5020069dd82c6161f827b440b6663e032754788ef6b68deb6c12e83754efec",
+    "migraai-oracle-to-redshift-converted/mapping/mapping-workbook.xlsx": "8e5e30bfae6480c1b27c69802bc93631fc5b1136cdd07641569a9c08585f54b5",
     "migraai-oracle-to-redshift-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-oracle-to-redshift-converted/report/session-report.md": "1bec424686218d0463f7bb36e376361a46cef4b3238b2bcfb3e542be2153a30e",
     "migraai-oracle-to-redshift-converted/report/session-report.pdf": "91bccfc3fddd4bd43288378be26b413d8d7883ff1159335a7026b0eeccb51abb"
@@ -835,5 +835,5 @@
     "migraai-oracle-to-redshift-converted/report/session-report.md",
     "migraai-oracle-to-redshift-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "9873d04e0cd2a624c9354906f7039e7cdcd65876a7b1963687f2464c6188cdd0"
+  "zip_sha256": "bc9a57bd5df250cc39f65efc82f0f5d93d76fdf7c7851fc51edc3f302cfd1499"
 }

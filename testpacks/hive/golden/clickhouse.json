@@ -787,15 +787,15 @@
     "migraai-hive-to-clickhouse-converted/execution/clickhouse/order.txt": "4b11f6360202be8d07d72071a1f1a9e31bbaddfde3418023b6562e287bea5f3b",
     "migraai-hive-to-clickhouse-converted/execution/clickhouse/run.ps1": "a492e1b4ed9dbeca9f4a92ea4f2037075649e5fbbc781b56c568dc605d29c132",
     "migraai-hive-to-clickhouse-converted/execution/clickhouse/run.sh": "64f71fbb3fb415e12976c9097faaf6b02761c1b3396b980d3da8d30949efe5f5",
-    "migraai-hive-to-clickhouse-converted/manifest.json": "18145baa3c9171bd569a52f17577bd81cef37c4c53c5f7e868dabcc120db522b",
+    "migraai-hive-to-clickhouse-converted/manifest.json": "40ea696b0e0e046394156e4899bb62d2e346c7da3b3b886114cf64e0b2ed11e8",
     "migraai-hive-to-clickhouse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-clickhouse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-hive-to-clickhouse-converted/mapping/csv/data_types.csv": "ed4e4f6781e25af39338148ff1f2c7f916ddff3e676629d60fcf35d77f2181c7",
-    "migraai-hive-to-clickhouse-converted/mapping/csv/functions.csv": "b69f1c02c8e12157efdb667ca151d2c3d1ab3fd561663fca005d7bf53b5cde6b",
+    "migraai-hive-to-clickhouse-converted/mapping/csv/data_types.csv": "4a0b0ca451b869f76487d2a3359a7138854fa3af41cfb147373d4d91f70bab25",
+    "migraai-hive-to-clickhouse-converted/mapping/csv/functions.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-hive-to-clickhouse-converted/mapping/csv/objects.csv": "3909ce0c2293c88f2dcd937cddc4b9f20ae291f1877a2ad4e9868dcd8212a9da",
     "migraai-hive-to-clickhouse-converted/mapping/csv/security.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-hive-to-clickhouse-converted/mapping/csv/syntax.csv": "efebd68b72cfb7c9647fb6cf04e37e1a283ef3b4c868d93d32f2152055131eb6",
-    "migraai-hive-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "a35ae76fbd6243cdb7fb68c51807f0f37bfc30640c0dd771138a4c8ffd78613a",
+    "migraai-hive-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "4defac654ba680d16346a30bdaf789fcafa6c7367b1850bbbae32ca6a1aa33ac",
     "migraai-hive-to-clickhouse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-clickhouse-converted/report/session-report.md": "9fda0e154cd17e284446916fe669fcff81ecdec6e777cd30388d72d800572bdc",
     "migraai-hive-to-clickhouse-converted/report/session-report.pdf": "89962119c49b7f17ab768cc03e24954dab829e265c25abe05ae56d69e35f85eb"
@@ -836,5 +836,5 @@
     "migraai-hive-to-clickhouse-converted/report/session-report.md",
     "migraai-hive-to-clickhouse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "2265c2256bd7b44c8ab12ffe5aa16031d8f75dde6ba43bf59d8311a9c0bd68f8"
+  "zip_sha256": "decbd4cff518efd7e5d6cb8dd4d5688f7f6f55a355fabff3f854eae359de9df7"
 }
