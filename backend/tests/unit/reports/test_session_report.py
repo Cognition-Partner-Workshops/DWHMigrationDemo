@@ -190,6 +190,28 @@ def test_report_html_entities_not_split() -> None:
         assert re.match(r"&[#A-Za-z0-9]+;", body[match.start() :])
 
 
+def test_report_html_no_needless_breaks() -> None:
+    html = _report_html(sample_package())
+    assert "sales.customer_accounts" in html
+    assert "https://devin.example/sessions/a" in html
+
+
+def test_report_html_breaks_within_name_budget() -> None:
+    pkg = sample_package()
+    evil = dataclasses.replace(
+        pkg.objects[0],
+        source_qualified_name="evil<script>alert(1)</script>|x" + "a" * 170,
+    )
+    pkg = dataclasses.replace(pkg, objects=(evil,) + pkg.objects[1:])
+    html = _report_html(pkg)
+    cell = next(
+        m.group(1) for m in re.finditer(r"<td>(.*?)</td>", html, re.S) if "evil" in m.group(1)
+    )
+    name_budget = max(8, int(34 * 0.95) - 2)
+    for piece in cell.split(" "):
+        assert len(re.findall(r"&[#A-Za-z0-9]+;|.", piece)) <= name_budget
+
+
 def test_long_name_wraps() -> None:
     pkg = sample_package()
     long_name = "a" * 200

@@ -321,7 +321,6 @@ def build_report_md(pkg: PackageInput) -> str:
     return "\n".join(out)
 
 
-_CELL_RUN = 16
 _CELL = re.compile(r"(<t[dh][^>]*>)(.*?)(</t[dh]>)", re.S)
 _ENTITY = re.compile(r"&[#A-Za-z0-9]+;|.")
 _TAG = re.compile(r"(<[^>]+>)")
@@ -340,33 +339,45 @@ _COL_WIDTHS = {
     ("Name", "Status", "Reason"): (35, 15, 50),
 }
 _TABLE = re.compile(r"<table.*?</table>", re.S)
-_TH = re.compile(r"<th>(.*?)</th>")
+_ROW = re.compile(r"<tr>.*?</tr>", re.S)
+_TH = re.compile(r"<th[^>]*>(.*?)</th>")
+_SEP_TOKEN = re.compile(r"(?<=[._/\\-])")
 
 
-def _break_run(run: str) -> str:
-    """Insert wrap points into one unbroken run; HTML entities count as one char."""
-    if len(_ENTITY.findall(run)) <= _CELL_RUN:
+def _elen(text: str) -> int:
+    """Length in characters with each HTML entity counted as one."""
+    return len(_ENTITY.findall(text))
+
+
+def _budget(width_pct: float) -> int:
+    return max(8, int(width_pct * 0.95) - 2)
+
+
+def _break_run(run: str, budget: int) -> str:
+    """Greedily wrap one unbroken run to ``budget`` chars, entities unsplittable."""
+    if _elen(run) <= budget:
         return run
-    chunked = []
-    for piece in re.sub(r"([._/\\-])", r"\1 ", run).split(" "):
-        if not piece:
+    lines: list[str] = []
+    current = ""
+    for token in _SEP_TOKEN.split(run):
+        if not token:
             continue
-        tokens = _ENTITY.findall(piece)
-        while len(tokens) > _CELL_RUN:
-            chunked.append("".join(tokens[:_CELL_RUN]))
-            tokens = tokens[_CELL_RUN:]
-        chunked.append("".join(tokens))
-    return " ".join(chunked)
-
-
-def _break_cell(match: re.Match[str]) -> str:
-    open_tag, inner, close_tag = match.groups()
-    segments = _TAG.split(inner)
-    for i, segment in enumerate(segments):
-        if segment.startswith("<"):
-            continue
-        segments[i] = " ".join(_break_run(p) for p in segment.split(" "))
-    return open_tag + "".join(segments) + close_tag
+        if _elen(token) > budget:
+            if current:
+                lines.append(current)
+                current = ""
+            pieces = _ENTITY.findall(token)
+            chunks = ["".join(pieces[i : i + budget]) for i in range(0, len(pieces), budget)]
+            lines.extend(chunks[:-1])
+            current = chunks[-1]
+        elif current and _elen(current) + 1 + _elen(token) > budget:
+            lines.append(current)
+            current = token
+        else:
+            current = token if not current else current + " " + token
+    if current:
+        lines.append(current)
+    return " ".join(lines)
 
 
 def _set_col_widths(table: str) -> str:
@@ -385,9 +396,34 @@ def _set_col_widths(table: str) -> str:
     return _TH.sub(widen, table)
 
 
+def _wrap_table(match: re.Match[str]) -> str:
+    table = _set_col_widths(match.group(0))
+    headers = tuple(_TH.findall(table))
+    widths = _COL_WIDTHS.get(headers) or tuple(100.0 / max(1, len(headers)) for _ in headers)
+    budgets = [_budget(w) for w in widths]
+
+    def wrap_row(row_match: re.Match[str]) -> str:
+        column = 0
+
+        def wrap_cell(cell_match: re.Match[str]) -> str:
+            nonlocal column
+            open_tag, inner, close_tag = cell_match.groups()
+            budget = budgets[min(column, len(budgets) - 1)] if budgets else 100
+            column += 1
+            segments = _TAG.split(inner)
+            for i, segment in enumerate(segments):
+                if segment.startswith("<"):
+                    continue
+                segments[i] = " ".join(_break_run(p, budget) for p in segment.split(" "))
+            return open_tag + "".join(segments) + close_tag
+
+        return _CELL.sub(wrap_cell, row_match.group(0))
+
+    return _ROW.sub(wrap_row, table)
+
+
 def _break_long_words(html: str) -> str:
-    html = _TABLE.sub(lambda m: _set_col_widths(m.group(0)), html)
-    return _CELL.sub(_break_cell, html)
+    return _TABLE.sub(_wrap_table, html)
 
 
 def _report_html(pkg: PackageInput) -> str:
