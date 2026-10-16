@@ -882,6 +882,117 @@ def test_conversion_job_continues_after_voter_failure_and_cancels_running_sessio
     assert section.count("cancelled") >= cancelled_count
 
 
+def test_cancel_finalises_full_run_results_before_blocked_batch_returns(tmp_path: Path) -> None:
+    source_dir = tmp_path / "source-pack"
+    source_dir.mkdir()
+    for name in ("a", "b", "c"):
+        (source_dir / f"{name}.sql").write_text(
+            f"CREATE TABLE sales.{name} (id INTEGER);",
+            encoding="utf-8",
+        )
+    session = _inventory_session(tmp_path / "cancel-immediate", source_dir, "teradata")
+    entered = threading.Event()
+    release = threading.Event()
+
+    class GatedMockClient(MockDevinClient):
+        def get_session(self, session_id: str) -> dict[str, Any]:
+            entered.set()
+            if not release.wait(timeout=10):
+                raise TimeoutError("Mock session gate timed out.")
+            return super().get_session(session_id)
+
+    job = ConversionJob(
+        session=session,
+        audit=AuditLog(tmp_path / "cancel-immediate" / "audit.jsonl"),
+        batch_size=1,
+        timeout_minutes=1,
+        max_concurrent_sessions=4,
+        client_factory=lambda _: GatedMockClient(),
+        pack=_target_pack("snowflake"),
+    )
+    job.start()
+    try:
+        assert entered.wait(timeout=5)
+        assert len(job.selected_objects) == 3
+
+        job.cancel()
+
+        counts_after_cancel = dict(job.counts)
+        snapshot = job.snapshot()
+        assert snapshot["state"] == "cancelled"
+        assert snapshot["counts"] == {
+            "converted": 0,
+            "escalated": 0,
+            "expert_review": 0,
+            "failed": 0,
+            "cancelled": 3,
+        }
+        assert len(job.results) == 3
+        assert all(result["status"] == "cancelled" for result in job.results.values())
+        assert all(
+            state != "queued"
+            for batch in snapshot["progress"]["batches"].values()
+            for state in batch["voters"].values()
+        )
+        with session["inventory"].lock:
+            persisted_state = (
+                session["inventory"]
+                .connection.execute(
+                    "SELECT state FROM conversion_run WHERE id=?",
+                    (job.run_id,),
+                )
+                .fetchone()["state"]
+            )
+        assert persisted_state == "cancelled"
+
+        events = [
+            json.loads(line) for line in job.audit.path.read_text(encoding="utf-8").splitlines()
+        ]
+        cancel_event = next(event for event in events if event["action"] == "convert.cancel")
+        assert cancel_event["details"]["completed_count"] == 3
+
+        release.set()
+        job.join(timeout=30)
+        assert not job.is_alive()
+        assert job.counts == counts_after_cancel
+        assert all(result["status"] == "cancelled" for result in job.results.values())
+    finally:
+        release.set()
+        job.join(timeout=30)
+
+
+def test_three_batch_mock_run_reports_nine_distinct_sessions(tmp_path: Path) -> None:
+    source_dir = tmp_path / "three-batch-pack"
+    source_dir.mkdir()
+    for name in ("a", "b", "c"):
+        (source_dir / f"{name}.sql").write_text(
+            f"CREATE TABLE sales.{name} (id INTEGER);",
+            encoding="utf-8",
+        )
+    session = _inventory_session(tmp_path / "three-batch", source_dir, "teradata")
+    job = ConversionJob(
+        session=session,
+        audit=None,
+        batch_size=1,
+        timeout_minutes=1,
+        confidence_threshold=0.0,
+        max_concurrent_sessions=4,
+        client_factory=lambda _: MockDevinClient(),
+        pack=_target_pack("snowflake"),
+    )
+
+    job.start()
+    job.join(timeout=30)
+
+    assert not job.is_alive()
+    assert len(job.batches) == 3
+    assert len(job.started_sessions) == 9
+    assert len(set(job.started_sessions)) == 9
+    report = build_report_md(build_package_input(job, session, "test"))
+    section = report[report.index("## 4. Data sent to Devin") : report.index("## 5.")]
+    assert "- Sessions: 9" in section
+
+
 def test_conversion_job_publishes_live_voter_and_escalation_progress(
     tmp_path: Path,
 ) -> None:

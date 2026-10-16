@@ -787,7 +787,7 @@
     "migraai-hive-to-redshift-converted/execution/redshift/order.txt": "7719b65a0273835d3b6e890dbbf0604275f0e6e9fc2586ed7e00dbed24608c1d",
     "migraai-hive-to-redshift-converted/execution/redshift/run.ps1": "f133f0d8a4b4da0bcb9f76ecd8e7df72efa7ca0a6358664a96bb6c7cfc2df2b9",
     "migraai-hive-to-redshift-converted/execution/redshift/run.sh": "3d7a9265a42d3d9ab7a7ddc2aacb277bf4a67754e7a4dd0d78a42126cfbb3de0",
-    "migraai-hive-to-redshift-converted/manifest.json": "4665fac054f92371a699f4d0a9c5999cb1b0a965aee97252cfe95b36ffb2c57b",
+    "migraai-hive-to-redshift-converted/manifest.json": "474ab66a74183b88cb498507060e4afd4fe42438fca1aeddccd404ca3fbf8e6f",
     "migraai-hive-to-redshift-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-redshift-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-redshift-converted/mapping/csv/data_types.csv": "907a181ae53031ead8f80cb1ee9c716eeba40d001e2b23112b305fc4d5151f35",
@@ -797,8 +797,8 @@
     "migraai-hive-to-redshift-converted/mapping/csv/syntax.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-hive-to-redshift-converted/mapping/mapping-workbook.xlsx": "ce70bc95c02c93c4a298f1119868a7781f7a7880cf862ea9571a99db602c6e82",
     "migraai-hive-to-redshift-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-hive-to-redshift-converted/report/session-report.md": "5f7d0185be98b804a944d8b0c481bc90af2a676f3e6750370ab3e72b918edbed",
-    "migraai-hive-to-redshift-converted/report/session-report.pdf": "a0bf421449a28c9f5fa976b87bd22e833375e744ba4778ded254272f4e09420f"
+    "migraai-hive-to-redshift-converted/report/session-report.md": "d697085e3dd59c1f5fce9f4227db4f3fb9177cbad1c80d0b1dec2c8335799581",
+    "migraai-hive-to-redshift-converted/report/session-report.pdf": "7353f7841af2990cb618b49d5f9dcc35b1e783966e412f0393a00ea497eabce2"
   },
   "inventory": {
     "external": 1,
@@ -835,5 +835,5 @@
     "migraai-hive-to-redshift-converted/report/session-report.md",
     "migraai-hive-to-redshift-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "f0ad98dd06b51076844eb75cb1b4020399ad5f8692e9b565535dd77aa27736c3"
+  "zip_sha256": "55f527155303a01202b52915aed14bd97fa05fef4af756ab528c7349c732f988"
 }

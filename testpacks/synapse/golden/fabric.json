@@ -696,7 +696,7 @@
     "migraai-synapse-to-fabric-converted/execution/fabric/order.txt": "64fa326431df53bb266f0ff930d3e317c024cc6801aaedf935da71d6d68d92da",
     "migraai-synapse-to-fabric-converted/execution/fabric/run.ps1": "361f0bf78a229398fead717992c36bcb39ddd3e3589e43ef1f6ede0e297d21bf",
     "migraai-synapse-to-fabric-converted/execution/fabric/run.sh": "e56663a450297a1712030c670c2896f9b739d8751fd42cfbc3159c5a32f7b9f8",
-    "migraai-synapse-to-fabric-converted/manifest.json": "19012754f2c0aa35ee7609287e0db8b2f6c92d9fde7eeb02e0f3019bf37c0458",
+    "migraai-synapse-to-fabric-converted/manifest.json": "9c7f0403c4cfcf30325263285a8dc4751c6ea3de9458a278a0ba42ab8ed34fd2",
     "migraai-synapse-to-fabric-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-fabric-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-fabric-converted/mapping/csv/data_types.csv": "fdd5bfb86c3209cb9398417291ce446c98ba9b1bbeaf5e9078a431533113518e",
@@ -706,8 +706,8 @@
     "migraai-synapse-to-fabric-converted/mapping/csv/syntax.csv": "7710242b2316db4337fa8246eb9bee0f0bd63ae464acd44312a10545c0f6cf24",
     "migraai-synapse-to-fabric-converted/mapping/mapping-workbook.xlsx": "9c65c3663ae008a2d70776f67d616c9ad11a5f192f5a87a1840d294635174a7f",
     "migraai-synapse-to-fabric-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-synapse-to-fabric-converted/report/session-report.md": "042deebed035e000c84aa222b6d75c187ac37e3b4fa3600f5a97e4b71c97d4b4",
-    "migraai-synapse-to-fabric-converted/report/session-report.pdf": "b3f56cc1c5c681a345362f46d90f45ebbf2f86a1b4dc60533fd86e209902cc56"
+    "migraai-synapse-to-fabric-converted/report/session-report.md": "5c29a5266992daeb98dcb63a559714367b0d7dcd34c4dbd7340a345caef851ac",
+    "migraai-synapse-to-fabric-converted/report/session-report.pdf": "db381a76dfc3e5c72c9ce30449792a9fc88edbe28db468acf8ce4fecd4269f6e"
   },
   "inventory": {
     "external": 1,
@@ -744,5 +744,5 @@
     "migraai-synapse-to-fabric-converted/report/session-report.md",
     "migraai-synapse-to-fabric-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "141976d38fcb6ebde3916eee084b1db2e20665d3d2908a7b7c164e7fd4e47b59"
+  "zip_sha256": "b84c7dcb320807ce26eb26b468ab581fb5cad83e6fb1c7c9b530c026a2852bc0"
 }

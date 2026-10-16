@@ -77,6 +77,17 @@ def _update_session_progress(
         callback(state["batch_index"], role, status, session_id)
 
 
+def _set_mock_session_identity(client: Any, state: WorkflowState, role: str) -> None:
+    configure = getattr(client, "set_session_identity", None)
+    if callable(configure):
+        runtime = _runtime(state)
+        configure(
+            run_id=runtime["run_id"],
+            batch_index=state["batch_index"],
+            role=f"voter_{role}" if role in {"A", "B", "C"} else role,
+        )
+
+
 @contextmanager
 def _quiet_sqlglot_logs():
     global _SQLGLOT_LOG_LEVEL, _SQLGLOT_LOG_USERS
@@ -298,6 +309,7 @@ def _run_voter(state: WorkflowState, voter: str) -> tuple[str, SessionOutcome]:
     )
     try:
         client = runtime["client_factory"](voter)
+        _set_mock_session_identity(client, state, voter)
         with runtime["session_semaphore"]:
             outcome = run_session(
                 client,
@@ -537,6 +549,7 @@ def _run_escalation(state: WorkflowState) -> dict[str, Any]:
     client = None
     try:
         client = runtime["client_factory"]("escalation")
+        _set_mock_session_identity(client, state, "escalation")
         with runtime["session_semaphore"]:
             outcome = run_session(
                 client,
@@ -790,6 +803,7 @@ def run_batch_workflow(
         "cancel": cancel,
         "session_semaphore": session_semaphore,
         "client_factory": client_factory,
+        "run_id": run_id,
         "session_status_callback": session_status_callback,
     }
     with _RUNTIME_LOCK:

@@ -670,7 +670,7 @@
     "migraai-sqlserver-to-synapse-converted/execution/synapse/order.txt": "9a9a5f413698e1d2892f811354af46aef853b47a53ed3485b2ccc3451cec373a",
     "migraai-sqlserver-to-synapse-converted/execution/synapse/run.ps1": "8d07573c87c4d2b2e75cb83e407a0d250f8e44ec30b0aeee13a854ce5b886f09",
     "migraai-sqlserver-to-synapse-converted/execution/synapse/run.sh": "2efe93004fb43fb81c0ca1c51db097bdb432c033a163ad4aa976974f49a973da",
-    "migraai-sqlserver-to-synapse-converted/manifest.json": "f17d9622698e152dff37b3e298b9d0a0c3611885481f062d0af1154a8ccaf8a8",
+    "migraai-sqlserver-to-synapse-converted/manifest.json": "28bce36f11614335d2cd9986675d44ea143c11be7ab83384deb646d26197ed58",
     "migraai-sqlserver-to-synapse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-synapse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-synapse-converted/mapping/csv/data_types.csv": "dec8cc789a67c01ce938661c4f07330a80d2a9230280374f51ac413bc71e3418",
@@ -680,8 +680,8 @@
     "migraai-sqlserver-to-synapse-converted/mapping/csv/syntax.csv": "8407bc624f4c5bcb48fe2c54bd1f97b9b3d00c940954788bd3f198d15d1f94dd",
     "migraai-sqlserver-to-synapse-converted/mapping/mapping-workbook.xlsx": "71e967979c3f2e03072c943d65bcce59c5763aaae7fa20c6afc2d13782943011",
     "migraai-sqlserver-to-synapse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-sqlserver-to-synapse-converted/report/session-report.md": "26f91a31ae6167311885a7c2d69fdc7e70375aa893565f04111f150c7548fa2d",
-    "migraai-sqlserver-to-synapse-converted/report/session-report.pdf": "27ca0d18da62eed5178b2ffc5515052fa539aefd32d4ec5b579ca9d8c22c8305"
+    "migraai-sqlserver-to-synapse-converted/report/session-report.md": "7fec5db1d85203fd121eb3f08a924bccb2fc26415a0ff1172b8575f9dc83ec51",
+    "migraai-sqlserver-to-synapse-converted/report/session-report.pdf": "e1b098515a568af5e5aec7aac40bc91a7672612e6fd57311140b700491ea87c4"
   },
   "inventory": {
     "external": 1,
@@ -718,5 +718,5 @@
     "migraai-sqlserver-to-synapse-converted/report/session-report.md",
     "migraai-sqlserver-to-synapse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "b5fdd1326edb987a6f01a390510518c59eb8bc4dbe4aa6cfa57ad19bce707291"
+  "zip_sha256": "314e0bc433e31c1a9053f0a92e45ad6e3a4e2a49315c43ac58a52f16a336bf13"
 }

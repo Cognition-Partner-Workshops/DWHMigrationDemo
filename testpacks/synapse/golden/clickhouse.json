@@ -696,7 +696,7 @@
     "migraai-synapse-to-clickhouse-converted/execution/clickhouse/order.txt": "6b6b7d9fc0a483cee891dd3822e2088ce480fdeb77f05ea18441344f6c1f0712",
     "migraai-synapse-to-clickhouse-converted/execution/clickhouse/run.ps1": "c26238630e1e9f94bed974765d09434c44174d4c058d0f9c3effaf1e5b8b5226",
     "migraai-synapse-to-clickhouse-converted/execution/clickhouse/run.sh": "bd7b93b7da5d5cb384ff5bbd4361c4b713aa7f726e9636362374fa406a90cfac",
-    "migraai-synapse-to-clickhouse-converted/manifest.json": "dd3cf676da61e67406390c6e8391a42fa7d62ccc9322fd470003553271244972",
+    "migraai-synapse-to-clickhouse-converted/manifest.json": "544cb82a32161c0260b75b85945b7b69e07e8d7d6e1b1d5e52d92078cc82202f",
     "migraai-synapse-to-clickhouse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-clickhouse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-clickhouse-converted/mapping/csv/data_types.csv": "3cfe6845daea5902d1c7d93ea35867362db1f12790f13f7831f0c87657fa9369",
@@ -706,8 +706,8 @@
     "migraai-synapse-to-clickhouse-converted/mapping/csv/syntax.csv": "f2267deb7225c6671a17b935eef1a3d5fee579ed6b95bec9005745dd91c813f6",
     "migraai-synapse-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "24ae7e0f73d09d8c79309badd8a4e71791a5527ca9f8f9aa169605bcb43ee8b7",
     "migraai-synapse-to-clickhouse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-synapse-to-clickhouse-converted/report/session-report.md": "a22898fe75f90ed9f57c7852b29c80466e7ae38c7d2a138e242b0326b72c4fea",
-    "migraai-synapse-to-clickhouse-converted/report/session-report.pdf": "06be7a1462461c0ea2e7d4114554db88deab7dd7e580c00a2d0cf84796f48cef"
+    "migraai-synapse-to-clickhouse-converted/report/session-report.md": "830e59403f4b8d2adac8f802463d696e84d580dfea51d7b520ca1b9cd9f129c4",
+    "migraai-synapse-to-clickhouse-converted/report/session-report.pdf": "3fffd87c960968f172a53e1673f5dee1f4aef27b24e117ca8c4f967e06a04d50"
   },
   "inventory": {
     "external": 1,
@@ -744,5 +744,5 @@
     "migraai-synapse-to-clickhouse-converted/report/session-report.md",
     "migraai-synapse-to-clickhouse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "6ab3260c654854971ba438164f6407d8ad16e85a4faf9c4510c6a256360eb743"
+  "zip_sha256": "300092aeee2dd6fef9da5d62480a4ded8a77f55bc4b040078dab4e42a2abf905"
 }

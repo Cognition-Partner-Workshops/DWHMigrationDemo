@@ -787,7 +787,7 @@
     "migraai-hive-to-synapse-converted/execution/synapse/order.txt": "eb44b9c1770b572d5344647fb90be7efabcd541597e83d2db51b4ac42fe5dd79",
     "migraai-hive-to-synapse-converted/execution/synapse/run.ps1": "3cfdabab7458636634a92c209dc484a1fea6b9615d5af48d6bfb79b0277cceb2",
     "migraai-hive-to-synapse-converted/execution/synapse/run.sh": "96accfe71440cb0617508faa184005cdf84fb051ff2ff77783e70ce78380ddd0",
-    "migraai-hive-to-synapse-converted/manifest.json": "39d9ee8f13e7bb371a86ed974c00d01c64425ef3dafdb2645020ff09d2c4da82",
+    "migraai-hive-to-synapse-converted/manifest.json": "a988f94b99fb95acc66408d07f364dd40930824009206a0599e228671709344c",
     "migraai-hive-to-synapse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-synapse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-synapse-converted/mapping/csv/data_types.csv": "e3e66546e6b05fdd27dd97c9bcd9d387686e94cb94b7ddb67b225bc19f26f746",
@@ -797,8 +797,8 @@
     "migraai-hive-to-synapse-converted/mapping/csv/syntax.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-hive-to-synapse-converted/mapping/mapping-workbook.xlsx": "888838ee11c24a4fa475459c1ce0fdfeb1e602185ee605100ac6189c4e87cba9",
     "migraai-hive-to-synapse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-hive-to-synapse-converted/report/session-report.md": "a3da20bc2f53c73c4dd119b5ba7312c3ef7d687b2a341bed1f4c5aa27672d1ab",
-    "migraai-hive-to-synapse-converted/report/session-report.pdf": "3b14a8ffd6af5b78d7ce6fb84514b3de694da8622b5688f9acf04c92aaccecb3"
+    "migraai-hive-to-synapse-converted/report/session-report.md": "8512163cf490e6aa1ccea7e70c19a617cb7e2cbe2b0881a5125803275fbafd5f",
+    "migraai-hive-to-synapse-converted/report/session-report.pdf": "387ce290662916889768f4ff16f02a09c6346c778c81cb6f5d433c96bdf13d17"
   },
   "inventory": {
     "external": 1,
@@ -835,5 +835,5 @@
     "migraai-hive-to-synapse-converted/report/session-report.md",
     "migraai-hive-to-synapse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "f959f8ed54f91987f277a752555eb965baabc51a57b3b943a62fd4a957edee1d"
+  "zip_sha256": "1ca514d1fc6208fc43474fec7fa5ce4fccbf20fe67278b81e5e6d2ffcbae9091"
 }

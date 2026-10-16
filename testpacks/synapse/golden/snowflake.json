@@ -696,7 +696,7 @@
     "migraai-synapse-to-snowflake-converted/execution/snowflake/order.txt": "ec5267e31bc9825565569408de6843f412f091d8526644536187f7014f6f1ceb",
     "migraai-synapse-to-snowflake-converted/execution/snowflake/run.ps1": "1efe2eba9570478a732ee9d2977278cfd7bea542d999187fc06442d85acbdc13",
     "migraai-synapse-to-snowflake-converted/execution/snowflake/run.sh": "d64688613366e3419b47e7f71baa8cb4507f0ee3d430c7e1f16b79d3654ced77",
-    "migraai-synapse-to-snowflake-converted/manifest.json": "d3aeb531965c67f0ed8547623c62d3914c56e8c0a6d94fc23fcddf9066e7491e",
+    "migraai-synapse-to-snowflake-converted/manifest.json": "dfe7e86b92ffdca55efe7a9bde3f27405bc84723b0313a87f97319c3fd91c9db",
     "migraai-synapse-to-snowflake-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-snowflake-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-snowflake-converted/mapping/csv/data_types.csv": "fdd5bfb86c3209cb9398417291ce446c98ba9b1bbeaf5e9078a431533113518e",
@@ -706,8 +706,8 @@
     "migraai-synapse-to-snowflake-converted/mapping/csv/syntax.csv": "843cf849a0a9bdab31161e8dbd2a5306dfc3c609445c0981364735c583781c38",
     "migraai-synapse-to-snowflake-converted/mapping/mapping-workbook.xlsx": "34ba7d0601c68710c7b6078e92b7558002a45acb5a952f4a2096fd2ee7134f5f",
     "migraai-synapse-to-snowflake-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-synapse-to-snowflake-converted/report/session-report.md": "bc11dc8a9bcc1368316b4ee07a0479238030847f4ab431e6419dd88d5aa79065",
-    "migraai-synapse-to-snowflake-converted/report/session-report.pdf": "ecf378b3cc952dc6d1dc2b7577f3f3ffc5eda4594ce839bd65a794391b9f0dab"
+    "migraai-synapse-to-snowflake-converted/report/session-report.md": "00360e506f8e351eb3b26d6298891c47ea1e3ff1f3d0d54e75769744af02c66c",
+    "migraai-synapse-to-snowflake-converted/report/session-report.pdf": "eb1629c6a7e291a2613c6d0b3018fde24191718004f03a3e1c9f6fb411afd314"
   },
   "inventory": {
     "external": 1,
@@ -744,5 +744,5 @@
     "migraai-synapse-to-snowflake-converted/report/session-report.md",
     "migraai-synapse-to-snowflake-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "ddb8b7904684abbccfe8dc2696ca6e327a98612133e185c003c0d7519465ba25"
+  "zip_sha256": "63a3102486bc7f42534df3a66da67681f704325669978409c403a0ac1f9a925a"
 }

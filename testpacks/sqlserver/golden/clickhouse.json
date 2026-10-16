@@ -670,7 +670,7 @@
     "migraai-sqlserver-to-clickhouse-converted/execution/clickhouse/order.txt": "42fb2a3797e51ae61330447130da3f6d2313750e6850b63df62c4b2fd78a67fd",
     "migraai-sqlserver-to-clickhouse-converted/execution/clickhouse/run.ps1": "b2084323f7f49db8d53fe1e654595dcfae18580e0a4b69494cfe9f6f6afe1850",
     "migraai-sqlserver-to-clickhouse-converted/execution/clickhouse/run.sh": "36cf749d1376eab2d91a16191ab266fa77b0de32bd89e3899ef2f8b895782d66",
-    "migraai-sqlserver-to-clickhouse-converted/manifest.json": "c89aa3577b4dd335059d24f0bc10d0ff45d7bec0b4066cd6617160e81850c8eb",
+    "migraai-sqlserver-to-clickhouse-converted/manifest.json": "67dec89ac3df456f4603011e8939983348fd926885310d1771216e74f9c8d1c7",
     "migraai-sqlserver-to-clickhouse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-clickhouse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-sqlserver-to-clickhouse-converted/mapping/csv/data_types.csv": "8053d5937aee2d6c6899a118536dd8128474fbee883e0ace6e6b9b3a71f7ef1d",
@@ -680,8 +680,8 @@
     "migraai-sqlserver-to-clickhouse-converted/mapping/csv/syntax.csv": "33bb87725153d3c1190855cc7d021269422075a88e7e5ec9e07abd1b30200e60",
     "migraai-sqlserver-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "729d03bb1794a4f9bab163bbe71a85feb5d2fdb58f53f19c5bd7c975115ac6d5",
     "migraai-sqlserver-to-clickhouse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-sqlserver-to-clickhouse-converted/report/session-report.md": "181b7b7a59b413f6d172baac5741e3e01bd3284a59028c945427ac9be5830806",
-    "migraai-sqlserver-to-clickhouse-converted/report/session-report.pdf": "aca82f3c62d17b3402ec0182060245153d4a8630d04b3743ef3ec0d875d01537"
+    "migraai-sqlserver-to-clickhouse-converted/report/session-report.md": "f420e8a0498ffcf9ceb005610f75c3e6e7b05ac95b63f0924a4bdbf8f0dac063",
+    "migraai-sqlserver-to-clickhouse-converted/report/session-report.pdf": "c54712209916da5cfa5a33627002b7a185f1e62f33b27b447fb8994af00f54df"
   },
   "inventory": {
     "external": 1,
@@ -718,5 +718,5 @@
     "migraai-sqlserver-to-clickhouse-converted/report/session-report.md",
     "migraai-sqlserver-to-clickhouse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "81936a4425896f8e792a5a2aa2b709a74e9842ae26e6c5ca366e47c6c2373d4c"
+  "zip_sha256": "26f78fe2afdfd677e470c1914a4785e6da7be02013144a248a686344c154e16e"
 }

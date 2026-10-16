@@ -712,7 +712,7 @@
     "migraai-snowflake-to-fabric-converted/execution/fabric/order.txt": "3f37cf0bd55bc39aa324b50c6cc267ebcfc7abf574467907d04388d692779922",
     "migraai-snowflake-to-fabric-converted/execution/fabric/run.ps1": "601d1d9c7d7a43c2abf6feafc55d65e99853e04c21c6ff9ca7d2338ccd86e991",
     "migraai-snowflake-to-fabric-converted/execution/fabric/run.sh": "e15808e13bd4c426869ddd5a808fb394b8ff543730d04d22fbf46cd6370bc07c",
-    "migraai-snowflake-to-fabric-converted/manifest.json": "8c1573bec91253b9aefb55379762b67d4877a33a6fd8f871959a2aea9ebbac6f",
+    "migraai-snowflake-to-fabric-converted/manifest.json": "6e7b57a1b7b29e4e741186572a8666bfaa61328c2ebe6d3b08243c16a449d301",
     "migraai-snowflake-to-fabric-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-snowflake-to-fabric-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-snowflake-to-fabric-converted/mapping/csv/data_types.csv": "6919139db5e370927180271636862a2cbae22eaee8699b9c5a82e40ec875e694",
@@ -722,8 +722,8 @@
     "migraai-snowflake-to-fabric-converted/mapping/csv/syntax.csv": "fedac1125820855bba2c9545968277b3ed9a43d5ca0d015e1567e6d779ee7097",
     "migraai-snowflake-to-fabric-converted/mapping/mapping-workbook.xlsx": "0297c2d496293d248f4e7ec22d41070ad55f56184485714502d76ffe7035b77e",
     "migraai-snowflake-to-fabric-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-snowflake-to-fabric-converted/report/session-report.md": "777af7d780572cb9a519f9f11f9688b4865ef7196419d6f6d5e5fbc038bbc70b",
-    "migraai-snowflake-to-fabric-converted/report/session-report.pdf": "b98c7c4b0f980e1f369abf043c4749590d3de67a7670411bf6b16ba91c50855e"
+    "migraai-snowflake-to-fabric-converted/report/session-report.md": "2a35d45fbdaedeba4177de7268ed6eec0677d2a787e1458fcc22587b848da3bb",
+    "migraai-snowflake-to-fabric-converted/report/session-report.pdf": "b69782a89a33d09010a7dae9dd8a935e0765a9c5a770703b1ed1d86fbb54ebbe"
   },
   "inventory": {
     "external": 1,
@@ -764,5 +764,5 @@
     "migraai-snowflake-to-fabric-converted/report/session-report.md",
     "migraai-snowflake-to-fabric-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "3284118c1facb83bb5bc723d861ddbbb87c21dbb1c104f961d3f0f63f65f26cf"
+  "zip_sha256": "0b2b48010f2f79e401271234d3984a3880e4da8f18ead6642d6b8807e5bd6ed1"
 }

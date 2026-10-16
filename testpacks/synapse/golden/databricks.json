@@ -696,7 +696,7 @@
     "migraai-synapse-to-databricks-converted/execution/databricks/order.txt": "aaf7fe2c4fc54a1f0c9d22c1239ff1b902542ccb3d93830839c723ed2326a5de",
     "migraai-synapse-to-databricks-converted/execution/databricks/run.ps1": "b799c5a2d49119e97f121af5f8a78e7b0ed3433d1105c6286dd62b2dea90d4c3",
     "migraai-synapse-to-databricks-converted/execution/databricks/run.sh": "e48d72d7e6cf5d44a8aa6db3d54f8987eaf34d8c91c09b62b724e8c73de8c25a",
-    "migraai-synapse-to-databricks-converted/manifest.json": "52b9ef9de2385ae434de485804d1471e5eef3e4726ea89668805d3c30cedf186",
+    "migraai-synapse-to-databricks-converted/manifest.json": "ff77fadb96c406d4616c485622f9a9f427907ed856b56af48840faa57f83d44f",
     "migraai-synapse-to-databricks-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-databricks-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-synapse-to-databricks-converted/mapping/csv/data_types.csv": "fdd5bfb86c3209cb9398417291ce446c98ba9b1bbeaf5e9078a431533113518e",
@@ -706,8 +706,8 @@
     "migraai-synapse-to-databricks-converted/mapping/csv/syntax.csv": "6d071519293ba1e5d97e223a021ee86dbe284ce2609736673eec7399fd939799",
     "migraai-synapse-to-databricks-converted/mapping/mapping-workbook.xlsx": "e94729e264f3dc3d3ba4b33a08a7248821e9ad120ff1d4bfced8e8fd0fadbd3b",
     "migraai-synapse-to-databricks-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-synapse-to-databricks-converted/report/session-report.md": "e6a4095e8cf9c015beae0000127590431867bf04605b159d64c4b82fd0dbcf4f",
-    "migraai-synapse-to-databricks-converted/report/session-report.pdf": "3636047f51db64df91ebcf225ec3d59d54c7e6dd278fd571813d07df362f71dd"
+    "migraai-synapse-to-databricks-converted/report/session-report.md": "d20955ecc4a263931bf37780400b08742d164af823567c2cf6f8e0143594c2c4",
+    "migraai-synapse-to-databricks-converted/report/session-report.pdf": "b6b9ae452e4278cec2f3b2747d677d536e9ee01fbdf0e0bcb4d8be37bac652d5"
   },
   "inventory": {
     "external": 1,
@@ -744,5 +744,5 @@
     "migraai-synapse-to-databricks-converted/report/session-report.md",
     "migraai-synapse-to-databricks-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "520ae8a63f7a05b71d3805529e9982e777d0615380cb0988ebe99eb935b79214"
+  "zip_sha256": "5cabb7f3eadd28e2cf94b51799ff70567b8b9b99256e470ac65ae181665d7760"
 }

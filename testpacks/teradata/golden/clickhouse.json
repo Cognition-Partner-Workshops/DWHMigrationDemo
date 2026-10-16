@@ -751,7 +751,7 @@
     "migraai-teradata-to-clickhouse-converted/execution/clickhouse/order.txt": "5f3d0433d64db6fa5fb358f77a74f90dd15a1c1ed8d72fd36ce61d2b78495813",
     "migraai-teradata-to-clickhouse-converted/execution/clickhouse/run.ps1": "506332c9edee967c3069d0ea831c46ab7b87f0ba42bcc4ead048afc5323eb2a5",
     "migraai-teradata-to-clickhouse-converted/execution/clickhouse/run.sh": "66f9567921466f37f71686773567e8e2219ba92116fbaab199ad8e2b23b60720",
-    "migraai-teradata-to-clickhouse-converted/manifest.json": "1c79554f3107170be95b5567a3ea725e019d58b74dab950dce65525b8995ebeb",
+    "migraai-teradata-to-clickhouse-converted/manifest.json": "03ac232939dd2d44359710af4d0f74d29855171dec84ce2527fe9542a4cfba58",
     "migraai-teradata-to-clickhouse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-clickhouse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-clickhouse-converted/mapping/csv/data_types.csv": "30d28373ae96eb72a605e98785f05e8b32ef7b2c1bbdf5e17bf91571ce6d8a8e",
@@ -761,8 +761,8 @@
     "migraai-teradata-to-clickhouse-converted/mapping/csv/syntax.csv": "7345219bb6458e7501a67f4c4947917ad38e330c98bc5a7e21a1c7d96da8042e",
     "migraai-teradata-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "d2ee1d0b6d150c2579fb1e16cc52d7969b726a44c6ed8682982d7bbd5b4f16b7",
     "migraai-teradata-to-clickhouse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-teradata-to-clickhouse-converted/report/session-report.md": "1ca803fc121c825a09df62ea1b2ff8da7b16cd319c48fca1966d7ece019db49c",
-    "migraai-teradata-to-clickhouse-converted/report/session-report.pdf": "06bdf3e39d81526fda4d4c27fe54746bf4d0fda62b4bd911aadd81f730f0dc7d"
+    "migraai-teradata-to-clickhouse-converted/report/session-report.md": "1f36cf0c7587c207052fd6dfa8a982f4e3a6e9fc0abaaf79ac97a32f10c94478",
+    "migraai-teradata-to-clickhouse-converted/report/session-report.pdf": "845108e5a65302840e40bb50196ecb142f88b10e54da156fca733801e3e63659"
   },
   "inventory": {
     "external": 1,
@@ -802,5 +802,5 @@
     "migraai-teradata-to-clickhouse-converted/report/session-report.md",
     "migraai-teradata-to-clickhouse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "a3e64bac4b212d8452e77fd92966c9652b1bf45337cfc83a62c24f426fd9ac18"
+  "zip_sha256": "fd980fb0355d72058a197fe895ba39d77d596646a6aa4470a4a0cda3fa956090"
 }

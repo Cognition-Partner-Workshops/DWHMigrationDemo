@@ -63,7 +63,15 @@ class MockDevinClient:
         self.closed = False
         self._next_attachment = 1
         self._next_session = 1
+        self._session_identity: tuple[str, int, str] | None = None
         self._create_5xx_raised = False
+
+    def set_session_identity(self, *, run_id: str, batch_index: int, role: str) -> None:
+        self._session_identity = (
+            run_id[:8] or "local",
+            batch_index,
+            role.casefold().replace("-", "_"),
+        )
 
     def upload_attachment(self, name: str, data: bytes | str) -> str:
         content = data.decode("utf-8") if isinstance(data, bytes) else data
@@ -81,6 +89,8 @@ class MockDevinClient:
         title: str,
         tags: list[str],
     ) -> tuple[str, str]:
+        attempt = self._next_session
+        self._next_session += 1
         try:
             delay_s = float(os.environ.get("MIGRAAI_TEST_MOCK_SESSION_DELAY_S", "0"))
         except ValueError:
@@ -124,8 +134,20 @@ class MockDevinClient:
             state, output, detail = "blocked", None, "Mock session is blocked."
         elif voter in self.scenario.blocked_with_output_voters:
             state, detail = "blocked", "Mock session is blocked with output."
-        session_id = f"mock-session-{self._next_session}"
-        self._next_session += 1
+        if self._session_identity is None:
+            batch_tag = next((tag for tag in tags if tag.startswith("batch-")), "batch-1")
+            try:
+                batch_index = max(0, int(batch_tag.removeprefix("batch-")) - 1)
+            except ValueError:
+                batch_index = 0
+            role = next(
+                (tag.replace("-", "_") for tag in tags if tag.startswith("voter-")),
+                "escalation" if "escalation" in tags else "default",
+            )
+            run_prefix = "local"
+        else:
+            run_prefix, batch_index, role = self._session_identity
+        session_id = f"mock-{run_prefix}-b{batch_index}-{role}-a{attempt}"
         url = f"mock://sessions/{session_id}"
         self.sessions[session_id] = {
             "state": state,

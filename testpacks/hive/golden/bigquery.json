@@ -787,7 +787,7 @@
     "migraai-hive-to-bigquery-converted/execution/bigquery/order.txt": "ad02e09310fcbd6f3af4917ffe2a1907c0108f9feaa57e0e1c453321742248f5",
     "migraai-hive-to-bigquery-converted/execution/bigquery/run.ps1": "962d0177d55f9bcb753b3fd0b5cc8a2b728b2f058eb4f31bfa280ffb387727a2",
     "migraai-hive-to-bigquery-converted/execution/bigquery/run.sh": "4d7b92a29b53cfe6a087691ca0da6593f096790cdd32959655e434328366350e",
-    "migraai-hive-to-bigquery-converted/manifest.json": "b5889c6a070b56f63e8636107b2e42734e62c21f1607b991a2062d807e09df86",
+    "migraai-hive-to-bigquery-converted/manifest.json": "c4120c06898804397794401ea7f935edbd847a5ee4d0dbfa0bf9226a23098e41",
     "migraai-hive-to-bigquery-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-bigquery-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-bigquery-converted/mapping/csv/data_types.csv": "5da8a60462398ec24835f25af324ee9a1d302e49a36a86b6d6942efb44230d4f",
@@ -797,8 +797,8 @@
     "migraai-hive-to-bigquery-converted/mapping/csv/syntax.csv": "ae398e827cd72e4b1e1975d3f7015594337455be4c954e2f070a737f56249528",
     "migraai-hive-to-bigquery-converted/mapping/mapping-workbook.xlsx": "48344cd9ad8e6ed6d729ecadc3f3bb8d015db808d242ff0ca067cf027189a391",
     "migraai-hive-to-bigquery-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-hive-to-bigquery-converted/report/session-report.md": "65ac3b99f989ae497d44fb7c5c110e9cfb994a1116ca14711793307f02188d63",
-    "migraai-hive-to-bigquery-converted/report/session-report.pdf": "2f48c588aa7d9bd6d1a38e48e86ff20a217b9e6f09e88709faf74ff23386efd1"
+    "migraai-hive-to-bigquery-converted/report/session-report.md": "3022168ffb09a48ff6ad26506cd067fc37f87c92589f8dc1ac3f76faaebf3a85",
+    "migraai-hive-to-bigquery-converted/report/session-report.pdf": "44d4e4bfd8d9cc99c0bcd823c1885405c38aa5d1f83bdb645bca6be0f155f618"
   },
   "inventory": {
     "external": 1,
@@ -835,5 +835,5 @@
     "migraai-hive-to-bigquery-converted/report/session-report.md",
     "migraai-hive-to-bigquery-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "9eb10f5ea08141c83eae0f75857f7fca40e4bcf1e142b33c72b7ff16dc5b44c7"
+  "zip_sha256": "f4a10f0a9b060f125be3108691a92ac0e57202ef52811a4ef60b8186c38d036d"
 }

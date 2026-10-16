@@ -751,7 +751,7 @@
     "migraai-teradata-to-synapse-converted/execution/synapse/order.txt": "668608e89c75eb8df20b1d25d1f5ddd5f16a107d898c8d181b3902ea87e4fac6",
     "migraai-teradata-to-synapse-converted/execution/synapse/run.ps1": "28a4fe188de37ad66845d8403ea70d77b8e18566b20c683cc6c7ad3db45153e6",
     "migraai-teradata-to-synapse-converted/execution/synapse/run.sh": "32df7f2e34234c9977848bda514fb9494db258d2815aa531ceae77c36126281c",
-    "migraai-teradata-to-synapse-converted/manifest.json": "9f965cbd6475d8f76fbd4b48f09410166fc0de3fcfe639c9c72c674cc2fbedb0",
+    "migraai-teradata-to-synapse-converted/manifest.json": "015687259ddaf88c1ea0342f8204065b36936b9c69d5d18689e5b35ac7bae828",
     "migraai-teradata-to-synapse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-synapse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-teradata-to-synapse-converted/mapping/csv/data_types.csv": "00f91936f5473de8dc4c2c257c9065d45592277b85419c1326917a6a3373648b",
@@ -761,8 +761,8 @@
     "migraai-teradata-to-synapse-converted/mapping/csv/syntax.csv": "2f441ef28416fbc0f2705d4efcdd0883c3c05f80e224b1649fe88be6918d1bcb",
     "migraai-teradata-to-synapse-converted/mapping/mapping-workbook.xlsx": "371d862e5547f638e1a80ce69361444b712a4239cc531eabda17c446478d0aa1",
     "migraai-teradata-to-synapse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-teradata-to-synapse-converted/report/session-report.md": "9238be736c714d9882d14a98af31d4d515b75e36d3bea8859acefe20704f8582",
-    "migraai-teradata-to-synapse-converted/report/session-report.pdf": "a2edda219d0d879941609ce9e6c3dea1be74aed59f6a23dd6b894361e0240afb"
+    "migraai-teradata-to-synapse-converted/report/session-report.md": "059fe9f4f8a172d7a091615206c4085fd5b17fdc7e2ace8a1d1bd76bc17e834a",
+    "migraai-teradata-to-synapse-converted/report/session-report.pdf": "285fb643e81534b02889e07e68caf736ce41f528213b0e321275616e15afc3b0"
   },
   "inventory": {
     "external": 1,
@@ -802,5 +802,5 @@
     "migraai-teradata-to-synapse-converted/report/session-report.md",
     "migraai-teradata-to-synapse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "1372307eeca35d20a875c340dba3efa99b2b89748a187de892feca716b6b85eb"
+  "zip_sha256": "6782499e084565200c996bf7474c632f1b6a2bc850854f955f5f64b7cd92b3cf"
 }

@@ -787,7 +787,7 @@
     "migraai-hive-to-clickhouse-converted/execution/clickhouse/order.txt": "4b11f6360202be8d07d72071a1f1a9e31bbaddfde3418023b6562e287bea5f3b",
     "migraai-hive-to-clickhouse-converted/execution/clickhouse/run.ps1": "a492e1b4ed9dbeca9f4a92ea4f2037075649e5fbbc781b56c568dc605d29c132",
     "migraai-hive-to-clickhouse-converted/execution/clickhouse/run.sh": "64f71fbb3fb415e12976c9097faaf6b02761c1b3396b980d3da8d30949efe5f5",
-    "migraai-hive-to-clickhouse-converted/manifest.json": "40ea696b0e0e046394156e4899bb62d2e346c7da3b3b886114cf64e0b2ed11e8",
+    "migraai-hive-to-clickhouse-converted/manifest.json": "d151ebfe4c155c5070d6aef0ed24c459be36ef4479e31a26521ee45d87ad1611",
     "migraai-hive-to-clickhouse-converted/mapping/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-clickhouse-converted/mapping/csv/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "migraai-hive-to-clickhouse-converted/mapping/csv/data_types.csv": "4a0b0ca451b869f76487d2a3359a7138854fa3af41cfb147373d4d91f70bab25",
@@ -797,8 +797,8 @@
     "migraai-hive-to-clickhouse-converted/mapping/csv/syntax.csv": "efebd68b72cfb7c9647fb6cf04e37e1a283ef3b4c868d93d32f2152055131eb6",
     "migraai-hive-to-clickhouse-converted/mapping/mapping-workbook.xlsx": "4defac654ba680d16346a30bdaf789fcafa6c7367b1850bbbae32ca6a1aa33ac",
     "migraai-hive-to-clickhouse-converted/report/": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "migraai-hive-to-clickhouse-converted/report/session-report.md": "9fda0e154cd17e284446916fe669fcff81ecdec6e777cd30388d72d800572bdc",
-    "migraai-hive-to-clickhouse-converted/report/session-report.pdf": "89962119c49b7f17ab768cc03e24954dab829e265c25abe05ae56d69e35f85eb"
+    "migraai-hive-to-clickhouse-converted/report/session-report.md": "1cc08a1ebbae064f219d5431461b01991bd4072de1e0074dff27dfdc69ca68db",
+    "migraai-hive-to-clickhouse-converted/report/session-report.pdf": "4694d2b8f75ec90517c2f51a000fed56bce74ab0985728a29480d3f7429b5b4a"
   },
   "inventory": {
     "external": 1,
@@ -836,5 +836,5 @@
     "migraai-hive-to-clickhouse-converted/report/session-report.md",
     "migraai-hive-to-clickhouse-converted/report/session-report.pdf"
   ],
-  "zip_sha256": "decbd4cff518efd7e5d6cb8dd4d5688f7f6f55a355fabff3f854eae359de9df7"
+  "zip_sha256": "33bc3a308df6127d5e8228cef1e19cc54b5af8369e3fd4cd1e210b91b7a409ae"
 }
