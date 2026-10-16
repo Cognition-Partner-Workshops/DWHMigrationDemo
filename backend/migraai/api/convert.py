@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 import json
-import os
 from collections.abc import Iterator
 from typing import Annotated, Any
-from urllib.parse import urlsplit
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from migraai.agents.batching import plan_batches
 from migraai.agents.job import ConversionJob
-from migraai.devin.client import build_conversion_client_factory
+from migraai.devin.client import (
+    build_conversion_client_factory,
+    conversion_client_host,
+    next_conversion_client_mode,
+)
 from migraai.validation.findings import CheckResult
 from migraai.validation.validate import pass_rate
 
@@ -59,19 +61,12 @@ def _inventory(session: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict
 
 def devin_configuration(request: Request) -> tuple[bool, str]:
     settings = request.app.state.settings_store.read()
-    mock_mode = os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1"
-    replay_mode = bool(os.environ.get("MIGRAAI_TEST_REPLAY_DEVIN"))
+    client_mode = next_conversion_client_mode()
     configured = settings.token_kind in {"legacy", "v3"} and (
         settings.token_kind != "v3" or bool(settings.devin_org_id)
     )
-    parsed = urlsplit(settings.devin_api_base_url)
-    return (
-        mock_mode or replay_mode or configured,
-        "local replay"
-        if replay_mode
-        else "local mock"
-        if mock_mode
-        else (parsed.netloc or "Devin"),
+    return client_mode in {"mock", "replay"} or configured, conversion_client_host(
+        settings.devin_api_base_url, client_mode
     )
 
 
@@ -176,8 +171,9 @@ def post_convert(
             )
         org_id, base_url, pat = request.app.state.settings_store.runtime_devin_config()
         settings = request.app.state.settings_store.read()
-        _, devin_host = devin_configuration(request)
-        client_factory, replayed = build_conversion_client_factory(base_url, org_id, pat)
+        client_factory, replayed, devin_host = build_conversion_client_factory(
+            base_url, org_id, pat
+        )
         job = ConversionJob(
             session=session,
             audit=request.app.state.audit_log,

@@ -6,13 +6,17 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+import migraai.devin.client as devin_client
 from migraai.core.crypto import EncryptedFileStore, SessionCipher
+from migraai.core.settings_store import SettingsUpdate
+from migraai.devin.mock import MockDevinClient
 from migraai.discovery.inventory import Inventory
 from migraai.discovery.pipeline import discover_files
 from migraai.discovery.uploads import UploadRow
 
 HOST_HEADER = {"Host": "127.0.0.1:80"}
 SOURCE_CODE = "CREATE TABLE sales.orders (order_id INTEGER, private_marker_9472 INTEGER);"
+REPLAY_FIXTURE = Path(__file__).resolve().parents[1] / "fixtures/replay/teradata-snowflake/run1"
 
 
 def _csrf_headers(csrf: str) -> dict[str, str]:
@@ -263,6 +267,53 @@ def test_mock_conversion_run_status_results_detail_and_audit(
     audit_text = app.state.audit_log.path.read_text(encoding="utf-8")
     assert "convert.consent" in audit_text
     assert "private_marker_9472" not in audit_text
+
+
+def test_replay_then_live_estimate_and_consent_audit_use_the_selected_client(
+    client: TestClient,
+    app,
+    data_dir: Path,
+    monkeypatch,
+) -> None:
+    csrf = _launch(client)
+    _add_conversion_session(app, data_dir)
+    app.state.settings_store.update(SettingsUpdate(devin_pat="apk_test_token"))
+    monkeypatch.setenv("MIGRAAI_TEST_REPLAY_DEVIN", str(REPLAY_FIXTURE))
+    monkeypatch.setenv("MIGRAAI_TEST_REPLAY_THEN_LIVE", "1")
+    monkeypatch.delenv("MIGRAAI_TEST_MOCK_DEVIN", raising=False)
+    monkeypatch.setattr(devin_client, "_REPLAY_THEN_LIVE_USED", False)
+    monkeypatch.setattr(
+        devin_client, "build_devin_client", lambda *_args, **_kwargs: MockDevinClient()
+    )
+    headers = _csrf_headers(csrf)
+
+    first_estimate = client.post("/api/convert/estimate", json={}, headers=headers)
+    assert first_estimate.json()["devin_host"] == "local replay"
+    first = client.post("/api/convert", json={"consent": True}, headers=headers)
+    assert first.status_code == 200
+    first_job = app.state.convert_job
+    first_job.join(timeout=30)
+    assert not first_job.is_alive()
+
+    second_estimate = client.post("/api/convert/estimate", json={}, headers=headers)
+    assert second_estimate.json()["devin_host"] == "api.devin.ai"
+    second = client.post("/api/convert", json={"consent": True}, headers=headers)
+    assert second.status_code == 200
+    second_job = app.state.convert_job
+    second_job.join(timeout=30)
+    assert not second_job.is_alive()
+
+    events = [
+        json.loads(line)
+        for line in app.state.audit_log.path.read_text(encoding="utf-8").splitlines()
+    ]
+    consent_hosts = {
+        event["target"]: event["details"]["devin_host"]
+        for event in events
+        if event["action"] == "convert.consent"
+    }
+    assert consent_hosts[first.json()["job_id"]] == "local replay"
+    assert consent_hosts[second.json()["job_id"]] == "api.devin.ai"
 
 
 def test_cancel_endpoint_marks_active_job_cancelled(client: TestClient, app) -> None:

@@ -217,16 +217,18 @@ def test_replay_then_live_client_factory_switches_after_first_job(monkeypatch) -
         lambda *args, **kwargs: calls.append((args, kwargs)) or live_client,
     )
 
-    replay_factory, replayed = devin_client.build_conversion_client_factory(
+    replay_factory, replayed, replay_host = devin_client.build_conversion_client_factory(
         "https://api.devin.ai", "org", "pat"
     )
-    live_factory, live_replayed = devin_client.build_conversion_client_factory(
+    live_factory, live_replayed, live_host = devin_client.build_conversion_client_factory(
         "https://api.devin.ai", "org", "pat"
     )
 
     assert replayed is True
+    assert replay_host == "local replay"
     assert isinstance(replay_factory("A"), ReplayDevinClient)
     assert live_replayed is False
+    assert live_host == "api.devin.ai"
     assert live_factory("A") is live_client
     assert calls == [
         (

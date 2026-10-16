@@ -227,9 +227,30 @@ _REPLAY_THEN_LIVE_LOCK = threading.Lock()
 _REPLAY_THEN_LIVE_USED = False
 
 
+def next_conversion_client_mode() -> str:
+    replay_directory = os.environ.get("MIGRAAI_TEST_REPLAY_DEVIN")
+    replay_then_live = os.environ.get("MIGRAAI_TEST_REPLAY_THEN_LIVE") == "1"
+    if replay_directory and replay_then_live:
+        with _REPLAY_THEN_LIVE_LOCK:
+            return "replay" if not _REPLAY_THEN_LIVE_USED else "devin"
+    if replay_directory:
+        return "replay"
+    if os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1":
+        return "mock"
+    return "devin"
+
+
+def conversion_client_host(base_url: str, mode: str) -> str:
+    if mode == "replay":
+        return "local replay"
+    if mode == "mock":
+        return "local mock"
+    return urlsplit(base_url).netloc or "Devin"
+
+
 def build_conversion_client_factory(
     base_url: str, org_id: str, pat: str
-) -> tuple[Callable[[str], Any], bool]:
+) -> tuple[Callable[[str], Any], bool, str]:
     global _REPLAY_THEN_LIVE_USED
 
     replay_directory = os.environ.get("MIGRAAI_TEST_REPLAY_DEVIN")
@@ -242,16 +263,23 @@ def build_conversion_client_factory(
         if use_replay:
             from migraai.devin.replay import ReplayDevinClient
 
-            return lambda _role: ReplayDevinClient(replay_directory), True
+            return lambda _role: ReplayDevinClient(replay_directory), True, "local replay"
         return (
             lambda role: build_devin_client(
                 base_url, org_id, pat, allow_replay=False, allow_mock=False
             ),
             False,
+            conversion_client_host(base_url, "devin"),
         )
+    if replay_directory:
+        from migraai.devin.replay import ReplayDevinClient
+
+        return lambda _role: ReplayDevinClient(replay_directory), True, "local replay"
+    mode = "mock" if os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1" else "devin"
     return (
         lambda role: build_devin_client(base_url, org_id, pat),
-        bool(replay_directory),
+        False,
+        conversion_client_host(base_url, mode),
     )
 
 

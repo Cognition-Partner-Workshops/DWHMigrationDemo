@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import hashlib
 import os
 import shutil
 import subprocess
 import sys
-import warnings
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -16,6 +16,20 @@ VERSION = "0.1.0"
 PYTHON_VERSION = "3.12.10"
 PYTHON_EMBED_URL = (
     f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-embed-amd64.zip"
+)
+MSVC_RUNTIME_VERSION = "14.44.35112"
+MSVC_RUNTIME_WHEEL = f"msvc_runtime-{MSVC_RUNTIME_VERSION}-cp312-cp312-win_amd64.whl"
+MSVC_RUNTIME_WHEEL_URL = (
+    "https://files.pythonhosted.org/packages/21/3b/"
+    "134d04268ab8e35853cd007582076429b45d60d6abb1036d159be9c50342/"
+    f"{MSVC_RUNTIME_WHEEL}"
+)
+MSVC_RUNTIME_SHA256 = "32f9c706009e16ccc319d6947ce3bffe20e5192bee52b18cf48313f9e7bedfbe"
+MSVC_RUNTIME_DLLS = (
+    "msvcp140.dll",
+    "msvcp140_1.dll",
+    "vcruntime140.dll",
+    "vcruntime140_1.dll",
 )
 OUT_DIR = Path(__file__).resolve().parent / "out"
 APP_DIR = OUT_DIR / "MigraAI"
@@ -29,6 +43,7 @@ def install_pip() -> None:
     result = subprocess.run(
         [sys.executable, "-m", "pip", "--version"],
         cwd=ROOT,
+        check=False,
         capture_output=True,
         text=True,
     )
@@ -100,9 +115,65 @@ def install_windows_dependencies(wheel: Path, site_packages: Path) -> None:
     )
 
 
+def download_msvc_runtime(destination: Path) -> Path:
+    wheel = destination / MSVC_RUNTIME_WHEEL
+    urllib.request.urlretrieve(MSVC_RUNTIME_WHEEL_URL, wheel)
+    digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
+    if digest != MSVC_RUNTIME_SHA256:
+        raise ValueError(f"MSVC runtime wheel SHA-256 mismatch: {digest}")
+    return wheel
+
+
+def install_msvc_runtime(wheel: Path, site_packages: Path, python_dir: Path) -> None:
+    with zipfile.ZipFile(wheel) as archive:
+        members = {name.casefold(): name for name in archive.namelist()}
+        runtime_prefix = (
+            f"msvc_runtime-{MSVC_RUNTIME_VERSION}.data/data/Scripts/".casefold()
+        )
+        runtime_dlls = {
+            Path(name).name.casefold(): name
+            for lowered, name in members.items()
+            if lowered.startswith(runtime_prefix) and lowered.endswith(".dll")
+        }
+        missing = [
+            name for name in MSVC_RUNTIME_DLLS if name.casefold() not in runtime_dlls
+        ]
+        if missing:
+            raise ValueError(
+                f"MSVC runtime wheel is missing DLLs: {', '.join(missing)}"
+            )
+
+        capi_dir = site_packages / "onnxruntime" / "capi"
+        capi_dir.mkdir(parents=True, exist_ok=True)
+        for filename in MSVC_RUNTIME_DLLS:
+            runtime_path = capi_dir / filename
+            runtime_path.write_bytes(archive.read(runtime_dlls[filename.casefold()]))
+            python_path = python_dir / filename
+            if not python_path.is_file():
+                shutil.copy2(runtime_path, python_path)
+
+        license_member = next(
+            (
+                name
+                for lowered, name in members.items()
+                if lowered.endswith(".dist-info/licenses/license")
+            ),
+            None,
+        )
+        if license_member is None:
+            raise ValueError(
+                "MSVC runtime wheel does not contain its redistribution license."
+            )
+        notice = (
+            site_packages.parent / "third-party-notices" / "msvc-runtime-LICENSE.txt"
+        )
+        notice.parent.mkdir(parents=True, exist_ok=True)
+        notice.write_bytes(archive.read(license_member))
+
+
 def write_launch_files() -> None:
     (APP_DIR / "start.cmd").write_text(
-        '@echo off\r\n'
+        "@echo off\r\n"
         'set "MIGRAAI_MODEL_DIR=%~dp0app\\models"\r\n'
         'set "MIGRAAI_SEED_KB=%~dp0app\\kb\\kb-v1.db"\r\n'
         '"%~dp0python\\python.exe" -m migraai --web-dir "%~dp0web"\r\n',
@@ -112,7 +183,10 @@ def write_launch_files() -> None:
         "MigraAI portable for Windows x64\n"
         "\n"
         "Run start.cmd as a standard user. The local app binds to 127.0.0.1.\n"
-        "Application data is stored under %LOCALAPPDATA%\\MigraAI.\n",
+        "Application data is stored under %LOCALAPPDATA%\\MigraAI.\n"
+        "ONNX Runtime's Microsoft Visual C++ runtime DLLs are bundled from "
+        f"msvc-runtime {MSVC_RUNTIME_VERSION}. See "
+        "app\\third-party-notices\\msvc-runtime-LICENSE.txt for redistribution terms.\n",
         encoding="utf-8",
     )
 
@@ -174,6 +248,8 @@ def main() -> None:
     with TemporaryDirectory(prefix="migraai-build-", dir=OUT_DIR) as scratch:
         wheel = build_backend_wheel(Path(scratch))
         install_windows_dependencies(wheel, site_packages)
+        runtime_wheel = download_msvc_runtime(Path(scratch))
+        install_msvc_runtime(runtime_wheel, site_packages, APP_DIR / "python")
     from migraai.kb.build import build_database
     from migraai.kb.embed import FastEmbedEmbedder
 
@@ -186,16 +262,6 @@ def main() -> None:
         embedder=embedder,
     )
     prune_model_cache(model_dir, site_packages)
-    if os.name == "nt":
-        system = Path(os.environ.get("WINDIR", r"C:\Windows")) / "System32"
-        for name in ("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll"):
-            source = system / name
-            if source.is_file():
-                shutil.copy2(source, APP_DIR / "python" / name)
-            else:
-                warnings.warn(f"Runtime DLL not found and was not bundled: {source}")
-    else:
-        warnings.warn("Skipping Windows runtime DLL bundling on a non-Windows build host.")
     write_launch_files()
     archive = create_archive()
     print(f"Created {archive} ({archive.stat().st_size / 1024**2:.2f} MiB)")
