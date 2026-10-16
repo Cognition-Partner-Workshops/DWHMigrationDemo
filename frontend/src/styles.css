@@ -1959,13 +1959,13 @@ th {
 }
 
 .convert-panel {
-  min-height: 320px;
+  min-height: max(650px, 72vh);
 }
 
 .upload-workspace {
   display: flex;
   min-width: 0;
-  min-height: 0;
+  min-height: 380px;
   flex: 1 1 auto;
   flex-direction: column;
   gap: 6px;
@@ -2505,8 +2505,10 @@ th {
 }
 
 .discovery-upload-table-scroll {
-  min-height: 0;
+  min-height: 232px;
+  max-height: 232px;
   flex: 1 1 auto;
+  overflow: auto;
 }
 
 .discovery-upload-table-scroll table {
@@ -2526,6 +2528,76 @@ th {
 .discovery-upload-table-scroll .upload-status-cell {
   padding-top: 8px;
   vertical-align: top;
+}
+
+.upload-workspace--collapsed {
+  min-height: 0;
+  flex: 0 0 auto;
+}
+
+.upload-summary {
+  display: flex;
+  width: 100%;
+  min-height: 30px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 9px;
+  border: 1px solid #d6e1ef;
+  border-radius: 5px;
+  color: #315272;
+  background: #f4f8fd;
+  font-size: 9px;
+  text-align: left;
+}
+
+.upload-summary:hover {
+  background: #eaf2fc;
+}
+
+.convert-workspace {
+  min-height: 0;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.conversion-results {
+  display: flex;
+  min-height: 280px;
+  flex: 0 0 auto;
+  flex-direction: column;
+}
+
+.conversion-results-scroll {
+  min-height: 220px;
+  max-height: 320px;
+  flex: 1 1 auto;
+}
+
+.conversion-detail-anchor {
+  min-width: 0;
+  min-height: 360px;
+  flex: 0 0 auto;
+}
+
+.conversion-detail {
+  display: flex;
+  min-height: 360px;
+  max-height: none;
+  flex-direction: column;
+  overflow: visible;
+}
+
+.conversion-files {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.conversion-file {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
 }
 
 .upload-row-message {
@@ -2922,4 +2994,37 @@ th {
   .inventory-toolbar {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+.convert-workspace {
+  min-height: 0;
+  overflow: visible;
+}
+
+.convert-panel {
+  overflow: visible;
+}
+
+.convert-actions button:disabled[title] {
+  position: relative;
+}
+
+.convert-actions button:disabled[title]:hover::after {
+  position: absolute;
+  z-index: 20;
+  right: 0;
+  bottom: calc(100% + 6px);
+  width: max-content;
+  max-width: 240px;
+  padding: 7px 9px;
+  border-radius: 4px;
+  color: #fff;
+  background: #102b4f;
+  box-shadow: 0 2px 8px rgb(16 43 79 / 25%);
+  content: attr(title);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
 }

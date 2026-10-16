@@ -389,8 +389,10 @@ export default function App() {
       body: updates,
     });
     setSettings(updated);
+    const updatedHealth = await apiRequest<HealthResponse>("/api/health").catch(() => null);
     setHealth((current) =>
-      current ? { ...current, devin_configured: updated.devin_pat.configured } : current,
+      updatedHealth ??
+        (current ? { ...current, devin_configured: updated.devin_pat.configured } : current),
     );
   }
 
@@ -591,7 +593,11 @@ export default function App() {
               <path d="M8 7.2v3.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
               <circle cx="8" cy="4.75" r=".8" fill="currentColor" />
             </svg>
-            Converted objects and their context are sent to Devin cloud for conversion.
+            {health?.conversion_configured
+              ? health.devin_configured
+                ? "Converted objects and their context are sent to Devin cloud for conversion."
+                : "Local mock mode is active; conversion code stays on this machine."
+              : "Add a Devin API key to enable conversion; code is not sent before consent."}
           </p>
           <UploadPanel
             confirmed={sessionConfirmed}
@@ -617,8 +623,8 @@ export default function App() {
           <span><i className="status-dot" /> Ready</span>
           <span><i className="status-dot" /> Local Mode</span>
           <span>
-            <i className={`status-dot ${health?.devin_configured ? "" : "muted-dot"}`} />
-            Devin: {health?.devin_configured ? "configured" : "not configured"}
+            <i className={`status-dot ${health?.conversion_configured ? "" : "muted-dot"}`} />
+            Devin: {health?.conversion_configured ? "configured" : "not configured"}
           </span>
           <span className="footer-note">Uploads are deleted on exit</span>
         </div>

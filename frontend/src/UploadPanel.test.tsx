@@ -92,6 +92,11 @@ describe("UploadPanel", () => {
       />,
     );
 
+    await user.click(
+      await screen.findByRole("button", {
+        name: "1 file · Discovery complete · Show files ▾",
+      }),
+    );
     const checkbox = await screen.findByRole("checkbox", { name: "Select tables.sql" });
     await user.click(checkbox);
     await waitFor(() =>
@@ -195,6 +200,60 @@ describe("UploadPanel", () => {
       />,
     );
 
-    expect(screen.getByText("Discovery complete.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "1 file · Discovery complete · Show files ▾",
+      }),
+    ).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("collapses completed uploads into a summary and expands the file list", async () => {
+    const user = userEvent.setup();
+    const uploads = Array.from({ length: 7 }, (_, index) => ({
+      ...upload,
+      id: `upload-${index}`,
+      rel_path: `tables-${index}.sql`,
+    }));
+    mocks.getUploads.mockResolvedValue(uploads);
+
+    render(
+      <UploadPanel
+        confirmed
+        onInventoryChanged={vi.fn()}
+        onUploadsChange={vi.fn()}
+        uploads={uploads}
+      />,
+    );
+
+    const summary = screen.getByRole("button", {
+      name: "7 files · Discovery complete · Show files ▾",
+    });
+    expect(summary).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("region", { name: "Uploaded files" })).not.toBeInTheDocument();
+
+    await user.click(summary);
+    expect(
+      screen.getByRole("button", {
+        name: "7 files · Discovery complete · Hide files ▴",
+      }),
+    ).toHaveAttribute("aria-expanded", "true");
+    const uploadRegion = screen.getByRole("region", { name: "Uploaded files" });
+    expect(uploadRegion.querySelectorAll("tbody tr")).toHaveLength(7);
+  });
+
+  it.each(["rejected", "failed"] as const)("keeps %s uploads expanded", (status) => {
+    render(
+      <UploadPanel
+        confirmed
+        onInventoryChanged={vi.fn()}
+        onUploadsChange={vi.fn()}
+        uploads={[{ ...upload, status }]}
+      />,
+    );
+
+    expect(screen.getByRole("region", { name: "Uploaded files" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Discovery complete.*Show files/ }),
+    ).not.toBeInTheDocument();
   });
 });

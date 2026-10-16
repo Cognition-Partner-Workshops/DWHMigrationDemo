@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -135,6 +135,27 @@ describe("Convert Objects", () => {
     await waitFor(() => expect(apiMocks.startConversion).toHaveBeenCalledOnce());
   });
 
+  it("explains that Convert Items is waiting for its estimate", async () => {
+    const user = userEvent.setup();
+    let resolveEstimate: (value: ConvertEstimate) => void = () => undefined;
+    apiMocks.postConvertEstimate.mockReturnValue(
+      new Promise((resolve) => {
+        resolveEstimate = resolve;
+      }),
+    );
+    render(<ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />);
+
+    const button = await screen.findByRole("button", { name: "Estimating…" });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute("title", "Waiting for the conversion estimate.");
+    await user.click(button);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await act(async () => resolveEstimate(estimate));
+    await user.click(await screen.findByRole("button", { name: "Convert Items" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
   it("shows the exact 412 message without sending a conversion request", async () => {
     const user = userEvent.setup();
     apiMocks.postConvertEstimate.mockResolvedValue({ ...estimate, devin_configured: false });
@@ -179,6 +200,30 @@ describe("Convert Objects", () => {
         }),
       );
     });
+  });
+
+  it("scrolls results and the selected detail within the dashboard", async () => {
+    const user = userEvent.setup();
+    const dashboardScroll = vi.fn();
+    apiMocks.getConversionJob.mockResolvedValue(runningJob({ state: "done" }));
+    render(
+      <main className="dashboard" ref={(element) => {
+        if (element) element.scrollTo = dashboardScroll;
+      }}>
+        <ConvertPanel confirmed refreshKey={1} source="teradata" target="snowflake" />
+      </main>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Convert Items" }));
+    await user.click(screen.getByRole("checkbox", { name: "I understand that this code leaves this computer" }));
+    await user.click(screen.getByRole("button", { name: "Send to Devin" }));
+    await waitFor(() => expect(dashboardScroll).toHaveBeenCalled());
+    expect(dashboardScroll).toHaveBeenCalledWith(expect.objectContaining({ behavior: "smooth" }));
+
+    dashboardScroll.mockClear();
+    await user.click(await screen.findByRole("button", { name: "sales.orders" }));
+    await waitFor(() => expect(dashboardScroll).toHaveBeenCalledOnce());
+    expect(dashboardScroll).toHaveBeenCalledWith(expect.objectContaining({ behavior: "smooth" }));
   });
 
   it("shows candidate diffs and copies a file", async () => {

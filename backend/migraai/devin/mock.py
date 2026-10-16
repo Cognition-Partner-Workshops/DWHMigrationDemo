@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import re
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -78,6 +80,12 @@ class MockDevinClient:
         title: str,
         tags: list[str],
     ) -> tuple[str, str]:
+        try:
+            delay_s = float(os.environ.get("MIGRAAI_TEST_MOCK_SESSION_DELAY_S", "0"))
+        except ValueError:
+            delay_s = 0
+        if delay_s > 0:
+            time.sleep(min(delay_s, 5))
         if self.scenario.create_5xx_once and not self._create_5xx_raised:
             self._create_5xx_raised = True
             request = httpx.Request("POST", "https://mock.local/sessions")

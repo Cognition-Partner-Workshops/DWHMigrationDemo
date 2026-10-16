@@ -38,7 +38,21 @@ def test_health_is_open_and_returns_local_status(client: TestClient) -> None:
         "mode": "local",
         "version": "0.1.0",
         "devin_configured": False,
+        "conversion_configured": False,
     }
+
+
+def test_mock_mode_configures_conversion_without_configuring_planning(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("MIGRAAI_TEST_MOCK_DEVIN", "1")
+
+    response = client.get("/api/health", headers=HOST_HEADER)
+
+    assert response.status_code == 200
+    assert response.json()["devin_configured"] is False
+    assert response.json()["conversion_configured"] is True
 
 
 def test_host_guard_rejects_rebinding(client: TestClient) -> None:

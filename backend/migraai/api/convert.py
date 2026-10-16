@@ -56,7 +56,7 @@ def _inventory(session: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict
     return objects, edges
 
 
-def _devin_configuration(request: Request) -> tuple[bool, str]:
+def devin_configuration(request: Request) -> tuple[bool, str]:
     settings = request.app.state.settings_store.read()
     mock_mode = os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1"
     configured = settings.token_kind in {"legacy", "v3"} and (
@@ -73,7 +73,7 @@ def _estimate(request: Request, session: dict[str, Any]) -> dict[str, Any]:
     if not local_objects:
         raise HTTPException(status_code=409, detail="No selected parsed objects to convert.")
     batches = plan_batches(objects, edges, settings.conversion_batch_size)
-    configured, host = _devin_configuration(request)
+    configured, host = devin_configuration(request)
     voter_sessions = len(batches) * 3
     max_escalation_sessions = len(batches)
     return {

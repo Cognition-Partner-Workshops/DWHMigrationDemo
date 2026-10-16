@@ -35,6 +35,8 @@ function mockApi(
     confirmed: boolean;
   } = { source: null, target: null, confirmed: false },
   planResponse: Record<string, unknown> = fallbackPlan,
+  conversionConfigured = devinConfigured,
+  conversionObjectCount = 0,
 ) {
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input);
@@ -44,6 +46,7 @@ function mockApi(
         mode: "local",
         version: "0.1.0",
         devin_configured: devinConfigured,
+        conversion_configured: conversionConfigured,
       });
     }
     if (path.endsWith("/api/platforms")) {
@@ -60,6 +63,22 @@ function mockApi(
     }
     if (path.endsWith("/api/settings")) {
       return Response.json(settingsResponse);
+    }
+    if (path.endsWith("/api/convert/estimate")) {
+      return Response.json({
+        objects: conversionObjectCount,
+        batches: conversionObjectCount > 0 ? 3 : 0,
+        oversized_batches: 0,
+        voter_sessions: conversionObjectCount > 0 ? 9 : 0,
+        max_escalation_sessions: conversionObjectCount > 0 ? 3 : 0,
+        max_sessions: conversionObjectCount > 0 ? 12 : 0,
+        batch_size: 20,
+        session_timeout_minutes: 45,
+        max_concurrent_sessions: 4,
+        devin_configured: conversionConfigured,
+        devin_host: conversionConfigured ? "local mock" : "Devin",
+        acu_cap: null,
+      });
     }
     if (path.endsWith("/api/session") && !path.endsWith("/api/session/confirm")) {
       return Response.json(currentSession);
@@ -313,6 +332,26 @@ describe("MigraAI foundation UI", () => {
     render(<App />);
 
     expect(await screen.findByText("Conversions are sent to Devin cloud")).toBeInTheDocument();
+  });
+
+  it("opens consent when mock mode configures conversion without a planning key", async () => {
+    const user = userEvent.setup();
+    mockApi(
+      false,
+      { source: "teradata", target: "snowflake", confirmed: true },
+      fallbackPlan,
+      true,
+      56,
+    );
+    render(<App />);
+
+    expect(await screen.findByText("Devin: configured")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Local mock mode is active; conversion code stays on this machine."),
+    ).toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: "Convert Items" }));
+
+    expect(await screen.findByRole("dialog")).toHaveTextContent("Send code to Devin?");
   });
 
   it("sends same-origin credentials and CSRF token on mutations", async () => {

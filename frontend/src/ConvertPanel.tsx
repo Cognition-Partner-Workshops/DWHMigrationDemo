@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   cancelConversionJob,
@@ -32,6 +32,17 @@ function isTerminal(state: string): boolean {
   return ["done", "failed", "cancelled"].includes(state);
 }
 
+function scrollToMainElement(element: HTMLElement | null) {
+  const main = element?.closest<HTMLElement>("main.dashboard");
+  if (!element || !main || typeof main.scrollTo !== "function") {
+    return;
+  }
+  const top = main.scrollTop + element.getBoundingClientRect().top - main.getBoundingClientRect().top;
+  const prefersReducedMotion =
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  main.scrollTo({ top, behavior: prefersReducedMotion ? "auto" : "smooth" });
+}
+
 export function ConvertPanel({
   confirmed,
   source,
@@ -59,6 +70,8 @@ export function ConvertPanel({
   const [failedCheck, setFailedCheck] = useState("");
   const [search, setSearch] = useState("");
   const [listRevision, setListRevision] = useState(0);
+  const resultsRef = useRef<HTMLElement | null>(null);
+  const detailRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -125,7 +138,9 @@ export function ConvertPanel({
         }
         setJob(next);
         setListRevision((revision) => revision + 1);
-        if (!isTerminal(next.state)) {
+        if (isTerminal(next.state)) {
+          window.requestAnimationFrame(() => scrollToMainElement(resultsRef.current));
+        } else {
           timer = window.setTimeout(() => void poll(), 1000);
         }
       } catch {
@@ -237,6 +252,11 @@ export function ConvertPanel({
   const active = job !== null && !isTerminal(job.state);
   const types = Array.from(new Set(rows.map((row) => row.type))).sort();
 
+  function selectResult(objectId: string) {
+    setSelectedId(objectId);
+    window.requestAnimationFrame(() => scrollToMainElement(detailRef.current));
+  }
+
   return (
     <div className="convert-workspace">
       <div className="convert-toolbar">
@@ -264,10 +284,22 @@ export function ConvertPanel({
               active
             }
             onClick={openConsent}
-            title={!confirmed ? "Upload files first" : undefined}
+            title={
+              !confirmed
+                ? "Upload files first"
+                : loadingEstimate
+                  ? "Waiting for the conversion estimate."
+                  : undefined
+            }
             type="button"
           >
-            {starting ? "Starting…" : active ? "Converting…" : "Convert Items"}
+            {starting
+              ? "Starting…"
+              : active
+                ? "Converting…"
+                : loadingEstimate
+                  ? "Estimating…"
+                  : "Convert Items"}
           </button>
           <button
             className="button download-button"
@@ -325,7 +357,7 @@ export function ConvertPanel({
           </div>
         </section>
       )}
-      <section aria-label="Conversion results" className="conversion-results">
+      <section aria-label="Conversion results" className="conversion-results" ref={resultsRef}>
         <div className="conversion-filters">
           <label>
             Status
@@ -375,9 +407,19 @@ export function ConvertPanel({
                   aria-selected={selectedId === row.object_id}
                   className={selectedId === row.object_id ? "selected-conversion-row" : ""}
                   key={row.object_id}
-                  onClick={() => setSelectedId(row.object_id)}
+                  onClick={() => selectResult(row.object_id)}
                 >
-                  <td><button className="conversion-object-link" onClick={() => setSelectedId(row.object_id)}>{row.qualified_name}</button></td>
+                  <td>
+                    <button
+                      className="conversion-object-link"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        selectResult(row.object_id);
+                      }}
+                    >
+                      {row.qualified_name}
+                    </button>
+                  </td>
                   <td>{row.type}</td>
                   <td>{row.confidence === null ? "—" : `${Math.round(row.confidence * 100)}%`}</td>
                   <td>{row.agreement === null ? "—" : `${Math.round(row.agreement * 100)}%`}</td>
@@ -402,7 +444,9 @@ export function ConvertPanel({
           </table>
         </div>
       </section>
-      <ConversionDetail detail={detail} />
+      <div className="conversion-detail-anchor" ref={detailRef}>
+        <ConversionDetail detail={detail} />
+      </div>
       <ConvertConsentDialog
         estimate={estimate}
         onCancel={() => setDialogOpen(false)}

@@ -223,9 +223,14 @@ class DevinV1Client:
 
 def build_devin_client(base_url: str, org_id: str, pat: str) -> Any | None:
     if os.environ.get("MIGRAAI_TEST_MOCK_DEVIN") == "1":
-        from migraai.devin.mock import MockDevinClient
+        from migraai.devin.mock import MockDevinClient, MockScenario
 
-        return MockDevinClient()
+        scenario = MockScenario(
+            different_candidate_per_stance=(
+                os.environ.get("MIGRAAI_TEST_MOCK_DEVIN_DIFFERENT_CANDIDATE") == "1"
+            )
+        )
+        return MockDevinClient(scenario=scenario)
     if pat.startswith("apk_"):
         return DevinV1Client(base_url, pat)
     if pat.startswith("cog_") and org_id:

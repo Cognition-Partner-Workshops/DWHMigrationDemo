@@ -13,6 +13,7 @@ export type HealthResponse = {
   mode: string;
   version: string;
   devin_configured: boolean;
+  conversion_configured: boolean;
 };
 
 export type SettingsResponse = {

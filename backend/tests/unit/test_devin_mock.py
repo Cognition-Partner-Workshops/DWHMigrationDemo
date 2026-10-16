@@ -130,8 +130,10 @@ def test_mock_client_is_selected_only_with_explicit_test_flag(monkeypatch) -> No
     assert build_devin_client("https://api.example.test", "", "") is None
 
     monkeypatch.setenv("MIGRAAI_TEST_MOCK_DEVIN", "1")
+    monkeypatch.setenv("MIGRAAI_TEST_MOCK_DEVIN_DIFFERENT_CANDIDATE", "1")
     client = build_devin_client("https://api.example.test", "", "")
     assert isinstance(client, MockDevinClient)
+    assert client.scenario.different_candidate_per_stance
     client.close()
 
 
