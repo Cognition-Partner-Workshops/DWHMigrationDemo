@@ -398,7 +398,8 @@ def test_ps_dry_run_and_execute(tmp_path: Path, target: str, shell: str) -> None
     log = calls(tmp_path)
     assert len(log) == 3
     if spec.get("stdin"):
-        assert (tmp_path / "fake.stdin").read_text().startswith("-- Converted")
+        # PS 5.1 pipes a BOM to native stdin; pwsh does not.
+        assert (tmp_path / "fake.stdin").read_text().lstrip("\ufeff").startswith("-- Converted")
     else:
         assert log[0][-1].endswith(
             os.path.join("converted", "teradata-testpack", "tables-converted.sql")
@@ -441,7 +442,9 @@ def test_ps_space_and_quote_path(tmp_path: Path, shell: str) -> None:
     env = fake_env(tmp_path, fake_bin(tmp_path, spec["cli"]), False)
     r = ps_run(shell, ["-File", "run.ps1", "-Execute"], exe_dir, env)
     assert r.returncode == 0, r.stderr
-    assert calls(tmp_path)[1][-1].endswith("converted/my pack/it's tables-converted.sql")
+    assert calls(tmp_path)[1][-1].endswith(
+        os.path.join("converted", "my pack", "it's tables-converted.sql")
+    )
 
 
 @pytest.mark.parametrize("shell", PS_SHELL_PARAMS)
