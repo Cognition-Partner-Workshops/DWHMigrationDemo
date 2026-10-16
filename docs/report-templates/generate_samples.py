@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gc
 import importlib.util
 import io
 import os
@@ -11,15 +12,16 @@ from dataclasses import replace
 from pathlib import Path
 from types import ModuleType
 from typing import Any
+from unittest.mock import patch
 
 from pypdf import PdfReader
 
+import migraai.main as migraai_main
 from migraai.agents import workflow
 from migraai.agents.job import ConversionJob
 from migraai.core.audit import AuditLog
 from migraai.devin.mock import MockDevinClient
 from migraai.kb.store import KBStore
-from migraai.main import _initialize_kb
 from migraai.packaging.parts import collect_parts
 from migraai.packaging.snapshot import build_package_input
 from migraai.packaging.zipper import build_zip
@@ -158,12 +160,20 @@ def generate(out_dir: Path) -> dict[str, Path]:
             golden = _load_golden_helpers()
             audit = AuditLog(data_dir / "logs" / "audit.jsonl")
             kb_store = KBStore(data_dir)
-            seed_error = _initialize_kb(
-                kb_store,
-                ROOT / "backend" / "migraai" / "kb" / "seed",
-                tmp_dir / "no-bundled-kb.db",
-                audit,
-            )
+            build_database = migraai_main.build_database
+
+            def build_database_and_collect(*args: Any, **kwargs: Any) -> Path:
+                database = build_database(*args, **kwargs)
+                gc.collect()
+                return database
+
+            with patch.object(migraai_main, "build_database", build_database_and_collect):
+                seed_error = migraai_main._initialize_kb(
+                    kb_store,
+                    ROOT / "backend" / "migraai" / "kb" / "seed",
+                    tmp_dir / "no-bundled-kb.db",
+                    audit,
+                )
             if seed_error is not None:
                 raise RuntimeError(
                     f"Knowledge-base initialization reported seed error {seed_error}."
