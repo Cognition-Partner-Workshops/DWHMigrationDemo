@@ -130,7 +130,7 @@ describe("Convert Objects", () => {
     const dialog = screen.getByRole("dialog");
     expect(screen.getByRole("heading", { name: "Send code to Devin?" })).toBeInTheDocument();
     expect(dialog).toHaveTextContent(
-      "Converting sends the source code of 2 selected objects to Devin at api.devin.ai, in 6 sessions (up to 8 if low-confidence objects need escalation). ACU limit: no ACU cap. Each one stops after 45 minutes, or when you cancel. Nothing else from your files, your settings or your Devin key is sent. Your consent is recorded in the audit log.",
+      "Converting sends the source code of 2 selected objects to Devin at api.devin.ai, in 6 sessions (up to 8 if low-confidence objects need escalation). These sessions have no ACU limit. Each one stops after 45 minutes, or when you cancel. Nothing else from your files, your settings or your Devin key is sent. Your consent is recorded in the audit log.",
     );
     expect(screen.getByText("no ACU cap")).toBeInTheDocument();
     expect(screen.queryByText(/below 1 ACU per session/)).not.toBeInTheDocument();
@@ -159,7 +159,7 @@ describe("Convert Objects", () => {
     await user.click(screen.getByRole("button", { name: "Convert Items" }));
 
     expect(screen.getByRole("dialog")).toHaveTextContent(
-      "ACU limit: ≤ 5 ACU per session (up to 40 ACUs, cap 40).",
+      "Each session is limited to 5 ACU (up to 40 ACUs for the run, cap 40).",
     );
     expect(screen.queryByText(/below 1 ACU per session/)).not.toBeInTheDocument();
   });

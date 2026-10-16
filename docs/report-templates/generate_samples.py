@@ -14,6 +14,8 @@ from types import ModuleType
 from typing import Any
 from unittest.mock import patch
 
+from pypdf import PdfReader
+
 import migraai.main as migraai_main
 from migraai.agents import workflow
 from migraai.agents.job import ConversionJob
@@ -25,7 +27,6 @@ from migraai.packaging.snapshot import build_package_input
 from migraai.packaging.zipper import build_zip
 from migraai.planning.pdf import render_plan_pdf
 from migraai.planning.store import PlanStore
-from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[2]
 REGENERATION_COMMAND = (
@@ -43,9 +44,7 @@ SAMPLE_FILES = (
 
 def _load_golden_helpers() -> ModuleType:
     path = ROOT / "backend" / "tests" / "golden" / "test_conversion_matrix.py"
-    spec = importlib.util.spec_from_file_location(
-        "report_samples_golden_conversion_matrix", path
-    )
+    spec = importlib.util.spec_from_file_location("report_samples_golden_conversion_matrix", path)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Could not load golden conversion helpers from {path}.")
     module = importlib.util.module_from_spec(spec)
@@ -114,9 +113,7 @@ def _extracted_text(name: str, content: bytes) -> list[str]:
     return [content.decode("utf-8", errors="ignore")]
 
 
-def _assert_no_leaks(
-    outputs: dict[str, bytes], temp_dir: Path, golden: ModuleType
-) -> None:
+def _assert_no_leaks(outputs: dict[str, bytes], temp_dir: Path, golden: ModuleType) -> None:
     forbidden_paths = {
         str(temp_dir),
         temp_dir.as_posix(),
@@ -134,18 +131,12 @@ def _assert_no_leaks(
                     raise ValueError(f"Unsafe {name}: contains local path {path!r}.")
             for token in ("/home/", "/tmp/"):
                 if token in candidate:
-                    raise ValueError(
-                        f"Unsafe {name}: contains forbidden path prefix {token!r}."
-                    )
+                    raise ValueError(f"Unsafe {name}: contains forbidden path prefix {token!r}.")
             if "demo-secret" in candidate:
-                raise ValueError(
-                    f"Unsafe {name}: contains forbidden text 'demo-secret'."
-                )
+                raise ValueError(f"Unsafe {name}: contains forbidden text 'demo-secret'.")
             if golden.SECRET_LIKE.search(candidate):
                 raise ValueError(f"Unsafe {name}: contains secret-like text.")
-        drive_candidates = (
-            text_candidates if name.endswith((".pdf", ".xlsx")) else candidates
-        )
+        drive_candidates = text_candidates if name.endswith((".pdf", ".xlsx")) else candidates
         for candidate in drive_candidates:
             drive_match = drive_path.search(candidate)
             if drive_match:
@@ -176,9 +167,7 @@ def generate(out_dir: Path) -> dict[str, Path]:
                 gc.collect()
                 return database
 
-            with patch.object(
-                migraai_main, "build_database", build_database_and_collect
-            ):
+            with patch.object(migraai_main, "build_database", build_database_and_collect):
                 seed_error = migraai_main._initialize_kb(
                     kb_store,
                     ROOT / "backend" / "migraai" / "kb" / "seed",
@@ -191,9 +180,7 @@ def generate(out_dir: Path) -> dict[str, Path]:
                 )
 
             pack_dir = ROOT / "testpacks" / "teradata"
-            session = golden._session_for_pack(
-                pack_dir, "teradata", "snowflake", tmp_dir
-            )
+            session = golden._session_for_pack(pack_dir, "teradata", "snowflake", tmp_dir)
             session["kb_version"] = kb_store.current_version
             try:
                 original_run_session = workflow.run_session
@@ -218,9 +205,7 @@ def generate(out_dir: Path) -> dict[str, Path]:
                     workflow.run_session = original_run_session
 
                 if job.state != "done":
-                    raise RuntimeError(
-                        f"teradata to snowflake job ended {job.state}: {job.reason}"
-                    )
+                    raise RuntimeError(f"teradata to snowflake job ended {job.state}: {job.reason}")
                 package = golden._normalise(
                     build_package_input(job, session, ""),
                     "teradata",
@@ -271,9 +256,7 @@ def generate(out_dir: Path) -> dict[str, Path]:
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(
-        description="Generate deterministic report-template samples."
-    )
+    parser = argparse.ArgumentParser(description="Generate deterministic report-template samples.")
     parser.add_argument(
         "--out",
         type=Path,
