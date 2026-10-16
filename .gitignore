@@ -13,3 +13,5 @@ build/
 *.db
 .env
 packaging/windows/out/
+frontend/playwright-report/
+frontend/test-results/
