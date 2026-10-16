@@ -1,0 +1,37 @@
+cli: sqlcmd
+display: Microsoft Fabric warehouse
+base_args: []
+file_args: ["-b", "-I", "-i", "{file}"]
+install_url: https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility
+docs:
+  - title: sqlcmd utility
+    url: https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility
+  - title: sqlcmd authentication
+    url: https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-authentication
+  - title: Connect to a Fabric warehouse
+    url: https://learn.microsoft.com/en-us/fabric/data-warehouse/connectivity
+connection: |
+  - Set the environment variables `SQLCMDSERVER` (your `<workspace-host>` SQL endpoint) and
+    `SQLCMDDBNAME` (the warehouse name).
+  - Authenticate with Entra ID: pass `--authentication-method ActiveDirectoryDefault`
+    (or `-G`) as a passthrough argument. Never pass `-P`/passwords on the command line.
+etl_formats:
+  fabric.notebook:
+    title: Fabric notebook (manual step)
+    steps: |
+      - In your Fabric workspace, use **Import** from the workspace toolbar and select
+        {path}; Fabric recognizes `.py` notebook source files.
+    docs:
+      - title: How to use Microsoft Fabric notebooks
+        url: https://learn.microsoft.com/en-us/fabric/data-engineering/how-to-use-notebook
+  fabric.pipeline:
+    title: Fabric pipeline definition (manual step)
+    steps: |
+      - Open {path} and replace the placeholder ids (`<notebook-id>`, `<workspace-id>`).
+      - Create the pipeline item via Fabric Git integration or the Fabric REST API with
+        this definition.
+    docs:
+      - title: Fabric pipeline REST API capabilities
+        url: https://learn.microsoft.com/en-us/fabric/data-factory/pipeline-rest-api-capabilities
+      - title: Fabric Git integration
+        url: https://learn.microsoft.com/en-us/fabric/cicd/git-integration/git-integration-process

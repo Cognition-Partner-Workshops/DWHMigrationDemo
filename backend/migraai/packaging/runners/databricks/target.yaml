@@ -1,0 +1,30 @@
+cli: dbsqlcli
+display: Databricks SQL
+base_args: []
+file_args: ["-e", "{file}"]
+install_url: https://docs.databricks.com/aws/en/dev-tools/databricks-sql-cli
+docs:
+  - title: Databricks SQL CLI
+    url: https://docs.databricks.com/aws/en/dev-tools/databricks-sql-cli
+connection: |
+  - Reads `~/.dbsqlcli/dbsqlclirc` (Windows: `%USERPROFILE%\.dbsqlcli\dbsqlclirc`); the file must exist.
+  - Or set the environment variables `DBSQLCLI_HOST_NAME`, `DBSQLCLI_HTTP_PATH` and `DBSQLCLI_ACCESS_TOKEN`.
+  - For OAuth browser-based authentication, pass `--oauth` as a passthrough argument.
+etl_formats:
+  databricks.notebook:
+    title: Databricks notebook (manual step)
+    steps: |
+      - Import the notebook into your workspace:
+        `databricks workspace import /Workspace/<folder>/<notebook-name> --file {path} --format SOURCE --language PYTHON`
+    docs:
+      - title: Databricks CLI workspace commands
+        url: https://docs.databricks.com/aws/en/dev-tools/cli/reference/workspace-commands
+  databricks.workflows_job:
+    title: Databricks job definition (manual step)
+    steps: |
+      - Open {path} and replace `<warehouse-id>` and any notebook paths with your own values.
+      - Create the job (it stays PAUSED until you resume it):
+        `databricks jobs create --json @{path}`
+    docs:
+      - title: Databricks CLI jobs commands
+        url: https://docs.databricks.com/aws/en/dev-tools/cli/reference/jobs-commands

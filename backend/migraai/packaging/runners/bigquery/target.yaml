@@ -1,0 +1,30 @@
+cli: bq
+display: BigQuery
+base_args: ["query"]
+stdin: true
+file_args: ["--use_legacy_sql=false"]
+install_url: https://docs.cloud.google.com/bigquery/docs/bq-command-line-tool
+docs:
+  - title: bq command-line tool reference
+    url: https://docs.cloud.google.com/bigquery/docs/reference/bq-cli-reference
+connection: |
+  - Uses your `gcloud` authentication (`gcloud auth login` / application default credentials).
+  - The default project comes from `gcloud config` or `.bigqueryrc`; override it with
+    `--project_id=<project>` as a passthrough argument.
+etl_formats:
+  bigquery.sql:
+    title: BigQuery SQL script (manual step)
+    steps: |
+      - Review the file, then run it manually with the same CLI the runner uses:
+        `bq query --use_legacy_sql=false < {path}`
+    docs:
+      - title: bq command-line tool reference
+        url: https://docs.cloud.google.com/bigquery/docs/reference/bq-cli-reference
+  bigquery.composer_dag:
+    title: Cloud Composer DAG (manual step)
+    steps: |
+      - Import the DAG into your Composer environment:
+        `gcloud composer environments storage dags import --environment <environment> --location <region> --source {path}`
+    docs:
+      - title: Manage DAGs in Cloud Composer
+        url: https://docs.cloud.google.com/composer/docs/composer-3/manage-dags

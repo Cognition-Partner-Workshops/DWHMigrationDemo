@@ -1,0 +1,30 @@
+cli: clickhouse-client
+display: ClickHouse
+base_args: []
+file_args: ["--queries-file", "{file}"]
+install_url: https://clickhouse.com/docs/concepts/features/interfaces/client
+docs:
+  - title: ClickHouse client
+    url: https://clickhouse.com/docs/concepts/features/interfaces/client
+connection: |
+  - Reads `~/.config/clickhouse/config.xml` (or `config.yaml`; legacy: `~/.clickhouse-client/config.xml`).
+  - Or set the environment variables `CLICKHOUSE_HOST`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`.
+  - The client stops at the first failing query; `--ignore-error` is deliberately not used.
+notes: |
+  On Windows the ClickHouse client typically runs under WSL; use `run.sh` there.
+etl_formats:
+  clickhouse.sql:
+    title: ClickHouse SQL script (manual step)
+    steps: |
+      - Review the file, then run it manually with the same CLI the runner uses:
+        `clickhouse-client --queries-file {path}`
+    docs:
+      - title: ClickHouse client
+        url: https://clickhouse.com/docs/concepts/features/interfaces/client
+  clickhouse.airflow_dag:
+    title: Apache Airflow DAG (manual step)
+    steps: |
+      - Copy {path} into the `DAGS_FOLDER` of your Airflow environment.
+    docs:
+      - title: Airflow DAGs
+        url: https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html
