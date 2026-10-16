@@ -31,6 +31,7 @@ class ConversionJob(threading.Thread):
         timeout_minutes: int = 45,
         max_concurrent_sessions: int = 4,
         confidence_threshold: float = 0.85,
+        devin_host: str = "",
         client_factory: Callable[[str], Any] | None = None,
         pack: TargetPack | None = None,
         consent: bool = True,
@@ -45,6 +46,7 @@ class ConversionJob(threading.Thread):
         self.timeout_minutes = timeout_minutes
         self.max_concurrent_sessions = max_concurrent_sessions
         self.confidence_threshold = confidence_threshold
+        self.devin_host = devin_host
         self.pack = pack or load_pack(self.target)
         self.client_factory = client_factory or (
             lambda voter: build_devin_client(base_url, org_id, devin_pat)
@@ -157,6 +159,8 @@ class ConversionJob(threading.Thread):
 
     def _audit(self, action: str, details: dict[str, Any] | None = None) -> None:
         if self.audit is not None:
+            if action == "convert.consent" and self.devin_host:
+                details = {**(details or {}), "devin_host": self.devin_host}
             self.audit.append("user", action, self.run_id, details or {})
 
     def _publish(self, event: str, data: dict[str, Any]) -> None:

@@ -205,12 +205,12 @@ def _columns_from_parsed(parsed: ParsedObject | None) -> list[dict[str, str]]:
     return _node_summary(parsed.node)["columns"]
 
 
-def _mapping_lines(
+def get_relevant_mappings(
     source: str,
     target: str,
     texts: list[str],
     db_path: Any,
-) -> list[str]:
+) -> list[dict[str, str]]:
     joined = "\n".join(texts)
     by_kind: dict[str, dict[str, dict[str, Any]]] = {"type": {}, "function": {}}
     try:
@@ -222,7 +222,7 @@ def _mapping_lines(
                 by_kind[kind].setdefault(str(mapping["canonical"]), {})[platform] = mapping
     except Exception:
         return []
-    lines = []
+    references = []
     for kind in ("type", "function"):
         for canonical, mappings in sorted(by_kind[kind].items()):
             source_mapping = mappings.get(source)
@@ -238,33 +238,59 @@ def _mapping_lines(
                 continue
             target_mapping = mappings.get(target)
             target_native = target_mapping["native"] if target_mapping else "no direct equivalent"
-            lines.append(
-                f"- {kind}: {source_mapping['native']} → {canonical} → {target_native}"
-                + (
-                    f" ({target_mapping['notes']})"
-                    if target_mapping and target_mapping["notes"]
-                    else ""
-                )
+            references.append(
+                {
+                    "kind": kind,
+                    "canonical": canonical,
+                    "source": str(source_mapping["native"]),
+                    "target": str(target_native),
+                    "note": str(target_mapping["notes"]) if target_mapping else "",
+                    "kb_ref": str((target_mapping or source_mapping).get("url", "")),
+                }
             )
+    return references
+
+
+def _mapping_lines(
+    source: str,
+    target: str,
+    texts: list[str],
+    db_path: Any,
+) -> list[str]:
+    lines = []
+    for mapping in get_relevant_mappings(source, target, texts, db_path):
+        lines.append(
+            f"- {mapping['kind']}: {mapping['source']} → {mapping['canonical']} → "
+            f"{mapping['target']}" + (f" ({mapping['note']})" if mapping["note"] else "")
+        )
     return lines
 
 
-def _pair_notes(source: str, target: str, db_path: Any) -> str:
+def get_pair_mappings(source: str, target: str, db_path: Any) -> list[dict[str, str]]:
     try:
         value = get_pair(source, target, db_path=db_path).get("sql_dialect_differences", [])
     except Exception:
-        return ""
-    if isinstance(value, list):
-        return "\n".join(
-            "- "
-            + (
-                f"{item.get('text', '')} ({item.get('url', '')})"
-                if isinstance(item, dict)
-                else str(item)
-            )
-            for item in value
-        )
-    return str(value)
+        return []
+    if isinstance(value, str):
+        value = [{"text": value}]
+    if not isinstance(value, list):
+        return [{"source": source, "target": target, "note": str(value), "kb_ref": ""}]
+    return [
+        {
+            "source": source,
+            "target": target,
+            "note": str(item.get("text", "")) if isinstance(item, Mapping) else str(item),
+            "kb_ref": str(item.get("url", "")) if isinstance(item, Mapping) else "",
+        }
+        for item in value
+    ]
+
+
+def _pair_notes(source: str, target: str, db_path: Any) -> str:
+    return "\n".join(
+        "- " + mapping["note"] + (f" ({mapping['kb_ref']})" if mapping["kb_ref"] else "")
+        for mapping in get_pair_mappings(source, target, db_path)
+    )
 
 
 def _format_dict(value: Any) -> dict[str, Any]:

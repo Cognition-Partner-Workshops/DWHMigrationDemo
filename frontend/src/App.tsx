@@ -34,6 +34,15 @@ const EMPTY_SETTINGS: SettingsResponse = {
   acu_cap_per_run: null,
 };
 
+function topLevelUploadCount(uploads: UploadRecord[]): number {
+  return uploads.filter((upload) => {
+    const segments = upload.rel_path.split(/[\\/]/);
+    return !segments
+      .slice(0, -1)
+      .some((segment) => segment.toLowerCase().endsWith(".zip"));
+  }).length;
+}
+
 function SectionTitle({
   number,
   title,
@@ -610,6 +619,7 @@ export default function App() {
             refreshKey={inventoryRevision}
             source={session?.source ?? ""}
             target={session?.target ?? ""}
+            uploadCount={topLevelUploadCount(uploads)}
           />
           {notice && <p className="inline-notice" role="status">{notice}</p>}
         </section>

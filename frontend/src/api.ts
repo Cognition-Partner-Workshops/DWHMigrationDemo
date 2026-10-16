@@ -371,6 +371,38 @@ export async function apiRequest<T>(
   return (await response.json()) as T;
 }
 
+async function triggerBrowserDownload(path: string): Promise<void> {
+  const response = await fetch(path, { credentials: "same-origin" });
+  if (!response.ok) {
+    let message = `Request failed (${response.status}).`;
+    const payload = (await response.json().catch(() => null)) as
+      | { detail?: string; message?: string }
+      | null;
+    if (payload?.detail || payload?.message) {
+      message = payload.detail ?? payload.message ?? message;
+    }
+    throw new Error(message);
+  }
+
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1] ?? "download";
+  const objectUrl = URL.createObjectURL(await response.blob());
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = filename;
+  anchor.click();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
+
+export function downloadConvertedPackage(name?: string): Promise<void> {
+  const query = name?.trim() ? `?name=${encodeURIComponent(name.trim())}` : "";
+  return triggerBrowserDownload(`/api/download${query}`);
+}
+
+export function downloadReport(format: "md" | "pdf"): Promise<void> {
+  return triggerBrowserDownload(`/api/report.${format}`);
+}
+
 export async function exchangeLaunchToken(token: string): Promise<void> {
   const response = await fetch(`/api/auth/launch?token=${encodeURIComponent(token)}`, {
     credentials: "same-origin",
