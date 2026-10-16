@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getInventory, uploadFiles, watchDiscoveryStatus } from "./api";
+import {
+  distinctUploadRoots,
+  getInventory,
+  uploadFiles,
+  uploadRoot,
+  watchDiscoveryStatus,
+} from "./api";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -8,6 +14,20 @@ afterEach(() => {
 });
 
 describe("discovery API client", () => {
+  it("groups upload paths by their first ZIP root", () => {
+    expect(uploadRoot("teradata-testpack.zip/tables.sql")).toBe("teradata-testpack.zip");
+    expect(uploadRoot("A.ZIP/x/y.sql")).toBe("A.ZIP");
+    expect(uploadRoot("a.zip/inner.zip/x.sql")).toBe("a.zip");
+    expect(uploadRoot("dir\\b.sql")).toBe("dir/b.sql");
+    expect(
+      distinctUploadRoots([
+        { rel_path: "teradata-testpack.zip/tables.sql" },
+        { rel_path: "teradata-testpack.zip/views.sql" },
+        { rel_path: "extra.sql" },
+      ]),
+    ).toEqual(["teradata-testpack.zip", "extra.sql"]);
+  });
+
   it("uploads multiple files with multipart form data and reports progress", async () => {
     const listeners = new Map<string, (event: ProgressEvent) => void>();
     const progressListeners = new Map<string, (event: ProgressEvent) => void>();

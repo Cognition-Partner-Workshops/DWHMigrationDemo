@@ -15,6 +15,7 @@ import {
   type SettingsResponse,
   type SettingsUpdate,
   type UploadRecord,
+  distinctUploadRoots,
 } from "./api";
 import { KnowledgeBaseSettings } from "./KnowledgeBaseSettings";
 import { ConvertPanel } from "./ConvertPanel";
@@ -610,6 +611,7 @@ export default function App() {
             refreshKey={inventoryRevision}
             source={session?.source ?? ""}
             target={session?.target ?? ""}
+            uploadRoots={distinctUploadRoots(uploads)}
           />
           {notice && <p className="inline-notice" role="status">{notice}</p>}
         </section>

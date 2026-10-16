@@ -29,7 +29,9 @@ from migraai.discovery.objects import ParsedObject
 from migraai.discovery.pipeline import discover_files
 from migraai.discovery.uploads import UploadRow
 from migraai.etl.outputs import formats_for
+from migraai.packaging.snapshot import build_package_input
 from migraai.platforms.pack import TargetPack, load_pack
+from migraai.reports.session_report import build_report_md
 from migraai.validation.checks.security import _SECRET_PATTERNS
 from migraai.validation.findings import CheckResult
 from migraai.voting.confidence import overall_score, score
@@ -659,7 +661,7 @@ def test_conversion_job_continues_after_voter_failure_and_cancels_running_sessio
     cancel_job = ConversionJob(
         session=cancel_session,
         audit=None,
-        batch_size=50,
+        batch_size=20,
         timeout_minutes=5,
         client_factory=slow_factory,
         pack=pack,
@@ -669,11 +671,29 @@ def test_conversion_job_continues_after_voter_failure_and_cancels_running_sessio
     while time.monotonic() < deadline and not any(client.sessions for client in slow_clients):
         time.sleep(0.01)
     assert any(client.sessions for client in slow_clients)
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline and not any(
+        info["batch_index"] >= 1 for info in cancel_job.started_sessions.values()
+    ):
+        time.sleep(0.01)
+    assert any(info["batch_index"] >= 1 for info in cancel_job.started_sessions.values())
     cancel_job.cancel()
     cancel_job.join(timeout=30)
     assert not cancel_job.is_alive()
     assert cancel_job.snapshot()["state"] == "cancelled"
     assert all(client.termination_calls for client in slow_clients if client.sessions)
+    package = build_package_input(cancel_job, cancel_session, "")
+    assert package.egress is not None
+    assert package.egress.sessions == len(cancel_job.started_sessions)
+    assert len(package.sessions) == len(cancel_job.started_sessions)
+    cancelled_count = sum(
+        info["state"] == "cancelled" for info in cancel_job.started_sessions.values()
+    )
+    assert sum(session.state == "cancelled" for session in package.sessions) == cancelled_count
+    report = build_report_md(package)
+    section = report[report.index("## 4. Data sent to Devin") : report.index("## 5.")]
+    assert f"- Sessions: {len(cancel_job.started_sessions)}" in section
+    assert section.count("cancelled") >= cancelled_count
 
 
 def test_conversion_job_publishes_live_voter_and_escalation_progress(

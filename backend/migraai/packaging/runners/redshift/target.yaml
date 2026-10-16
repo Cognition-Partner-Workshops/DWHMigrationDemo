@@ -1,0 +1,39 @@
+cli: psql
+display: Amazon Redshift
+base_args: []
+file_args: ["-X", "-v", "ON_ERROR_STOP=1", "-f", "{file}"]
+install_url: https://www.postgresql.org/download/
+docs:
+  - title: psql reference
+    url: https://www.postgresql.org/docs/current/app-psql.html
+  - title: libpq environment variables
+    url: https://www.postgresql.org/docs/current/libpq-envars.html
+  - title: libpq service file
+    url: https://www.postgresql.org/docs/current/libpq-pgservice.html
+  - title: Connecting to Amazon Redshift
+    url: https://docs.aws.amazon.com/redshift/latest/mgmt/connecting-via-client-tools.html
+connection: |
+  - Uses the standard libpq environment variables `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`
+    (Redshift's default port is 5439).
+  - Passwords come from `~/.pgpass` (Windows: `%APPDATA%\postgresql\pgpass.conf`), never the command line.
+  - Or define a named service in `pg_service.conf` and set `PGSERVICE=<service>`.
+etl_formats:
+  redshift.sql:
+    title: Redshift SQL script (manual step)
+    steps: |
+      - Review the file, then run it manually with the same CLI the runner uses:
+        `psql -X -v ON_ERROR_STOP=1 -f {path}`
+    docs:
+      - title: psql reference
+        url: https://www.postgresql.org/docs/current/app-psql.html
+  redshift.airflow_dag:
+    title: Apache Airflow DAG (manual step)
+    steps: |
+      - For Amazon MWAA, upload the DAG to the environment's DAG folder:
+        `aws s3 cp {path} s3://<your-mwaa-bucket>/dags/`
+      - For self-managed Airflow, copy {path} into the `DAGS_FOLDER`.
+    docs:
+      - title: Configuring the MWAA DAG folder
+        url: https://docs.aws.amazon.com/mwaa/latest/userguide/configuring-dag-folder.html
+      - title: Airflow DAGs
+        url: https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html
