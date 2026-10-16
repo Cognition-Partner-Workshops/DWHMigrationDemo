@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   cancelConversionJob,
+  downloadConvertedPackage,
+  downloadReport,
   getConversionDetail,
   getConversionJob,
   getConversions,
@@ -48,11 +50,13 @@ export function ConvertPanel({
   source,
   target,
   refreshKey,
+  uploadCount = 0,
 }: {
   confirmed: boolean;
   source: string;
   target: string;
   refreshKey: number;
+  uploadCount?: number;
 }) {
   const [estimate, setEstimate] = useState<ConvertEstimate | null>(null);
   const [loadingEstimate, setLoadingEstimate] = useState(false);
@@ -69,9 +73,15 @@ export function ConvertPanel({
   const [typeFilter, setTypeFilter] = useState("");
   const [failedCheck, setFailedCheck] = useState("");
   const [search, setSearch] = useState("");
+  const [packageName, setPackageName] = useState("");
   const [listRevision, setListRevision] = useState(0);
+  const activeJobState = job?.state;
   const resultsRef = useRef<HTMLElement | null>(null);
   const detailRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setPackageName(`migraai-${source}-to-${target}`);
+  }, [source, target]);
 
   useEffect(() => {
     let active = true;
@@ -123,6 +133,12 @@ export function ConvertPanel({
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (activeJobState && !["queued", "running"].includes(activeJobState)) {
+      setCancelConfirm(false);
+    }
+  }, [activeJobState]);
 
   useEffect(() => {
     if (!jobId) {
@@ -249,8 +265,34 @@ export function ConvertPanel({
     }
   }
 
-  const active = job !== null && !isTerminal(job.state);
+  const active = job !== null && ["queued", "running"].includes(job.state);
   const types = Array.from(new Set(rows.map((row) => row.type))).sort();
+  const includedCount = (job?.counts.converted ?? 0) + (job?.counts.expert_review ?? 0);
+  const downloadReady =
+    job !== null && ["done", "cancelled"].includes(job.state) && includedCount > 0;
+  const downloadReason = !job
+    ? "Run a conversion before downloading."
+    : !["done", "cancelled"].includes(job.state)
+      ? "Download is available when the conversion is done or cancelled."
+      : "No converted or expert-review objects are available to download.";
+
+  async function handleDownload() {
+    setError("");
+    try {
+      await downloadConvertedPackage(uploadCount > 1 ? packageName : undefined);
+    } catch (downloadError) {
+      setError(downloadError instanceof Error ? downloadError.message : "Download failed.");
+    }
+  }
+
+  async function handleReport(format: "md" | "pdf") {
+    setError("");
+    try {
+      await downloadReport(format);
+    } catch (reportError) {
+      setError(reportError instanceof Error ? reportError.message : "Report download failed.");
+    }
+  }
 
   function selectResult(objectId: string) {
     setSelectedId(objectId);
@@ -303,12 +345,44 @@ export function ConvertPanel({
           </button>
           <button
             className="button download-button"
-            disabled
-            title="Download arrives with packaging in the next phase."
+            disabled={!downloadReady}
+            onClick={() => void handleDownload()}
+            title={downloadReady ? undefined : downloadReason}
             type="button"
           >
             ⇩ Download Converted Files
           </button>
+          {uploadCount > 1 && (
+            <label className="package-name-field">
+              Package name
+              <input
+                aria-label="Package name"
+                maxLength={80}
+                onChange={(event) => setPackageName(event.target.value)}
+                value={packageName}
+              />
+            </label>
+          )}
+          <a
+            className="report-download-link"
+            href="/api/report.md"
+            onClick={(event) => {
+              event.preventDefault();
+              void handleReport("md");
+            }}
+          >
+            Report (MD)
+          </a>
+          <a
+            className="report-download-link"
+            href="/api/report.pdf"
+            onClick={(event) => {
+              event.preventDefault();
+              void handleReport("pdf");
+            }}
+          >
+            Report (PDF)
+          </a>
         </div>
       </div>
       {error && <p className="inline-error conversion-error" role="alert">{error}</p>}
@@ -325,7 +399,7 @@ export function ConvertPanel({
               </button>
             )}
           </div>
-          {cancelConfirm && (
+          {cancelConfirm && active && (
             <div className="cancel-confirm" role="alertdialog" aria-label="Confirm cancellation">
               <span>Cancel this conversion?</span>
               <button className="button secondary" onClick={() => setCancelConfirm(false)}>

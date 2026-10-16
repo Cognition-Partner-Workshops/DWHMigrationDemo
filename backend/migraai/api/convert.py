@@ -117,6 +117,7 @@ def post_convert(
             raise HTTPException(status_code=409, detail="A conversion is already active.")
         org_id, base_url, pat = request.app.state.settings_store.runtime_devin_config()
         settings = request.app.state.settings_store.read()
+        _, devin_host = devin_configuration(request)
         job = ConversionJob(
             session=session,
             audit=request.app.state.audit_log,
@@ -127,6 +128,7 @@ def post_convert(
             timeout_minutes=settings.conversion_session_timeout_minutes,
             max_concurrent_sessions=settings.max_concurrent_sessions,
             confidence_threshold=settings.confidence_threshold,
+            devin_host=devin_host,
             consent=True,
         )
         request.app.state.convert_job = job
