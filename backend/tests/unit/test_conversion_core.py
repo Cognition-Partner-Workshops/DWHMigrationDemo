@@ -9,9 +9,11 @@ import time
 import uuid
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
+from typing import Any
 
 import pytest
 
+from migraai.agents import workflow
 from migraai.agents.batching import Batch, plan_batches
 from migraai.agents.context import build_batch
 from migraai.agents.job import ConversionJob
@@ -358,6 +360,113 @@ def test_secret_guard_blocks_batch_before_upload_or_session(
     blocked = next(entry for entry in audit_entries if entry["action"] == "convert.blocked_secret")
     assert blocked["details"] == {"batch_index": 0, "object_ids": [object_id]}
     assert "guard-secret" not in audit_path.read_text(encoding="utf-8")
+
+
+def test_validator_exception_fails_only_the_affected_object(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_dir = tmp_path / "validator-errors"
+    source_dir.mkdir()
+    for name in ("good_a", "bad", "good_b"):
+        (source_dir / f"{name}.sql").write_text(
+            f"CREATE TABLE sales.{name} (id INTEGER);",
+            encoding="utf-8",
+        )
+    session = _inventory_session(tmp_path / "validator-session", source_dir, "teradata")
+    session["target"] = "snowflake"
+    bad_object = next(
+        item for item in session["inventory"].page(page_size=20)["items"] if item["name"] == "bad"
+    )
+    original_validate = workflow.validate_object
+
+    def fail_one_object(obj, context):
+        if obj.source_qualified_name == "sales.bad":
+            raise RuntimeError("password=hunter2xyz")
+        return original_validate(obj, context)
+
+    monkeypatch.setattr(workflow, "validate_object", fail_one_object)
+    job = ConversionJob(
+        session=session,
+        audit=None,
+        batch_size=20,
+        timeout_minutes=1,
+        confidence_threshold=0.0,
+        client_factory=lambda role: MockDevinClient(),
+        pack=load_pack("snowflake"),
+    )
+
+    job.start()
+    job.join(timeout=30)
+
+    assert not job.is_alive()
+    assert job.snapshot()["state"] == "done"
+    assert job.results[str(bad_object["id"])]["status"] == "failed"
+    assert all(
+        result["status"] == "converted"
+        for object_id, result in job.results.items()
+        if object_id != str(bad_object["id"])
+    )
+    reason = job.errors[str(bad_object["id"])]
+    assert "hunter2xyz" not in reason
+    assert secret_mask.mask_secrets("password=hunter2xyz") in reason
+    package = build_package_input(job, session, "test")
+    packaged_bad_object = next(
+        item for item in package.objects if item.object_id == bad_object["id"]
+    )
+    assert packaged_bad_object.status == "failed"
+    assert packaged_bad_object.error == reason
+
+
+def test_packaging_exception_fails_only_the_affected_object(tmp_path: Path) -> None:
+    source_dir = tmp_path / "packaging-errors"
+    source_dir.mkdir()
+    for name in ("good_a", "bad", "good_b"):
+        (source_dir / f"{name}.sql").write_text(
+            f"CREATE TABLE sales.{name} (id INTEGER);",
+            encoding="utf-8",
+        )
+    session = _inventory_session(tmp_path / "packaging-session", source_dir, "teradata")
+    session["target"] = "snowflake"
+    bad_object = next(
+        item for item in session["inventory"].page(page_size=20)["items"] if item["name"] == "bad"
+    )
+    job = ConversionJob(
+        session=session,
+        audit=None,
+        batch_size=20,
+        timeout_minutes=1,
+        confidence_threshold=0.0,
+        client_factory=lambda role: MockDevinClient(),
+        pack=load_pack("snowflake"),
+    )
+    store_json = job._store_json
+
+    def fail_final_packaging(rel_path: str, value: Any) -> str:
+        if rel_path.endswith(f"/{bad_object['id']}/final.json"):
+            raise RuntimeError("password=hunter2xyz")
+        return store_json(rel_path, value)
+
+    job._store_json = fail_final_packaging
+    job.start()
+    job.join(timeout=30)
+
+    bad_id = str(bad_object["id"])
+    assert not job.is_alive()
+    assert job.snapshot()["state"] == "done"
+    assert job.results[bad_id]["status"] == "failed"
+    assert all(
+        result["status"] == "converted"
+        for object_id, result in job.results.items()
+        if object_id != bad_id
+    )
+    reason = job.errors[bad_id]
+    assert "hunter2xyz" not in reason
+    assert secret_mask.mask_secrets("password=hunter2xyz") in reason
+    package = build_package_input(job, session, "test")
+    packaged_bad_object = next(item for item in package.objects if item.object_id == bad_id)
+    assert packaged_bad_object.status == "failed"
+    assert packaged_bad_object.error == reason
 
 
 def test_attachment_sections_do_not_change_object_round_trip() -> None:

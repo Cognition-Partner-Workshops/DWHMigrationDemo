@@ -12,12 +12,17 @@ from typing import Any
 from migraai.agents.batching import plan_batches
 from migraai.agents.naming import build_name_map
 from migraai.agents.workflow import build_workflow, run_batch_workflow
-from migraai.core.secret_mask import SecretAttachmentError
+from migraai.core.secret_mask import SecretAttachmentError, mask_secrets
 from migraai.devin.client import build_devin_client
 from migraai.platforms.pack import TargetPack, load_pack
 from migraai.voting.confidence import overall_score
 
 _TERMINAL_SESSION_STATES = {"done", "failed", "blocked", "timeout", "cancelled"}
+
+
+def _object_processing_failure(stage: str, error: Exception) -> str:
+    reason = f"{stage} failed ({type(error).__name__}): {error}"
+    return "Object processing failed: " + " ".join(mask_secrets(reason).split())[:200]
 
 
 class ConversionJob(threading.Thread):
@@ -382,6 +387,7 @@ class ConversionJob(threading.Thread):
     def _save_batch(self, batch: Any, result: Any) -> None:
         workflow_results = result.get("results", {})
         outcome_by_voter = result.get("voter_outcomes", {})
+        packaging_errors: dict[str, str] = {}
         inventory = self.session["inventory"]
         with self.lock, inventory.lock, inventory.connection:
             for voter, outcome in outcome_by_voter.items():
@@ -397,12 +403,18 @@ class ConversionJob(threading.Thread):
                     state = "failed"
                     confidence = None
                     if candidate is not None:
-                        path = self._store_json(
-                            f"conversion/{self.run_id}/{object_id}/{voter}.json",
-                            candidate.files,
-                        )
-                        state = "done"
-                        confidence = candidate.self_confidence
+                        try:
+                            path = self._store_json(
+                                f"conversion/{self.run_id}/{object_id}/{voter}.json",
+                                candidate.files,
+                            )
+                        except Exception as error:
+                            packaging_errors.setdefault(
+                                object_id, _object_processing_failure("Candidate packaging", error)
+                            )
+                        else:
+                            state = "done"
+                            confidence = candidate.self_confidence
                     inventory.connection.execute(
                         """INSERT OR REPLACE INTO conversion_candidate
                         (run_id,object_id,voter,state,self_confidence,code_path,session_id,acus)
@@ -433,14 +445,31 @@ class ConversionJob(threading.Thread):
                             outcome.error,
                         ),
                     )
-            for object_id, item in workflow_results.items():
+            for object_id, original_item in workflow_results.items():
+                item = dict(original_item)
+                if object_id in packaging_errors:
+                    item.update(
+                        status="failed",
+                        confidence=0.0,
+                        candidate=None,
+                        reason=packaging_errors[object_id],
+                    )
                 candidate = item.get("candidate")
                 path = None
                 if candidate is not None:
-                    path = self._store_json(
-                        f"conversion/{self.run_id}/{object_id}/final.json",
-                        candidate.files,
-                    )
+                    try:
+                        path = self._store_json(
+                            f"conversion/{self.run_id}/{object_id}/final.json",
+                            candidate.files,
+                        )
+                    except Exception as error:
+                        item.update(
+                            status="failed",
+                            confidence=0.0,
+                            candidate=None,
+                            reason=_object_processing_failure("Final packaging", error),
+                        )
+                        self.errors.setdefault(object_id, item["reason"])
                 inventory.connection.execute(
                     """INSERT OR REPLACE INTO conversion_object
                     (run_id,object_id,state,confidence,picked_voter,code_path)

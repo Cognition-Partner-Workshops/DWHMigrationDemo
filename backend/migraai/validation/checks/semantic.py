@@ -1,11 +1,12 @@
 import sqlglot
 from sqlglot import ErrorLevel, exp
-from sqlglot.errors import ParseError
+from sqlglot.errors import ParseError, TokenError
 
 from migraai.validation.context import ObjectUnderTest, ValidationContext
 from migraai.validation.dialects import sqlglot_dialect
 from migraai.validation.findings import Finding
 from migraai.validation.names import identifier_parts, normalize_name
+from migraai.validation.sql import exclude_snowflake_stage_copy_statements
 
 
 def _table_name(table: exp.Table) -> str:
@@ -152,11 +153,11 @@ def validate(obj: ObjectUnderTest, ctx: ValidationContext) -> list[Finding]:
             continue
         try:
             statements = sqlglot.parse(
-                file.content,
+                exclude_snowflake_stage_copy_statements(file.content),
                 read=sqlglot_dialect(ctx.target),
                 error_level=ErrorLevel.RAISE,
             )
-        except ParseError:
+        except (ParseError, TokenError):
             continue
         parsed_files.append(statements)
 

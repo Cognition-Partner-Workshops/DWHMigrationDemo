@@ -5,11 +5,15 @@ import json
 import sqlglot
 import yaml
 from sqlglot import ErrorLevel, exp
-from sqlglot.errors import ParseError
+from sqlglot.errors import ParseError, TokenError
 
 from migraai.validation.context import ObjectUnderTest, OutputFile, ValidationContext
 from migraai.validation.dialects import sqlglot_dialect
 from migraai.validation.findings import Finding
+from migraai.validation.sql import (
+    exclude_snowflake_stage_copy_statements,
+    has_snowflake_stage_copy,
+)
 
 
 def _finding(
@@ -29,15 +33,31 @@ def _finding(
 
 
 def _sql_findings(file: OutputFile, ctx: ValidationContext) -> list[Finding]:
+    if has_snowflake_stage_copy(file.content, ctx.target):
+        return [
+            _finding(
+                file,
+                "syntax.parse_error",
+                "error",
+                "Snowflake stage paths are not valid in this target SQL dialect.",
+            )
+        ]
+
     try:
         statements = sqlglot.parse(
-            file.content,
+            exclude_snowflake_stage_copy_statements(file.content),
             read=sqlglot_dialect(ctx.target),
             error_level=ErrorLevel.RAISE,
         )
-    except ParseError as error:
+    except (ParseError, TokenError) as error:
         errors = getattr(error, "errors", [])
-        line = errors[0].get("line") if errors else None
+        line = (
+            errors[0].get("line")
+            if errors
+            else file.content.count("\n", 0, error.start) + 1
+            if isinstance(error, TokenError) and error.start is not None
+            else None
+        )
         return [
             _finding(
                 file,

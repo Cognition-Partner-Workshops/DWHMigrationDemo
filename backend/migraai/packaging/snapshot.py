@@ -8,6 +8,7 @@ from typing import Any
 
 import sqlglot
 from sqlglot import exp
+from sqlglot.errors import ParseError, TokenError
 
 from migraai.agents.context import (
     _find_parsed,
@@ -32,6 +33,7 @@ from migraai.packaging.model import (
 from migraai.packaging.naming import converted_path, upload_root
 from migraai.packaging.naming import package_name as normalize_package_name
 from migraai.validation.dialects import sqlglot_dialect
+from migraai.validation.sql import exclude_snowflake_stage_copy_statements
 from migraai.validation.validate import pass_rate
 
 _STATUSES = {"converted", "expert_review", "failed", "cancelled"}
@@ -147,8 +149,9 @@ def _target_column_types(files: list[dict[str, Any]], target: str) -> dict[str, 
         if str(file.get("language", "")).casefold() != "sql":
             continue
         try:
-            statements = sqlglot.parse(str(file.get("content", "")), read=dialect)
-        except sqlglot.errors.ParseError:
+            content = exclude_snowflake_stage_copy_statements(str(file.get("content", "")))
+            statements = sqlglot.parse(content, read=dialect)
+        except (ParseError, TokenError):
             continue
         for statement in statements:
             if statement is None:

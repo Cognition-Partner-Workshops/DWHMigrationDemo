@@ -2,7 +2,7 @@ import re
 
 import sqlglot
 from sqlglot import ErrorLevel, exp
-from sqlglot.errors import ParseError
+from sqlglot.errors import ParseError, TokenError
 
 from migraai.core.secret_mask import (
     _SECRET_PATTERNS,
@@ -14,6 +14,7 @@ from migraai.validation.context import ObjectUnderTest, OutputFile, ValidationCo
 from migraai.validation.dialects import sqlglot_dialect
 from migraai.validation.findings import Finding
 from migraai.validation.names import identifier_parts, normalize_name
+from migraai.validation.sql import exclude_snowflake_stage_copy_statements
 
 _GRANTEE_KIND_PREFIX = re.compile(
     r"^(?:(?:DATABASE|APPLICATION)\s+ROLE|ROLE|USER|GROUP)\s+",
@@ -69,11 +70,11 @@ def _grant_line(expression: exp.Expression) -> int | None:
 def _ast_grants(file: OutputFile, ctx: ValidationContext) -> list[tuple[str, str, int | None]]:
     try:
         statements = sqlglot.parse(
-            file.content,
+            exclude_snowflake_stage_copy_statements(file.content),
             read=sqlglot_dialect(ctx.target),
             error_level=ErrorLevel.RAISE,
         )
-    except ParseError:
+    except (ParseError, TokenError):
         return []
     grants: list[tuple[str, str, int | None]] = []
     for statement in statements:

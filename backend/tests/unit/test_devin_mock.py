@@ -150,6 +150,28 @@ def test_mock_falls_back_to_source_text_when_transpilation_fails(monkeypatch) ->
     assert MockDevinClient._transpile(source, "sql", "teradata", "snowflake") == source
 
 
+def test_mock_transpiles_around_snowflake_stage_copy(monkeypatch) -> None:
+    parsed_sources = []
+
+    def transpile_without_stage_copy(source_text, **kwargs):
+        assert "COPY INTO" not in source_text
+        parsed_sources.append(source_text)
+        return ["SELECT 1"]
+
+    monkeypatch.setattr("migraai.devin.mock.sqlglot.transpile", transpile_without_stage_copy)
+    stage_copy = "COPY INTO target FROM @stage/path FILES = ('orders.csv');"
+    source = f"{stage_copy}\nSELECT 2;"
+
+    for target in ("databricks", "snowflake"):
+        assert (
+            MockDevinClient._transpile(source, "sql", "snowflake", target)
+            == f"SELECT 1\n{stage_copy}"
+        )
+        assert MockDevinClient._transpile(stage_copy, "sql", "snowflake", target) == stage_copy
+
+    assert len(parsed_sources) == 2
+
+
 def test_portable_launcher_generator_does_not_enable_mock_devin() -> None:
     repo_root = Path(__file__).resolve().parents[3]
     build_script = repo_root / "packaging" / "windows" / "build_portable.py"

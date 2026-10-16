@@ -10,6 +10,7 @@ import httpx
 import sqlglot
 
 from migraai.devin.attachment import parse_batch
+from migraai.validation.sql import split_snowflake_stage_copy_statements
 
 _SOURCE_DIALECTS = {
     "teradata": "teradata",
@@ -252,8 +253,14 @@ class MockDevinClient:
             or target not in set(_TARGET_DIALECTS.values())
         ):
             return source_text
+        parser_text, stage_copies = split_snowflake_stage_copy_statements(source_text)
         try:
-            converted = sqlglot.transpile(source_text, read=source, write=target)
-            return "\n".join(converted) if converted else source_text
+            converted = (
+                sqlglot.transpile(parser_text, read=source, write=target)
+                if parser_text.strip()
+                else []
+            )
+            converted_text = "\n".join(converted)
+            return "\n".join([converted_text, *stage_copies]).strip() or source_text
         except Exception:
             return source_text

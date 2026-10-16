@@ -65,33 +65,7 @@ if source_filter := os.environ.get("MIGRAAI_GOLDEN_SOURCE"):
     PAIRS = [(source, target) for source, target in PAIRS if source == source_filter]
 if target_filter := os.environ.get("MIGRAAI_GOLDEN_TARGET"):
     PAIRS = [(source, target) for source, target in PAIRS if target == target_filter]
-PRODUCT_XFAILS = {
-    ("snowflake", "databricks"): (
-        "Mock ConversionJob for snowflake->databricks exhausts memory: with a 4-GiB "
-        "address-space limit job.state=failed/reason=SystemError; an isolated uncapped run "
-        "reached 29,442,748 KiB RSS and was killed (exit 137)."
-    ),
-    ("snowflake", "redshift"): "Mock ConversionJob for this pair fails with TokenError.",
-    ("snowflake", "snowflake"): "Mock ConversionJob for this pair fails with TokenError.",
-    ("snowflake", "fabric"): "Mock ConversionJob for this pair fails with SystemError.",
-    ("snowflake", "bigquery"): "Mock ConversionJob for this pair fails with SystemError.",
-    ("snowflake", "synapse"): "Mock ConversionJob for this pair fails with SystemError.",
-    ("snowflake", "clickhouse"): "Mock ConversionJob for this pair fails with TokenError.",
-    ("netezza", "clickhouse"): "Mock ConversionJob for this pair fails with TokenError.",
-}
-PAIR_PARAMS = [
-    pytest.param(
-        source,
-        target,
-        id=f"{source}-to-{target}",
-        marks=(
-            pytest.mark.xfail(reason=PRODUCT_XFAILS[(source, target)], run=False)
-            if (source, target) in PRODUCT_XFAILS
-            else ()
-        ),
-    )
-    for source, target in PAIRS
-]
+PAIR_PARAMS = [pytest.param(source, target, id=f"{source}-to-{target}") for source, target in PAIRS]
 
 
 def _source_files(pack_dir: Path) -> dict[str, bytes]:
@@ -155,7 +129,11 @@ def _normalise(package: PackageInput, source: str, target: str) -> PackageInput:
         for item in package.objects
     )
     sessions = tuple(
-        replace(item, url=f"mock://golden/session-{index:04d}" if item.url else None)
+        replace(
+            item,
+            url=f"mock://golden/session-{index:04d}" if item.url else None,
+            run_id=f"golden-{source}-{target}",
+        )
         for index, item in enumerate(package.sessions)
     )
     egress = replace(package.egress, consent_at=FIXED_TIMESTAMP) if package.egress else None
