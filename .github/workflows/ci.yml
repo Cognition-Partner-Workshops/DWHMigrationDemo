@@ -142,6 +142,32 @@ jobs:
       - run: npm run build
         working-directory: frontend
       - run: uv run --project backend python packaging/windows/build_portable.py
+      - name: Check portable documentation files
+        shell: pwsh
+        run: |
+          $docs = "packaging/windows/out/MigraAI/docs"
+          $requiredDocs = @(
+            "Installation-Guide.pdf",
+            "User-Guide.pdf",
+            "Operations-Guide.pdf",
+            "Report-Templates.pdf",
+            "diagrams/architecture.png",
+            "diagrams/components.png",
+            "diagrams/deployment.png",
+            "diagrams/multi-agent-flow.png",
+            "diagrams/sequence.png",
+            "report-samples/migration-plan.pdf",
+            "report-samples/session-report.md",
+            "report-samples/session-report.pdf",
+            "report-samples/mapping-workbook.xlsx",
+            "report-samples/manifest.json"
+          )
+          foreach ($relativePath in $requiredDocs) {
+            $path = Join-Path $docs $relativePath
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              throw "Required portable documentation file is missing: $path"
+            }
+          }
       - name: Check portable DLL dependencies
         run: >-
           uv run --project backend --with pefile==2024.8.26 python
@@ -173,6 +199,12 @@ jobs:
           } finally {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
           }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: migraai-docs-pdf
+          path: packaging/windows/out/MigraAI/docs/*.pdf
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: migraai-portable-windows

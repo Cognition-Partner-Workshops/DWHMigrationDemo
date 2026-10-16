@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -184,11 +185,41 @@ def write_launch_files() -> None:
         "\n"
         "Run start.cmd as a standard user. The local app binds to 127.0.0.1.\n"
         "Application data is stored under %LOCALAPPDATA%\\MigraAI.\n"
+        "Documentation: docs\\Installation-Guide.pdf, docs\\User-Guide.pdf, "
+        "and docs\\Operations-Guide.pdf.\n"
         "ONNX Runtime's Microsoft Visual C++ runtime DLLs are bundled from "
         f"msvc-runtime {MSVC_RUNTIME_VERSION}. See "
         "app\\third-party-notices\\msvc-runtime-LICENSE.txt for redistribution terms.\n",
         encoding="utf-8",
     )
+
+
+def build_docs() -> None:
+    builder_path = ROOT / "packaging" / "docs" / "build_docs_pdf.py"
+    spec = importlib.util.spec_from_file_location(
+        "migraai_docs_pdf_builder", builder_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError(
+            f"Could not load documentation PDF builder from {builder_path}."
+        )
+    builder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(builder)
+    builder.build_docs_pdfs(APP_DIR / "docs")
+
+    diagrams_source = ROOT / "docs" / "diagrams"
+    diagrams_target = APP_DIR / "docs" / "diagrams"
+    diagrams_target.mkdir(parents=True, exist_ok=True)
+    for image in diagrams_source.glob("*.png"):
+        shutil.copy2(image, diagrams_target / image.name)
+
+    samples_source = ROOT / "docs" / "report-templates" / "samples"
+    if samples_source.is_dir():
+        shutil.copytree(
+            samples_source,
+            APP_DIR / "docs" / "report-samples",
+            dirs_exist_ok=True,
+        )
 
 
 def prune_model_cache(model_dir: Path, site_packages: Path) -> None:
@@ -263,6 +294,7 @@ def main() -> None:
     )
     prune_model_cache(model_dir, site_packages)
     write_launch_files()
+    build_docs()
     archive = create_archive()
     print(f"Created {archive} ({archive.stat().st_size / 1024**2:.2f} MiB)")
 

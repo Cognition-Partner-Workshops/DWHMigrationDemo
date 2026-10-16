@@ -4,7 +4,7 @@
 
 MigraAI is a local platform for planning, converting, and validating enterprise data-warehouse migrations on Windows. Its portable architecture combines a FastAPI backend, React frontend, SQLite-based knowledge base, and LangGraph orchestration. Devin API provides conversion voting and escalation; object code and context are sent to Devin cloud as described in the Phase-Gate 0 plan.
 
-**Status:** Phase 1 in progress
+**Status:** Phases 1–7 complete (see the Phase-Gate 0 plan §12).
 
 ## Run locally (development)
 
@@ -28,6 +28,7 @@ Install Python 3.12, Node.js 20, and `uv`. From the repository root, install bac
 - [Installation guide](docs/install-guide.md)
 - [User guide](docs/user-guide.md)
 - [Operations guide](docs/operations-guide.md)
+- [Report templates](docs/report-templates/README.md)
 - [Diagrams](docs/diagrams/)
 - [Original requirements](docs/requirements/MigraAI-Requirements.docx)
 

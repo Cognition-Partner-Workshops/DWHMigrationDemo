@@ -1,23 +1,26 @@
 flowchart TB
-  U[Enterprise user] --> B[Browser: Edge/Chrome<br/>MigraAI SPA]
-  B -->|HTTP 127.0.0.1 + launch token| API[FastAPI backend]
-  subgraph Local laptop
-    API --> SEC[Session & Security Manager]
-    API --> FM[File Manager<br/>encrypted temp storage]
-    API --> JO[Job Orchestrator]
-    API --> PL[Planning Service]
-    API --> RP[Report & PDF Service]
-    JO --> LG[LangGraph multi-agent workflow]
-    LG --> KB[(KB: SQLite FTS5 + sqlite-vec)]
-    LG --> RE[Rule & Mapping Engine + SQLGlot]
-    LG --> VAL[Validation Framework]
-    LG --> PK[Packaging Agent]
-    SEC --> AUD[(Audit log)]
-    PL --> KB
-    LG --> DG[Devin Gateway]
+  USER[Enterprise user] --> BROWSER[Browser: React SPA]
+  BROWSER -->|loopback HTTP and one-time launch token| API[FastAPI + Uvicorn<br/>127.0.0.1:ephemeral port]
+  subgraph LocalApp[Local MigraAI process]
+    API --> AUTH[AuthState and security middleware<br/>launch token, session cookie, CSRF]
+    API --> SESSION[Session API and in-memory inventory]
+    API --> DISC[Upload API and DiscoveryRunner]
+    API --> PLAN[Planning API<br/>local draft or PlanJob]
+    API --> CONV[ConversionJob]
+    API --> PACK[Package snapshot, ZIP, and report builders]
+    DISC --> STORE[Encrypted upload files<br/>temporary session directory]
+    CONV --> WF[LangGraph batch workflow<br/>context, vote, consensus, validation, score]
+    WF --> KB[(Versioned SQLite knowledge base<br/>FTS5 and sqlite-vec)]
+    WF --> VALID[SQL and object validation checks]
+    WF --> CLIENT[Devin session client<br/>create, poll, cancel]
+    CLIENT -->|conversion source context after explicit consent| DV[(Devin API)]
+    WF -->|low-confidence objects in a batch| ESC[One escalation session for that batch]
+    ESC --> DV
+    PLAN -->|plan prompt and inventory summary when configured| DV
+    PACK -->|GET /api/download| ZIP[Converted ZIP]
+    PACK -->|GET /api/report.md or /api/report.pdf| REPORT[Session reports]
+    API --> DATA[(Default: %LOCALAPPDATA%\MigraAI<br/>MIGRAAI_DATA_DIR can override<br/>app.db, kb/, logs/, sessions/ wiped at start/exit)]
   end
-  DG -->|HTTPS: 3 voter sessions per object| DV[(Devin cloud API)]
-  DG -->|HTTPS: 1 escalation session per low-confidence object| DV
-  KB -. one-click refresh .-> DOCS[Vendor docs / public sources]
-  PK --> ZIP[name-converted.zip + report.md/pdf]
-  ZIP --> B
+  KB -. optional KB refresh .-> DOCS[Vendor documentation sites]
+  ZIP --> BROWSER
+  REPORT --> BROWSER
