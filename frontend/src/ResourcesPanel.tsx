@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { getResources, updateResourceAvailability, type ResourceItem } from "./api";
+import { CheckIcon, InfoIcon, WarningIcon } from "./Icons";
 
 function ResourceGroup({
   title,
@@ -15,24 +16,34 @@ function ResourceGroup({
   updatingId: string | null;
   onChange: (item: ResourceItem, available: boolean) => void;
 }) {
+  const required = title === "Required";
   return (
-    <section className={`resource-category ${title === "Required" ? "required" : ""}`}>
+    <section className={`resource-category ${required ? "required" : "optional"}`}>
       <header>
+        {required ? <WarningIcon size={13} /> : <InfoIcon size={13} />}
         <strong>{title}</strong>
         <span>{subtitle}</span>
       </header>
+      <div className="resource-table-head">
+        <span>#</span>
+        <span>Object Type</span>
+        <span>Description</span>
+        <span>Available</span>
+        <span>Object Count</span>
+        <span>Status</span>
+      </div>
       <div className="resource-list">
         {items.length === 0 ? (
           <p className="resource-empty">No catalog items in this category.</p>
         ) : (
-          items.map((item) => (
+          items.map((item, index) => (
             <label className="resource-item" key={item.id}>
+              <span className="resource-index">{index + 1}</span>
               <span className="resource-item-copy">
                 <strong>{item.name}</strong>
-                <small>{item.description}</small>
-                <span>{item.status}</span>
-                <small className="resource-count">{item.count ?? 0} objects</small>
+                <small>{item.status}</small>
               </span>
+              <small className="resource-desc">{item.description}</small>
               <input
                 aria-label={`${item.name} available`}
                 checked={item.available}
@@ -40,6 +51,11 @@ function ResourceGroup({
                 onChange={(event) => onChange(item, event.target.checked)}
                 type="checkbox"
               />
+              <small className="resource-count">{item.count ?? 0} objects</small>
+              <span className={`resource-status ${item.available ? "available" : "missing"}`}>
+                {item.available ? <CheckIcon size={10} /> : <WarningIcon size={10} />}
+                {item.available ? "Available" : "Not available"}
+              </span>
             </label>
           ))
         )}
