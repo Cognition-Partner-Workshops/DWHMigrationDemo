@@ -16,6 +16,7 @@ import {
 } from "./api";
 import { acuCapWarning, formatAcuCap } from "./acuCap";
 import { ConvertConsentDialog } from "./ConvertConsentDialog";
+import { DownloadIcon, GearIcon } from "./Icons";
 import { ConversionDetail } from "./ConversionDetail";
 
 const ACTIVE_JOB_KEY = "migraai.activeConversionJob";
@@ -388,6 +389,7 @@ export function ConvertPanel({
             }
             type="button"
           >
+            <GearIcon size={13} strokeWidth={2.1} />
             {starting
               ? "Starting…"
               : active
@@ -403,7 +405,8 @@ export function ConvertPanel({
             title={downloadReady ? undefined : downloadReason}
             type="button"
           >
-            ⇩ Download Converted Files
+            <DownloadIcon size={13} strokeWidth={2.1} />
+            Download Converted Files
           </button>
           {multipleUploads && (
             <label className="package-name-field">

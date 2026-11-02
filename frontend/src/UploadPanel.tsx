@@ -10,6 +10,7 @@ import {
   type DiscoveryStatus,
   type UploadRecord,
 } from "./api";
+import { CloseIcon, UploadCloudIcon, UploadIcon } from "./Icons";
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = new Set([
@@ -267,7 +268,7 @@ export function UploadPanel({
           ref={inputRef}
           type="file"
         />
-        <span aria-hidden="true" className="upload-cloud">⇧</span>
+        <span aria-hidden="true" className="upload-cloud"><UploadCloudIcon size={17} /></span>
         <strong>Drag and drop files here</strong>
         <span>or browse to select multiple files</span>
         <button
@@ -286,6 +287,7 @@ export function UploadPanel({
           onClick={() => void handleUpload()}
           type="button"
         >
+          <UploadIcon size={13} strokeWidth={2.1} />
           {uploading ? "Uploading…" : "Upload Files"}
         </button>
         {!confirmed && <span>Confirm a source and target before uploading.</span>}
@@ -315,7 +317,7 @@ export function UploadPanel({
             onClick={() => setReplacementNotice("")}
             type="button"
           >
-            ×
+            <CloseIcon size={13} strokeWidth={2} />
           </button>
         </div>
       )}
@@ -385,7 +387,7 @@ export function UploadPanel({
                     onClick={() => setSelectedFiles((current) => current.filter((row) => row.id !== id))}
                     type="button"
                   >
-                    ×
+                    <CloseIcon size={13} strokeWidth={2} />
                   </button>
                 </td>
               </tr>
@@ -420,7 +422,7 @@ export function UploadPanel({
                     onClick={() => void handleDelete(row)}
                     type="button"
                   >
-                    ×
+                    <CloseIcon size={13} strokeWidth={2} />
                   </button>
                 </td>
               </tr>

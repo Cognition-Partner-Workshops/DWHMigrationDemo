@@ -17,6 +17,16 @@ import {
   type UploadRecord,
   distinctUploadRoots,
 } from "./api";
+import {
+  ArrowRightIcon,
+  ArrowsLeftRightIcon,
+  CloseIcon,
+  DatabaseIcon,
+  GearIcon,
+  HelpIcon,
+  InfoIcon,
+  ShieldCheckIcon,
+} from "./Icons";
 import { KnowledgeBaseSettings } from "./KnowledgeBaseSettings";
 import { ConvertPanel } from "./ConvertPanel";
 import { InventoryView } from "./InventoryView";
@@ -136,7 +146,7 @@ export function SettingsDialog({
             <h2 id="settings-title">Settings</h2>
           </div>
           <button aria-label="Close settings" className="icon-button" onClick={onClose}>
-            ×
+            <CloseIcon size={15} strokeWidth={2} />
           </button>
         </header>
         <form onSubmit={submit}>
@@ -412,24 +422,27 @@ export default function App() {
         </div>
         <p className="topbar-tagline">Your AI-powered data warehouse migration partner</p>
         <div className="topbar-actions">
+          <a
+            aria-label="Open documentation"
+            className="topbar-icon-button"
+            href="https://github.com/Cognition-Partner-Workshops/DWHMigrationDemo/tree/main/docs"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <HelpIcon size={15} />
+            <span className="topbar-button-text">Help</span>
+          </a>
+          <button
+            aria-label="Open settings"
+            className="settings-trigger"
+            onClick={() => setSettingsOpen(true)}
+            type="button"
+          >
+            <GearIcon size={15} />
+            <span className="topbar-button-text">Settings</span>
+          </button>
           <div className="local-mode-tile">
-            <svg aria-hidden="true" className="local-mode-icon" viewBox="0 0 24 24">
-              <path
-                d="M12 2.8 20 6v5.4c0 5.1-3.4 8.5-8 10.2-4.6-1.7-8-5.1-8-10.2V6l8-3.2Z"
-                fill="none"
-                stroke="currentColor"
-                strokeLinejoin="round"
-                strokeWidth="1.7"
-              />
-              <path
-                d="m8.4 12.1 2.3 2.3 4.8-5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.7"
-              />
-            </svg>
+            <ShieldCheckIcon className="local-mode-icon" size={24} />
             <div className="local-mode-copy">
               <strong>Local Mode</strong>
               <span>
@@ -439,15 +452,6 @@ export default function App() {
               </span>
             </div>
           </div>
-          <button
-            aria-label="Open settings"
-            className="settings-trigger"
-            onClick={() => setSettingsOpen(true)}
-            type="button"
-          >
-            <span aria-hidden="true">⚙</span>
-            Settings
-          </button>
         </div>
       </header>
 
@@ -463,7 +467,7 @@ export default function App() {
           </div>
           <div className="system-flow">
             <label className="platform-select">
-              <span className="database-icon" aria-hidden="true">▤</span>
+              <span className="database-icon" aria-hidden="true"><DatabaseIcon size={19} /></span>
               <span className="platform-label">Source Database</span>
               <select
                 aria-label="Source platform"
@@ -476,14 +480,14 @@ export default function App() {
                 ))}
               </select>
             </label>
-            <span aria-hidden="true" className="flow-arrow">⇄</span>
+            <span aria-hidden="true" className="flow-arrow"><ArrowsLeftRightIcon size={20} /></span>
             <button className="button primary confirm-button" disabled={!canConfirm} onClick={confirmSystems}>
               {confirming ? "Confirming…" : "Confirm"}
-              <span aria-hidden="true">→</span>
+              <ArrowRightIcon size={14} strokeWidth={2.2} />
             </button>
-            <span aria-hidden="true" className="flow-arrow">⇄</span>
+            <span aria-hidden="true" className="flow-arrow"><ArrowsLeftRightIcon size={20} /></span>
             <label className="platform-select">
-              <span className="database-icon" aria-hidden="true">▤</span>
+              <span className="database-icon" aria-hidden="true"><DatabaseIcon size={19} /></span>
               <span className="platform-label">Target Database</span>
               <select
                 aria-label="Target platform"
@@ -591,11 +595,7 @@ export default function App() {
             />
           </div>
           <p className="egress-banner">
-            <svg aria-hidden="true" className="egress-icon" viewBox="0 0 16 16">
-              <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M8 7.2v3.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-              <circle cx="8" cy="4.75" r=".8" fill="currentColor" />
-            </svg>
+            <InfoIcon className="egress-icon" size={13} />
             {health?.conversion_configured
               ? health.devin_configured
                 ? "Converted objects and their context are sent to Devin cloud for conversion."

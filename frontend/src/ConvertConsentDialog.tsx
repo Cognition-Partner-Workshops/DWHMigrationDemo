@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { ConvertEstimate } from "./api";
 import { acuCapWarning } from "./acuCap";
+import { CloseIcon } from "./Icons";
 
 export function ConvertConsentDialog({
   estimate,
@@ -41,7 +42,7 @@ export function ConvertConsentDialog({
             <h2 id="convert-consent-title">Send code to Devin?</h2>
           </div>
           <button aria-label="Close consent dialog" className="icon-button" onClick={onCancel}>
-            ×
+            <CloseIcon size={15} strokeWidth={2} />
           </button>
         </header>
         <p>
