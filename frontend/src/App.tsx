@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 
 import {
   apiRequest,
@@ -17,6 +17,17 @@ import {
   type UploadRecord,
   distinctUploadRoots,
 } from "./api";
+import {
+  ArrowRightIcon,
+  ArrowsLeftRightIcon,
+  ChevronDownIcon,
+  CloseIcon,
+  DatabaseIcon,
+  GearIcon,
+  HelpIcon,
+  InfoIcon,
+  ShieldCheckIcon,
+} from "./Icons";
 import { KnowledgeBaseSettings } from "./KnowledgeBaseSettings";
 import { ConvertPanel } from "./ConvertPanel";
 import { InventoryView } from "./InventoryView";
@@ -51,6 +62,29 @@ function SectionTitle({
       <span className="section-number">{number}</span>
       <h2 id={headingId}>{title}</h2>
       {description && <p>{description}</p>}
+    </div>
+  );
+}
+
+function CollapseBody({
+  bodyId,
+  collapsed,
+  children,
+}: {
+  bodyId: string;
+  collapsed: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className={`panel-body${collapsed ? " is-collapsed" : ""}`} id={bodyId}>
+      <div
+        className="panel-body-inner"
+        ref={(element) => {
+          element?.toggleAttribute("inert", collapsed);
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -136,7 +170,7 @@ export function SettingsDialog({
             <h2 id="settings-title">Settings</h2>
           </div>
           <button aria-label="Close settings" className="icon-button" onClick={onClose}>
-            ×
+            <CloseIcon size={15} strokeWidth={2} />
           </button>
         </header>
         <form onSubmit={submit}>
@@ -252,6 +286,13 @@ export default function App() {
   const [workspaceTab, setWorkspaceTab] = useState<"planning" | "inventory">("planning");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [collapsedPanels, setCollapsedPanels] = useState<
+    Record<"planning" | "resources" | "convert", boolean>
+  >({
+    planning: true,
+    resources: true,
+    convert: true,
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const mainRef = useRef<HTMLElement | null>(null);
   const planningSectionRef = useRef<HTMLElement | null>(null);
@@ -276,6 +317,30 @@ export default function App() {
     (total, row) => total + (row.selected ? row.object_count : 0),
     0,
   );
+  const hasInventoryData = uploads.some((row) => row.object_count > 0);
+  const togglePanel = useCallback(
+    (panel: "planning" | "resources" | "convert") =>
+      setCollapsedPanels((current) => ({ ...current, [panel]: !current[panel] })),
+    [],
+  );
+
+  useEffect(() => {
+    if (sessionConfirmed) {
+      setCollapsedPanels((current) => ({ ...current, planning: false }));
+    }
+  }, [sessionConfirmed]);
+
+  useEffect(() => {
+    if (hasInventoryData) {
+      setCollapsedPanels((current) => ({ ...current, resources: false }));
+    }
+  }, [hasInventoryData]);
+
+  useEffect(() => {
+    if (sessionConfirmed || uploads.length > 0 || hasInventoryData) {
+      setCollapsedPanels((current) => ({ ...current, convert: false }));
+    }
+  }, [sessionConfirmed, uploads.length, hasInventoryData]);
 
   useEffect(() => {
     let active = true;
@@ -412,24 +477,27 @@ export default function App() {
         </div>
         <p className="topbar-tagline">Your AI-powered data warehouse migration partner</p>
         <div className="topbar-actions">
+          <a
+            aria-label="Open documentation"
+            className="topbar-icon-button"
+            href="https://github.com/Cognition-Partner-Workshops/DWHMigrationDemo/tree/main/docs"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <HelpIcon size={15} />
+            <span className="topbar-button-text">Help</span>
+          </a>
+          <button
+            aria-label="Open settings"
+            className="settings-trigger"
+            onClick={() => setSettingsOpen(true)}
+            type="button"
+          >
+            <GearIcon size={15} />
+            <span className="topbar-button-text">Settings</span>
+          </button>
           <div className="local-mode-tile">
-            <svg aria-hidden="true" className="local-mode-icon" viewBox="0 0 24 24">
-              <path
-                d="M12 2.8 20 6v5.4c0 5.1-3.4 8.5-8 10.2-4.6-1.7-8-5.1-8-10.2V6l8-3.2Z"
-                fill="none"
-                stroke="currentColor"
-                strokeLinejoin="round"
-                strokeWidth="1.7"
-              />
-              <path
-                d="m8.4 12.1 2.3 2.3 4.8-5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.7"
-              />
-            </svg>
+            <ShieldCheckIcon className="local-mode-icon" size={24} />
             <div className="local-mode-copy">
               <strong>Local Mode</strong>
               <span>
@@ -439,15 +507,6 @@ export default function App() {
               </span>
             </div>
           </div>
-          <button
-            aria-label="Open settings"
-            className="settings-trigger"
-            onClick={() => setSettingsOpen(true)}
-            type="button"
-          >
-            <span aria-hidden="true">⚙</span>
-            Settings
-          </button>
         </div>
       </header>
 
@@ -463,7 +522,7 @@ export default function App() {
           </div>
           <div className="system-flow">
             <label className="platform-select">
-              <span className="database-icon" aria-hidden="true">▤</span>
+              <span className="database-icon" aria-hidden="true"><DatabaseIcon size={19} /></span>
               <span className="platform-label">Source Database</span>
               <select
                 aria-label="Source platform"
@@ -476,14 +535,14 @@ export default function App() {
                 ))}
               </select>
             </label>
-            <span aria-hidden="true" className="flow-arrow">⇄</span>
+            <span aria-hidden="true" className="flow-arrow"><ArrowsLeftRightIcon size={20} /></span>
             <button className="button primary confirm-button" disabled={!canConfirm} onClick={confirmSystems}>
               {confirming ? "Confirming…" : "Confirm"}
-              <span aria-hidden="true">→</span>
+              <ArrowRightIcon size={14} strokeWidth={2.2} />
             </button>
-            <span aria-hidden="true" className="flow-arrow">⇄</span>
+            <span aria-hidden="true" className="flow-arrow"><ArrowsLeftRightIcon size={20} /></span>
             <label className="platform-select">
-              <span className="database-icon" aria-hidden="true">▤</span>
+              <span className="database-icon" aria-hidden="true"><DatabaseIcon size={19} /></span>
               <span className="platform-label">Target Database</span>
               <select
                 aria-label="Target platform"
@@ -502,10 +561,17 @@ export default function App() {
 
         <section
           aria-label="Migration Planning"
-          className="panel planning-panel"
+          className={`panel planning-panel${collapsedPanels.planning ? " is-collapsed" : ""}`}
           ref={planningSectionRef}
         >
-          <div className="panel-heading workspace-heading">
+          <div
+            className="panel-heading collapsible workspace-heading"
+            onClick={(event) => {
+              if (!(event.target as HTMLElement).closest("button")) {
+                togglePanel("planning");
+              }
+            }}
+          >
             <div aria-label="Workspace views" className="workspace-tabs" role="tablist">
               <button
                 aria-controls="planning-panel"
@@ -534,8 +600,19 @@ export default function App() {
               </button>
             </div>
             <span className="phase-chip">Phase 3</span>
+            <button
+              aria-controls="planning-body"
+              aria-expanded={!collapsedPanels.planning}
+              aria-label="Toggle Migration Planning"
+              className="panel-chevron"
+              onClick={() => togglePanel("planning")}
+              type="button"
+            >
+              <ChevronDownIcon className="section-toggle-icon" size={15} />
+            </button>
           </div>
-          {workspaceTab === "planning" ? (
+          <CollapseBody bodyId="planning-body" collapsed={collapsedPanels.planning}>
+            {workspaceTab === "planning" ? (
             <div
               aria-labelledby="planning-tab"
               className="workspace-tabpanel planning-tabpanel"
@@ -566,57 +643,98 @@ export default function App() {
                 uploads={uploads}
               />
             </div>
-          )}
+            )}
+          </CollapseBody>
         </section>
 
-        <section aria-labelledby="resources-heading" className="panel resources-panel">
-          <div className="panel-heading">
+        <section
+          aria-labelledby="resources-heading"
+          className={`panel resources-panel${collapsedPanels.resources ? " is-collapsed" : ""}`}
+        >
+          <div
+            className="panel-heading collapsible"
+            onClick={(event) => {
+              if (!(event.target as HTMLElement).closest("button")) {
+                togglePanel("resources");
+              }
+            }}
+          >
             <SectionTitle
               description="Review and confirm available objects from source system"
               headingId="resources-heading"
               number="3"
               title="Resources Confirmation"
             />
+            <button
+              aria-controls="resources-body"
+              aria-expanded={!collapsedPanels.resources}
+              aria-label="Toggle Resources section"
+              className="panel-chevron"
+              onClick={() => togglePanel("resources")}
+              type="button"
+            >
+              <ChevronDownIcon className="section-toggle-icon" size={15} />
+            </button>
           </div>
-          <ResourcesPanel confirmed={sessionConfirmed} refreshKey={inventoryRevision} />
+          <CollapseBody bodyId="resources-body" collapsed={collapsedPanels.resources}>
+            <ResourcesPanel confirmed={sessionConfirmed} refreshKey={inventoryRevision} />
+          </CollapseBody>
         </section>
 
-        <section aria-labelledby="convert-heading" className="panel convert-panel">
-          <div className="panel-heading convert-heading">
+        <section
+          aria-labelledby="convert-heading"
+          className={`panel convert-panel${collapsedPanels.convert ? " is-collapsed" : ""}`}
+        >
+          <div
+            className="panel-heading collapsible convert-heading"
+            onClick={(event) => {
+              if (!(event.target as HTMLElement).closest("button")) {
+                togglePanel("convert");
+              }
+            }}
+          >
             <SectionTitle
               description="1. Browse or drop files · 2. Upload Files · 3. Convert Items"
               headingId="convert-heading"
               number="4"
               title="Convert Objects"
             />
+            <button
+              aria-controls="convert-body"
+              aria-expanded={!collapsedPanels.convert}
+              aria-label="Toggle Convert section"
+              className="panel-chevron"
+              onClick={() => togglePanel("convert")}
+              type="button"
+            >
+              <ChevronDownIcon className="section-toggle-icon" size={15} />
+            </button>
           </div>
-          <p className="egress-banner">
-            <svg aria-hidden="true" className="egress-icon" viewBox="0 0 16 16">
-              <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M8 7.2v3.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-              <circle cx="8" cy="4.75" r=".8" fill="currentColor" />
-            </svg>
-            {health?.conversion_configured
-              ? health.devin_configured
-                ? "Converted objects and their context are sent to Devin cloud for conversion."
-                : "Local mock mode is active; conversion code stays on this machine."
-              : "Add a Devin API key to enable conversion; code is not sent before consent."}
-          </p>
-          <UploadPanel
-            confirmed={sessionConfirmed}
-            onInventoryChanged={refreshInventory}
-            onUploadsChange={updateUploads}
-            uploads={uploads}
-          />
-          <ConvertPanel
-            confirmed={sessionConfirmed}
-            refreshKey={inventoryRevision}
-            settingsRevision={settingsRevision}
-            source={session?.source ?? ""}
-            target={session?.target ?? ""}
-            uploadRoots={distinctUploadRoots(uploads)}
-          />
-          {notice && <p className="inline-notice" role="status">{notice}</p>}
+          <CollapseBody bodyId="convert-body" collapsed={collapsedPanels.convert}>
+            <p className="egress-banner">
+              <InfoIcon className="egress-icon" size={13} />
+              {health?.conversion_configured
+                ? health.devin_configured
+                  ? "Converted objects and their context are sent to Devin cloud for conversion."
+                  : "Local mock mode is active; conversion code stays on this machine."
+                : "Add a Devin API key to enable conversion; code is not sent before consent."}
+            </p>
+            <UploadPanel
+              confirmed={sessionConfirmed}
+              onInventoryChanged={refreshInventory}
+              onUploadsChange={updateUploads}
+              uploads={uploads}
+            />
+            <ConvertPanel
+              confirmed={sessionConfirmed}
+              refreshKey={inventoryRevision}
+              settingsRevision={settingsRevision}
+              source={session?.source ?? ""}
+              target={session?.target ?? ""}
+              uploadRoots={distinctUploadRoots(uploads)}
+            />
+            {notice && <p className="inline-notice" role="status">{notice}</p>}
+          </CollapseBody>
         </section>
       </main>
 

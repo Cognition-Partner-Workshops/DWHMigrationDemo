@@ -10,6 +10,7 @@ import {
   type PlanStatus,
   type SessionView,
 } from "./api";
+import { ArrowRightIcon, DatabaseIcon } from "./Icons";
 
 const TERMINAL_STATES = new Set(["done", "failed_fallback", "cancelled", "failed"]);
 
@@ -149,7 +150,7 @@ export function PlanningPanel({
     <div className="planning-content">
       {!session ? (
         <div className="empty-state">
-          <span aria-hidden="true" className="empty-icon">▤</span>
+          <span aria-hidden="true" className="empty-icon"><DatabaseIcon size={19} /></span>
           <strong>Migration plan will appear here</strong>
           <p>Choose a source and target, then confirm to begin planning.</p>
         </div>
@@ -160,7 +161,7 @@ export function PlanningPanel({
               <strong>{sourceName || session.source}</strong>
               <small>Source</small>
             </span>
-            <b aria-hidden="true">→</b>
+            <ArrowRightIcon className="summary-arrow" size={16} strokeWidth={2} />
             <span>
               <strong>{targetName || session.target}</strong>
               <small>Target</small>
