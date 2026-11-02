@@ -3460,7 +3460,7 @@ tbody tr:hover td {
 
 .convert-workspace {
   min-height: 0;
-  overflow: visible;
+  overflow: hidden auto;
 }
 
 .convert-panel {
