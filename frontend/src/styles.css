@@ -356,9 +356,11 @@ button:disabled {
 }
 
 .panel-body {
+  display: flex;
   flex: 1 1 auto;
   max-height: 1400px;
   min-height: 0;
+  flex-direction: column;
   overflow: hidden;
   transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -370,6 +372,7 @@ button:disabled {
 
 .panel-body-inner {
   display: flex;
+  flex: 1 1 auto;
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
