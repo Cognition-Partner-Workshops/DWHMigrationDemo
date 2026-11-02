@@ -214,3 +214,11 @@ export function HelpIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m5 8.5 7 7 7-7" />
+    </Icon>
+  );
+}

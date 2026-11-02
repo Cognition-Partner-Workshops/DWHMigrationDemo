@@ -245,9 +245,9 @@ button:disabled {
 }
 
 .dashboard {
-  display: grid;
+  display: flex;
   flex: 1;
-  grid-template-rows: auto auto auto auto;
+  flex-direction: column;
   gap: 10px;
   min-height: 0;
   padding: 11px 13px;
@@ -257,6 +257,7 @@ button:disabled {
 
 .panel {
   display: flex;
+  flex: 1 1 auto;
   min-height: 0;
   flex-direction: column;
   padding: 10px 13px;
@@ -318,7 +319,69 @@ button:disabled {
   white-space: nowrap;
 }
 
+.section-toggle-icon {
+  flex: 0 0 auto;
+  color: var(--muted);
+  transition: transform 0.3s ease;
+}
+
+.panel-chevron:hover .section-toggle-icon {
+  color: var(--blue-700);
+}
+
+.panel.is-collapsed .section-toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.panel-heading.collapsible {
+  cursor: pointer;
+}
+
+.panel-chevron {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.panel-chevron:hover {
+  background: #eef3fa;
+}
+
+.panel-body {
+  flex: 1 1 auto;
+  max-height: 1400px;
+  min-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel-body.is-collapsed {
+  flex-grow: 0;
+  max-height: 0;
+}
+
+.panel-body-inner {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel.is-collapsed {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
 .system-panel {
+  flex: 0 0 auto;
   min-height: 96px;
   padding-top: 8px;
 }
