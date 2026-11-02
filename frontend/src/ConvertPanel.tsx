@@ -37,14 +37,28 @@ function isTerminal(state: string): boolean {
 }
 
 function scrollToMainElement(element: HTMLElement | null) {
-  const main = element?.closest<HTMLElement>("main.dashboard");
-  if (!element || !main || typeof main.scrollTo !== "function") {
+  if (!element) {
     return;
   }
-  const top = main.scrollTop + element.getBoundingClientRect().top - main.getBoundingClientRect().top;
   const prefersReducedMotion =
     window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-  main.scrollTo({ top, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  const behavior = prefersReducedMotion ? ("auto" as const) : ("smooth" as const);
+  const workspace = element.closest<HTMLElement>(".convert-workspace");
+  if (workspace && workspace.scrollHeight > workspace.clientHeight) {
+    const top =
+      workspace.scrollTop +
+      element.getBoundingClientRect().top -
+      workspace.getBoundingClientRect().top;
+    workspace.scrollTo({ top, behavior });
+  }
+  const main = element.closest<HTMLElement>("main.dashboard");
+  const pageTarget = workspace ?? element;
+  if (!main || typeof main.scrollTo !== "function") {
+    return;
+  }
+  const top =
+    main.scrollTop + pageTarget.getBoundingClientRect().top - main.getBoundingClientRect().top;
+  main.scrollTo({ top, behavior });
 }
 
 export function ConvertPanel({
