@@ -38,7 +38,9 @@ describe("ResourcesPanel", () => {
     const checkbox = await screen.findByRole("checkbox", { name: "Tables available" });
     expect(checkbox).toBeChecked();
     expect(screen.getByText("7 objects")).toBeInTheDocument();
-    expect(screen.getByText("Available")).toBeInTheDocument();
+    expect(
+      screen.getByText("Available", { selector: ".resource-status" }),
+    ).toBeInTheDocument();
 
     fireEvent.click(checkbox);
     await waitFor(() =>

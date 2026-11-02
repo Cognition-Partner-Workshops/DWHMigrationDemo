@@ -587,6 +587,73 @@ button:disabled {
   font-size: 10px;
 }
 
+.planning-metrics {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.planning-metrics-label {
+  color: var(--ink-500);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.confidence-donut {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+}
+
+.confidence-donut svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.confidence-donut .donut-track {
+  fill: none;
+  stroke: #e2e9f2;
+  stroke-width: 3.4;
+}
+
+.confidence-donut .donut-arc {
+  fill: none;
+  stroke: #c3cedd;
+  stroke-linecap: round;
+  stroke-width: 3.4;
+  transition: stroke-dasharray 400ms ease;
+}
+
+.confidence-donut.good .donut-arc {
+  stroke: var(--green-600);
+}
+
+.confidence-donut.warn .donut-arc {
+  stroke: var(--amber-600);
+}
+
+.confidence-donut.muted .donut-value {
+  fill: var(--muted-2);
+}
+
+.confidence-donut .donut-value {
+  fill: var(--ink-700);
+  font-size: 8.5px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.confidence-donut .donut-caption {
+  fill: var(--muted);
+  font-size: 4.4px;
+  letter-spacing: 0.35px;
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+
 .plan-section-list {
   display: grid;
   flex: 1 1 auto;
@@ -764,19 +831,20 @@ button:disabled {
   display: flex;
   min-height: 0;
   flex-direction: column;
-  gap: 2px;
-  padding: 6px;
+  gap: 3px;
+  padding: 7px 6px;
   overflow: auto;
   border-right: 1px solid var(--line-soft);
-  background: var(--surface-2);
+  background: linear-gradient(180deg, #f6f9fd, #f1f6fc);
 }
 
 .plan-index button {
+  position: relative;
   display: flex;
-  min-height: 23px;
+  min-height: 25px;
   align-items: center;
-  gap: 6px;
-  padding: 3px 6px;
+  gap: 7px;
+  padding: 3px 7px 3px 10px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   color: var(--ink-500);
@@ -785,29 +853,65 @@ button:disabled {
   text-align: left;
 }
 
-.plan-index button:hover,
-.plan-index button.selected {
-  border-color: var(--blue-200);
-  color: var(--blue-700);
-  background: var(--blue-100);
+.plan-index button::before {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: transparent;
+  content: "";
 }
 
-.plan-index button > span:first-child {
-  display: grid;
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
-  place-items: center;
-  border-radius: 50%;
+.plan-index button:hover {
+  color: var(--blue-700);
+  background: #eaf2fd;
+}
+
+.plan-index button.selected {
   color: var(--blue-700);
   background: var(--blue-100);
-  font-size: 8px;
+  box-shadow: inset 0 0 0 1px var(--blue-200);
+  font-weight: 650;
+}
+
+.plan-index button.selected::before {
+  background: var(--blue-500);
+}
+
+.plan-index-icon {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+  border-radius: 5px;
+  color: var(--blue-600);
+  background: #e6effc;
+}
+
+.plan-index button.selected .plan-index-icon {
+  color: #fff;
+  background: var(--blue-600);
+}
+
+.plan-index-id {
+  display: grid;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--muted);
+  background: #e5ebf4;
+  font-size: 7px;
   font-weight: 700;
 }
 
-.plan-index button.selected > span:first-child {
+.plan-index button.selected .plan-index-id {
   color: #fff;
-  background: var(--blue-600);
+  background: rgb(31 92 201 / 55%);
 }
 
 .plan-index-title {
@@ -1041,12 +1145,13 @@ button:disabled {
   align-items: center;
   gap: 7px;
   padding: 4px 9px;
-  color: var(--ink-700);
+  color: var(--blue-700);
   background: var(--blue-50);
   font-size: 9px;
 }
 
 .resource-category > header strong {
+  color: var(--ink-700);
   font-size: 10px;
 }
 
@@ -1055,8 +1160,34 @@ button:disabled {
 }
 
 .resource-category.required > header {
+  color: #b33535;
+  background: #fdeaea;
+}
+
+.resource-category.required > header strong {
   color: #a83232;
-  background: #fff0f0;
+}
+
+.resource-category.optional > header {
+  color: var(--blue-700);
+  background: #e8f1fd;
+}
+
+.resource-table-head,
+.resource-item {
+  display: grid;
+  grid-template-columns: 20px minmax(74px, 0.62fr) minmax(0, 1.15fr) 38px 68px 94px;
+  align-items: center;
+  gap: 6px;
+}
+
+.resource-table-head {
+  padding: 4px 9px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink-700);
+  background: var(--surface);
+  font-size: 8px;
+  font-weight: 700;
 }
 
 .resource-list {
@@ -1066,11 +1197,7 @@ button:disabled {
 }
 
 .resource-item {
-  display: grid;
   min-height: 42px;
-  grid-template-columns: minmax(0, 1fr) 18px;
-  align-items: center;
-  gap: 8px;
   padding: 5px 9px;
   border-bottom: 1px solid var(--line-soft);
   color: var(--ink-500);
@@ -1079,6 +1206,13 @@ button:disabled {
 
 .resource-item:hover {
   background: var(--blue-50);
+}
+
+.resource-index {
+  color: var(--muted-2);
+  font-size: 8px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .resource-item-copy {
@@ -1093,7 +1227,8 @@ button:disabled {
   font-size: 9px;
 }
 
-.resource-item-copy small {
+.resource-item-copy small,
+.resource-desc {
   overflow: hidden;
   color: #72829a;
   font-size: 8px;
@@ -1101,15 +1236,42 @@ button:disabled {
   white-space: nowrap;
 }
 
-.resource-item-copy > span {
-  color: #79889c;
-  font-size: 7px;
+.resource-count {
+  color: var(--ink-500);
+  font-size: 8px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.resource-status {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 7.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.resource-status.available {
+  border: 1px solid #a9dcc0;
+  color: var(--green-700);
+  background: var(--green-100);
+}
+
+.resource-status.missing {
+  border: 1px solid #edd2d2;
+  color: #a34a4a;
+  background: #f9ecec;
 }
 
 .resource-item input {
   width: 14px;
   height: 14px;
   margin: 0;
+  justify-self: center;
   accent-color: var(--blue-600);
 }
 
@@ -1338,14 +1500,14 @@ tbody tr:hover td {
 
 .upload-cloud {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 46px;
+  height: 46px;
   place-items: center;
   border: 1px solid var(--blue-200);
   border-radius: 50%;
   color: var(--blue-600);
   background: var(--blue-100);
-  box-shadow: 0 0 0 4px rgb(58 131 242 / 8%);
+  box-shadow: 0 0 0 5px rgb(58 131 242 / 8%);
 }
 
 .browse-button {
@@ -1429,7 +1591,9 @@ tbody tr:hover td {
 }
 
 .file-status {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 2px 7px;
   border: 1px solid #efd9a3;
   border-radius: 999px;

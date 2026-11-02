@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ReactElement } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -10,9 +11,96 @@ import {
   type PlanStatus,
   type SessionView,
 } from "./api";
-import { ArrowRightIcon, DatabaseIcon } from "./Icons";
+import {
+  ArrowRightIcon,
+  ArrowsLeftRightIcon,
+  CheckIcon,
+  CloseIcon,
+  DatabaseIcon,
+  DocumentIcon,
+  FolderIcon,
+  GaugeIcon,
+  GearIcon,
+  InfoIcon,
+  LayersIcon,
+  ListIcon,
+  PlanIcon,
+  SearchIcon,
+  ShieldCheckIcon,
+  WarningIcon,
+  type IconProps,
+} from "./Icons";
 
 const TERMINAL_STATES = new Set(["done", "failed_fallback", "cancelled", "failed"]);
+
+const SECTION_ICON_RULES: [RegExp, (props: IconProps) => ReactElement][] = [
+  [/overview|summary|next step/i, (props) => <InfoIcon {...props} />],
+  [/architect|comparison/i, (props) => <LayersIcon {...props} />],
+  [/approach|recommend|strateg/i, (props) => <PlanIcon {...props} />],
+  [/phase|step|timeline|roadmap/i, (props) => <ListIcon {...props} />],
+  [/differenc|compatib|matrix|workaround/i, (props) => (
+    <ArrowsLeftRightIcon {...props} />
+  )],
+  [/mapping|map\b/i, (props) => <ArrowsLeftRightIcon {...props} />],
+  [/sql|dialect|syntax|ddl/i, (props) => <DocumentIcon {...props} />],
+  [/etl|orchestrat|pipeline|job/i, (props) => <GearIcon {...props} />],
+  [/data (movement|migration)|extract/i, (props) => <DatabaseIcon {...props} />],
+  [/security|access|grant|role/i, (props) => <ShieldCheckIcon {...props} />],
+  [/risk|dependenc/i, (props) => <WarningIcon {...props} />],
+  [/unsupported|limitation/i, (props) => <CloseIcon {...props} />],
+  [/optimi[sz]|performance|tuning|confidence|score|effort|estimat/i, (props) => (
+    <GaugeIcon {...props} />
+  )],
+  [/expert|review|finding/i, (props) => <SearchIcon {...props} />],
+  [/file|asset|artifact|deliver/i, (props) => <FolderIcon {...props} />],
+  [/valid|checklist|test/i, (props) => <CheckIcon {...props} />],
+];
+
+function SectionIcon({ title }: { title: string }) {
+  const match = SECTION_ICON_RULES.find(([pattern]) => pattern.test(title));
+  const render: (props: IconProps) => ReactElement = match
+    ? match[1]
+    : (props) => <DocumentIcon {...props} />;
+  return <span className="plan-index-icon">{render({ size: 13 })}</span>;
+}
+
+function ConfidenceDonut({
+  value,
+  threshold,
+}: {
+  value: number | null | undefined;
+  threshold: number;
+}) {
+  const percent = value === null || value === undefined ? null : Math.round(value * 100);
+  const fraction = percent === null ? 0 : Math.min(1, Math.max(0, percent / 100));
+  const tone =
+    percent === null ? "muted" : (value as number) >= threshold ? "good" : "warn";
+  const label =
+    percent === null
+      ? "Overall confidence unavailable"
+      : `Overall confidence ${percent}%`;
+  return (
+    <div aria-label={label} className={`confidence-donut ${tone}`} role="img">
+      <svg aria-hidden="true" viewBox="0 0 40 40">
+        <circle className="donut-track" cx="20" cy="20" r="15.9155" />
+        <circle
+          className="donut-arc"
+          cx="20"
+          cy="20"
+          r="15.9155"
+          strokeDasharray={`${(fraction * 100).toFixed(1)} ${(100 - fraction * 100).toFixed(1)}`}
+          strokeDashoffset="25"
+        />
+        <text className="donut-value" x="20" y="19">
+          {percent === null ? "–" : `${percent}%`}
+        </text>
+        <text className="donut-caption" x="20" y="26.5">
+          Confidence
+        </text>
+      </svg>
+    </div>
+  );
+}
 
 function formatElapsed(seconds: number): string {
   if (seconds < 60) {
@@ -169,6 +257,13 @@ export function PlanningPanel({
             <span className="generated-note">
               {plan?.stale ? "Plan uses an earlier KB version" : "Platform migration plan"}
             </span>
+            <div className="planning-metrics">
+              <span className="planning-metrics-label">Overall Confidence</span>
+              <ConfidenceDonut
+                threshold={confidenceThreshold}
+                value={plan?.plan?.overall_confidence}
+              />
+            </div>
           </div>
           <div className="planning-toolbar">
             <div aria-live="polite" className="plan-progress">
@@ -269,7 +364,8 @@ export function PlanningPanel({
                     role="tab"
                     type="button"
                   >
-                    <span>{section.id}</span>
+                    <SectionIcon title={section.title} />
+                    <span className="plan-index-id">{section.id}</span>
                     <span className="plan-index-title">{section.title}</span>
                     {needsReview(section, lowConfidence) && (
                       <span aria-label="Manual review" className="review-dot" />

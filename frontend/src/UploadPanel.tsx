@@ -10,7 +10,15 @@ import {
   type DiscoveryStatus,
   type UploadRecord,
 } from "./api";
-import { CloseIcon, UploadCloudIcon, UploadIcon } from "./Icons";
+import {
+  CheckIcon,
+  CloseIcon,
+  RefreshIcon,
+  TrashIcon,
+  UploadCloudIcon,
+  UploadIcon,
+  WarningIcon,
+} from "./Icons";
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = new Set([
@@ -49,6 +57,19 @@ function formatSize(bytes: number): string {
 
 function statusClass(status: string): string {
   return status.toLowerCase().replaceAll("_", "-").replaceAll(" ", "-");
+}
+
+function FileStatusIcon({ status }: { status: string }) {
+  if (["done", "accepted", "preview-complete", "selected"].includes(status)) {
+    return <CheckIcon size={10} />;
+  }
+  if (["rejected", "failed", "error"].includes(status)) {
+    return <CloseIcon size={10} />;
+  }
+  if (["partial", "unparsed"].includes(status)) {
+    return <WarningIcon size={10} />;
+  }
+  return <RefreshIcon size={10} />;
 }
 
 export function UploadPanel({
@@ -268,7 +289,7 @@ export function UploadPanel({
           ref={inputRef}
           type="file"
         />
-        <span aria-hidden="true" className="upload-cloud"><UploadCloudIcon size={17} /></span>
+        <span aria-hidden="true" className="upload-cloud"><UploadCloudIcon size={22} /></span>
         <strong>Drag and drop files here</strong>
         <span>or browse to select multiple files</span>
         <button
@@ -370,6 +391,7 @@ export function UploadPanel({
                 <td>{formatSize(file.size)}</td>
                 <td className="upload-status-cell">
                   <span className={`file-status ${message ? "rejected" : "pending"}`}>
+                    <FileStatusIcon status={message ? "rejected" : "selected"} />
                     {message ? "Rejected" : "Selected"}
                   </span>
                   {message && (
@@ -387,7 +409,7 @@ export function UploadPanel({
                     onClick={() => setSelectedFiles((current) => current.filter((row) => row.id !== id))}
                     type="button"
                   >
-                    <CloseIcon size={13} strokeWidth={2} />
+                    <TrashIcon size={13} strokeWidth={1.8} />
                   </button>
                 </td>
               </tr>
@@ -406,7 +428,10 @@ export function UploadPanel({
                 <td>{row.detected_type}</td>
                 <td>{formatSize(row.size)}</td>
                 <td className="upload-status-cell">
-                  <span className={`file-status ${statusClass(row.status)}`}>{row.status}</span>
+                  <span className={`file-status ${statusClass(row.status)}`}>
+                    <FileStatusIcon status={statusClass(row.status)} />
+                    {row.status}
+                  </span>
                   {row.message && (
                     <small className="upload-row-message" title={row.message}>
                       {row.message}
@@ -422,7 +447,7 @@ export function UploadPanel({
                     onClick={() => void handleDelete(row)}
                     type="button"
                   >
-                    <CloseIcon size={13} strokeWidth={2} />
+                    <TrashIcon size={13} strokeWidth={1.8} />
                   </button>
                 </td>
               </tr>
