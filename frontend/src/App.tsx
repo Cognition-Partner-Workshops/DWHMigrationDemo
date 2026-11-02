@@ -565,7 +565,7 @@ export default function App() {
           ref={planningSectionRef}
         >
           <div
-            className="panel-heading workspace-heading"
+            className="panel-heading collapsible workspace-heading"
             onClick={(event) => {
               if (!(event.target as HTMLElement).closest("button")) {
                 togglePanel("planning");
