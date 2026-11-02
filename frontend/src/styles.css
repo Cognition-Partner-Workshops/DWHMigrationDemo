@@ -2361,11 +2361,11 @@ tbody tr:hover td {
 .upload-workspace {
   display: flex;
   min-width: 0;
-  min-height: 380px;
+  min-height: 0;
   flex: 1 1 auto;
   flex-direction: column;
   gap: 6px;
-  overflow: hidden;
+  overflow: hidden auto;
 }
 
 .discovery-drop-zone {
@@ -3019,8 +3019,8 @@ tbody tr:hover td {
 
 .convert-workspace {
   min-height: 0;
-  flex: 0 0 auto;
-  overflow: visible;
+  flex: 1 1 auto;
+  overflow: hidden auto;
 }
 
 .conversion-results {
